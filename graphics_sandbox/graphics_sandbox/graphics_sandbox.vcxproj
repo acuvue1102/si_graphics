@@ -43,14 +43,14 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -101,6 +101,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -131,6 +132,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -139,7 +141,67 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="app\app.cpp" />
+    <ClCompile Include="base\assert.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_buffer.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_command_queue.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_device.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_enum.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_fence.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_graphics_command_list.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_graphics_state.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_sampler.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_shader.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_swap_chain.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_texture.cpp" />
+    <ClCompile Include="gpu\gfx_buffer.cpp" />
+    <ClCompile Include="gpu\gfx_command_queue.cpp" />
+    <ClCompile Include="gpu\gfx_device.cpp" />
+    <ClCompile Include="gpu\gfx_fence.cpp" />
+    <ClCompile Include="gpu\gfx_graphics_command_list.cpp" />
+    <ClCompile Include="gpu\gfx_graphics_state.cpp" />
+    <ClCompile Include="gpu\gfx_sampler.cpp" />
+    <ClCompile Include="gpu\gfx_shader.cpp" />
+    <ClCompile Include="gpu\gfx_swap_chain.cpp" />
+    <ClCompile Include="gpu\gfx_texture.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="pipeline\pipeline.cpp" />
+    <ClCompile Include="platform\window_util.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="app\app.h" />
+    <ClInclude Include="base\assert.h" />
+    <ClInclude Include="base\base.h" />
+    <ClInclude Include="base\safe_delete.h" />
+    <ClInclude Include="base\scope_exit.h" />
+    <ClInclude Include="gpu\dx12\dx12_buffer.h" />
+    <ClInclude Include="gpu\dx12\dx12_command_list.h" />
+    <ClInclude Include="gpu\dx12\dx12_command_queue.h" />
+    <ClInclude Include="gpu\dx12\dx12_device.h" />
+    <ClInclude Include="gpu\dx12\dx12_fence.h" />
+    <ClInclude Include="gpu\dx12\dx12_graphics_command_list.h" />
+    <ClInclude Include="gpu\dx12\dx12_graphics_state.h" />
+    <ClInclude Include="gpu\dx12\dx12_sampler.h" />
+    <ClInclude Include="gpu\dx12\dx12_shader.h" />
+    <ClInclude Include="gpu\dx12\dx12_swap_chain.h" />
+    <ClInclude Include="gpu\dx12\dx12_texture.h" />
+    <ClInclude Include="gpu\gfx.h" />
+    <ClInclude Include="gpu\gfx_buffer.h" />
+    <ClInclude Include="gpu\gfx_command_list.h" />
+    <ClInclude Include="gpu\gfx_command_queue.h" />
+    <ClInclude Include="gpu\gfx_config.h" />
+    <ClInclude Include="gpu\gfx_desc.h" />
+    <ClInclude Include="gpu\gfx_device.h" />
+    <ClInclude Include="gpu\gfx_enum.h" />
+    <ClInclude Include="gpu\gfx_fence.h" />
+    <ClInclude Include="gpu\gfx_graphics_command_list.h" />
+    <ClInclude Include="gpu\gfx_graphics_state.h" />
+    <ClInclude Include="gpu\gfx_sampler.h" />
+    <ClInclude Include="gpu\gfx_shader.h" />
+    <ClInclude Include="gpu\gfx_swap_chain.h" />
+    <ClInclude Include="gpu\gfx_texture.h" />
+    <ClInclude Include="pipeline\pipeline.h" />
+    <ClInclude Include="platform\window_util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

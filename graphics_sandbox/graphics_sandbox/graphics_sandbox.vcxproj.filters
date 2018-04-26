@@ -4,10 +4,199 @@
     <Filter Include="app">
       <UniqueIdentifier>{11d0faea-3428-4b90-94e2-3893b482e138}</UniqueIdentifier>
     </Filter>
+    <Filter Include="base">
+      <UniqueIdentifier>{0a454832-652b-40ae-85e6-810327c4a507}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="platform">
+      <UniqueIdentifier>{e33a40ec-4267-414f-a664-c9e0495b2c4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gpu">
+      <UniqueIdentifier>{51f51252-2e20-4ae3-8233-1b94f73252b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gpu\dx12">
+      <UniqueIdentifier>{80145b2b-681c-49ff-8672-c4217999b68e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pipeline">
+      <UniqueIdentifier>{80880c84-a9fc-4980-a3a3-15c220564b7c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="app\app.cpp">
       <Filter>app</Filter>
     </ClCompile>
+    <ClCompile Include="platform\window_util.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="base\assert.cpp">
+      <Filter>base</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_buffer.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_command_queue.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_device.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_graphics_command_list.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_sampler.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_shader.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_swap_chain.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_texture.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_buffer.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_command_queue.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_device.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_graphics_command_list.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_graphics_state.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_sampler.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_shader.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_swap_chain.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_texture.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline\pipeline.cpp">
+      <Filter>pipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_fence.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_fence.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_enum.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_graphics_state.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="app\app.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="base\safe_delete.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\assert.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\window_util.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="base\base.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\scope_exit.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_buffer.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_command_queue.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_config.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_desc.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_device.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_enum.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_graphics_command_list.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_sampler.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_shader.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_swap_chain.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_texture.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_buffer.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_command_queue.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_device.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_graphics_command_list.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_graphics_state.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_sampler.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_shader.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_swap_chain.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_texture.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="pipeline\pipeline.h">
+      <Filter>pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_fence.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_fence.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_graphics_state.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_command_list.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_command_list.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
