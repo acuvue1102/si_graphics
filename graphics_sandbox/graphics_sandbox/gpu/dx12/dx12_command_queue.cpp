@@ -55,6 +55,7 @@ namespace SI
 			int commandListCount = min((int)ArrayCount(commandLists), count);
 			for(size_t listId = 0; listId<commandListCount; ++listId)
 			{
+				commandLists[listId] = list->GetCommandList();
 			}
 			
 			m_commandQueue->ExecuteCommandLists(commandListCount, commandLists);
