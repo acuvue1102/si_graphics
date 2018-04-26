@@ -19,3 +19,12 @@
 *.exe
 *.out
 *.app
+
+#visual studio
+.vs/
+*.tlog/
+*.log
+*.pdb
+*.idb
+*.user
+*.ilk
