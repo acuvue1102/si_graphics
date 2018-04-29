@@ -13,7 +13,7 @@ struct PSInput
 
 struct PsOutput
 {
-	float4 color    : SV_TARGET
+	float4 color    : SV_TARGET;
 };
 
 PSInput VSMain(VSInput input)
