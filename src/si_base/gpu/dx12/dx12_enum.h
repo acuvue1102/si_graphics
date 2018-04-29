@@ -6,7 +6,7 @@
 #include <d3d12.h>
 #include <wrl/client.h>
 #include <dxgi1_4.h>
-#include "si_base/core/base.h"
+#include "si_base/core/core.h"
 #include "si_base/gpu/gfx_enum.h"
 
 namespace SI

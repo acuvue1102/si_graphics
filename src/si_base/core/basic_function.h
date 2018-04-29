@@ -1,11 +1,5 @@
 ﻿#pragma once
 
-#include "si_base/core/new_delete.h"
-#include "si_base/core/scope_exit.h"
-#include "si_base/core/assert.h"
-
-//#define SI_ARRAY_SIZE(a) (sizeof(a)/sizeof(a[0]))
-
 namespace SI
 {
 	template<typename T, size_t SIZE>

@@ -1,10 +1,11 @@
 ﻿
-#include "si_base/core/base.h"
-#include "si_base/gpu/gfx.h"
+#include "si_app/pipeline/pipeline.h"
 
 #include <string>
+#include <si_base/core/core.h>
+#include <si_base/gpu/gfx.h>
+
 #include "si_app/file/path_storage.h"
-#include "si_app/pipeline/pipeline.h"
 
 namespace SI
 {

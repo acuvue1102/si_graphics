@@ -1,6 +1,6 @@
 ﻿
 #include <stdio.h>
-#include "si_base/core/base.h"
+#include "si_base/core/core.h"
 #include "si_base/platform/window_util.h"
 #include "si_app/pipeline/pipeline.h"
 #include "si_app/file/path_storage.h"

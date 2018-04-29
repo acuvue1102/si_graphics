@@ -96,7 +96,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\assert.h" />
-    <ClInclude Include="core\base.h" />
+    <ClInclude Include="core\basic_function.h" />
+    <ClInclude Include="core\core.h" />
     <ClInclude Include="core\new_delete.h" />
     <ClInclude Include="core\non_copyable.h" />
     <ClInclude Include="core\scope_exit.h" />

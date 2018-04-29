@@ -109,10 +109,13 @@
     <ClInclude Include="core\new_delete.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="core\base.h">
+    <ClInclude Include="core\assert.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="core\assert.h">
+    <ClInclude Include="core\core.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\basic_function.h">
       <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>

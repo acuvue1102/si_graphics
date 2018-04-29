@@ -10,7 +10,7 @@
 #include <D3Dcompiler.h>
 #include <comdef.h>
 
-#include "si_base/core/base.h"
+#include "si_base/core/core.h"
 #include "si_base/gpu/gfx_buffer.h"
 #include "si_base/gpu/dx12/dx12_command_queue.h"
 #include "si_base/gpu/dx12/dx12_swap_chain.h"

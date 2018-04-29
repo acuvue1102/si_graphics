@@ -1,6 +1,6 @@
 ﻿
 #include <comdef.h>
-#include "si_base/core/base.h"
+#include "si_base/core/core.h"
 #include "si_base/gpu/dx12/dx12_fence.h"
 
 #if SI_USE_DX12

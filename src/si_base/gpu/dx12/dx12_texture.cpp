@@ -5,7 +5,7 @@
 
 #include <dxgi1_4.h>
 #include <comdef.h>
-#include "si_base/core/base.h"
+#include "si_base/core/core.h"
 #include "dx12_texture.h"
 
 namespace SI

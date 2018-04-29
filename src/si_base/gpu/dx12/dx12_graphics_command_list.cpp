@@ -5,7 +5,7 @@
 
 #include <dxgi1_4.h>
 #include <comdef.h>
-#include "si_base/core/base.h"
+#include "si_base/core/core.h"
 #include "si_base/gpu/gfx_enum.h"
 #include "si_base/gpu/dx12/dx12_texture.h"
 #include "si_base/gpu/dx12/dx12_graphics_state.h"

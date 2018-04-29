@@ -1,8 +1,9 @@
 ﻿
+#include "si_base/core/assert.h"
+
 #include <stdarg.h>
 #include <Windows.h>
 #include <stdio.h>
-#include "si_base/core/assert.h"
 
 namespace SI
 {
