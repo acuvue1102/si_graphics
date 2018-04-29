@@ -3,13 +3,15 @@
 #include "base/base.h"
 #include "platform/window_util.h"
 #include "pipeline/pipeline.h"
+#include "file/path_storage.h"
 
 #include "app/app.h"
 
 namespace SI
 {
 	App::App()
-		: m_pipeline(nullptr)
+		: m_pathStorage(nullptr)
+		, m_pipeline(nullptr)
 		, m_initialized(false)
 	{
 	}
@@ -23,6 +25,9 @@ namespace SI
 	{
 		if(m_initialized) return 0;
 
+		m_pathStorage = SI_NEW(PathStorage);
+		m_pathStorage->Initialize();
+
 		void* hWnd = WindowUtil::Initialize((int)config.m_width,	(int)config.m_height);
 		if(hWnd==nullptr) return -1;
 
@@ -30,7 +35,7 @@ namespace SI
 		pipeDesc.m_width  = config.m_width;
 		pipeDesc.m_height = config.m_height;
 		pipeDesc.m_hWnd   = hWnd;
-		m_pipeline = new Pipeline();
+		m_pipeline = SI_NEW(Pipeline);
 		m_pipeline->Initialize(pipeDesc);
 
 		if(WindowUtil::ShowWindow(hWnd, config.m_nCmdShow) != 0) return -1;
@@ -46,12 +51,18 @@ namespace SI
 		if(m_pipeline)
 		{
 			m_pipeline->Terminate();
-			SafeDelete(m_pipeline);
+			SI_DELETE(m_pipeline);
 		}
 
 		if(WindowUtil::Terminate() != 0)
 		{
 			return -1;
+		}
+
+		if(m_pathStorage)
+		{
+			m_pathStorage->Terminate();
+			SI_DELETE(m_pathStorage);
 		}
 
 		m_initialized = false;

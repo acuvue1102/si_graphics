@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "base/safe_delete.h"
+#include "base/new_delete.h"
 #include "base/scope_exit.h"
 #include "base/assert.h"
 
@@ -9,7 +9,7 @@
 namespace SI
 {
 	template<typename T, size_t SIZE>
-	constexpr size_t ArrayCount(const T (&)[SIZE])
+	constexpr size_t ArraySize(const T (&)[SIZE])
 	{
 		return SIZE;
 	}

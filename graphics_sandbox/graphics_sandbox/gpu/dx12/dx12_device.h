@@ -15,8 +15,11 @@ namespace SI
 	class BaseGraphicsCommandList;
 	class BaseFence;
 	class BaseFenceEvent;
+	class BaseRootSignature;
 	class BaseGraphicsState;
+	class BaseBuffer;
 	struct GfxGraphicsStateDesc;
+	struct GfxBufferDesc;
 
 	class BaseDevice
 	{
@@ -47,8 +50,14 @@ namespace SI
 		BaseFenceEvent* CreateFenceEvent();
 		void ReleaseFenceEvent(BaseFenceEvent* e);
 
+		BaseRootSignature* CreateRootSignature();
+		void ReleaseRootSignature(BaseRootSignature* r);
+
 		BaseGraphicsState* CreateGraphicsState(const GfxGraphicsStateDesc& desc);
 		void ReleaseGraphicsState(BaseGraphicsState* s);
+
+		BaseBuffer* CreateBuffer(const GfxBufferDesc& desc);
+		void ReleaseBuffer(BaseBuffer* b);
 
 	private:
 		int InitializeFactory(ComPtr<IDXGIFactory4>& outDxgiFactory) const;

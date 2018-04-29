@@ -41,6 +41,60 @@ namespace SI
 		return m_base->Close();
 	}
 	
+	void GfxGraphicsCommandList::SetGraphicsState(GfxGraphicsState& graphicsState)
+	{
+		m_base->SetGraphicsState(*graphicsState.GetBaseGraphicsState());
+	}
+
+	void GfxGraphicsCommandList::SetGraphicsRootSignature(GfxRootSignature& rootSignature)
+	{
+		m_base->SetGraphicsRootSignature(*rootSignature.GetBaseRootSignature());
+	}
+		
+	void GfxGraphicsCommandList::SetViewports(uint32_t count, GfxViewport* viewPorts)
+	{
+		m_base->SetViewports(count, viewPorts);
+	}
+		
+	void GfxGraphicsCommandList::SetScissors(uint32_t count, GfxScissor* scissors)
+	{
+		m_base->SetScissors(count, scissors);
+	}
+
+	void GfxGraphicsCommandList::SetRenderTargets(
+		uint32_t     renderTargetCount,
+		GfxTexture*  renderTargets,
+		GfxTexture*  depthStencilTarget)
+	{
+		m_base->SetRenderTargets(renderTargetCount, renderTargets, depthStencilTarget);
+	}
+		
+	void GfxGraphicsCommandList::SetPrimitiveTopology(GfxPrimitiveTopology topology)
+	{
+		m_base->SetPrimitiveTopology(topology);
+	}
+		
+	void GfxGraphicsCommandList::SetVertexBuffers(
+		uint32_t              inputSlot,
+		uint32_t              viewCount,
+		GfxVertexBufferView*  bufferViews)
+	{
+		m_base->SetVertexBuffers(inputSlot, viewCount, bufferViews);
+	}
+
+	void GfxGraphicsCommandList::DrawInstanced(
+		uint32_t vertexCountPerInstance,
+		uint32_t instanceCount,
+		uint32_t startVertexLocation,
+		uint32_t startInstanceLocation)
+	{
+		m_base->DrawInstanced(
+			vertexCountPerInstance,
+			instanceCount,
+			startVertexLocation,
+			startInstanceLocation);
+	}
+
 	BaseCommandList* GfxGraphicsCommandList::GetBaseCommandList()
 	{
 		return m_base;

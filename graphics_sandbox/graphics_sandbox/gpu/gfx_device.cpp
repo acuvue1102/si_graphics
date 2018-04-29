@@ -20,7 +20,7 @@ namespace SI
 	{
 		if(m_base) return 0;
 
-		m_base = new BaseDevice();
+		m_base = SI_NEW(BaseDevice);
 		return m_base->Initialize(config);
 	}
 
@@ -29,7 +29,7 @@ namespace SI
 		if(!m_base) return 0;
 
 		int ret = m_base->Terminate();
-		SafeDelete(m_base);
+		SI_DELETE(m_base);
 		
 		return ret;
 	}
@@ -106,5 +106,30 @@ namespace SI
 	{
 		m_base->ReleaseFenceEvent(event.GetBaseFenceEvent());
 		event = GfxFenceEvent();
+	}
+
+	GfxRootSignature GfxDevice::CreateRootSignature()
+	{
+		GfxRootSignature s(m_base->CreateRootSignature());
+		return s;
+	}
+
+	void GfxDevice::ReleaseRootSignature(GfxRootSignature& signature)
+	{
+		m_base->ReleaseRootSignature(signature.GetBaseRootSignature());
+		signature = GfxRootSignature();
+	}
+
+	
+	GfxBuffer GfxDevice::CreateBuffer(const GfxBufferDesc& desc)
+	{
+		GfxBuffer b(m_base->CreateBuffer(desc));
+		return b;
+	}
+
+	void GfxDevice::ReleaseBuffer(GfxBuffer& buffer)
+	{
+		m_base->ReleaseBuffer(buffer.GetBaseBuffer());
+		buffer = GfxBuffer();
 	}
 }

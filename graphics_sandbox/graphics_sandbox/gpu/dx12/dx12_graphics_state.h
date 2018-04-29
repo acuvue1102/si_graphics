@@ -24,9 +24,9 @@ namespace SI
 		int Initialize(ID3D12Device& device, const GfxGraphicsStateDesc& desc);
 		
 	public:
-		ID3D12PipelineState* GetGraphicsState()
+		ComPtr<ID3D12PipelineState>& GetComPtrGraphicsState()
 		{
-			return m_pipelineState.Get();
+			return m_pipelineState;
 		}
 
 	private:

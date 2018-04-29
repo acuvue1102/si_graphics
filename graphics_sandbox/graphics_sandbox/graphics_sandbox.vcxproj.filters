@@ -19,6 +19,12 @@
     <Filter Include="pipeline">
       <UniqueIdentifier>{80880c84-a9fc-4980-a3a3-15c220564b7c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{da2655f0-d0d0-4240-adbf-cc58587a594c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="file">
+      <UniqueIdentifier>{997a5a69-c37f-46cc-8b10-18b16baaeec8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -97,13 +103,19 @@
     <ClCompile Include="gpu\gfx_graphics_state.cpp">
       <Filter>gpu</Filter>
     </ClCompile>
+    <ClCompile Include="file\path_storage.cpp">
+      <Filter>file</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_root_signature.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_root_signature.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app\app.h">
       <Filter>app</Filter>
-    </ClInclude>
-    <ClInclude Include="base\safe_delete.h">
-      <Filter>base</Filter>
     </ClInclude>
     <ClInclude Include="base\assert.h">
       <Filter>base</Filter>
@@ -198,5 +210,37 @@
     <ClInclude Include="gpu\dx12\dx12_command_list.h">
       <Filter>gpu\dx12</Filter>
     </ClInclude>
+    <ClInclude Include="gpu\gfx_viewport.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="base\non_copyable.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\singleton.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="base\new_delete.h">
+      <Filter>base</Filter>
+    </ClInclude>
+    <ClInclude Include="file\path_storage.h">
+      <Filter>file</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_input_layout.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_enum.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_root_signature.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_root_signature.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\color.hlsl">
+      <Filter>shader</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

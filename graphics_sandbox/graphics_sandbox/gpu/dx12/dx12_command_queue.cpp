@@ -52,7 +52,7 @@ namespace SI
 			// 16個毎に分割してExecuteする.
 			ID3D12CommandList* commandLists[16] = {};
 			
-			int commandListCount = min((int)ArrayCount(commandLists), count);
+			int commandListCount = min((int)ArraySize(commandLists), count);
 			for(size_t listId = 0; listId<commandListCount; ++listId)
 			{
 				commandLists[listId] = list->GetCommandList();
@@ -60,8 +60,8 @@ namespace SI
 			
 			m_commandQueue->ExecuteCommandLists(commandListCount, commandLists);
 
-			count -= (int)ArrayCount(commandLists);
-			list = &list[ArrayCount(commandLists)];
+			count -= (int)ArraySize(commandLists);
+			list = &list[ArraySize(commandLists)];
 		}while(0<count);
 	}
 

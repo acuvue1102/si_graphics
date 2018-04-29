@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClCompile Include="app\app.cpp" />
     <ClCompile Include="base\assert.cpp" />
+    <ClCompile Include="file\path_storage.cpp" />
     <ClCompile Include="gpu\dx12\dx12_buffer.cpp" />
     <ClCompile Include="gpu\dx12\dx12_command_queue.cpp" />
     <ClCompile Include="gpu\dx12\dx12_device.cpp" />
@@ -150,6 +151,7 @@
     <ClCompile Include="gpu\dx12\dx12_fence.cpp" />
     <ClCompile Include="gpu\dx12\dx12_graphics_command_list.cpp" />
     <ClCompile Include="gpu\dx12\dx12_graphics_state.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_root_signature.cpp" />
     <ClCompile Include="gpu\dx12\dx12_sampler.cpp" />
     <ClCompile Include="gpu\dx12\dx12_shader.cpp" />
     <ClCompile Include="gpu\dx12\dx12_swap_chain.cpp" />
@@ -160,6 +162,7 @@
     <ClCompile Include="gpu\gfx_fence.cpp" />
     <ClCompile Include="gpu\gfx_graphics_command_list.cpp" />
     <ClCompile Include="gpu\gfx_graphics_state.cpp" />
+    <ClCompile Include="gpu\gfx_root_signature.cpp" />
     <ClCompile Include="gpu\gfx_sampler.cpp" />
     <ClCompile Include="gpu\gfx_shader.cpp" />
     <ClCompile Include="gpu\gfx_swap_chain.cpp" />
@@ -172,15 +175,20 @@
     <ClInclude Include="app\app.h" />
     <ClInclude Include="base\assert.h" />
     <ClInclude Include="base\base.h" />
-    <ClInclude Include="base\safe_delete.h" />
+    <ClInclude Include="base\non_copyable.h" />
+    <ClInclude Include="base\new_delete.h" />
     <ClInclude Include="base\scope_exit.h" />
+    <ClInclude Include="base\singleton.h" />
+    <ClInclude Include="file\path_storage.h" />
     <ClInclude Include="gpu\dx12\dx12_buffer.h" />
     <ClInclude Include="gpu\dx12\dx12_command_list.h" />
     <ClInclude Include="gpu\dx12\dx12_command_queue.h" />
     <ClInclude Include="gpu\dx12\dx12_device.h" />
+    <ClInclude Include="gpu\dx12\dx12_enum.h" />
     <ClInclude Include="gpu\dx12\dx12_fence.h" />
     <ClInclude Include="gpu\dx12\dx12_graphics_command_list.h" />
     <ClInclude Include="gpu\dx12\dx12_graphics_state.h" />
+    <ClInclude Include="gpu\dx12\dx12_root_signature.h" />
     <ClInclude Include="gpu\dx12\dx12_sampler.h" />
     <ClInclude Include="gpu\dx12\dx12_shader.h" />
     <ClInclude Include="gpu\dx12\dx12_swap_chain.h" />
@@ -196,12 +204,26 @@
     <ClInclude Include="gpu\gfx_fence.h" />
     <ClInclude Include="gpu\gfx_graphics_command_list.h" />
     <ClInclude Include="gpu\gfx_graphics_state.h" />
+    <ClInclude Include="gpu\gfx_input_layout.h" />
+    <ClInclude Include="gpu\gfx_root_signature.h" />
     <ClInclude Include="gpu\gfx_sampler.h" />
     <ClInclude Include="gpu\gfx_shader.h" />
     <ClInclude Include="gpu\gfx_swap_chain.h" />
     <ClInclude Include="gpu\gfx_texture.h" />
+    <ClInclude Include="gpu\gfx_viewport.h" />
     <ClInclude Include="pipeline\pipeline.h" />
     <ClInclude Include="platform\window_util.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shader\color.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VsMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VsMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)%(Identity) &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity)</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

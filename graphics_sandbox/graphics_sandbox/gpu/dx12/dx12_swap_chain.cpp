@@ -81,7 +81,7 @@ namespace SI
 		
 		// create Render Target View
 		SI_ASSERT(m_swapChainTextures == nullptr);
-		m_swapChainTextures = new BaseTexture[config.m_bufferCount];
+		m_swapChainTextures = SI_NEW_ARRAY(BaseTexture, config.m_bufferCount);
 		for (UINT bufferId = 0; bufferId < (UINT)config.m_bufferCount; bufferId++)
 		{
 			int ret = m_swapChainTextures[bufferId].InitializeAsSwapChainTexture(
@@ -113,7 +113,7 @@ namespace SI
 
 		m_bufferCount = 0;
 		m_frameIndex = 0;
-		SafeDeleteArray(m_swapChainTextures);
+		SI_DELETE_ARRAY(m_swapChainTextures);
 		m_swapChain.Reset();
 		return 0;
 	}

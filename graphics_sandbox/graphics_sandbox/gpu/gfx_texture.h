@@ -17,7 +17,7 @@ namespace SI
 		uint32_t GetDepth() const;
 
 	public:
-		BaseTexture* GetBaseTexture(){ return m_base; }
+		BaseTexture*       GetBaseTexture()      { return m_base; }
 		const BaseTexture* GetBaseTexture() const{ return m_base; }
 
 	private:

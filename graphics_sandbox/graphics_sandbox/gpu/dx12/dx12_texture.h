@@ -77,11 +77,6 @@ namespace SI
 			return m_resource;
 		}
 
-		ID3D12Resource* GetResource()
-		{
-			return m_resource.Get();
-		}
-
 	private:
 		ComPtr<ID3D12DescriptorHeap>      m_descHeap;
 		ComPtr<ID3D12Resource>            m_resource;

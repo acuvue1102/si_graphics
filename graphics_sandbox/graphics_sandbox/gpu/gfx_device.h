@@ -6,6 +6,8 @@
 #include "gpu/gfx_swap_chain.h"
 #include "gpu/gfx_graphics_state.h"
 #include "gpu/gfx_fence.h"
+#include "gpu/gfx_root_signature.h"
+#include "gpu/gfx_buffer.h"
 
 namespace SI
 {
@@ -42,6 +44,12 @@ namespace SI
 
 		GfxFenceEvent CreateFenceEvent();
 		void ReleaseFenceEvent(GfxFenceEvent& event);
+
+		GfxRootSignature CreateRootSignature();
+		void ReleaseRootSignature(GfxRootSignature& signature);
+
+		GfxBuffer CreateBuffer(const GfxBufferDesc& desc);
+		void ReleaseBuffer(GfxBuffer& buffer);
 
 	private:
 		BaseDevice* m_base;

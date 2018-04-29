@@ -11,16 +11,20 @@
 #include <comdef.h>
 
 #include "base/base.h"
+#include "gpu/gfx_buffer.h"
 #include "gpu/dx12/dx12_command_queue.h"
 #include "gpu/dx12/dx12_swap_chain.h"
 #include "gpu/dx12/dx12_graphics_command_list.h"
 #include "gpu/dx12/dx12_fence.h"
+#include "gpu/dx12/dx12_root_signature.h"
 #include "gpu/dx12/dx12_graphics_state.h"
+#include "gpu/dx12/dx12_buffer.h"
 
 #include "gpu/dx12/dx12_device.h"
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "d3dcompiler.lib")
 
 namespace SI
 {
@@ -153,7 +157,7 @@ namespace SI
 	
 	BaseCommandQueue* BaseDevice::CreateCommandQueue()
 	{
-		BaseCommandQueue* cq = new BaseCommandQueue();
+		BaseCommandQueue* cq = SI_NEW(BaseCommandQueue);
 		if( cq->Initialize(*m_device.Get()) != 0 )
 		{
 			SI_ASSERT(0, "error CreateCommandQueue");
@@ -172,7 +176,7 @@ namespace SI
 		const GfxDeviceConfig& config,
 		BaseCommandQueue& commandQueue)
 	{
-		BaseSwapChain* sc = new BaseSwapChain();
+		BaseSwapChain* sc = SI_NEW(BaseSwapChain);
 		if( sc->Initialize(config, *m_device.Get(), *commandQueue.GetComPtrCommandQueue().Get(), *m_dxgiFactory.Get()) != 0 )
 		{
 			SI_ASSERT(0, "error CreateSwapChain");
@@ -189,7 +193,8 @@ namespace SI
 
 	BaseGraphicsCommandList* BaseDevice::CreateGraphicsCommandList()
 	{
-		BaseGraphicsCommandList* gcl = new BaseGraphicsCommandList();		int ret = gcl->Initialize(*m_device.Get());
+		BaseGraphicsCommandList* gcl = SI_NEW(BaseGraphicsCommandList);
+		int ret = gcl->Initialize(*m_device.Get());
 		if(ret != 0)
 		{
 			SI_ASSERT(0, "error InitializeCommandList");
@@ -207,12 +212,12 @@ namespace SI
 
 	BaseFence* BaseDevice::CreateFence()
 	{
-		BaseFence* f = new BaseFence();
+		BaseFence* f = SI_NEW(BaseFence);
 		int ret = f->Initialize(*m_device.Get());
 		if(ret != 0)
 		{
 			SI_ASSERT(0, "error InitializeCommandList");
-			delete f;
+			SI_DELETE(f);
 			return nullptr;
 		}
 
@@ -222,17 +227,17 @@ namespace SI
 
 	void BaseDevice::ReleaseFence(BaseFence* f)
 	{
-		delete f;
+		SI_DELETE(f);
 	}
 
 	BaseFenceEvent* BaseDevice::CreateFenceEvent()
 	{
-		BaseFenceEvent* e = new BaseFenceEvent();
+		BaseFenceEvent* e = SI_NEW(BaseFenceEvent);
 		int ret = e->Initialize();
 		if(ret != 0)
 		{
 			SI_ASSERT(0, "error InitializeCommandList");
-			delete e;
+			SI_DELETE(e);
 			return nullptr;
 		}
 
@@ -241,17 +246,36 @@ namespace SI
 
 	void BaseDevice::ReleaseFenceEvent(BaseFenceEvent* e)
 	{
-		delete e;
+		SI_DELETE(e);
+	}
+	
+	BaseRootSignature* BaseDevice::CreateRootSignature()
+	{
+		BaseRootSignature* s = SI_NEW(BaseRootSignature);
+		int ret = s->Initialize(*m_device.Get());
+		if(ret != 0)
+		{
+			SI_ASSERT(0, "error InitializeRootSignature");
+			SI_DELETE(s);
+			return nullptr;
+		}
+
+		return s;
+	}
+
+	void BaseDevice::ReleaseRootSignature(BaseRootSignature* r)
+	{
+		SI_DELETE(r);
 	}
 	
 	BaseGraphicsState* BaseDevice::CreateGraphicsState(const GfxGraphicsStateDesc& desc)
 	{
-		BaseGraphicsState* s = new BaseGraphicsState();
+		BaseGraphicsState* s = SI_NEW(BaseGraphicsState);
 		int ret = s->Initialize(*m_device.Get(), desc);
 		if(ret != 0)
 		{
 			SI_ASSERT(0, "error InitializeGraphicsState");
-			delete s;
+			SI_DELETE(s);
 			return nullptr;
 		}
 
@@ -260,7 +284,26 @@ namespace SI
 
 	void BaseDevice::ReleaseGraphicsState(BaseGraphicsState* s)
 	{
-		delete s;
+		SI_DELETE(s);
+	}
+	
+	BaseBuffer* BaseDevice::CreateBuffer(const GfxBufferDesc& desc)
+	{
+		BaseBuffer* b = SI_NEW(BaseBuffer);
+		int ret = b->Initialize(*m_device.Get(), desc);
+		if(ret != 0)
+		{
+			SI_ASSERT(0, "error InitializeBuffer");
+			SI_DELETE(b);
+			return nullptr;
+		}
+
+		return b;
+	}
+
+	void BaseDevice::ReleaseBuffer(BaseBuffer* b)
+	{
+		SI_DELETE(b);
 	}
 
 } // namespace SI

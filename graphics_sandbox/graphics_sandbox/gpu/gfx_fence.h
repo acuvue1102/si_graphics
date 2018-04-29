@@ -25,10 +25,7 @@ namespace SI
 	public:
 		GfxFence(BaseFence* base=nullptr);
 		~GfxFence();
-
-	public:
 		
-
 	public:
 		BaseFence* GetBaseFence(){ return m_base; }
 		const BaseFence* GetBaseFence() const{ return m_base; }

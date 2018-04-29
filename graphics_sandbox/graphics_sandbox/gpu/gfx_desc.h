@@ -2,8 +2,5 @@
 
 namespace SI
 {
-	struct GfxGraphicsStateDesc
-	{
-	};
 
 } // namespace SI

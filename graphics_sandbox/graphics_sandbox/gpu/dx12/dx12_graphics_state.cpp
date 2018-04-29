@@ -8,8 +8,16 @@
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
 
+#include "base/base.h"
 #include "gpu/gfx_desc.h"
+#include "gpu/dx12/dx12_enum.h"
 #include "gpu/dx12/dx12_device.h"
+#include "gpu/gfx_graphics_state.h"
+#include "gpu/gfx_input_layout.h"
+#include "gpu/gfx_shader.h"
+#include "gpu/dx12/dx12_shader.h"
+#include "gpu/dx12/dx12_root_signature.h"
+#include "gpu/gfx_root_signature.h"
 #include "gpu/dx12/dx12_graphics_state.h"
 
 namespace SI
@@ -24,12 +32,33 @@ namespace SI
 
 	int BaseGraphicsState::Initialize(ID3D12Device& device, const GfxGraphicsStateDesc& desc)
 	{
-#if 0
+		D3D12_INPUT_ELEMENT_DESC elements[32];
+		SI_ASSERT(desc.m_inputElementCount < ArraySize(elements));
+		uint32_t elementCont = SI::Min((uint32_t)desc.m_inputElementCount, (uint32_t)ArraySize(elements));
+		for(uint32_t e=0; e<elementCont; ++e)
+		{
+			D3D12_INPUT_ELEMENT_DESC& outElem = elements[e];
+			const GfxInputElement&     inElem = desc.m_inputElements[e];
+			
+			outElem.SemanticName         = inElem.m_semanticsName;
+			outElem.SemanticIndex        = inElem.m_semanticsId;
+			outElem.Format               = SI::GetDx12Format(inElem.m_format);
+			outElem.InputSlot            = inElem.m_inputSlot;
+			outElem.AlignedByteOffset    = inElem.m_alignedByteOffset;
+			outElem.InputSlotClass       = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+			outElem.InstanceDataStepRate = 0;
+		}
+		
+		const BaseShader* vertexShader = desc.m_vertexShader->GetBaseShader();
+		const BaseShader* pixelShader  = desc.m_pixelShader->GetBaseShader();
+
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-		psoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
-		psoDesc.pRootSignature = m_rootSignature.Get();
-		psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
-		psoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
+		psoDesc.InputLayout = { elements, elementCont };
+		psoDesc.pRootSignature = desc.m_rootSignature->GetBaseRootSignature()->GetComPtrRootSignature().Get();
+		psoDesc.VS.pShaderBytecode = vertexShader? vertexShader->GetBinary() : nullptr;
+		psoDesc.VS.BytecodeLength  = vertexShader? vertexShader->GetBinarySize() : 0;
+		psoDesc.PS.pShaderBytecode = pixelShader? pixelShader->GetBinary() : nullptr;
+		psoDesc.PS.BytecodeLength  = pixelShader? pixelShader->GetBinarySize() : 0;
 				
         psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
         psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
@@ -43,7 +72,6 @@ namespace SI
         psoDesc.RasterizerState.ForcedSampleCount = 0;
         psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
 
-		
         psoDesc.BlendState.AlphaToCoverageEnable = FALSE;
         psoDesc.BlendState.IndependentBlendEnable = FALSE;
         const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc =
@@ -69,9 +97,10 @@ namespace SI
 		HRESULT hr = device.CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState));
 		if(FAILED(hr))
 		{
+			SI_ASSERT(0);
 			return -1;
 		}
-#endif
+
 		return 0;
 	}
 

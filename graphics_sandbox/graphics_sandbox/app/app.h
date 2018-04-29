@@ -5,6 +5,7 @@
 
 namespace SI
 {
+	class PathStorage;
 	class Pipeline;
 
 	struct AppConfig
@@ -26,6 +27,7 @@ namespace SI
 		int Run();
 
 	private:
+		PathStorage*      m_pathStorage;
 		Pipeline*         m_pipeline;
 
 		bool              m_initialized;

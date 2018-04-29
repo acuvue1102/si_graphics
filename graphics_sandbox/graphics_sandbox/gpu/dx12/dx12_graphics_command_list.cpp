@@ -55,53 +55,6 @@ namespace SI
 		m_commandAllocator.Reset();
 
 		return 0;
-	}	
-	
-	int BaseGraphicsCommandList::Reset(BaseGraphicsState& graphicsState)
-	{
-		//ID3D12PipelineState* pipelineState = graphicsState.GetGraphicsState();
-
-		HRESULT hr = m_commandAllocator->Reset();
-		if(FAILED(hr))
-		{
-			SI_ASSERT(0, "error m_commandAllocator->Reset", _com_error(hr).ErrorMessage());
-			return -1;
-		}
-
-		hr = m_graphicsCommandList->Reset(m_commandAllocator.Get(), nullptr);//pipelineState);
-		if(FAILED(hr))
-		{
-			SI_ASSERT(0, "error m_graphicsCommandList->Reset", _com_error(hr).ErrorMessage());
-			return -1;
-		}
-
-		return 0;
-	}
-		
-	void BaseGraphicsCommandList::ClearRenderTarget(BaseTexture& tex, float r, float g, float b, float a)
-	{
-		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = {};
-		rtvHandle.ptr = tex.GetPtr();
-
-		// Record commands.
-		float clearColor[] = { r, g, b, a };
-		m_graphicsCommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-	}
-
-	void BaseGraphicsCommandList::ResourceBarrier(
-		BaseTexture& texture,
-		const GfxResourceState& before,
-		const GfxResourceState& after)
-	{
-		D3D12_RESOURCE_BARRIER barrier = {};
-		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-		barrier.Transition.pResource = texture.GetComPtrResource().Get();
-		barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)before.GetStateFlags();
-		barrier.Transition.StateAfter  = (D3D12_RESOURCE_STATES)after.GetStateFlags();
-		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-		
-		m_graphicsCommandList->ResourceBarrier(1, &barrier);
 	}
 
 } // namespace SI
