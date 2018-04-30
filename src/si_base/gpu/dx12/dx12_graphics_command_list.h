@@ -36,9 +36,9 @@ namespace SI
 		int Initialize(ID3D12Device& device);
 		int Terminate();
 		
-		inline int Reset(BaseGraphicsState& graphicsState)
+		inline int Reset(BaseGraphicsState* graphicsState)
 		{
-			ID3D12PipelineState* pipelineState = graphicsState.GetComPtrGraphicsState().Get();
+			ID3D12PipelineState* pipelineState = graphicsState? graphicsState->GetComPtrGraphicsState().Get() : nullptr;
 
 			HRESULT hr = m_commandAllocator->Reset();
 			if(FAILED(hr))

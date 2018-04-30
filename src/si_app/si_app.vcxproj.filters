@@ -7,20 +7,35 @@
     <Filter Include="file">
       <UniqueIdentifier>{94d2adba-2bd4-42f0-9cca-82dd52ea90fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="app">
+      <UniqueIdentifier>{7a29a7ca-6a52-48db-a2a0-1f3ca75314ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file\path_storage.h">
       <Filter>file</Filter>
     </ClInclude>
-    <ClInclude Include="pipeline\pipeline.h">
+    <ClInclude Include="app\app.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="app\app_observer.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="pipeline\pipeline_base.h">
       <Filter>pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="app\app_template.h">
+      <Filter>app</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="file\path_storage.cpp">
       <Filter>file</Filter>
     </ClCompile>
-    <ClCompile Include="pipeline\pipeline.cpp">
+    <ClCompile Include="app\app.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="pipeline\pipeline_base.cpp">
       <Filter>pipeline</Filter>
     </ClCompile>
   </ItemGroup>

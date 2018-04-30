@@ -68,6 +68,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="pipeline.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pipeline.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\si_app\si_app.vcxproj">
+      <Project>{d247a8b6-61dd-4679-a695-af30b2c5e367}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\si_base\si_base.vcxproj">
+      <Project>{f7e7930b-3ead-4395-80c5-5d5d6af25abc}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

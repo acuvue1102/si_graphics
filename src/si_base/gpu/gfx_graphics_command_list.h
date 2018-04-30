@@ -24,7 +24,7 @@ namespace SI
 
 		void ClearRenderTarget(GfxTexture& tex, float r, float g, float b, float a);
 		
-		int Reset(GfxGraphicsState& graphicsState);
+		int Reset(GfxGraphicsState* graphicsState);
 		
 		void ResourceBarrier(
 			GfxTexture& texture,

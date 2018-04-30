@@ -20,9 +20,9 @@ namespace SI
 		m_base->ClearRenderTarget(*tex.GetBaseTexture(), r, g, b, a);
 	}
 
-	int GfxGraphicsCommandList::Reset(GfxGraphicsState& graphicsState)
+	int GfxGraphicsCommandList::Reset(GfxGraphicsState* graphicsState)
 	{
-		return m_base->Reset(*graphicsState.GetBaseGraphicsState());
+		return m_base->Reset(graphicsState? graphicsState->GetBaseGraphicsState() : nullptr);
 	}
 	
 	void GfxGraphicsCommandList::ResourceBarrier(

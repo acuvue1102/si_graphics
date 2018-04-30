@@ -68,12 +68,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="app\app.h" />
+    <ClInclude Include="app\app_observer.h" />
+    <ClInclude Include="app\app_template.h" />
     <ClInclude Include="file\path_storage.h" />
-    <ClInclude Include="pipeline\pipeline.h" />
+    <ClInclude Include="pipeline\pipeline_base.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="app\app.cpp" />
     <ClCompile Include="file\path_storage.cpp" />
-    <ClCompile Include="pipeline\pipeline.cpp" />
+    <ClCompile Include="pipeline\pipeline_base.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\si_base\si_base.vcxproj">
