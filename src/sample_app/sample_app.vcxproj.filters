@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="app001_simple_polygon">
+      <UniqueIdentifier>{d2a38bbe-708d-406a-84bc-c9b3dbb0bb1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="app000_clear_color">
+      <UniqueIdentifier>{59e9ee47-3d7d-4a61-afee-9aa20fa6e148}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{c48b040d-7a6f-45c5-b33c-d153bcd38376}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="app000_clear_color\pipeline_000.cpp">
+      <Filter>app000_clear_color</Filter>
+    </ClCompile>
+    <ClCompile Include="app001_simple_polygon\pipeline_001.cpp">
+      <Filter>app001_simple_polygon</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shaders\color.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="app000_clear_color\pipeline_000.h">
+      <Filter>app000_clear_color</Filter>
+    </ClInclude>
+    <ClInclude Include="app001_simple_polygon\pipeline_001.h">
+      <Filter>app001_simple_polygon</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

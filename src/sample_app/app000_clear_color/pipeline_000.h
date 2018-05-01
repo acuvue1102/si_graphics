@@ -5,6 +5,8 @@
 
 namespace SI
 {
+namespace APP000
+{
 	class Pipeline  : public PipelineBase
 	{
 	public:
@@ -16,4 +18,5 @@ namespace SI
 		int OnRender(const AppRenderInfo&)         override;
 	};
 
+} // namespace APP000
 } // namespace SI

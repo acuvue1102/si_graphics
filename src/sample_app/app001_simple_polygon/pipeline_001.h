@@ -5,6 +5,8 @@
 
 namespace SI
 {
+namespace APP001
+{
 	class Pipeline  : public PipelineBase
 	{
 	public:
@@ -26,5 +28,6 @@ namespace SI
 
 		GfxBuffer                m_vertexBuffer;
 	};
-
+	
+} // namespace APP001
 } // namespace SI

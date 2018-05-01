@@ -1,11 +1,13 @@
 ﻿
-#include "pipeline.h"
+#include "pipeline_001.h"
 
 #include <string>
 #include <si_base/core/core.h>
 #include <si_app/file/path_storage.h>
 
 namespace SI
+{
+namespace APP001
 {
 	struct PosColorVertex
 	{
@@ -43,7 +45,7 @@ namespace SI
 		m_rootSignature = m_device.CreateRootSignature();
 
 		std::string shaderPath = PathStorage::GetInstance()->GetExeDirPath();
-		shaderPath += "shader\\color.hlsl";
+		shaderPath += "shaders\\color.hlsl";
 
 		if(m_vertexShader.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
 		if(m_pixelShader. LoadAndCompile(shaderPath.c_str()) != 0) return -1;
@@ -126,5 +128,6 @@ namespace SI
 
 		return 0;
 	}
-
+	
+} // namespace APP001
 } // namespace SI

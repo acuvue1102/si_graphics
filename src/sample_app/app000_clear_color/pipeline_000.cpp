@@ -1,5 +1,5 @@
 ﻿
-#include "pipeline.h"
+#include "pipeline_000.h"
 
 #include <string>
 #include <si_base/core/core.h>
@@ -7,6 +7,8 @@
 
 namespace SI
 {	
+namespace APP000
+{
 	Pipeline::Pipeline(int observerSortKey)
 		: PipelineBase(observerSortKey)
 	{
@@ -44,5 +46,6 @@ namespace SI
 
 		return 0;
 	}
-
+	
+} // namespace APP000
 } // namespace SI
