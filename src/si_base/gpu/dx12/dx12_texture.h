@@ -10,6 +10,8 @@ struct IDXGISwapChain3;
 
 namespace SI
 {
+	struct GfxTextureDesc;
+
 	class BaseTexture
 	{
 		template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -17,6 +19,8 @@ namespace SI
 	public:
 		BaseTexture();
 		~BaseTexture();
+
+		int Initialize(ID3D12Device& device, const GfxTextureDesc& desc);
 
 		int InitializeAsSwapChainTexture(
 			const GfxDeviceConfig& config,

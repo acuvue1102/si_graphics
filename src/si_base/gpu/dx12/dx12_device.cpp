@@ -11,6 +11,7 @@
 #include <comdef.h>
 
 #include "si_base/core/core.h"
+#include "si_base/memory/pool_allocator.h"
 #include "si_base/gpu/gfx_buffer.h"
 #include "si_base/gpu/dx12/dx12_command_queue.h"
 #include "si_base/gpu/dx12/dx12_swap_chain.h"
@@ -19,6 +20,7 @@
 #include "si_base/gpu/dx12/dx12_root_signature.h"
 #include "si_base/gpu/dx12/dx12_graphics_state.h"
 #include "si_base/gpu/dx12/dx12_buffer.h"
+#include "si_base/gpu/dx12/dx12_descriptor_heap.h"
 
 #include "si_base/gpu/dx12/dx12_device.h"
 
@@ -28,8 +30,11 @@
 
 namespace SI
 {
+	size_t BaseDevice::s_descriptorSize[kGfxDescriptorHeapType_Max] = {};
+
 	BaseDevice::BaseDevice()
-		: m_initialized(false)
+		: Singleton(this)
+		, m_initialized(false)
 	{
 	}
 
@@ -43,6 +48,12 @@ namespace SI
 		if(m_initialized) return 0;
 
 		m_config = config;
+		
+		m_objectAllocator = SI_NEW(PoolAllocatorEx);
+		m_objectAllocator->InitializeEx(config.m_objectPoolSize);
+
+		m_tempAllocator = SI_NEW(PoolAllocatorEx);
+		m_tempAllocator->InitializeEx(config.m_tempPoolSize);
 
 		int ret = 0;
 		
@@ -63,6 +74,13 @@ namespace SI
 			return -1;
 		}
 
+		// descriptor heap sizeをあらかじめ保持しておく.
+		for(int i=0; i<kGfxDescriptorHeapFlag_Max; ++i)
+		{
+			D3D12_DESCRIPTOR_HEAP_TYPE type = GetDx12DescriptorHeapType((GfxDescriptorHeapType)i);
+			s_descriptorSize[kGfxDescriptorHeapType_RTV] = m_device->GetDescriptorHandleIncrementSize(type);
+		}
+
 		return 0;
 	}
 
@@ -74,8 +92,19 @@ namespace SI
 		m_device.Reset();
 		m_dxgiFactory.Reset();
 
+		m_tempAllocator->TerminateEx();
+		SI_DELETE(m_tempAllocator);
+
+		m_objectAllocator->TerminateEx();
+		SI_DELETE(m_objectAllocator);
+
 		m_initialized = false;
 		return 0;
+	}
+	
+	size_t BaseDevice::GetDescriptorSize(GfxDescriptorHeapType type)
+	{
+		return s_descriptorSize[type];
 	}
 	
 	int BaseDevice::InitializeFactory(ComPtr<IDXGIFactory4>& outDxgiFactory) const
@@ -188,7 +217,7 @@ namespace SI
 
 	void BaseDevice::ReleaseSwapChain(BaseSwapChain* sc)
 	{
-		delete sc;
+		SI_DELETE(sc);
 	}
 
 	BaseGraphicsCommandList* BaseDevice::CreateGraphicsCommandList()
@@ -207,7 +236,7 @@ namespace SI
 
 	void BaseDevice::ReleaseGraphicsCommandList(BaseGraphicsCommandList* gcl)
 	{
-		delete gcl;
+		SI_DELETE(gcl);
 	}
 
 	BaseFence* BaseDevice::CreateFence()
@@ -216,7 +245,7 @@ namespace SI
 		int ret = f->Initialize(*m_device.Get());
 		if(ret != 0)
 		{
-			SI_ASSERT(0, "error InitializeCommandList");
+			SI_ASSERT(0, "error CreateFence");
 			SI_DELETE(f);
 			return nullptr;
 		}
@@ -236,7 +265,7 @@ namespace SI
 		int ret = e->Initialize();
 		if(ret != 0)
 		{
-			SI_ASSERT(0, "error InitializeCommandList");
+			SI_ASSERT(0, "error CreateFenceEvent");
 			SI_DELETE(e);
 			return nullptr;
 		}
@@ -249,13 +278,13 @@ namespace SI
 		SI_DELETE(e);
 	}
 	
-	BaseRootSignature* BaseDevice::CreateRootSignature()
+	BaseRootSignature* BaseDevice::CreateRootSignature(const GfxRootSignatureDesc& desc)
 	{
 		BaseRootSignature* s = SI_NEW(BaseRootSignature);
-		int ret = s->Initialize(*m_device.Get());
+		int ret = s->Initialize(*this, desc);
 		if(ret != 0)
 		{
-			SI_ASSERT(0, "error InitializeRootSignature");
+			SI_ASSERT(0, "error CreateRootSignature");
 			SI_DELETE(s);
 			return nullptr;
 		}
@@ -274,7 +303,7 @@ namespace SI
 		int ret = s->Initialize(*m_device.Get(), desc);
 		if(ret != 0)
 		{
-			SI_ASSERT(0, "error InitializeGraphicsState");
+			SI_ASSERT(0, "error CreateGraphicsState");
 			SI_DELETE(s);
 			return nullptr;
 		}
@@ -293,7 +322,7 @@ namespace SI
 		int ret = b->Initialize(*m_device.Get(), desc);
 		if(ret != 0)
 		{
-			SI_ASSERT(0, "error InitializeBuffer");
+			SI_ASSERT(0, "error CreateBuffer");
 			SI_DELETE(b);
 			return nullptr;
 		}
@@ -304,6 +333,70 @@ namespace SI
 	void BaseDevice::ReleaseBuffer(BaseBuffer* b)
 	{
 		SI_DELETE(b);
+	}
+	
+	BaseTexture* BaseDevice::CreateTexture(const GfxTextureDesc& desc)
+	{
+		BaseTexture* t = SI_NEW(BaseTexture);
+		int ret = t->Initialize(*m_device.Get(), desc);
+		if(ret != 0)
+		{
+			SI_ASSERT(0, "error CreateTexture");
+			SI_DELETE(t);
+			return nullptr;
+		}
+
+		return t;
+	}
+
+	void BaseDevice::ReleaseTexture(BaseTexture* t)
+	{
+		SI_DELETE(t);
+	}
+	
+	BaseDescriptorHeap* BaseDevice::CreateDescriptorHeap(const GfxDescriptorHeapDesc& desc)
+	{
+		BaseDescriptorHeap* d = SI_NEW(BaseDescriptorHeap);
+		int ret = d->Initialize(*m_device.Get(), desc);
+		if(ret != 0)
+		{
+			SI_ASSERT(0, "error CreateDescriptorHeap");
+			SI_DELETE(d);
+			return nullptr;
+		}
+
+		return d;
+	}
+
+	void BaseDevice::ReleaseDescriptorHeap(BaseDescriptorHeap* d)
+	{
+		SI_DELETE(d);
+	}
+
+	//void BaseDevice::CreateRenderTargetView(
+	//	BaseDescriptorHeap& descriptorHeap,
+	//	uint32_t descriptorIndex,
+	//	BaseTexture& texture,
+	//	const GfxRenderTargetViewDesc& desc)
+	//{
+	//	descriptorHeap.CreateRenderTargetView(
+	//		*m_device.Get(),
+	//		descriptorIndex,
+	//		texture,
+	//		desc);
+	//}
+
+	void BaseDevice::CreateShaderResourceView(
+		BaseDescriptorHeap& descriptorHeap,
+		uint32_t descriptorIndex,
+		BaseTexture& texture,
+		const GfxShaderResourceViewDesc& desc)
+	{
+		descriptorHeap.CreateShaderResourceView(
+			*m_device.Get(),
+			descriptorIndex,
+			texture,
+			desc);
 	}
 
 } // namespace SI

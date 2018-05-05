@@ -5,11 +5,12 @@
 #include "si_app/app/app_template.h"
 #include "app000_clear_color/pipeline_000.h"
 #include "app001_simple_polygon/pipeline_001.h"
+#include "app002_texture/pipeline_002.h"
 
 /* main function */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
-	int mode = 1;
+	int mode = 2;
 
 	switch(mode)
 	{
@@ -21,6 +22,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	case 1:
 	{
 		SI::SingleObserverApp<SI::APP001::Pipeline> app;
+		return app.Run(nCmdShow);
+	}
+	case 2:
+	{
+		SI::SingleObserverApp<SI::APP002::Pipeline> app;
 		return app.Run(nCmdShow);
 	}
 	default:

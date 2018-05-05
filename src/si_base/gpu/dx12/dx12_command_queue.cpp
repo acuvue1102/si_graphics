@@ -41,12 +41,15 @@ namespace SI
 	{
 		ID3D12CommandList* commandLists[] = { list.GetCommandList() };
 		m_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+
+		list.OnExecute();
 	}
 	
-	void BaseCommandQueue::ExecuteCommandLists(int count, BaseCommandList* list)
+	void BaseCommandQueue::ExecuteCommandLists(int count, BaseCommandList* lists)
 	{
 		SI_ASSERT(0<count);
 
+		BaseCommandList* tmpLists = lists;
 		do
 		{
 			// 16個毎に分割してExecuteする.
@@ -55,14 +58,19 @@ namespace SI
 			int commandListCount = min((int)ArraySize(commandLists), count);
 			for(size_t listId = 0; listId<commandListCount; ++listId)
 			{
-				commandLists[listId] = list->GetCommandList();
+				commandLists[listId] = tmpLists[listId].GetCommandList();
 			}
 			
 			m_commandQueue->ExecuteCommandLists(commandListCount, commandLists);
 
 			count -= (int)ArraySize(commandLists);
-			list = &list[ArraySize(commandLists)];
+			tmpLists = &tmpLists[ArraySize(commandLists)];
 		}while(0<count);
+
+		for(int i=0; i<count; ++i)
+		{
+			lists[i].OnExecute();
+		}
 	}
 
 	int BaseCommandQueue::Signal(BaseFence& fence, uint64_t fenceValue)

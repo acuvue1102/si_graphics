@@ -14,6 +14,8 @@
 #include "si_base/gpu/gfx_shader.h"
 #include "si_base/gpu/gfx_input_layout.h"
 #include "si_base/gpu/gfx_viewport.h"
+#include "si_base/gpu/gfx_graphics_state.h"
+#include "si_base/gpu/gfx_descriptor_heap.h"
 
 namespace SI
 {

@@ -5,23 +5,19 @@
 #if SI_USE_DX12
 #include <d3d12.h>
 #include <wrl/client.h>
+#include <stdint.h>
+#include "si_base/core/singleton.h"
+#include "si_base/gpu/gfx_enum.h"
+#include "si_base/gpu/dx12/dx12_declare.h"
+#include "si_base/gpu/dx12/dx12_descriptor_heap.h"
 
 struct IDXGIFactory4;
 
 namespace SI
 {
-	class BaseCommandQueue;
-	class BaseSwapChain;
-	class BaseGraphicsCommandList;
-	class BaseFence;
-	class BaseFenceEvent;
-	class BaseRootSignature;
-	class BaseGraphicsState;
-	class BaseBuffer;
-	struct GfxGraphicsStateDesc;
-	struct GfxBufferDesc;
+	class PoolAllocatorEx;
 
-	class BaseDevice
+	class BaseDevice : public Singleton<BaseDevice>
 	{
 		template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 
@@ -50,7 +46,7 @@ namespace SI
 		BaseFenceEvent* CreateFenceEvent();
 		void ReleaseFenceEvent(BaseFenceEvent* e);
 
-		BaseRootSignature* CreateRootSignature();
+		BaseRootSignature* CreateRootSignature(const GfxRootSignatureDesc& desc);
 		void ReleaseRootSignature(BaseRootSignature* r);
 
 		BaseGraphicsState* CreateGraphicsState(const GfxGraphicsStateDesc& desc);
@@ -58,6 +54,37 @@ namespace SI
 
 		BaseBuffer* CreateBuffer(const GfxBufferDesc& desc);
 		void ReleaseBuffer(BaseBuffer* b);
+
+		BaseTexture* CreateTexture(const GfxTextureDesc& desc);
+		void ReleaseTexture(BaseTexture* t);
+
+		BaseDescriptorHeap* CreateDescriptorHeap(const GfxDescriptorHeapDesc& desc);
+		void ReleaseDescriptorHeap(BaseDescriptorHeap* d);
+
+		//void CreateRenderTargetView(
+		//	BaseDescriptorHeap& descriptorHeap,
+		//	uint32_t descriptorIndex,
+		//	BaseTexture& texture,
+		//	const GfxRenderTargetViewDesc& desc);
+
+		void CreateShaderResourceView(
+			BaseDescriptorHeap& descriptorHeap,
+			uint32_t descriptorIndex,
+			BaseTexture& texture,
+			const GfxShaderResourceViewDesc& desc);
+
+	public:
+		PoolAllocatorEx* GetObjectAllocator(){ return m_objectAllocator; }
+		PoolAllocatorEx* GetTempAllocator()  { return m_tempAllocator; }
+
+	public:
+		ComPtr<ID3D12Device>& GetComPtrDevice()
+		{
+			return m_device;
+		}
+		
+	public:
+		static size_t GetDescriptorSize(GfxDescriptorHeapType type);
 
 	private:
 		int InitializeFactory(ComPtr<IDXGIFactory4>& outDxgiFactory) const;
@@ -71,7 +98,11 @@ namespace SI
 		ComPtr<IDXGIFactory4>             m_dxgiFactory; // 持ちたくないが、DX12ではdeviceから参照出来ないので持つ.
 		ComPtr<ID3D12Device>              m_device;
 		ComPtr<ID3D12PipelineState>       m_pipelineState;
+		PoolAllocatorEx*                  m_objectAllocator;
+		PoolAllocatorEx*                  m_tempAllocator;
 		bool                              m_initialized;
+
+		static size_t                     s_descriptorSize[kGfxDescriptorHeapType_Max];
 	};
 
 } // namespace SI

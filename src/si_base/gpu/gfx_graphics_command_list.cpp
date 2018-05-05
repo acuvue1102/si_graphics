@@ -3,6 +3,7 @@
 #include "si_base/gpu/gfx_texture.h"
 #include "si_base/gpu/gfx_graphics_state.h"
 #include "si_base/gpu/gfx_graphics_command_list.h"
+#include "si_base/gpu/gfx_device.h"
 
 namespace SI
 {
@@ -50,6 +51,20 @@ namespace SI
 	{
 		m_base->SetGraphicsRootSignature(*rootSignature.GetBaseRootSignature());
 	}
+
+	void GfxGraphicsCommandList::SetDescriptorHeaps(
+		uint32_t descriptorHeapCount,
+		GfxDescriptorHeap* const* descriptorHeaps)
+	{
+		m_base->SetDescriptorHeaps(descriptorHeapCount, descriptorHeaps);
+	}
+
+	void GfxGraphicsCommandList::SetGraphicsDescriptorTable(
+		uint32_t tableIndex,
+		GfxGpuDescriptor descriptor)
+	{
+		m_base->SetGraphicsDescriptorTable(tableIndex, descriptor);
+	}
 		
 	void GfxGraphicsCommandList::SetViewports(uint32_t count, GfxViewport* viewPorts)
 	{
@@ -93,6 +108,19 @@ namespace SI
 			instanceCount,
 			startVertexLocation,
 			startInstanceLocation);
+	}
+
+	int GfxGraphicsCommandList::UploadTexture(
+		GfxDevice& device,
+		GfxTexture& targetTexture,
+		const void* srcBuffer,
+		size_t srcBufferSize)
+	{
+		return m_base->UploadTexture(
+			*device.GetBaseDevice(),
+			*targetTexture.GetBaseTexture(),
+			srcBuffer,
+			srcBufferSize);
 	}
 
 	BaseCommandList* GfxGraphicsCommandList::GetBaseCommandList()

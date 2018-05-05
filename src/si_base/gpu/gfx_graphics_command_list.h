@@ -3,6 +3,7 @@
 #include "si_base/gpu/gfx_config.h"
 #include "si_base/gpu/gfx_command_list.h"
 #include "si_base/gpu/gfx_enum.h"
+#include "si_base/gpu/gfx_descriptor_heap.h"
 
 namespace SI
 {
@@ -15,6 +16,7 @@ namespace SI
 	class GfxScissor;
 	class GfxVertexBufferView;
 	class GfxRootSignature;
+	class GfxDevice;
 
 	class GfxGraphicsCommandList : public GfxCommandList
 	{
@@ -36,6 +38,10 @@ namespace SI
 		void SetGraphicsState(GfxGraphicsState& graphicsState);
 
 		void SetGraphicsRootSignature(GfxRootSignature& rootSignature);
+
+		void SetDescriptorHeaps(uint32_t descriptorHeapCount, GfxDescriptorHeap* const* descriptorHeaps);
+
+		void SetGraphicsDescriptorTable(uint32_t tableIndex, GfxGpuDescriptor descriptor);
 		
 		void SetViewports(uint32_t count, GfxViewport* viewPorts);
 		
@@ -55,6 +61,13 @@ namespace SI
 			uint32_t instanceCount           = 1,
 			uint32_t startVertexLocation     = 0,
 			uint32_t startInstanceLocation   = 0);
+
+	public:
+		int UploadTexture(
+			GfxDevice& device,
+			GfxTexture& targetTexture,
+			const void* srcBuffer,
+			size_t srcBufferSize);
 
 	public:
 		BaseGraphicsCommandList* GetBaseGraphicsCommandList(){ return m_base; }

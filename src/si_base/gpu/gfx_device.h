@@ -1,21 +1,14 @@
 ﻿#pragma once
 
-#include "si_base/gpu/gfx_command_queue.h"
-#include "si_base/gpu/gfx_graphics_command_list.h"
-#include "si_base/gpu/gfx_texture.h"
-#include "si_base/gpu/gfx_swap_chain.h"
-#include "si_base/gpu/gfx_graphics_state.h"
-#include "si_base/gpu/gfx_fence.h"
-#include "si_base/gpu/gfx_root_signature.h"
-#include "si_base/gpu/gfx_buffer.h"
+#include <stdint.h>
+#include "si_base/core/singleton.h"
+#include "si_base/gpu/gfx_declare.h"
 
 namespace SI
 {
 	class BaseDevice;
-	struct GfxDeviceConfig;
-	struct GfxGraphicsStateDesc;
 
-	class GfxDevice
+	class GfxDevice : public Singleton<GfxDevice>
 	{
 	public:
 		GfxDevice();
@@ -45,11 +38,33 @@ namespace SI
 		GfxFenceEvent CreateFenceEvent();
 		void ReleaseFenceEvent(GfxFenceEvent& event);
 
-		GfxRootSignature CreateRootSignature();
+		GfxRootSignature CreateRootSignature(const GfxRootSignatureDesc& desc);
 		void ReleaseRootSignature(GfxRootSignature& signature);
 
 		GfxBuffer CreateBuffer(const GfxBufferDesc& desc);
 		void ReleaseBuffer(GfxBuffer& buffer);
+
+		GfxTexture CreateTexture(const GfxTextureDesc& desc);
+		void ReleaseTexture(GfxTexture& texture);
+		
+		GfxDescriptorHeap CreateDescriptorHeap(const GfxDescriptorHeapDesc& desc);
+		void ReleaseDescriptorHeap(GfxDescriptorHeap& descriptorHeap);
+
+		//void CreateRenderTargetView(
+		//	GfxDescriptorHeap& descriptorHeap,
+		//	uint32_t descriptorIndex,
+		//	GfxTexture& texture,
+		//	const GfxRenderTargetViewDesc& desc);
+
+		void CreateShaderResourceView(
+			GfxDescriptorHeap& descriptorHeap,
+			uint32_t descriptorIndex,
+			GfxTexture& texture,
+			const GfxShaderResourceViewDesc& desc);
+
+	public:
+		BaseDevice* GetBaseDevice(){ return m_base; }
+		const BaseDevice* GetBaseDevice() const{ return m_base; }
 
 	private:
 		BaseDevice* m_base;

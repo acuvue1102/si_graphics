@@ -14,6 +14,7 @@
 namespace SI
 {
 	BaseGraphicsCommandList::BaseGraphicsCommandList()
+		: m_uploadHeapArrayIndex(0)
 	{
 	}
 
@@ -51,6 +52,10 @@ namespace SI
 
 	int BaseGraphicsCommandList::Terminate()
 	{
+		for(auto heap : m_uploadHeapArray)
+		{
+			heap.clear();
+		}
 		m_graphicsCommandList.Reset();
 		m_commandAllocator.Reset();
 

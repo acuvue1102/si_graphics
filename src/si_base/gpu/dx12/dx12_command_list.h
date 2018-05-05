@@ -13,6 +13,8 @@ namespace SI
 		BaseCommandList(){}
 		virtual ~BaseCommandList(){}
 
+		virtual void OnExecute(){}
+
 		virtual ID3D12CommandList* GetCommandList() = 0;
 	};
 

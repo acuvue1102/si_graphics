@@ -10,6 +10,9 @@
     <Filter Include="shaders">
       <UniqueIdentifier>{c48b040d-7a6f-45c5-b33c-d153bcd38376}</UniqueIdentifier>
     </Filter>
+    <Filter Include="app002_texture">
+      <UniqueIdentifier>{300cd5fb-c511-447a-8283-308546cbac81}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -19,11 +22,9 @@
     <ClCompile Include="app001_simple_polygon\pipeline_001.cpp">
       <Filter>app001_simple_polygon</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="shaders\color.hlsl">
-      <Filter>shaders</Filter>
-    </FxCompile>
+    <ClCompile Include="app002_texture\pipeline_002.cpp">
+      <Filter>app002_texture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app000_clear_color\pipeline_000.h">
@@ -32,5 +33,16 @@
     <ClInclude Include="app001_simple_polygon\pipeline_001.h">
       <Filter>app001_simple_polygon</Filter>
     </ClInclude>
+    <ClInclude Include="app002_texture\pipeline_002.h">
+      <Filter>app002_texture</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shaders\color.hlsl">
+      <Filter>shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\texture.hlsl">
+      <Filter>shaders</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

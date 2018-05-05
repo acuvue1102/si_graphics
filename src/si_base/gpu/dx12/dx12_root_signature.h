@@ -8,6 +8,9 @@
 
 namespace SI
 {
+	class BaseDevice;
+	struct GfxRootSignatureDesc;
+
 	class BaseRootSignature
 	{
 		template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -15,7 +18,7 @@ namespace SI
 		BaseRootSignature();
 		~BaseRootSignature();
 
-		int Initialize(ID3D12Device& device);
+		int Initialize(BaseDevice& device, const GfxRootSignatureDesc& desc);
 		int Terminate();
 
 	public:

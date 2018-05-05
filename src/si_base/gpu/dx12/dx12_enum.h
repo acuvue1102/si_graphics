@@ -11,6 +11,99 @@
 
 namespace SI
 {
+	inline D3D12_RESOURCE_DIMENSION GetDx12ResourceDimension(GfxDimension d)
+	{
+		static const D3D12_RESOURCE_DIMENSION kTable[] =
+		{
+			D3D12_RESOURCE_DIMENSION_BUFFER,    // kGfxDimension_Buffer,
+			D3D12_RESOURCE_DIMENSION_TEXTURE1D, // kGfxDimension_Texture1D,
+			D3D12_RESOURCE_DIMENSION_TEXTURE1D, // kGfxDimension_Texture1DArray,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // kGfxDimension_Texture2D,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // kGfxDimension_Texture2DArray,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // kGfxDimension_Texture2DMS,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // kGfxDimension_Texture2DMSArray,
+			D3D12_RESOURCE_DIMENSION_TEXTURE3D, // kGfxDimension_Texture3D,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // kGfxDimension_TextureCube,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // kGfxDimension_TextureCubeArray,
+		};
+		static_assert(ArraySize(kTable) == (size_t)kGfxDimension_Max, "tableError");
+
+		return kTable[d];
+	};
+
+	inline D3D12_SRV_DIMENSION GetDx12SrvDimension(GfxDimension d)
+	{
+		static const D3D12_SRV_DIMENSION kTable[] =
+		{
+			D3D12_SRV_DIMENSION_BUFFER,
+			D3D12_SRV_DIMENSION_TEXTURE1D,
+			D3D12_SRV_DIMENSION_TEXTURE1DARRAY,
+			D3D12_SRV_DIMENSION_TEXTURE2D,
+			D3D12_SRV_DIMENSION_TEXTURE2DARRAY,
+			D3D12_SRV_DIMENSION_TEXTURE2DMS,
+			D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY,
+			D3D12_SRV_DIMENSION_TEXTURE3D,
+			D3D12_SRV_DIMENSION_TEXTURECUBE,
+			D3D12_SRV_DIMENSION_TEXTURECUBEARRAY
+		};
+		static_assert(ArraySize(kTable) == (size_t)kGfxDimension_Max, "tableError");
+
+		return kTable[d];
+	}
+
+	inline D3D12_DESCRIPTOR_RANGE_FLAGS GetDx12DescriptorRangeFlags(GfxDescriptorRangeFlag flag)
+	{
+		// もっとフラグあるけど、使いそうなものだけにしておく.
+		static const D3D12_DESCRIPTOR_RANGE_FLAGS kTable[] =
+		{
+			D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC,
+			D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE,
+		};
+		static_assert(ArraySize(kTable) == (size_t)kGfxDescriptorRangeFlag_Max, "tableError");
+
+		return kTable[flag];
+	}
+
+	inline D3D12_DESCRIPTOR_RANGE_TYPE GetDx12DescriptorRangeType(GfxDescriptorRangeType type)
+	{
+		static const D3D12_DESCRIPTOR_RANGE_TYPE kTable[] =
+		{
+			D3D12_DESCRIPTOR_RANGE_TYPE_SRV,
+			D3D12_DESCRIPTOR_RANGE_TYPE_UAV,
+			D3D12_DESCRIPTOR_RANGE_TYPE_CBV,
+			D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER,
+		};
+		static_assert(ArraySize(kTable) == (size_t)kGfxDescriptorRangeType_Max, "tableError");
+
+		return kTable[type];
+	}
+
+	inline D3D12_DESCRIPTOR_HEAP_TYPE GetDx12DescriptorHeapType(GfxDescriptorHeapType type)
+	{
+		static const D3D12_DESCRIPTOR_HEAP_TYPE kTable[] =
+		{
+			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+			D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
+			D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
+			D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
+		};
+		static_assert(ArraySize(kTable) == (size_t)kGfxDescriptorHeapType_Max, "tableError");
+
+		return kTable[type];
+	}
+	
+	inline D3D12_DESCRIPTOR_HEAP_FLAGS GetDx12DescriptorHeapFlag(GfxDescriptorHeapFlag flag)
+	{
+		static const D3D12_DESCRIPTOR_HEAP_FLAGS kTable[] =
+		{
+			D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
+		};
+		static_assert(ArraySize(kTable) == (size_t)kGfxDescriptorHeapFlag_Max, "tableError");
+
+		return kTable[flag];
+	}
+
 	inline D3D12_PRIMITIVE_TOPOLOGY GetDx12PrimitiveTopology(GfxPrimitiveTopology topology)
 	{
 		D3D12_PRIMITIVE_TOPOLOGY kTable[] =
@@ -58,7 +151,7 @@ namespace SI
 			D3D_PRIMITIVE_TOPOLOGY_31_CONTROL_POINT_PATCHLIST,
 			D3D_PRIMITIVE_TOPOLOGY_32_CONTROL_POINT_PATCHLIST,
 		};
-		static_assert(ArraySize(kTable)==GfxPrimitiveTopology_Max, "Table Error");
+		static_assert(ArraySize(kTable)==kGfxPrimitiveTopology_Max, "TableError");
 
 		return kTable[topology];
 	}
@@ -181,25 +274,25 @@ namespace SI
 			DXGI_FORMAT_BC7_TYPELESS                ,
 			DXGI_FORMAT_BC7_UNORM                   ,
 			DXGI_FORMAT_BC7_UNORM_SRGB              ,
-			DXGI_FORMAT_AYUV                        ,
-			DXGI_FORMAT_Y410                        ,
-			DXGI_FORMAT_Y416                        ,
-			DXGI_FORMAT_NV12                        ,
-			DXGI_FORMAT_P010                        ,
-			DXGI_FORMAT_P016                        ,
-			DXGI_FORMAT_420_OPAQUE                  ,
-			DXGI_FORMAT_YUY2                        ,
-			DXGI_FORMAT_Y210                        ,
-			DXGI_FORMAT_Y216                        ,
-			DXGI_FORMAT_NV11                        ,
-			DXGI_FORMAT_AI44                        ,
-			DXGI_FORMAT_IA44                        ,
-			DXGI_FORMAT_P8                          ,
-			DXGI_FORMAT_A8P8                        ,
-			DXGI_FORMAT_B4G4R4A4_UNORM              ,
-			DXGI_FORMAT_P208                        ,
-			DXGI_FORMAT_V208                        ,
-			DXGI_FORMAT_V408                        ,
+			//DXGI_FORMAT_AYUV                        ,
+			//DXGI_FORMAT_Y410                        ,
+			//DXGI_FORMAT_Y416                        ,
+			//DXGI_FORMAT_NV12                        ,
+			//DXGI_FORMAT_P010                        ,
+			//DXGI_FORMAT_P016                        ,
+			//DXGI_FORMAT_420_OPAQUE                  ,
+			//DXGI_FORMAT_YUY2                        ,
+			//DXGI_FORMAT_Y210                        ,
+			//DXGI_FORMAT_Y216                        ,
+			//DXGI_FORMAT_NV11                        ,
+			//DXGI_FORMAT_AI44                        ,
+			//DXGI_FORMAT_IA44                        ,
+			//DXGI_FORMAT_P8                          ,
+			//DXGI_FORMAT_A8P8                        ,
+			//DXGI_FORMAT_B4G4R4A4_UNORM              ,
+			//DXGI_FORMAT_P208                        ,
+			//DXGI_FORMAT_V208                        ,
+			//DXGI_FORMAT_V408                        ,
 		};
 		static_assert(SI::ArraySize(kTable) == (size_t)kGfxFormat_Max, "tableError");
 

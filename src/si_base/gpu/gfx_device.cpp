@@ -1,13 +1,23 @@
 ﻿
-#include "si_base/core/core.h"
-
-#include "si_base/gpu/dx12/dx12_device.h"
 #include "si_base/gpu/gfx_device.h"
+
+#include "si_base/core/core.h"
+#include "si_base/gpu/dx12/dx12_device.h"
+#include "si_base/gpu/gfx_command_queue.h"
+#include "si_base/gpu/gfx_graphics_command_list.h"
+#include "si_base/gpu/gfx_texture.h"
+#include "si_base/gpu/gfx_swap_chain.h"
+#include "si_base/gpu/gfx_graphics_state.h"
+#include "si_base/gpu/gfx_fence.h"
+#include "si_base/gpu/gfx_root_signature.h"
+#include "si_base/gpu/gfx_buffer.h"
+#include "si_base/gpu/gfx_descriptor_heap.h"
 
 namespace SI
 {
 	GfxDevice::GfxDevice()
-		: m_base(nullptr)
+		: Singleton(this)
+		, m_base(nullptr)
 	{
 	}
 
@@ -108,9 +118,9 @@ namespace SI
 		event = GfxFenceEvent();
 	}
 
-	GfxRootSignature GfxDevice::CreateRootSignature()
+	GfxRootSignature GfxDevice::CreateRootSignature(const GfxRootSignatureDesc& desc)
 	{
-		GfxRootSignature s(m_base->CreateRootSignature());
+		GfxRootSignature s(m_base->CreateRootSignature(desc));
 		return s;
 	}
 
@@ -131,5 +141,55 @@ namespace SI
 	{
 		m_base->ReleaseBuffer(buffer.GetBaseBuffer());
 		buffer = GfxBuffer();
+	}
+	
+	GfxTexture GfxDevice::CreateTexture(const GfxTextureDesc& desc)
+	{
+		GfxTexture t(m_base->CreateTexture(desc));
+		return t;
+	}
+
+	void GfxDevice::ReleaseTexture(GfxTexture& texture)
+	{
+		m_base->ReleaseTexture(texture.GetBaseTexture());
+		texture = GfxTexture();
+	}
+		
+	GfxDescriptorHeap GfxDevice::CreateDescriptorHeap(const GfxDescriptorHeapDesc& desc)
+	{
+		GfxDescriptorHeap d(m_base->CreateDescriptorHeap(desc));
+		return d;
+	}
+
+	void GfxDevice::ReleaseDescriptorHeap(GfxDescriptorHeap& descriptorHeap)
+	{
+		m_base->ReleaseDescriptorHeap(descriptorHeap.GetBaseDescriptorHeap());
+		descriptorHeap = GfxDescriptorHeap();
+	}
+	
+	//void GfxDevice::CreateRenderTargetView(
+	//	GfxDescriptorHeap& descriptorHeap,
+	//	uint32_t descriptorIndex,
+	//	GfxTexture& texture,
+	//	const GfxRenderTargetViewDesc& desc)
+	//{
+	//	m_base->CreateRenderTargetView(
+	//		*descriptorHeap.GetBaseDescriptorHeap(),
+	//		descriptorIndex,
+	//		*texture.GetBaseTexture(),
+	//		desc);
+	//}
+
+	void GfxDevice::CreateShaderResourceView(
+		GfxDescriptorHeap& descriptorHeap,
+		uint32_t descriptorIndex,
+		GfxTexture& texture,
+		const GfxShaderResourceViewDesc& desc)
+	{
+		m_base->CreateShaderResourceView(
+			*descriptorHeap.GetBaseDescriptorHeap(),
+			descriptorIndex,
+			*texture.GetBaseTexture(),
+			desc);
 	}
 }

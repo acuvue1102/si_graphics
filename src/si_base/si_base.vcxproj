@@ -71,6 +71,7 @@
     <ClCompile Include="core\assert.cpp" />
     <ClCompile Include="gpu\dx12\dx12_buffer.cpp" />
     <ClCompile Include="gpu\dx12\dx12_command_queue.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_descriptor_heap.cpp" />
     <ClCompile Include="gpu\dx12\dx12_device.cpp" />
     <ClCompile Include="gpu\dx12\dx12_enum.cpp" />
     <ClCompile Include="gpu\dx12\dx12_fence.cpp" />
@@ -83,6 +84,7 @@
     <ClCompile Include="gpu\dx12\dx12_texture.cpp" />
     <ClCompile Include="gpu\gfx_buffer.cpp" />
     <ClCompile Include="gpu\gfx_command_queue.cpp" />
+    <ClCompile Include="gpu\gfx_descriptor_heap.cpp" />
     <ClCompile Include="gpu\gfx_device.cpp" />
     <ClCompile Include="gpu\gfx_fence.cpp" />
     <ClCompile Include="gpu\gfx_graphics_command_list.cpp" />
@@ -92,11 +94,14 @@
     <ClCompile Include="gpu\gfx_shader.cpp" />
     <ClCompile Include="gpu\gfx_swap_chain.cpp" />
     <ClCompile Include="gpu\gfx_texture.cpp" />
+    <ClCompile Include="memory\dlmalloc.c" />
+    <ClCompile Include="memory\pool_allocator.cpp" />
     <ClCompile Include="platform\window_util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\assert.h" />
     <ClInclude Include="core\basic_function.h" />
+    <ClInclude Include="core\basic_macro.h" />
     <ClInclude Include="core\core.h" />
     <ClInclude Include="core\new_delete.h" />
     <ClInclude Include="core\non_copyable.h" />
@@ -105,6 +110,8 @@
     <ClInclude Include="gpu\dx12\dx12_buffer.h" />
     <ClInclude Include="gpu\dx12\dx12_command_list.h" />
     <ClInclude Include="gpu\dx12\dx12_command_queue.h" />
+    <ClInclude Include="gpu\dx12\dx12_declare.h" />
+    <ClInclude Include="gpu\dx12\dx12_descriptor_heap.h" />
     <ClInclude Include="gpu\dx12\dx12_device.h" />
     <ClInclude Include="gpu\dx12\dx12_enum.h" />
     <ClInclude Include="gpu\dx12\dx12_fence.h" />
@@ -115,12 +122,15 @@
     <ClInclude Include="gpu\dx12\dx12_shader.h" />
     <ClInclude Include="gpu\dx12\dx12_swap_chain.h" />
     <ClInclude Include="gpu\dx12\dx12_texture.h" />
+    <ClInclude Include="gpu\dx12\dx12_utility.h" />
     <ClInclude Include="gpu\gfx.h" />
     <ClInclude Include="gpu\gfx_buffer.h" />
     <ClInclude Include="gpu\gfx_command_list.h" />
     <ClInclude Include="gpu\gfx_command_queue.h" />
     <ClInclude Include="gpu\gfx_config.h" />
+    <ClInclude Include="gpu\gfx_declare.h" />
     <ClInclude Include="gpu\gfx_desc.h" />
+    <ClInclude Include="gpu\gfx_descriptor_heap.h" />
     <ClInclude Include="gpu\gfx_device.h" />
     <ClInclude Include="gpu\gfx_enum.h" />
     <ClInclude Include="gpu\gfx_fence.h" />
@@ -132,7 +142,10 @@
     <ClInclude Include="gpu\gfx_shader.h" />
     <ClInclude Include="gpu\gfx_swap_chain.h" />
     <ClInclude Include="gpu\gfx_texture.h" />
+    <ClInclude Include="gpu\gfx_utility.h" />
     <ClInclude Include="gpu\gfx_viewport.h" />
+    <ClInclude Include="memory\dlmalloc.h" />
+    <ClInclude Include="memory\pool_allocator.h" />
     <ClInclude Include="platform\window_util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

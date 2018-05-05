@@ -42,7 +42,8 @@ namespace APP001
 
 	int Pipeline::LoadAsset(const AppInitializeInfo& info)
 	{
-		m_rootSignature = m_device.CreateRootSignature();
+		GfxRootSignatureDesc rootSignatureDesc;
+		m_rootSignature = m_device.CreateRootSignature(rootSignatureDesc);
 
 		std::string shaderPath = PathStorage::GetInstance()->GetExeDirPath();
 		shaderPath += "shaders\\color.hlsl";
@@ -116,7 +117,7 @@ namespace APP001
 
 		m_graphicsCommandList.ClearRenderTarget(tex, 0.0f, 0.2f, 0.4f, 1.0f);
 
-		m_graphicsCommandList.SetPrimitiveTopology(GfxPrimitiveTopology_TriangleList);
+		m_graphicsCommandList.SetPrimitiveTopology(kGfxPrimitiveTopology_TriangleList);
 		m_graphicsCommandList.SetVertexBuffers(
 			0,
 			1,

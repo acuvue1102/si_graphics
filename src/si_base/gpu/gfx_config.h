@@ -18,5 +18,8 @@ namespace SI
 		uint32_t m_bufferCount = 3u;
 		uint32_t m_width       = 1920u;
 		uint32_t m_height      = 1080u;
+		
+		size_t   m_objectPoolSize = 1024 * 1024;
+		size_t   m_tempPoolSize   = 1024 * 1024;
 	};
 }

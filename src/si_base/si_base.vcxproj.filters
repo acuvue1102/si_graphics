@@ -118,6 +118,33 @@
     <ClInclude Include="core\basic_function.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_utility.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_utility.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_descriptor_heap.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_descriptor_heap.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_declare.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_declare.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\pool_allocator.h">
+      <Filter>memory</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\dlmalloc.h">
+      <Filter>memory</Filter>
+    </ClInclude>
+    <ClInclude Include="core\basic_macro.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -131,6 +158,9 @@
     </Filter>
     <Filter Include="platform">
       <UniqueIdentifier>{b14a4f96-12f6-4637-bdc2-195cbd93ba6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="memory">
+      <UniqueIdentifier>{77386f44-3b14-4c0a-8ebe-95a1e48c82c1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -208,6 +238,18 @@
     </ClCompile>
     <ClCompile Include="core\assert.cpp">
       <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_descriptor_heap.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_descriptor_heap.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="memory\pool_allocator.cpp">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="memory\dlmalloc.c">
+      <Filter>memory</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
