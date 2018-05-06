@@ -63,6 +63,12 @@ namespace SI
 			uint32_t startInstanceLocation   = 0);
 
 	public:
+		int UploadBuffer(
+			GfxDevice& device,
+			GfxBuffer& targetBuffer,
+			const void* srcBuffer,
+			size_t srcBufferSize);
+
 		int UploadTexture(
 			GfxDevice& device,
 			GfxTexture& targetTexture,

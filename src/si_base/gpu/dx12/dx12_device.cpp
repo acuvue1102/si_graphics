@@ -78,7 +78,7 @@ namespace SI
 		for(int i=0; i<kGfxDescriptorHeapFlag_Max; ++i)
 		{
 			D3D12_DESCRIPTOR_HEAP_TYPE type = GetDx12DescriptorHeapType((GfxDescriptorHeapType)i);
-			s_descriptorSize[kGfxDescriptorHeapType_RTV] = m_device->GetDescriptorHandleIncrementSize(type);
+			s_descriptorSize[i] = m_device->GetDescriptorHandleIncrementSize(type);
 		}
 
 		return 0;
@@ -104,6 +104,7 @@ namespace SI
 	
 	size_t BaseDevice::GetDescriptorSize(GfxDescriptorHeapType type)
 	{
+		SI_ASSERT(s_descriptorSize[type] != 0);
 		return s_descriptorSize[type];
 	}
 	
@@ -396,6 +397,28 @@ namespace SI
 			*m_device.Get(),
 			descriptorIndex,
 			texture,
+			desc);
+	}
+
+	void BaseDevice::CreateSampler(
+		BaseDescriptorHeap& descriptorHeap,
+		uint32_t descriptorIndex,
+		const GfxSamplerDesc& desc)
+	{
+		descriptorHeap.CreateSampler(
+			*m_device.Get(),
+			descriptorIndex,
+			desc);
+	}
+
+	void BaseDevice::CreateConstantBufferView(
+		BaseDescriptorHeap& descriptorHeap,
+		uint32_t descriptorIndex,
+		const GfxConstantBufferViewDesc& desc)
+	{
+		descriptorHeap.CreateConstantBufferView(
+			*m_device.Get(),
+			descriptorIndex,
 			desc);
 	}
 

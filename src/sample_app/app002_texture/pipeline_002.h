@@ -15,9 +15,13 @@ namespace APP002
 
 		int OnInitialize(const AppInitializeInfo&) override;
 		int OnTerminate()                          override;
+		int OnUpdate(const AppUpdateInfo&)         override;
 		int OnRender(const AppRenderInfo&)         override;
 
 		int LoadAsset(const AppInitializeInfo& info);
+
+	protected:
+		struct ShaderConstant;
 
 	protected:
 		GfxRootSignature         m_rootSignature;
@@ -28,7 +32,11 @@ namespace APP002
 
 		GfxBuffer                m_vertexBuffer;
 		GfxTexture               m_texture;
-		GfxDescriptorHeap        m_srvHeap;
+		GfxDescriptorHeap        m_cbvSrvUavHeap;
+		GfxDescriptorHeap        m_samplerHeap;
+		
+		GfxBuffer                m_constantBuffer;
+		ShaderConstant*          m_constantAddr;
 	};
 	
 } // namespace APP002

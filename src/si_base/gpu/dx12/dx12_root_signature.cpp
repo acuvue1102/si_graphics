@@ -25,6 +25,7 @@ namespace SI
 	{
 		ID3D12Device& d3dDevice = *device.GetComPtrDevice().Get();
 
+#if 0
 		D3D12_STATIC_SAMPLER_DESC sampler = {};
 		sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 		sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
@@ -39,6 +40,7 @@ namespace SI
 		sampler.ShaderRegister = 0;
 		sampler.RegisterSpace = 0;
 		sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+#endif
 		
 		PoolAllocatorEx* tempAllocator = device.GetTempAllocator();
 		D3D12_ROOT_PARAMETER1* parameters = tempAllocator->NewArray<D3D12_ROOT_PARAMETER1>(desc.m_tableCount);
@@ -62,7 +64,15 @@ namespace SI
 				outRange.NumDescriptors      = inRange.m_descriptorCount;
 				outRange.BaseShaderRegister  = inRange.m_shaderRegisterIndex;
 				outRange.RegisterSpace       = 0;
-				outRange.Flags               = GetDx12DescriptorRangeFlags(inRange.m_rangeFlag);
+
+				if(inRange.m_rangeType==kGfxDescriptorRangeType_Sampler)
+				{
+					outRange.Flags           = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
+				}
+				else
+				{
+					outRange.Flags           = GetDx12DescriptorRangeFlags(inRange.m_rangeFlag);
+				}
 				outRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 			}
 			
@@ -84,8 +94,8 @@ namespace SI
 		D3D12_ROOT_SIGNATURE_DESC1& rootSignatureDesc1 = rootSignatureDesc.Desc_1_1;
 		rootSignatureDesc1.NumParameters     = desc.m_tableCount;
 		rootSignatureDesc1.pParameters       = parameters;
-		rootSignatureDesc1.NumStaticSamplers = 1;
-		rootSignatureDesc1.pStaticSamplers   = &sampler;
+		rootSignatureDesc1.NumStaticSamplers = 0;//1;
+		rootSignatureDesc1.pStaticSamplers   = nullptr;//&sampler;
 		rootSignatureDesc1.Flags             = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 		ComPtr<ID3DBlob> signature;

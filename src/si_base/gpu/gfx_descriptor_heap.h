@@ -1,12 +1,13 @@
 ﻿#pragma once
 
+#include "si_base/core/constant.h"
 #include "si_base/gpu/gfx_config.h"
 #include "si_base/gpu/gfx_enum.h"
 
 namespace SI
 {
-	class BaseTexture;
 	class BaseDescriptorHeap;
+	class GfxBuffer;
 
 	struct GfxDescriptorHeapDesc
 	{
@@ -25,6 +26,25 @@ namespace SI
 		GfxFormat       m_format       = kGfxFormat_R8G8B8A8_Unorm;
 		uint32_t        m_miplevels    = 1;
 		uint32_t        m_arraySize    = 1;
+	};
+
+	struct GfxSamplerDesc
+	{
+		GfxFilter           m_filter         = kGfxFilter_MinMagMipPoint;
+		GfxTextureAddress   m_addressU       = kGfxTextureAddress_Wrap;
+		GfxTextureAddress   m_addressV       = kGfxTextureAddress_Wrap;
+		GfxTextureAddress   m_addressW       = kGfxTextureAddress_Wrap;
+		float               m_mipLODBias     = 0.0f;
+		uint32_t            m_maxAnisotropy  = 1;
+		GfxComparisonFunc   m_comparisonFunc = kGfxComparisonFunc_Less;
+		float               m_borderColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+		float               m_minLOD         = 0.0f;
+		float               m_maxLOD         = kFltMax;
+	};
+
+	struct GfxConstantBufferViewDesc
+	{
+		GfxBuffer*          m_buffer = nullptr;
 	};
 	
 	struct GfxCpuDescriptor

@@ -21,4 +21,6 @@ namespace SI
 	struct GfxRenderTargetViewDesc;
 	struct GfxShaderResourceViewDesc;
 	struct GfxRootSignatureDesc;
+	struct GfxSamplerDesc;
+	struct GfxConstantBufferViewDesc;
 } // namespace SI

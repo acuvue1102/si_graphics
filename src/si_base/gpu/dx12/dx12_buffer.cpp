@@ -40,24 +40,23 @@ namespace SI
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 		resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 		
+		D3D12_RESOURCE_STATES resourceState = D3D12_RESOURCE_STATE_GENERIC_READ;
+		if(desc.m_heapType == kGfxHeapType_Default)
+		{
+			resourceState = D3D12_RESOURCE_STATE_COPY_DEST;
+		}
+
 		HRESULT hr = device.CreateCommittedResource(
 			&heapProperties,
 			D3D12_HEAP_FLAG_NONE,
 			&resourceDesc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
+			resourceState,
 			nullptr,
 			IID_PPV_ARGS(&m_resource));
 		if(FAILED(hr))
 		{
 			SI_ASSERT(0, "error device.CreateCommittedResource", _com_error(hr).ErrorMessage());
 			return -1;
-		}
-
-		if(desc.m_initialData)
-		{
-			void* virtualAddr = Map(0);
-			memcpy(virtualAddr, desc.m_initialData, desc.m_bufferSizeInByte);
-			Unmap(0);
 		}
 
 		m_bufferSizeInByte = desc.m_bufferSizeInByte;

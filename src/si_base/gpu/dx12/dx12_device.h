@@ -73,6 +73,16 @@ namespace SI
 			BaseTexture& texture,
 			const GfxShaderResourceViewDesc& desc);
 
+		void CreateSampler(
+			BaseDescriptorHeap& descriptorHeap,
+			uint32_t descriptorIndex,
+			const GfxSamplerDesc& desc);
+
+		void CreateConstantBufferView(
+			BaseDescriptorHeap& descriptorHeap,
+			uint32_t descriptorIndex,
+			const GfxConstantBufferViewDesc& desc);
+
 	public:
 		PoolAllocatorEx* GetObjectAllocator(){ return m_objectAllocator; }
 		PoolAllocatorEx* GetTempAllocator()  { return m_tempAllocator; }

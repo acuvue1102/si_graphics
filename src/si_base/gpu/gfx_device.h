@@ -55,12 +55,22 @@ namespace SI
 		//	uint32_t descriptorIndex,
 		//	GfxTexture& texture,
 		//	const GfxRenderTargetViewDesc& desc);
-
+		
 		void CreateShaderResourceView(
 			GfxDescriptorHeap& descriptorHeap,
 			uint32_t descriptorIndex,
 			GfxTexture& texture,
 			const GfxShaderResourceViewDesc& desc);
+
+		void CreateSampler(
+			GfxDescriptorHeap& descriptorHeap,
+			uint32_t descriptorIndex,
+			const GfxSamplerDesc& desc);
+
+		void CreateConstantBufferView(
+			GfxDescriptorHeap& descriptorHeap,
+			uint32_t descriptorIndex,
+			const GfxConstantBufferViewDesc& desc);
 
 	public:
 		BaseDevice* GetBaseDevice(){ return m_base; }

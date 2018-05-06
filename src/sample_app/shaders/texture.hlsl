@@ -2,6 +2,11 @@
 Texture2D<float4> texture0 : register(t0);
 SamplerState      sampler0 : register(s0);
 
+cbuffer ConstantBuffer : register(b1)
+{
+	float m_uvScale;
+};
+
 struct VSInput
 {
 	float4 position : POSITION;
@@ -32,8 +37,8 @@ PSInput VSMain(VSInput input)
 PsOutput PSMain(PSInput input)
 {
 	PsOutput output;
-
-	output.color = texture0.Sample(sampler0, input.uv);
+	
+	output.color = texture0.Sample(sampler0, m_uvScale * input.uv);
 
 	return output;
 }

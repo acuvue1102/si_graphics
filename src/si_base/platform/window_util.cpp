@@ -101,6 +101,8 @@ namespace SI
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			break;
+		case WM_PAINT:
+			break;
 		default:
 			return DefWindowProc(hWnd, msg, wParam, lParam);
 		}

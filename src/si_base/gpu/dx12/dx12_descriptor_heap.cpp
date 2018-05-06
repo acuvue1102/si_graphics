@@ -8,8 +8,9 @@
 #include "si_base/core/core.h"
 #include "si_base/gpu/dx12/dx12_texture.h"
 #include "si_base/gpu/dx12/dx12_enum.h"
+#include "si_base/gpu/dx12/dx12_buffer.h"
 #include "si_base/gpu/gfx_descriptor_heap.h"
-
+#include "si_base/gpu/gfx_buffer.h"
 
 namespace SI
 {
@@ -28,7 +29,7 @@ namespace SI
 		ID3D12Device& device,
 		const GfxDescriptorHeapDesc& desc)
 	{
-		static const D3D12_DESCRIPTOR_HEAP_DESC kDesc =
+		D3D12_DESCRIPTOR_HEAP_DESC kDesc =
 		{
 			GetDx12DescriptorHeapType(desc.m_type),
 			desc.m_descriptorCount,
@@ -116,6 +117,47 @@ namespace SI
 		size_t descriptorSize = BaseDevice::GetDescriptorSize(kGfxDescriptorHeapType_CbvSrvUav);
 		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
 		device.CreateShaderResourceView(texture.GetComPtrResource().Get(), &srvDesc, descriptor);
+	}
+	
+	void BaseDescriptorHeap::CreateSampler(
+		ID3D12Device& device,
+		uint32_t descriptorIndex,
+		const GfxSamplerDesc& desc)
+	{
+		D3D12_SAMPLER_DESC samplerDesc = {};		
+		samplerDesc.Filter        = GetDx12Filter(desc.m_filter);
+		samplerDesc.AddressU      = GetDx12TextureAddress(desc.m_addressU);
+		samplerDesc.AddressV      = GetDx12TextureAddress(desc.m_addressV);
+		samplerDesc.AddressW      = GetDx12TextureAddress(desc.m_addressW);
+		samplerDesc.MipLODBias    = desc.m_mipLODBias;
+		samplerDesc.MaxAnisotropy = desc.m_maxAnisotropy;
+		samplerDesc.ComparisonFunc= GetDx12ComparisonFunc(desc.m_comparisonFunc);
+		samplerDesc.BorderColor[0] = desc.m_borderColor[0];
+		samplerDesc.BorderColor[1] = desc.m_borderColor[1];
+		samplerDesc.BorderColor[2] = desc.m_borderColor[2];
+		samplerDesc.BorderColor[3] = desc.m_borderColor[3];
+		samplerDesc.MinLOD         = desc.m_minLOD;
+		samplerDesc.MaxLOD         = desc.m_maxLOD;
+
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(kGfxDescriptorHeapType_Sampler);
+		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
+		device.CreateSampler(&samplerDesc, descriptor);
+	}
+
+	void BaseDescriptorHeap::CreateConstantBufferView(
+		ID3D12Device& device,
+		uint32_t descriptorIndex,
+		const GfxConstantBufferViewDesc& desc)
+	{
+		BaseBuffer* baseBuffer = desc.m_buffer->GetBaseBuffer();
+
+		D3D12_CONSTANT_BUFFER_VIEW_DESC constantDesc = {};
+		constantDesc.BufferLocation = baseBuffer->GetLocation();
+		constantDesc.SizeInBytes    = baseBuffer->GetSize();
+
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(kGfxDescriptorHeapType_CbvSrvUav);
+		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
+		device.CreateConstantBufferView(&constantDesc, descriptor);
 	}
 	
 	GfxCpuDescriptor BaseDescriptorHeap::GetCpuDescriptor(GfxDescriptorHeapType type, uint32_t descriptorIndex) const

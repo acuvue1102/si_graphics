@@ -110,6 +110,19 @@ namespace SI
 			startInstanceLocation);
 	}
 
+	int GfxGraphicsCommandList::UploadBuffer(
+		GfxDevice& device,
+		GfxBuffer& targetBuffer,
+		const void* srcBuffer,
+		size_t srcBufferSize)
+	{
+		return m_base->UploadBuffer(
+			*device.GetBaseDevice(),
+			*targetBuffer.GetBaseBuffer(),
+			srcBuffer,
+			srcBufferSize);
+	}
+
 	int GfxGraphicsCommandList::UploadTexture(
 		GfxDevice& device,
 		GfxTexture& targetTexture,

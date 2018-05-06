@@ -38,6 +38,16 @@ namespace SI
 			BaseTexture& texture,
 			const GfxShaderResourceViewDesc& desc);
 
+		void CreateSampler(
+			ID3D12Device& device,
+			uint32_t descriptorIndex,
+			const GfxSamplerDesc& desc);
+
+		void CreateConstantBufferView(
+			ID3D12Device& device,
+			uint32_t descriptorIndex,
+			const GfxConstantBufferViewDesc& desc);
+
 	public:
 		GfxCpuDescriptor GetCpuDescriptor(GfxDescriptorHeapType type, uint32_t descriptorIndex) const;
 		GfxGpuDescriptor GetGpuDescriptor(GfxDescriptorHeapType type, uint32_t descriptorIndex) const;

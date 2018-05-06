@@ -77,8 +77,12 @@ namespace APP001
 		GfxBufferDesc bufferDesc;
 		bufferDesc.m_heapType = kGfxHeapType_Upload;
 		bufferDesc.m_bufferSizeInByte = sizeof(kVertexData);
-		bufferDesc.m_initialData = (const void*)kVertexData;
 		m_vertexBuffer = m_device.CreateBuffer(bufferDesc);
+		{
+			void* outBuffer = m_vertexBuffer.Map();
+			memcpy(outBuffer, kVertexData, sizeof(kVertexData));
+			m_vertexBuffer.Unmap();
+		}
 			
 		m_viewport = GfxViewport(0.0f, 0.0f, (float)info.m_width, (float)info.m_height);
 		m_scissor  = GfxScissor(0, 0, info.m_width, info.m_height);

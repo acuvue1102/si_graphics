@@ -9,7 +9,6 @@ namespace SI
 	struct GfxBufferDesc
 	{
 		size_t       m_bufferSizeInByte  = 0;
-		const void*  m_initialData       = nullptr;
 		GfxHeapType  m_heapType          = kGfxHeapType_Default;
 	};
 

@@ -10,7 +10,7 @@ namespace SI
 	struct GfxDescriptorRange
 	{
 		GfxDescriptorRangeType m_rangeType           = kGfxDescriptorRangeType_Srv;
-		GfxDescriptorRangeFlag m_rangeFlag           = kGfxDescriptorRangeFlag_Static;
+		GfxDescriptorRangeFlag m_rangeFlag           = kGfxDescriptorRangeFlag_Static; // samplerの時は無視.
 		uint32_t               m_descriptorCount     = 0;
 		uint32_t               m_shaderRegisterIndex = 0;
 	};

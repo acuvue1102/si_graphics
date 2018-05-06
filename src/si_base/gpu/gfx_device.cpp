@@ -192,4 +192,26 @@ namespace SI
 			*texture.GetBaseTexture(),
 			desc);
 	}
+	
+	void GfxDevice::CreateSampler(
+		GfxDescriptorHeap& descriptorHeap,
+		uint32_t descriptorIndex,
+		const GfxSamplerDesc& desc)
+	{
+		m_base->CreateSampler(
+			*descriptorHeap.GetBaseDescriptorHeap(),
+			descriptorIndex,
+			desc);
+	}
+	
+	void GfxDevice::CreateConstantBufferView(
+		GfxDescriptorHeap& descriptorHeap,
+		uint32_t descriptorIndex,
+		const GfxConstantBufferViewDesc& desc)
+	{
+		m_base->CreateConstantBufferView(
+			*descriptorHeap.GetBaseDescriptorHeap(),
+			descriptorIndex,
+			desc);
+	}
 }

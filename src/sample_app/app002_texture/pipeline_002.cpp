@@ -60,10 +60,16 @@ namespace APP002
 		}
 	}
 
+	struct Pipeline::ShaderConstant
+	{
+		float m_uvScale;
+	};
+
 	//////////////////////////////////////////////////////////
 	
 	Pipeline::Pipeline(int observerSortKey)
 		: PipelineBase(observerSortKey)
+		, m_constantAddr(nullptr)
 	{
 	}
 
@@ -81,17 +87,27 @@ namespace APP002
 
 	int Pipeline::LoadAsset(const AppInitializeInfo& info)
 	{
-		GfxDescriptorRange range;
-		range.m_rangeType       = kGfxDescriptorRangeType_Srv;
-		range.m_descriptorCount = 1;
+		GfxDescriptorRange cbvSrvUavRanges[2];
+		cbvSrvUavRanges[0].m_rangeType           = kGfxDescriptorRangeType_Srv;
+		cbvSrvUavRanges[0].m_descriptorCount     = 1;
+		cbvSrvUavRanges[0].m_shaderRegisterIndex = 0;
+		cbvSrvUavRanges[1].m_rangeType           = kGfxDescriptorRangeType_Cbv;
+		cbvSrvUavRanges[1].m_descriptorCount     = 1;
+		cbvSrvUavRanges[1].m_shaderRegisterIndex = 1;
+		
+		GfxDescriptorRange samplerRanges[1];
+		samplerRanges[0].m_rangeType       = kGfxDescriptorRangeType_Sampler;
+		samplerRanges[0].m_descriptorCount = 1;
 
-		GfxDescriptorHeapTable table;
-		table.m_rangeCount = 1;
-		table.m_ranges = &range;
+		GfxDescriptorHeapTable tables[2];
+		tables[0].m_rangeCount = (uint32_t)ArraySize(cbvSrvUavRanges);
+		tables[0].m_ranges = cbvSrvUavRanges;
+		tables[1].m_rangeCount = (uint32_t)ArraySize(samplerRanges);
+		tables[1].m_ranges = samplerRanges;
 
 		GfxRootSignatureDesc rootSignatureDesc;
-		rootSignatureDesc.m_tableCount = 1;
-		rootSignatureDesc.m_tables = &table;
+		rootSignatureDesc.m_tableCount = (uint32_t)ArraySize(tables);
+		rootSignatureDesc.m_tables = tables;
 		m_rootSignature = m_device.CreateRootSignature(rootSignatureDesc);
 
 		std::string shaderPath = PathStorage::GetInstance()->GetExeDirPath();
@@ -128,12 +144,18 @@ namespace APP002
 			{  0.95f / aspect, -0.95f, 0.0f ,  1.0f, 1.0f },
 		};
 
-		GfxBufferDesc bufferDesc;
-		bufferDesc.m_heapType = kGfxHeapType_Upload;
-		bufferDesc.m_bufferSizeInByte = sizeof(kVertexData);
-		bufferDesc.m_initialData = (const void*)kVertexData;
-		m_vertexBuffer = m_device.CreateBuffer(bufferDesc);
-			
+		GfxBufferDesc vertexBufferDesc;
+		vertexBufferDesc.m_heapType = kGfxHeapType_Default;
+		vertexBufferDesc.m_bufferSizeInByte = sizeof(kVertexData);
+		m_vertexBuffer = m_device.CreateBuffer(vertexBufferDesc);
+
+		GfxBufferDesc constantBufferDesc;
+		constantBufferDesc.m_heapType = kGfxHeapType_Upload;
+		constantBufferDesc.m_bufferSizeInByte = (sizeof(ShaderConstant) + 255) & ~255; // should be multiple of 256 bytes.
+		m_constantBuffer = m_device.CreateBuffer(constantBufferDesc);
+		m_constantAddr = static_cast<ShaderConstant*>(m_constantBuffer.Map());
+		m_constantAddr->m_uvScale = 1;
+
 		m_viewport = GfxViewport(0.0f, 0.0f, (float)info.m_width, (float)info.m_height);
 		m_scissor  = GfxScissor(0, 0, info.m_width, info.m_height);
 
@@ -145,21 +167,39 @@ namespace APP002
 		textureDesc.m_dimension = kGfxDimension_Texture2D;
 		m_texture = m_device.CreateTexture(textureDesc);
 
-		GfxDescriptorHeapDesc descriptorHeapDesc;
-		descriptorHeapDesc.m_type = kGfxDescriptorHeapType_CbvSrvUav;
-		descriptorHeapDesc.m_descriptorCount = 1;
-		descriptorHeapDesc.m_flag = kGfxDescriptorHeapFlag_ShaderVisible;
-		m_srvHeap = m_device.CreateDescriptorHeap(descriptorHeapDesc);
+		GfxDescriptorHeapDesc cbvSrvUavHeapDesc;
+		cbvSrvUavHeapDesc.m_type = kGfxDescriptorHeapType_CbvSrvUav;
+		cbvSrvUavHeapDesc.m_descriptorCount = 2;
+		cbvSrvUavHeapDesc.m_flag = kGfxDescriptorHeapFlag_ShaderVisible;
+		m_cbvSrvUavHeap = m_device.CreateDescriptorHeap(cbvSrvUavHeapDesc);
+		
+		GfxDescriptorHeapDesc samplerHeapDesc;
+		samplerHeapDesc.m_type = kGfxDescriptorHeapType_Sampler;
+		samplerHeapDesc.m_descriptorCount = 1;
+		samplerHeapDesc.m_flag = kGfxDescriptorHeapFlag_ShaderVisible;
+		m_samplerHeap = m_device.CreateDescriptorHeap(samplerHeapDesc);
 
 		GfxShaderResourceViewDesc srvDesc;
 		srvDesc.m_format = kGfxFormat_R8G8B8A8_Unorm;
 		srvDesc.m_miplevels = 1;
 		srvDesc.m_srvDimension = kGfxDimension_Texture2D;
-		m_device.CreateShaderResourceView(m_srvHeap, 0, m_texture, srvDesc);
+		m_device.CreateShaderResourceView(m_cbvSrvUavHeap, 0, m_texture, srvDesc);
 
+		GfxConstantBufferViewDesc cbvDesc;
+		cbvDesc.m_buffer = &m_constantBuffer;
+		m_device.CreateConstantBufferView(m_cbvSrvUavHeap, 1, cbvDesc);
+		
+		GfxSamplerDesc samplerDesc;
+		m_device.CreateSampler(m_samplerHeap, 0, samplerDesc);
+
+		// commandList経由でリソースのデータをアップロードする.
 		BeginRender();
-		std::vector<uint8_t> texData = GenerateTextureData(textureDesc.m_width, textureDesc.m_height);
-		m_graphicsCommandList.UploadTexture(m_device, m_texture, &texData[0], texData.size());
+		{
+			m_graphicsCommandList.UploadBuffer(m_device, m_vertexBuffer, kVertexData, sizeof(kVertexData));
+
+			std::vector<uint8_t> texData = GenerateTextureData(textureDesc.m_width, textureDesc.m_height);
+			m_graphicsCommandList.UploadTexture(m_device, m_texture, &texData[0], texData.size());
+		}
 		EndRender();
 
 		return 0;
@@ -169,9 +209,13 @@ namespace APP002
 	{
 		m_swapChain.Flip(); // wait previous frame.
 
-		m_device.ReleaseDescriptorHeap(m_srvHeap);
+		m_device.ReleaseDescriptorHeap(m_samplerHeap);
+
+		m_device.ReleaseDescriptorHeap(m_cbvSrvUavHeap);
 
 		m_device.ReleaseTexture(m_texture);
+
+		m_device.ReleaseBuffer(m_constantBuffer);
 
 		m_device.ReleaseBuffer(m_vertexBuffer);
 
@@ -181,6 +225,22 @@ namespace APP002
 
 		PipelineBase::OnTerminate();
 
+		return 0;
+	}
+	
+	int Pipeline::OnUpdate(const AppUpdateInfo&)
+	{
+		static float s_delta = 0.1f;
+		if(8.0f <= m_constantAddr->m_uvScale)
+		{
+			s_delta = -0.1f;
+		}
+		else
+		if(m_constantAddr->m_uvScale <= 1.0f)
+		{
+			s_delta = 0.1f;
+		}
+		m_constantAddr->m_uvScale += s_delta;
 		return 0;
 	}
 	
@@ -194,9 +254,10 @@ namespace APP002
 						
 		m_graphicsCommandList.SetGraphicsRootSignature(m_rootSignature);
 
-		GfxDescriptorHeap* heaps[] = {&m_srvHeap};
-		m_graphicsCommandList.SetDescriptorHeaps(1, heaps);
-		m_graphicsCommandList.SetGraphicsDescriptorTable(0, m_srvHeap.GetGpuDescriptor(kGfxDescriptorHeapType_CbvSrvUav, 0));
+		GfxDescriptorHeap* heaps[] = {&m_cbvSrvUavHeap, &m_samplerHeap};
+		m_graphicsCommandList.SetDescriptorHeaps((uint32_t)ArraySize(heaps), heaps);
+		m_graphicsCommandList.SetGraphicsDescriptorTable(0, m_cbvSrvUavHeap.GetGpuDescriptor(kGfxDescriptorHeapType_CbvSrvUav, 0));
+		m_graphicsCommandList.SetGraphicsDescriptorTable(1, m_samplerHeap.GetGpuDescriptor(kGfxDescriptorHeapType_Sampler, 0));
 
 		m_graphicsCommandList.SetRenderTargets(1, &tex);
 		m_graphicsCommandList.SetViewports(1, &m_viewport);

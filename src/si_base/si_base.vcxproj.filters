@@ -145,6 +145,9 @@
     <ClInclude Include="core\basic_macro.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="core\constant.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">

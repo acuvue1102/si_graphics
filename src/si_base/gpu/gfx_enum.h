@@ -2,6 +2,73 @@
 
 namespace SI
 {
+	enum GfxComparisonFunc
+	{
+		kGfxComparisonFunc_Never,
+		kGfxComparisonFunc_Less,
+		kGfxComparisonFunc_Equal,
+		kGfxComparisonFunc_LessEqual,
+		kGfxComparisonFunc_Greater,
+		kGfxComparisonFunc_NotEqual,
+		kGfxComparisonFunc_GreaterEqual,
+		kGfxComparisonFunc_Always,
+
+		kGfxComparisonFunc_Max
+	};
+
+	enum GfxTextureAddress
+	{
+		kGfxTextureAddress_Wrap = 0,
+		kGfxTextureAddress_Mirror,
+		kGfxTextureAddress_Clamp,
+		kGfxTextureAddress_Boarder,
+		kGfxTextureAddress_MirrorOnce,
+		
+		kGfxTextureAddress_Max
+	};
+
+	enum GfxFilter
+	{
+		kGfxFilter_MinMagMipPoint = 0,
+		kGfxFilter_MinMagPointMipLinear,
+		kGfxFilter_MinPointMagLinearMipPoint,
+		kGfxFilter_MinPointMagMipLinear,
+		kGfxFilter_MinLinearMagMipPoint,
+		kGfxFilter_MinLinearMagPointMipLinear,
+		kGfxFilter_MinMagLinearMipPoint,
+		kGfxFilter_MinMagMipLinear,
+		kGfxFilter_Anisotropic,
+		kGfxFilter_ComparisonMinMagMipPoint,
+		kGfxFilter_ComparisonMinMagPointMipLinear,
+		kGfxFilter_ComparisonMinPointMagLinearMipPoint,
+		kGfxFilter_ComparisonMinPointMagMipLinear,
+		kGfxFilter_ComparisonMinLinearMagMipPoint,
+		kGfxFilter_ComparisonMinLinearMagPointMipLinear,
+		kGfxFilter_ComparisonMinMagLinearMipPoint,
+		kGfxFilter_ComparisonMinMagMipLinear,
+		kGfxFilter_ComparisonAnisotropic,
+		kGfxFilter_MinimumMinMagMipPoint,
+		kGfxFilter_MinimumMinMagPointMipLinear,
+		kGfxFilter_MinimumMinPointMagLinearMipPoint,
+		kGfxFilter_MinimumMinPointMagMipLinear,
+		kGfxFilter_MinimumMinLinearMagMipPoint,
+		kGfxFilter_MinimumMinLinearMagPointMipLinear,
+		kGfxFilter_MinimumMinMagLinearMipPoint,
+		kGfxFilter_MinimumMinMagMipLinear,
+		kGfxFilter_MinimumAnisotropic,
+		kGfxFilter_MaximumMinMagMipPoint,
+		kGfxFilter_MaximumMinMagPointMipLinear,
+		kGfxFilter_MaximumMinPointMagLinearMipPoint,
+		kGfxFilter_MaximumMinPointMagMipLinear,
+		kGfxFilter_MaximumMinLinearMagMipPoint,
+		kGfxFilter_MaximumMinLinearMagPointMipLinear,
+		kGfxFilter_MaximumMinMagLinearMipPoint,
+		kGfxFilter_MaximumMinMagMipLinear,
+		kGfxFilter_MaximumAnisotropic,
+
+		kGfxFilter_Max
+	};
+
 	enum GfxDimension
 	{
 		kGfxDimension_Buffer = 0,
