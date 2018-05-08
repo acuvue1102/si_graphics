@@ -75,7 +75,7 @@ namespace SI
 		}
 
 		// descriptor heap sizeをあらかじめ保持しておく.
-		for(int i=0; i<kGfxDescriptorHeapFlag_Max; ++i)
+		for(int i=0; i<kGfxDescriptorHeapType_Max; ++i)
 		{
 			D3D12_DESCRIPTOR_HEAP_TYPE type = GetDx12DescriptorHeapType((GfxDescriptorHeapType)i);
 			s_descriptorSize[i] = m_device->GetDescriptorHandleIncrementSize(type);
@@ -374,18 +374,18 @@ namespace SI
 		SI_DELETE(d);
 	}
 
-	//void BaseDevice::CreateRenderTargetView(
-	//	BaseDescriptorHeap& descriptorHeap,
-	//	uint32_t descriptorIndex,
-	//	BaseTexture& texture,
-	//	const GfxRenderTargetViewDesc& desc)
-	//{
-	//	descriptorHeap.CreateRenderTargetView(
-	//		*m_device.Get(),
-	//		descriptorIndex,
-	//		texture,
-	//		desc);
-	//}
+	void BaseDevice::CreateRenderTargetView(
+		BaseDescriptorHeap& descriptorHeap,
+		uint32_t descriptorIndex,
+		BaseTexture& texture,
+		const GfxRenderTargetViewDesc& desc)
+	{
+		descriptorHeap.CreateRenderTargetView(
+			*m_device.Get(),
+			descriptorIndex,
+			texture,
+			desc);
+	}
 
 	void BaseDevice::CreateShaderResourceView(
 		BaseDescriptorHeap& descriptorHeap,

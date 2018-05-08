@@ -91,7 +91,13 @@ namespace SI
 		psoDesc.SampleMask = UINT_MAX;
 		psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		psoDesc.NumRenderTargets = 1;
-		psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		
+		static_assert(ArraySize(psoDesc.RTVFormats) == 8, "array count error");
+		SI_ASSERT(ArraySize(psoDesc.RTVFormats) == ArraySize(desc.m_rtvFormats));
+		for(uint32_t rt=0; rt<ArraySize(desc.m_rtvFormats); ++rt)
+		{
+			psoDesc.RTVFormats[rt] = GetDx12Format(desc.m_rtvFormats[rt]);
+		}
 		psoDesc.SampleDesc.Count = 1;
 
 		HRESULT hr = device.CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState));

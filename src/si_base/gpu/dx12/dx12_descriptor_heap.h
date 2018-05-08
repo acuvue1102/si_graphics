@@ -26,11 +26,11 @@ namespace SI
 
 		int Terminate();
 
-		//void CreateRenderTargetView(
-		//	ID3D12Device& device,
-		//	uint32_t descriptorIndex,
-		//	BaseTexture& texture,
-		//	const GfxRenderTargetViewDesc& desc);
+		void CreateRenderTargetView(
+			ID3D12Device& device,
+			uint32_t descriptorIndex,
+			BaseTexture& texture,
+			const GfxRenderTargetViewDesc& desc);
 
 		void CreateShaderResourceView(
 			ID3D12Device& device,

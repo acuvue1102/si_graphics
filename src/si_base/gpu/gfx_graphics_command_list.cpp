@@ -16,9 +16,9 @@ namespace SI
 	{
 	}
 
-	void GfxGraphicsCommandList::ClearRenderTarget(GfxTexture& tex, float r, float g, float b, float a)
+	void GfxGraphicsCommandList::ClearRenderTarget(const GfxCpuDescriptor& tex, float r, float g, float b, float a)
 	{
-		m_base->ClearRenderTarget(*tex.GetBaseTexture(), r, g, b, a);
+		m_base->ClearRenderTarget(tex, r, g, b, a);
 	}
 
 	int GfxGraphicsCommandList::Reset(GfxGraphicsState* graphicsState)
@@ -29,12 +29,14 @@ namespace SI
 	void GfxGraphicsCommandList::ResourceBarrier(
 		GfxTexture& texture,
 		const GfxResourceState& before,
-		const GfxResourceState& after)
+		const GfxResourceState& after,
+		GfxResourceBarrierFlag flag)
 	{
 		m_base->ResourceBarrier(
 			*texture.GetBaseTexture(),
 			before,
-			after);
+			after,
+			flag);
 	}
 	
 	int GfxGraphicsCommandList::Close()
@@ -77,9 +79,9 @@ namespace SI
 	}
 
 	void GfxGraphicsCommandList::SetRenderTargets(
-		uint32_t     renderTargetCount,
-		GfxTexture*  renderTargets,
-		GfxTexture*  depthStencilTarget)
+		uint32_t                 renderTargetCount,
+		const GfxCpuDescriptor*  renderTargets,
+		const GfxCpuDescriptor&  depthStencilTarget)
 	{
 		m_base->SetRenderTargets(renderTargetCount, renderTargets, depthStencilTarget);
 	}

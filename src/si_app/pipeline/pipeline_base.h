@@ -33,9 +33,6 @@ namespace SI
 		GfxCommandQueue          m_commandQueue;
 		GfxSwapChain             m_swapChain;
 		GfxGraphicsCommandList   m_graphicsCommandList;
-
-		GfxViewport              m_viewport;
-		GfxScissor               m_scissor;
 	};
 
 } // namespace SI

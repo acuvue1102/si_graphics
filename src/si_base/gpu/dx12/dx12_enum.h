@@ -11,6 +11,19 @@
 
 namespace SI
 {
+	inline D3D12_RESOURCE_BARRIER_FLAGS GetDx12ResourceBarrierFlag(GfxResourceBarrierFlag f)
+	{
+		static const D3D12_RESOURCE_BARRIER_FLAGS kTable[] =
+		{
+		D3D12_RESOURCE_BARRIER_FLAG_NONE,
+		D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY,
+		D3D12_RESOURCE_BARRIER_FLAG_END_ONLY
+		};
+		static_assert(ArraySize(kTable) == (size_t)kGfxResourceBarrierFlag_Max, "tableError");
+
+		return kTable[f];
+	}
+
 	inline D3D12_COMPARISON_FUNC GetDx12ComparisonFunc(GfxComparisonFunc f)
 	{
 		static const D3D12_COMPARISON_FUNC kTable[] =

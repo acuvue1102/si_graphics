@@ -39,6 +39,7 @@ namespace SI
 			SI_ASSERT(0, "error CreateCommandList", _com_error(hr).ErrorMessage());
 			return -1;
 		}
+		m_graphicsCommandList->SetName(L"GfxGraphicsCommandList");
 
 		hr = m_graphicsCommandList->Close();
 		if(FAILED(hr))

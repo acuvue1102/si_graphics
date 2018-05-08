@@ -58,16 +58,22 @@ namespace SI
 		return 0;
 	}
 	
-	//void BaseDescriptorHeap::CreateRenderTargetView(
-	//	ID3D12Device& device,
-	//	uint32_t descriptorIndex,
-	//	BaseTexture& texture,
-	//	const GfxRenderTargetViewDesc& desc)
-	//{
-	//	size_t descriptorSize = BaseDevice::GetDescriptorSize(kGfxDescriptorHeapType_RTV);
-	//	D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12Descriptor(descriptorIndex, descriptorSize);
-	//	device.CreateRenderTargetView(texture.GetComPtrResource().Get(), nullptr, descriptor);
-	//}
+	void BaseDescriptorHeap::CreateRenderTargetView(
+		ID3D12Device& device,
+		uint32_t descriptorIndex,
+		BaseTexture& texture,
+		const GfxRenderTargetViewDesc& desc)
+	{
+		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+		rtvDesc.Format = texture.GetComPtrResource()->GetDesc().Format;
+		rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+		rtvDesc.Texture2D.MipSlice = 0;
+		rtvDesc.Texture2D.PlaneSlice = 0;
+
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(kGfxDescriptorHeapType_Rtv);
+		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
+		device.CreateRenderTargetView(texture.GetComPtrResource().Get(), &rtvDesc, descriptor);
+	}
 	
 	void BaseDescriptorHeap::CreateShaderResourceView(
 		ID3D12Device& device,
@@ -153,7 +159,7 @@ namespace SI
 
 		D3D12_CONSTANT_BUFFER_VIEW_DESC constantDesc = {};
 		constantDesc.BufferLocation = baseBuffer->GetLocation();
-		constantDesc.SizeInBytes    = baseBuffer->GetSize();
+		constantDesc.SizeInBytes    = (UINT)baseBuffer->GetSize();
 
 		size_t descriptorSize = BaseDevice::GetDescriptorSize(kGfxDescriptorHeapType_CbvSrvUav);
 		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);

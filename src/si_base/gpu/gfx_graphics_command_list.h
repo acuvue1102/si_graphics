@@ -24,14 +24,15 @@ namespace SI
 		GfxGraphicsCommandList(BaseGraphicsCommandList* base = nullptr);
 		virtual ~GfxGraphicsCommandList();
 
-		void ClearRenderTarget(GfxTexture& tex, float r, float g, float b, float a);
+		void ClearRenderTarget(const GfxCpuDescriptor& tex, float r, float g, float b, float a);
 		
 		int Reset(GfxGraphicsState* graphicsState);
 		
 		void ResourceBarrier(
 			GfxTexture& texture,
 			const GfxResourceState& before,
-			const GfxResourceState& after);
+			const GfxResourceState& after,
+			GfxResourceBarrierFlag flag = kGfxResourceBarrierFlag_None);
 
 		int Close();
 
@@ -48,9 +49,9 @@ namespace SI
 		void SetScissors(uint32_t count, GfxScissor* scissors);
 
 		void SetRenderTargets(
-			uint32_t     enderTargetCount,
-			GfxTexture*  renderTargets,
-			GfxTexture*  depthStencilTarget = nullptr);
+			uint32_t                 renderTargetCount,
+			const GfxCpuDescriptor*  renderTargets,
+			const GfxCpuDescriptor&  depthStencilTarget = GfxCpuDescriptor());
 		
 		void SetPrimitiveTopology(GfxPrimitiveTopology topology);
 		

@@ -7,10 +7,12 @@
 #include <dxgi1_4.h>
 #include <wrl/client.h>
 #include "si_base/gpu/dx12/dx12_fence.h"
+#include "si_base/gpu/gfx_descriptor_heap.h"
 
 namespace SI
 {
 	class BaseTexture;
+	class BaseDescriptorHeap;
 
 	class BaseSwapChain
 	{
@@ -34,7 +36,7 @@ namespace SI
 
 		UINT GetFrameIndex() const{ return m_frameIndex; }
 		BaseTexture& GetSwapChainTexture();
-		
+		GfxCpuDescriptor GetSwapChainCpuDescriptor();
 
 	private:
 		ComPtr<IDXGISwapChain3>           m_swapChain;
@@ -46,6 +48,8 @@ namespace SI
 		BaseFence                         m_fence;
 		BaseFenceEvent                    m_fenceEvent;
 		uint64_t                          m_fenceValue;
+
+		BaseDescriptorHeap*               m_rtvHeap;
 	};
 
 } // namespace SI

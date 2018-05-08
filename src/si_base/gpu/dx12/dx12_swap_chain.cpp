@@ -1,5 +1,5 @@
 ﻿
-#include "si_base/gpu/gfx_config.h"
+#include "si_base/gpu/dx12/dx12_swap_chain.h"
 
 #if SI_USE_DX12
 
@@ -7,7 +7,7 @@
 #include <comdef.h>
 #include "si_base/core/core.h"
 #include "si_base/gpu/dx12/dx12_texture.h"
-#include "si_base/gpu/dx12/dx12_swap_chain.h"
+#include "si_base/gpu/dx12/dx12_descriptor_heap.h"
 
 namespace SI
 {
@@ -16,6 +16,7 @@ namespace SI
 		, m_bufferCount(0)
 		, m_frameIndex(0)
 		, m_commandQueue(nullptr)
+		, m_rtvHeap(nullptr)
 	{
 	}
 
@@ -77,8 +78,13 @@ namespace SI
 		}
 
 		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-
 		
+		GfxDescriptorHeapDesc rtvHeapDesc;
+		rtvHeapDesc.m_type = kGfxDescriptorHeapType_Rtv;
+		rtvHeapDesc.m_descriptorCount = config.m_bufferCount;
+		m_rtvHeap = SI_NEW(BaseDescriptorHeap);
+		m_rtvHeap->Initialize(device, rtvHeapDesc);
+
 		// create Render Target View
 		SI_ASSERT(m_swapChainTextures == nullptr);
 		m_swapChainTextures = SI_NEW_ARRAY(BaseTexture, config.m_bufferCount);
@@ -92,8 +98,16 @@ namespace SI
 
 			if(ret != 0)
 			{
+				SI_ASSERT(0);
 				return -1;
 			}
+
+			GfxRenderTargetViewDesc rtvDesc;
+			m_rtvHeap->CreateRenderTargetView(
+				device,
+				bufferId,
+				m_swapChainTextures[bufferId],
+				rtvDesc);
 		}
 		
 		m_fenceValue = 0;
@@ -110,6 +124,8 @@ namespace SI
 		m_fence.Terminate();
 		m_fenceValue = 0;
 		m_commandQueue = nullptr;
+
+		SI_DELETE(m_rtvHeap);
 
 		m_bufferCount = 0;
 		m_frameIndex = 0;
@@ -164,6 +180,11 @@ namespace SI
 	BaseTexture& BaseSwapChain::GetSwapChainTexture()
 	{
 		return m_swapChainTextures[m_frameIndex];
+	}
+	
+	GfxCpuDescriptor BaseSwapChain::GetSwapChainCpuDescriptor()
+	{
+		return m_rtvHeap->GetCpuDescriptor(kGfxDescriptorHeapType_Rtv, m_frameIndex);
 	}
 
 } // namespace SI

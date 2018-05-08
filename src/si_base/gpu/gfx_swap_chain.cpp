@@ -30,5 +30,10 @@ namespace SI
 		return tex;
 	}
 
+	GfxCpuDescriptor GfxSwapChain::GetSwapChainCpuDescriptor()
+	{
+		return m_base->GetSwapChainCpuDescriptor();
+	}
+
 } // namespace SI
 

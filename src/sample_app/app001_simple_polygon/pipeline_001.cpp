@@ -63,6 +63,7 @@ namespace APP001
 		stateDesc.m_rootSignature      = &m_rootSignature;
 		stateDesc.m_vertexShader       = &m_vertexShader;
 		stateDesc.m_pixelShader        = &m_pixelShader;
+		stateDesc.m_rtvFormats[0]      = kGfxFormat_R8G8B8A8_Unorm;
 		m_graphicsState = m_device.CreateGraphicsState(stateDesc);
 
 		float aspect = (float)info.m_width/(float)info.m_height;
@@ -83,9 +84,6 @@ namespace APP001
 			memcpy(outBuffer, kVertexData, sizeof(kVertexData));
 			m_vertexBuffer.Unmap();
 		}
-			
-		m_viewport = GfxViewport(0.0f, 0.0f, (float)info.m_width, (float)info.m_height);
-		m_scissor  = GfxScissor(0, 0, info.m_width, info.m_height);
 
 		return 0;
 	}
@@ -108,18 +106,22 @@ namespace APP001
 	int Pipeline::OnRender(const AppRenderInfo&)
 	{
 		BeginRender();
-
-		GfxTexture tex = m_swapChain.GetSwapChainTexture();
+		
+		GfxCpuDescriptor swapChainDescriptor = m_swapChain.GetSwapChainCpuDescriptor();
+		GfxTexture swapChainTexture = m_swapChain.GetSwapChainTexture();
 
 		m_graphicsCommandList.SetGraphicsState(m_graphicsState);
 						
 		m_graphicsCommandList.SetGraphicsRootSignature(m_rootSignature);
 
-		m_graphicsCommandList.SetRenderTargets(1, &tex);
-		m_graphicsCommandList.SetViewports(1, &m_viewport);
-		m_graphicsCommandList.SetScissors(1, &m_scissor);
+		m_graphicsCommandList.SetRenderTargets(1, &swapChainDescriptor);
+			
+		GfxViewport viewport(0.0f, 0.0f, (float)swapChainTexture.GetWidth(), (float)swapChainTexture.GetHeight());
+		GfxScissor  scissor(0, 0, swapChainTexture.GetWidth(), swapChainTexture.GetHeight());
+		m_graphicsCommandList.SetViewports(1, &viewport);
+		m_graphicsCommandList.SetScissors(1, &scissor);
 
-		m_graphicsCommandList.ClearRenderTarget(tex, 0.0f, 0.2f, 0.4f, 1.0f);
+		m_graphicsCommandList.ClearRenderTarget(swapChainDescriptor, 0.0f, 0.2f, 0.4f, 1.0f);
 
 		m_graphicsCommandList.SetPrimitiveTopology(kGfxPrimitiveTopology_TriangleList);
 		m_graphicsCommandList.SetVertexBuffers(

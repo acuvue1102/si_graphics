@@ -58,10 +58,24 @@ namespace APP002
 
 			return data;
 		}
+		
+		static const PosUvVertex kVertexData[] = 
+		{
+			{ -1.0f,  1.0f, 0.0f ,  0.0f, 0.0f },
+			{  1.0f, -1.0f, 0.0f ,  1.0f, 1.0f },
+			{ -1.0f, -1.0f, 0.0f ,  0.0f, 1.0f },
+
+			{ -1.0f,  1.0f, 0.0f ,  0.0f, 0.0f },
+			{  1.0f,  1.0f, 0.0f ,  1.0f, 0.0f },
+			{  1.0f, -1.0f, 0.0f ,  1.0f, 1.0f },
+		};
+
+		static const float kRtCleaColor[4] = {0.5f, 0.2f, 0.2f, 1.0f};
 	}
 
 	struct Pipeline::ShaderConstant
 	{
+		float m_vertexScale;
 		float m_uvScale;
 	};
 
@@ -69,8 +83,11 @@ namespace APP002
 	
 	Pipeline::Pipeline(int observerSortKey)
 		: PipelineBase(observerSortKey)
-		, m_constantAddr(nullptr)
 	{
+		for(auto addr : m_constantAddrs)
+		{
+			addr = nullptr;
+		}
 	}
 
 	Pipeline::~Pipeline()
@@ -87,117 +104,174 @@ namespace APP002
 
 	int Pipeline::LoadAsset(const AppInitializeInfo& info)
 	{
-		GfxDescriptorRange cbvSrvUavRanges[2];
-		cbvSrvUavRanges[0].m_rangeType           = kGfxDescriptorRangeType_Srv;
-		cbvSrvUavRanges[0].m_descriptorCount     = 1;
-		cbvSrvUavRanges[0].m_shaderRegisterIndex = 0;
-		cbvSrvUavRanges[1].m_rangeType           = kGfxDescriptorRangeType_Cbv;
-		cbvSrvUavRanges[1].m_descriptorCount     = 1;
-		cbvSrvUavRanges[1].m_shaderRegisterIndex = 1;
-		
-		GfxDescriptorRange samplerRanges[1];
-		samplerRanges[0].m_rangeType       = kGfxDescriptorRangeType_Sampler;
-		samplerRanges[0].m_descriptorCount = 1;
-
-		GfxDescriptorHeapTable tables[2];
-		tables[0].m_rangeCount = (uint32_t)ArraySize(cbvSrvUavRanges);
-		tables[0].m_ranges = cbvSrvUavRanges;
-		tables[1].m_rangeCount = (uint32_t)ArraySize(samplerRanges);
-		tables[1].m_ranges = samplerRanges;
-
-		GfxRootSignatureDesc rootSignatureDesc;
-		rootSignatureDesc.m_tableCount = (uint32_t)ArraySize(tables);
-		rootSignatureDesc.m_tables = tables;
-		m_rootSignature = m_device.CreateRootSignature(rootSignatureDesc);
-
-		std::string shaderPath = PathStorage::GetInstance()->GetExeDirPath();
-		shaderPath += "shaders\\texture.hlsl";
-
-		if(m_vertexShader.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
-		if(m_pixelShader. LoadAndCompile(shaderPath.c_str()) != 0) return -1;
-
-		static const GfxInputElement kElements[] =
+		// 頂点バッファのセットアップ.
 		{
-			{"POSITION",  0, kGfxFormat_R32G32B32_Float,  0, 0},
-			{"TEXCOORD",  0, kGfxFormat_R32G32_Float,     0, 12},
-		};
+			GfxBufferDesc vertexBufferDesc;
+			vertexBufferDesc.m_heapType = kGfxHeapType_Default;
+			vertexBufferDesc.m_bufferSizeInByte = sizeof(kVertexData);
+			m_vertexBuffer = m_device.CreateBuffer(vertexBufferDesc);
+		}
 
-		GfxGraphicsStateDesc stateDesc;
-		stateDesc.m_inputElements      = kElements;
-		stateDesc.m_inputElementCount  = (int)ArraySize(kElements);
-		stateDesc.m_rootSignature      = &m_rootSignature;
-		stateDesc.m_vertexShader       = &m_vertexShader;
-		stateDesc.m_pixelShader        = &m_pixelShader;
-		m_graphicsState = m_device.CreateGraphicsState(stateDesc);
-
-		float aspect = (float)info.m_width/(float)info.m_height;
-
-		static const PosUvVertex kVertexData[] = 
+		// シェーダのセットアップ.
 		{
-			{ -0.95f / aspect,  0.95f, 0.0f ,  0.0f, 0.0f },
-			{  0.95f / aspect, -0.95f, 0.0f ,  1.0f, 1.0f },
-			{ -0.95f / aspect, -0.95f, 0.0f ,  0.0f, 1.0f },
+			std::string shaderPath = PathStorage::GetInstance()->GetExeDirPath();
+			shaderPath += "shaders\\texture.hlsl";
+			if(m_vertexShader.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
+			if(m_pixelShader. LoadAndCompile(shaderPath.c_str()) != 0) return -1;
+		}
 
+		// コンスタントバッファのセットアップ
+		{
+			GfxBufferDesc constantBufferDesc;
+			constantBufferDesc.m_heapType = kGfxHeapType_Upload;
+			constantBufferDesc.m_bufferSizeInByte = (sizeof(ShaderConstant) + 255) & ~255; // should be multiple of 256 bytes.
+			m_constantBuffers[0] = m_device.CreateBuffer(constantBufferDesc);
+			m_constantAddrs[0] = static_cast<ShaderConstant*>(m_constantBuffers[0].Map());
+			m_constantAddrs[0]->m_vertexScale = 0.8f;
+			m_constantAddrs[0]->m_uvScale     = 1.0f;
 
-			{ -0.95f / aspect,  0.95f, 0.0f ,  0.0f, 0.0f },
-			{  0.95f / aspect,  0.95f, 0.0f ,  1.0f, 0.0f },
-			{  0.95f / aspect, -0.95f, 0.0f ,  1.0f, 1.0f },
-		};
+			m_constantBuffers[1] = m_device.CreateBuffer(constantBufferDesc);
+			m_constantAddrs[1] = static_cast<ShaderConstant*>(m_constantBuffers[1].Map());
+			m_constantAddrs[1]->m_vertexScale = 0.8f;
+			m_constantAddrs[1]->m_uvScale     = 1.0f;
+		}
 
-		GfxBufferDesc vertexBufferDesc;
-		vertexBufferDesc.m_heapType = kGfxHeapType_Default;
-		vertexBufferDesc.m_bufferSizeInByte = sizeof(kVertexData);
-		m_vertexBuffer = m_device.CreateBuffer(vertexBufferDesc);
-
-		GfxBufferDesc constantBufferDesc;
-		constantBufferDesc.m_heapType = kGfxHeapType_Upload;
-		constantBufferDesc.m_bufferSizeInByte = (sizeof(ShaderConstant) + 255) & ~255; // should be multiple of 256 bytes.
-		m_constantBuffer = m_device.CreateBuffer(constantBufferDesc);
-		m_constantAddr = static_cast<ShaderConstant*>(m_constantBuffer.Map());
-		m_constantAddr->m_uvScale = 1;
-
-		m_viewport = GfxViewport(0.0f, 0.0f, (float)info.m_width, (float)info.m_height);
-		m_scissor  = GfxScissor(0, 0, info.m_width, info.m_height);
-
-		GfxTextureDesc textureDesc;
-		textureDesc.m_width     = 256;
-		textureDesc.m_height    = 256;
-		textureDesc.m_mipLevels = 1;
-		textureDesc.m_format    = kGfxFormat_R8G8B8A8_Unorm;
-		textureDesc.m_dimension = kGfxDimension_Texture2D;
-		m_texture = m_device.CreateTexture(textureDesc);
-
-		GfxDescriptorHeapDesc cbvSrvUavHeapDesc;
-		cbvSrvUavHeapDesc.m_type = kGfxDescriptorHeapType_CbvSrvUav;
-		cbvSrvUavHeapDesc.m_descriptorCount = 2;
-		cbvSrvUavHeapDesc.m_flag = kGfxDescriptorHeapFlag_ShaderVisible;
-		m_cbvSrvUavHeap = m_device.CreateDescriptorHeap(cbvSrvUavHeapDesc);
+		// static textureのセットアップ.
+		{
+			GfxTextureDesc textureDesc;
+			textureDesc.m_width     = 256;
+			textureDesc.m_height    = 256;
+			textureDesc.m_mipLevels = 1;
+			textureDesc.m_format    = kGfxFormat_R8G8B8A8_Unorm;
+			textureDesc.m_dimension = kGfxDimension_Texture2D;
+			textureDesc.m_name      = "whiteBlack";
+			m_texture = m_device.CreateTexture(textureDesc);
+		}
 		
-		GfxDescriptorHeapDesc samplerHeapDesc;
-		samplerHeapDesc.m_type = kGfxDescriptorHeapType_Sampler;
-		samplerHeapDesc.m_descriptorCount = 1;
-		samplerHeapDesc.m_flag = kGfxDescriptorHeapFlag_ShaderVisible;
-		m_samplerHeap = m_device.CreateDescriptorHeap(samplerHeapDesc);
-
-		GfxShaderResourceViewDesc srvDesc;
-		srvDesc.m_format = kGfxFormat_R8G8B8A8_Unorm;
-		srvDesc.m_miplevels = 1;
-		srvDesc.m_srvDimension = kGfxDimension_Texture2D;
-		m_device.CreateShaderResourceView(m_cbvSrvUavHeap, 0, m_texture, srvDesc);
-
-		GfxConstantBufferViewDesc cbvDesc;
-		cbvDesc.m_buffer = &m_constantBuffer;
-		m_device.CreateConstantBufferView(m_cbvSrvUavHeap, 1, cbvDesc);
+		// render targetのセットアップ.
+		{
+			GfxTextureDesc rtDesc;
+			rtDesc.m_width     = 1024;
+			rtDesc.m_height    = 1024;
+			rtDesc.m_mipLevels = 1;
+			rtDesc.m_format    = kGfxFormat_R8G8B8A8_Unorm;
+			rtDesc.m_dimension = kGfxDimension_Texture2D;
+			rtDesc.m_resourceState = GfxResourceState::kRenderTarget;
+			rtDesc.m_heapType  = kGfxHeapType_Default;
+			rtDesc.m_name      = "RT0";
+			rtDesc.m_clearColor[0] = kRtCleaColor[0];
+			rtDesc.m_clearColor[1] = kRtCleaColor[1];
+			rtDesc.m_clearColor[2] = kRtCleaColor[2];
+			rtDesc.m_clearColor[3] = kRtCleaColor[3];
+			m_rt = m_device.CreateTexture(rtDesc);
 		
-		GfxSamplerDesc samplerDesc;
-		m_device.CreateSampler(m_samplerHeap, 0, samplerDesc);
+			GfxDescriptorHeapDesc rtvHeapDesc;
+			rtvHeapDesc.m_type = kGfxDescriptorHeapType_Rtv;
+			rtvHeapDesc.m_descriptorCount = 1;
+			rtvHeapDesc.m_flag = kGfxDescriptorHeapFlag_None;
+			m_rtvHeap = m_device.CreateDescriptorHeap(rtvHeapDesc);
+
+			GfxRenderTargetViewDesc rtvDesc;
+			m_device.CreateRenderTargetView(m_rtvHeap, 0, m_rt, rtvDesc);
+		}
+		
+		// cbv/srv/uav Heapのセットアップ
+		{
+			GfxDescriptorHeapDesc cbvSrvUavHeapDesc;
+			cbvSrvUavHeapDesc.m_type = kGfxDescriptorHeapType_CbvSrvUav;
+			cbvSrvUavHeapDesc.m_descriptorCount = 2;
+			cbvSrvUavHeapDesc.m_flag = kGfxDescriptorHeapFlag_ShaderVisible;
+
+			GfxShaderResourceViewDesc srvDesc;
+			srvDesc.m_format = kGfxFormat_R8G8B8A8_Unorm;
+			srvDesc.m_miplevels = 1;
+			srvDesc.m_srvDimension = kGfxDimension_Texture2D;
+
+			GfxConstantBufferViewDesc cbvDesc;
+
+			// 0番目
+			cbvDesc.m_buffer = &m_constantBuffers[0];
+			m_cbvSrvUavHeaps[0] = m_device.CreateDescriptorHeap(cbvSrvUavHeapDesc);
+			m_device.CreateShaderResourceView(m_cbvSrvUavHeaps[0], 0, m_texture, srvDesc);
+			m_device.CreateConstantBufferView(m_cbvSrvUavHeaps[0], 1, cbvDesc);
+
+			// 1番目
+			cbvDesc.m_buffer = &m_constantBuffers[1];
+			m_cbvSrvUavHeaps[1] = m_device.CreateDescriptorHeap(cbvSrvUavHeapDesc);
+			m_device.CreateShaderResourceView(m_cbvSrvUavHeaps[1], 0, m_rt, srvDesc);
+			m_device.CreateConstantBufferView(m_cbvSrvUavHeaps[1], 1, cbvDesc);
+		}
+		
+		// samplerのセットアップ
+		{
+			GfxDescriptorHeapDesc samplerHeapDesc;
+			samplerHeapDesc.m_type = kGfxDescriptorHeapType_Sampler;
+			samplerHeapDesc.m_descriptorCount = 1;
+			samplerHeapDesc.m_flag = kGfxDescriptorHeapFlag_ShaderVisible;
+			m_samplerHeaps[0] = m_device.CreateDescriptorHeap(samplerHeapDesc);
+			m_samplerHeaps[1] = m_device.CreateDescriptorHeap(samplerHeapDesc);
+			
+			GfxSamplerDesc samplerDesc;
+			m_device.CreateSampler(m_samplerHeaps[0], 0, samplerDesc);
+			m_device.CreateSampler(m_samplerHeaps[1], 0, samplerDesc);
+		}
+
+		// root signatureのセットアップ
+		{
+			GfxDescriptorRange cbvSrvUavRanges[2];
+			cbvSrvUavRanges[0].m_rangeType           = kGfxDescriptorRangeType_Srv;
+			cbvSrvUavRanges[0].m_rangeFlag           = kGfxDescriptorRangeFlag_Dynamic;
+			cbvSrvUavRanges[0].m_descriptorCount     = 1;
+			cbvSrvUavRanges[0].m_shaderRegisterIndex = 0;
+			cbvSrvUavRanges[1].m_rangeType           = kGfxDescriptorRangeType_Cbv;
+			cbvSrvUavRanges[1].m_descriptorCount     = 1;
+			cbvSrvUavRanges[1].m_shaderRegisterIndex = 1;
+		
+			GfxDescriptorRange samplerRanges[1];
+			samplerRanges[0].m_rangeType       = kGfxDescriptorRangeType_Sampler;
+			samplerRanges[0].m_descriptorCount = 1;
+
+			GfxDescriptorHeapTable tables[2];
+			tables[0].m_rangeCount = (uint32_t)ArraySize(cbvSrvUavRanges);
+			tables[0].m_ranges = cbvSrvUavRanges;
+			tables[1].m_rangeCount = (uint32_t)ArraySize(samplerRanges);
+			tables[1].m_ranges = samplerRanges;
+
+			GfxRootSignatureDesc rootSignatureDesc;
+			rootSignatureDesc.m_tableCount = (uint32_t)ArraySize(tables);
+			rootSignatureDesc.m_tables = tables;
+
+			m_rootSignatures[0] = m_device.CreateRootSignature(rootSignatureDesc);
+			m_rootSignatures[1] = m_device.CreateRootSignature(rootSignatureDesc);
+		}
+
+		// PSOのセットアップ.
+		{
+			static const GfxInputElement kElements[] =
+			{
+				{"POSITION",  0, kGfxFormat_R32G32B32_Float,  0, 0},
+				{"TEXCOORD",  0, kGfxFormat_R32G32_Float,     0, 12},
+			};
+
+			GfxGraphicsStateDesc stateDesc;
+			stateDesc.m_inputElements      = kElements;
+			stateDesc.m_inputElementCount  = (int)ArraySize(kElements);
+			stateDesc.m_rootSignature      = &m_rootSignatures[0];
+			stateDesc.m_vertexShader       = &m_vertexShader;
+			stateDesc.m_pixelShader        = &m_pixelShader;
+			stateDesc.m_rtvFormats[0]      = kGfxFormat_R8G8B8A8_Unorm;
+			m_graphicsStates[0] = m_device.CreateGraphicsState(stateDesc);
+		
+			stateDesc.m_rootSignature      = &m_rootSignatures[1];
+			m_graphicsStates[1] = m_device.CreateGraphicsState(stateDesc);
+		}
 
 		// commandList経由でリソースのデータをアップロードする.
 		BeginRender();
 		{
 			m_graphicsCommandList.UploadBuffer(m_device, m_vertexBuffer, kVertexData, sizeof(kVertexData));
 
-			std::vector<uint8_t> texData = GenerateTextureData(textureDesc.m_width, textureDesc.m_height);
+			std::vector<uint8_t> texData = GenerateTextureData(m_texture.GetWidth(), m_texture.GetHeight());
 			m_graphicsCommandList.UploadTexture(m_device, m_texture, &texData[0], texData.size());
 		}
 		EndRender();
@@ -208,20 +282,30 @@ namespace APP002
 	int Pipeline::OnTerminate()
 	{
 		m_swapChain.Flip(); // wait previous frame.
-
-		m_device.ReleaseDescriptorHeap(m_samplerHeap);
-
-		m_device.ReleaseDescriptorHeap(m_cbvSrvUavHeap);
-
+		
+		m_device.ReleaseGraphicsState(m_graphicsStates[1]);
+		m_device.ReleaseGraphicsState(m_graphicsStates[0]);
+		
+		m_device.ReleaseRootSignature(m_rootSignatures[1]);
+		m_device.ReleaseRootSignature(m_rootSignatures[0]);
+		
+		m_device.ReleaseDescriptorHeap(m_samplerHeaps[1]);
+		m_device.ReleaseDescriptorHeap(m_samplerHeaps[0]);
+		
+		m_device.ReleaseDescriptorHeap(m_cbvSrvUavHeaps[1]);
+		m_device.ReleaseDescriptorHeap(m_cbvSrvUavHeaps[0]);
+		
+		m_device.ReleaseDescriptorHeap(m_rtvHeap);
+		m_device.ReleaseTexture(m_rt);
 		m_device.ReleaseTexture(m_texture);
+		
+		m_device.ReleaseBuffer(m_constantBuffers[1]);
+		m_device.ReleaseBuffer(m_constantBuffers[0]);
 
-		m_device.ReleaseBuffer(m_constantBuffer);
+		m_pixelShader.Release();
+		m_vertexShader.Release();
 
 		m_device.ReleaseBuffer(m_vertexBuffer);
-
-		m_device.ReleaseGraphicsState(m_graphicsState);
-
-		m_device.ReleaseRootSignature(m_rootSignature);
 
 		PipelineBase::OnTerminate();
 
@@ -231,16 +315,16 @@ namespace APP002
 	int Pipeline::OnUpdate(const AppUpdateInfo&)
 	{
 		static float s_delta = 0.1f;
-		if(8.0f <= m_constantAddr->m_uvScale)
+		if(8.0f <= m_constantAddrs[0]->m_uvScale)
 		{
 			s_delta = -0.1f;
 		}
 		else
-		if(m_constantAddr->m_uvScale <= 1.0f)
+		if(m_constantAddrs[0]->m_uvScale <= 1.0f)
 		{
 			s_delta = 0.1f;
 		}
-		m_constantAddr->m_uvScale += s_delta;
+		m_constantAddrs[0]->m_uvScale += s_delta;
 		return 0;
 	}
 	
@@ -248,22 +332,28 @@ namespace APP002
 	{
 		BeginRender();
 
-		GfxTexture tex = m_swapChain.GetSwapChainTexture();
+		m_graphicsCommandList.SetGraphicsState(m_graphicsStates[0]);
+		m_graphicsCommandList.SetGraphicsRootSignature(m_rootSignatures[0]);
 
-		m_graphicsCommandList.SetGraphicsState(m_graphicsState);
-						
-		m_graphicsCommandList.SetGraphicsRootSignature(m_rootSignature);
-
-		GfxDescriptorHeap* heaps[] = {&m_cbvSrvUavHeap, &m_samplerHeap};
+		GfxDescriptorHeap* heaps[] = {&m_cbvSrvUavHeaps[0], &m_samplerHeaps[0]};
 		m_graphicsCommandList.SetDescriptorHeaps((uint32_t)ArraySize(heaps), heaps);
-		m_graphicsCommandList.SetGraphicsDescriptorTable(0, m_cbvSrvUavHeap.GetGpuDescriptor(kGfxDescriptorHeapType_CbvSrvUav, 0));
-		m_graphicsCommandList.SetGraphicsDescriptorTable(1, m_samplerHeap.GetGpuDescriptor(kGfxDescriptorHeapType_Sampler, 0));
+		m_graphicsCommandList.SetGraphicsDescriptorTable(0, m_cbvSrvUavHeaps[0].GetGpuDescriptor(kGfxDescriptorHeapType_CbvSrvUav, 0));
+		m_graphicsCommandList.SetGraphicsDescriptorTable(1, m_samplerHeaps[0].GetGpuDescriptor(kGfxDescriptorHeapType_Sampler, 0));
+		
+		GfxCpuDescriptor rtDescriptor = m_rtvHeap.GetCpuDescriptor(kGfxDescriptorHeapType_Rtv, 0);
+		m_graphicsCommandList.SetRenderTargets(1, &rtDescriptor);
+		
+		GfxViewport viewport0 = GfxViewport(0.0f, 0.0f, (float)m_rt.GetWidth(), (float)m_rt.GetHeight());
+		GfxScissor scissor0  = GfxScissor(0, 0, m_rt.GetWidth(), m_rt.GetHeight());
+		m_graphicsCommandList.SetViewports(1, &viewport0);
+		m_graphicsCommandList.SetScissors(1, &scissor0);
 
-		m_graphicsCommandList.SetRenderTargets(1, &tex);
-		m_graphicsCommandList.SetViewports(1, &m_viewport);
-		m_graphicsCommandList.SetScissors(1, &m_scissor);
-
-		m_graphicsCommandList.ClearRenderTarget(tex, 0.0f, 0.2f, 0.4f, 1.0f);
+		m_graphicsCommandList.ClearRenderTarget(
+			rtDescriptor,
+			kRtCleaColor[0],
+			kRtCleaColor[1],
+			kRtCleaColor[2],
+			kRtCleaColor[3]);
 
 		m_graphicsCommandList.SetPrimitiveTopology(kGfxPrimitiveTopology_TriangleList);
 		m_graphicsCommandList.SetVertexBuffers(
@@ -272,6 +362,42 @@ namespace APP002
 			&GfxVertexBufferView(&m_vertexBuffer, sizeof(PosUvVertex)));
 			
 		m_graphicsCommandList.DrawInstanced(6, 1, 0, 0);
+
+		m_graphicsCommandList.ResourceBarrier(
+			m_rt,
+			GfxResourceState::kRenderTarget,
+			GfxResourceState::kPixelShaderResource);
+		
+		GfxCpuDescriptor swapChainDescriptor = m_swapChain.GetSwapChainCpuDescriptor();
+		GfxTexture swapChainTexture = m_swapChain.GetSwapChainTexture();
+		GfxViewport viewport1(0.0f, 0.0f, (float)swapChainTexture.GetWidth(), (float)swapChainTexture.GetHeight());
+		GfxScissor  scissor1(0, 0, swapChainTexture.GetWidth(), swapChainTexture.GetHeight());
+		m_graphicsCommandList.SetRenderTargets(1, &swapChainDescriptor);
+		m_graphicsCommandList.SetViewports(1, &viewport1);
+		m_graphicsCommandList.SetScissors(1, &scissor1);
+		
+		m_graphicsCommandList.SetGraphicsState(m_graphicsStates[1]);
+		m_graphicsCommandList.SetGraphicsRootSignature(m_rootSignatures[1]);
+
+		GfxDescriptorHeap* heapsOut[] = {&m_cbvSrvUavHeaps[1], &m_samplerHeaps[1]};
+ 		m_graphicsCommandList.SetDescriptorHeaps((uint32_t)ArraySize(heapsOut), heapsOut);
+		m_graphicsCommandList.SetGraphicsDescriptorTable(0, m_cbvSrvUavHeaps[1].GetGpuDescriptor(kGfxDescriptorHeapType_CbvSrvUav, 0));
+		m_graphicsCommandList.SetGraphicsDescriptorTable(1, m_samplerHeaps[1].GetGpuDescriptor(kGfxDescriptorHeapType_Sampler, 0));
+
+		m_graphicsCommandList.ClearRenderTarget(swapChainDescriptor, 0.0f, 0.2f, 0.4f, 1.0f);
+
+		m_graphicsCommandList.SetPrimitiveTopology(kGfxPrimitiveTopology_TriangleList);
+		m_graphicsCommandList.SetVertexBuffers(
+			0,
+			1,
+			&GfxVertexBufferView(&m_vertexBuffer, sizeof(PosUvVertex)));
+			
+		m_graphicsCommandList.DrawInstanced(6, 1, 0, 0);
+		
+		m_graphicsCommandList.ResourceBarrier(
+			m_rt,
+			GfxResourceState::kPixelShaderResource,
+			GfxResourceState::kRenderTarget);
 
 		EndRender();
 

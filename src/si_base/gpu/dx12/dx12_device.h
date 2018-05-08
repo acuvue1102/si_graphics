@@ -61,11 +61,11 @@ namespace SI
 		BaseDescriptorHeap* CreateDescriptorHeap(const GfxDescriptorHeapDesc& desc);
 		void ReleaseDescriptorHeap(BaseDescriptorHeap* d);
 
-		//void CreateRenderTargetView(
-		//	BaseDescriptorHeap& descriptorHeap,
-		//	uint32_t descriptorIndex,
-		//	BaseTexture& texture,
-		//	const GfxRenderTargetViewDesc& desc);
+		void CreateRenderTargetView(
+			BaseDescriptorHeap& descriptorHeap,
+			uint32_t descriptorIndex,
+			BaseTexture& texture,
+			const GfxRenderTargetViewDesc& desc);
 
 		void CreateShaderResourceView(
 			BaseDescriptorHeap& descriptorHeap,

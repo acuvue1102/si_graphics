@@ -4,7 +4,8 @@ SamplerState      sampler0 : register(s0);
 
 cbuffer ConstantBuffer : register(b1)
 {
-	float m_uvScale;
+	float m_vertexScale : packoffset(c0.x);
+	float m_uvScale     : packoffset(c0.y);
 };
 
 struct VSInput
@@ -28,8 +29,8 @@ PSInput VSMain(VSInput input)
 {
 	PSInput result;
 
-	result.position = input.position;
-	result.uv       = input.uv;
+	result.position = float4(m_vertexScale * input.position.xyz, 1);
+	result.uv       = m_uvScale * input.uv;
 
 	return result;
 }
@@ -38,7 +39,7 @@ PsOutput PSMain(PSInput input)
 {
 	PsOutput output;
 	
-	output.color = texture0.Sample(sampler0, m_uvScale * input.uv);
+	output.color = texture0.Sample(sampler0, input.uv);
 
 	return output;
 }

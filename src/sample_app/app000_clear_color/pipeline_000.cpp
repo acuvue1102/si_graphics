@@ -38,9 +38,9 @@ namespace APP000
 	{
 		BeginRender();
 
-		GfxTexture tex = m_swapChain.GetSwapChainTexture();
+		GfxCpuDescriptor swapChainDescriptor = m_swapChain.GetSwapChainCpuDescriptor();
 
-		m_graphicsCommandList.ClearRenderTarget(tex, 0.0f, 0.2f, 0.4f, 1.0f);
+		m_graphicsCommandList.ClearRenderTarget(swapChainDescriptor, 0.0f, 0.2f, 0.4f, 1.0f);
 
 		EndRender();
 

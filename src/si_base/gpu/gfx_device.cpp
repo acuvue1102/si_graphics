@@ -167,18 +167,18 @@ namespace SI
 		descriptorHeap = GfxDescriptorHeap();
 	}
 	
-	//void GfxDevice::CreateRenderTargetView(
-	//	GfxDescriptorHeap& descriptorHeap,
-	//	uint32_t descriptorIndex,
-	//	GfxTexture& texture,
-	//	const GfxRenderTargetViewDesc& desc)
-	//{
-	//	m_base->CreateRenderTargetView(
-	//		*descriptorHeap.GetBaseDescriptorHeap(),
-	//		descriptorIndex,
-	//		*texture.GetBaseTexture(),
-	//		desc);
-	//}
+	void GfxDevice::CreateRenderTargetView(
+		GfxDescriptorHeap& descriptorHeap,
+		uint32_t descriptorIndex,
+		GfxTexture& texture,
+		const GfxRenderTargetViewDesc& desc)
+	{
+		m_base->CreateRenderTargetView(
+			*descriptorHeap.GetBaseDescriptorHeap(),
+			descriptorIndex,
+			*texture.GetBaseTexture(),
+			desc);
+	}
 
 	void GfxDevice::CreateShaderResourceView(
 		GfxDescriptorHeap& descriptorHeap,

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "gfx_descriptor_heap.h"
+
 namespace SI
 {
 	class BaseSwapChain;
@@ -16,6 +18,7 @@ namespace SI
 
 	public:
 		GfxTexture GetSwapChainTexture();
+		GfxCpuDescriptor GetSwapChainCpuDescriptor();
 		
 
 	public:

@@ -2,6 +2,15 @@
 
 namespace SI
 {
+	enum GfxResourceBarrierFlag
+	{
+		kGfxResourceBarrierFlag_None = 0,
+		kGfxResourceBarrierFlag_BeginOnly,
+		kGfxResourceBarrierFlag_EndOnly,
+
+		kGfxResourceBarrierFlag_Max,
+	};
+
 	enum GfxComparisonFunc
 	{
 		kGfxComparisonFunc_Never,
@@ -107,8 +116,8 @@ namespace SI
 	{
 		kGfxDescriptorHeapType_CbvSrvUav = 0,
 		kGfxDescriptorHeapType_Sampler,
-		kGfxDescriptorHeapType_RTV,
-		kGfxDescriptorHeapType_DSV,
+		kGfxDescriptorHeapType_Rtv,
+		kGfxDescriptorHeapType_Dsv,
 
 		kGfxDescriptorHeapType_Max
 	};
@@ -120,7 +129,6 @@ namespace SI
 
 		kGfxDescriptorHeapFlag_Max
 	};
-
 
 	enum GfxPrimitiveTopology
 	{

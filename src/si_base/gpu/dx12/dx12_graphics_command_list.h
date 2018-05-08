@@ -79,10 +79,10 @@ namespace SI
 			m_graphicsCommandList->SetPipelineState(graphicsState.GetComPtrGraphicsState().Get());
 		}
 
-		inline void ClearRenderTarget(BaseTexture& tex, float r, float g, float b, float a)
+		inline void ClearRenderTarget(const GfxCpuDescriptor& tex, float r, float g, float b, float a)
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = {};
-			rtvHandle.ptr = tex.GetPtr();
+			rtvHandle.ptr = tex.m_ptr;
 
 			float clearColor[] = { r, g, b, a };
 			m_graphicsCommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
@@ -91,11 +91,12 @@ namespace SI
 		inline void ResourceBarrier(
 			BaseTexture& texture,
 			const GfxResourceState& before,
-			const GfxResourceState& after)
+			const GfxResourceState& after,
+			GfxResourceBarrierFlag flag)
 		{
 			D3D12_RESOURCE_BARRIER barrier = {};
 			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+			barrier.Flags = GetDx12ResourceBarrierFlag(flag);
 			barrier.Transition.pResource = texture.GetComPtrResource().Get();
 			barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)before.GetStateFlags();
 			barrier.Transition.StateAfter  = (D3D12_RESOURCE_STATES)after.GetStateFlags();
@@ -174,9 +175,9 @@ namespace SI
 		}
 
 		inline void SetRenderTargets(
-			uint32_t      renderTargetCount,
-			GfxTexture*   renderTargets,
-			GfxTexture*   depthStencilTarget)
+			uint32_t                  renderTargetCount,
+			const GfxCpuDescriptor*   renderTargets,
+			const GfxCpuDescriptor&   depthStencilTarget)
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE handles[8];
 			SI_ASSERT(renderTargetCount <= (uint32_t)ArraySize(handles));
@@ -185,15 +186,15 @@ namespace SI
 			for(uint32_t h=0; h<handleCount; ++h)
 			{
 				D3D12_CPU_DESCRIPTOR_HANDLE&  outH = handles[h];
-				BaseTexture&                   inH = *renderTargets[h].GetBaseTexture();
+				const GfxCpuDescriptor&        inH = renderTargets[h];
 
-				outH.ptr = inH.GetPtr();
+				outH.ptr = inH.m_ptr;
 			}
 			
-			if(depthStencilTarget)
+			if(depthStencilTarget.m_ptr)
 			{
 				D3D12_CPU_DESCRIPTOR_HANDLE depthStencilHandle;
-				depthStencilHandle.ptr = depthStencilTarget->GetBaseTexture()->GetPtr();
+				depthStencilHandle.ptr = depthStencilTarget.m_ptr;
 				m_graphicsCommandList->OMSetRenderTargets(handleCount, handles, FALSE, &depthStencilHandle);
 			}
 			else

@@ -24,19 +24,21 @@ namespace APP002
 		struct ShaderConstant;
 
 	protected:
-		GfxRootSignature         m_rootSignature;
-		GfxGraphicsState         m_graphicsState;
+		GfxRootSignature         m_rootSignatures[2];
+		GfxGraphicsState         m_graphicsStates[2];
+		GfxDescriptorHeap        m_cbvSrvUavHeaps[2];
+		GfxDescriptorHeap        m_samplerHeaps[2];
+		GfxBuffer                m_constantBuffers[2];
+		ShaderConstant*          m_constantAddrs[2];
 		
 		GfxVertexShader          m_vertexShader;
 		GfxPixelShader           m_pixelShader;
 
 		GfxBuffer                m_vertexBuffer;
 		GfxTexture               m_texture;
-		GfxDescriptorHeap        m_cbvSrvUavHeap;
-		GfxDescriptorHeap        m_samplerHeap;
-		
-		GfxBuffer                m_constantBuffer;
-		ShaderConstant*          m_constantAddr;
+
+		GfxTexture               m_rt;
+		GfxDescriptorHeap        m_rtvHeap;
 	};
 	
 } // namespace APP002

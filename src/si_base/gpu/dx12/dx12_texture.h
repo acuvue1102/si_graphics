@@ -30,11 +30,6 @@ namespace SI
 
 		int Terminate();
 		
-		size_t GetPtr() const
-		{
-			return m_ptr;
-		}
-		
 		uint32_t GetWidth() const
 		{
 			return m_width;
@@ -48,11 +43,6 @@ namespace SI
 		uint32_t GetDepth() const
 		{
 			return m_depth;
-		}
-				
-		void SetPtr(size_t p)
-		{
-			m_ptr = p;
 		}
 		
 		void SetWidth(uint32_t w)
@@ -71,20 +61,13 @@ namespace SI
 		}
 
 	public:
-		ComPtr<ID3D12DescriptorHeap>& GetComPtrDescHeap()
-		{
-			return m_descHeap;
-		}
-
 		ComPtr<ID3D12Resource>& GetComPtrResource()
 		{
 			return m_resource;
 		}
 
 	private:
-		ComPtr<ID3D12DescriptorHeap>      m_descHeap;
 		ComPtr<ID3D12Resource>            m_resource;
-		size_t                            m_ptr    = 0;
 		uint32_t                          m_width  = 0;
 		uint32_t                          m_height = 0;
 		uint32_t                          m_depth  = 0;
