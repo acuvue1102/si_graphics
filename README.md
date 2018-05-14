@@ -1,4 +1,4 @@
 si_graphics
 =======
 
-This is "sandbox" for my test applications.
+This is my test applications.
