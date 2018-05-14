@@ -9,7 +9,7 @@ namespace SI
 	struct GfxBufferDesc
 	{
 		size_t       m_bufferSizeInByte  = 0;
-		GfxHeapType  m_heapType          = kGfxHeapType_Default;
+		GfxHeapType  m_heapType          = GfxHeapType::kDefault;
 	};
 
 	class GfxBuffer

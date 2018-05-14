@@ -30,7 +30,7 @@
 
 namespace SI
 {
-	size_t BaseDevice::s_descriptorSize[kGfxDescriptorHeapType_Max] = {};
+	size_t BaseDevice::s_descriptorSize[(int)GfxDescriptorHeapType::kMax] = {};
 
 	BaseDevice::BaseDevice()
 		: Singleton(this)
@@ -75,7 +75,7 @@ namespace SI
 		}
 
 		// descriptor heap sizeをあらかじめ保持しておく.
-		for(int i=0; i<kGfxDescriptorHeapType_Max; ++i)
+		for(int i=0; i<(int)GfxDescriptorHeapType::kMax; ++i)
 		{
 			D3D12_DESCRIPTOR_HEAP_TYPE type = GetDx12DescriptorHeapType((GfxDescriptorHeapType)i);
 			s_descriptorSize[i] = m_device->GetDescriptorHandleIncrementSize(type);
@@ -104,8 +104,8 @@ namespace SI
 	
 	size_t BaseDevice::GetDescriptorSize(GfxDescriptorHeapType type)
 	{
-		SI_ASSERT(s_descriptorSize[type] != 0);
-		return s_descriptorSize[type];
+		SI_ASSERT(s_descriptorSize[(int)type] != 0);
+		return s_descriptorSize[(int)type];
 	}
 	
 	int BaseDevice::InitializeFactory(ComPtr<IDXGIFactory4>& outDxgiFactory) const

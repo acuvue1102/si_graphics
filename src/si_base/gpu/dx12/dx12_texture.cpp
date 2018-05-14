@@ -35,7 +35,7 @@ namespace SI
 		D3D12_CLEAR_VALUE cv = {};
 
 		D3D12_RESOURCE_FLAGS resourceFlag = D3D12_RESOURCE_FLAG_NONE;
-		if(desc.m_resourceState.GetStateFlags() & GfxResourceState::kRenderTarget.GetStateFlags())
+		if(desc.m_resourceStates & GfxResourceStates(GfxResourceState::kRenderTarget))
 		{
 			resourceFlag |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
@@ -66,7 +66,7 @@ namespace SI
 			&heapProperties,
 			D3D12_HEAP_FLAG_NONE,
 			&textureDesc,
-			(D3D12_RESOURCE_STATES)desc.m_resourceState.GetStateFlags(),
+			GetDx12ResourceStates(desc.m_resourceStates),
 			clearValue,
 			IID_PPV_ARGS(&m_resource));
 		if(FAILED(hr))

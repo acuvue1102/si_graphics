@@ -80,7 +80,7 @@ namespace SI
 		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 		
 		GfxDescriptorHeapDesc rtvHeapDesc;
-		rtvHeapDesc.m_type = kGfxDescriptorHeapType_Rtv;
+		rtvHeapDesc.m_type = GfxDescriptorHeapType::kRtv;
 		rtvHeapDesc.m_descriptorCount = config.m_bufferCount;
 		m_rtvHeap = SI_NEW(BaseDescriptorHeap);
 		m_rtvHeap->Initialize(device, rtvHeapDesc);
@@ -184,7 +184,7 @@ namespace SI
 	
 	GfxCpuDescriptor BaseSwapChain::GetSwapChainCpuDescriptor()
 	{
-		return m_rtvHeap->GetCpuDescriptor(kGfxDescriptorHeapType_Rtv, m_frameIndex);
+		return m_rtvHeap->GetCpuDescriptor(GfxDescriptorHeapType::kRtv, m_frameIndex);
 	}
 
 } // namespace SI

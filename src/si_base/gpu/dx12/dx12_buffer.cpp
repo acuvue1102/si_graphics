@@ -41,7 +41,7 @@ namespace SI
 		resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 		
 		D3D12_RESOURCE_STATES resourceState = D3D12_RESOURCE_STATE_GENERIC_READ;
-		if(desc.m_heapType == kGfxHeapType_Default)
+		if(desc.m_heapType == GfxHeapType::kDefault)
 		{
 			resourceState = D3D12_RESOURCE_STATE_COPY_DEST;
 		}

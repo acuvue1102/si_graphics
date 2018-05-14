@@ -53,8 +53,8 @@ namespace APP001
 
 		static const GfxInputElement kElements[] =
 		{
-			{"POSITION", 0, kGfxFormat_R32G32B32_Float,    0, 0},
-			{"COLOR",    0, kGfxFormat_R32G32B32A32_Float, 0, 12},
+			{"POSITION", 0, GfxFormat::kR32G32B32_Float,    0, 0},
+			{"COLOR",    0, GfxFormat::kR32G32B32A32_Float, 0, 12},
 		};
 
 		GfxGraphicsStateDesc stateDesc;
@@ -63,7 +63,7 @@ namespace APP001
 		stateDesc.m_rootSignature      = &m_rootSignature;
 		stateDesc.m_vertexShader       = &m_vertexShader;
 		stateDesc.m_pixelShader        = &m_pixelShader;
-		stateDesc.m_rtvFormats[0]      = kGfxFormat_R8G8B8A8_Unorm;
+		stateDesc.m_rtvFormats[0]      = GfxFormat::kR8G8B8A8_Unorm;
 		m_graphicsState = m_device.CreateGraphicsState(stateDesc);
 
 		float aspect = (float)info.m_width/(float)info.m_height;
@@ -76,7 +76,7 @@ namespace APP001
 		};
 
 		GfxBufferDesc bufferDesc;
-		bufferDesc.m_heapType = kGfxHeapType_Upload;
+		bufferDesc.m_heapType = GfxHeapType::kUpload;
 		bufferDesc.m_bufferSizeInByte = sizeof(kVertexData);
 		m_vertexBuffer = m_device.CreateBuffer(bufferDesc);
 		{
@@ -123,7 +123,7 @@ namespace APP001
 
 		m_graphicsCommandList.ClearRenderTarget(swapChainDescriptor, 0.0f, 0.2f, 0.4f, 1.0f);
 
-		m_graphicsCommandList.SetPrimitiveTopology(kGfxPrimitiveTopology_TriangleList);
+		m_graphicsCommandList.SetPrimitiveTopology(GfxPrimitiveTopology::kTriangleList);
 		m_graphicsCommandList.SetVertexBuffers(
 			0,
 			1,

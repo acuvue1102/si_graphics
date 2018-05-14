@@ -96,6 +96,7 @@
     <ClCompile Include="gpu\gfx_texture.cpp" />
     <ClCompile Include="memory\dlmalloc.c" />
     <ClCompile Include="memory\pool_allocator.cpp" />
+    <ClCompile Include="misc\bitwise.cpp" />
     <ClCompile Include="platform\window_util.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -147,6 +148,8 @@
     <ClInclude Include="gpu\gfx_viewport.h" />
     <ClInclude Include="memory\dlmalloc.h" />
     <ClInclude Include="memory\pool_allocator.h" />
+    <ClInclude Include="misc\bitwise.h" />
+    <ClInclude Include="misc\enum_flags.h" />
     <ClInclude Include="platform\window_util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

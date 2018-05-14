@@ -28,8 +28,8 @@ namespace SI
 	
 	void GfxGraphicsCommandList::ResourceBarrier(
 		GfxTexture& texture,
-		const GfxResourceState& before,
-		const GfxResourceState& after,
+		GfxResourceStates before,
+		GfxResourceStates after,
 		GfxResourceBarrierFlag flag)
 	{
 		m_base->ResourceBarrier(

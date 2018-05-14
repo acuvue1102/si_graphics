@@ -9,7 +9,7 @@ namespace SI
 	{
 		const char* m_semanticsName     = nullptr;
 		uint32_t    m_semanticsId       = 0;
-		GfxFormat   m_format            = kGfxFormat_Unknown;
+		GfxFormat   m_format            = GfxFormat::kUnknown;
 		uint32_t    m_inputSlot         = 0;
 		uint32_t    m_alignedByteOffset = 0; // offsetのバイト数.
 	};

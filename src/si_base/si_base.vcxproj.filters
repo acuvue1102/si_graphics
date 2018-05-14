@@ -148,6 +148,12 @@
     <ClInclude Include="core\constant.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="misc\bitwise.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\enum_flags.h">
+      <Filter>misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -164,6 +170,9 @@
     </Filter>
     <Filter Include="memory">
       <UniqueIdentifier>{77386f44-3b14-4c0a-8ebe-95a1e48c82c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="misc">
+      <UniqueIdentifier>{c5bee82b-603f-4b6e-b779-aacb19c32a73}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -253,6 +262,9 @@
     </ClCompile>
     <ClCompile Include="memory\dlmalloc.c">
       <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="misc\bitwise.cpp">
+      <Filter>misc</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

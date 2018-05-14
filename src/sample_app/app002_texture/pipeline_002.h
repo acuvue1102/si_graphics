@@ -39,6 +39,9 @@ namespace APP002
 
 		GfxTexture               m_rt;
 		GfxDescriptorHeap        m_rtvHeap;
+
+		GfxTexture               m_depth;
+		GfxDescriptorHeap        m_depthHeap;
 	};
 	
 } // namespace APP002

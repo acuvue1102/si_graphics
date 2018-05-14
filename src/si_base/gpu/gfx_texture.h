@@ -10,16 +10,17 @@ namespace SI
 
 	struct GfxTextureDesc
 	{
-		const char*      m_name          = nullptr;
-		uint32_t         m_width         = 1;
-		uint32_t         m_height        = 1;
-		uint32_t         m_depth         = 1;
-		uint32_t         m_mipLevels     = 1;
-		GfxFormat        m_format        = kGfxFormat_R8G8B8A8_Unorm;
-		GfxDimension     m_dimension     = kGfxDimension_Texture2D;
-		GfxResourceState m_resourceState = GfxResourceState::kCopyDest;
-		GfxHeapType      m_heapType      = kGfxHeapType_Default;
-		float            m_clearColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+		const char*        m_name           = nullptr;
+		uint32_t           m_width          = 1;
+		uint32_t           m_height         = 1;
+		uint32_t           m_depth          = 1;
+		uint32_t           m_mipLevels      = 1;
+		GfxFormat          m_format         = GfxFormat::kR8G8B8A8_Unorm;
+		GfxDimension       m_dimension      = GfxDimension::kTexture2D;
+		GfxResourceStates  m_resourceStates = GfxResourceState::kCopyDest;
+		GfxHeapType        m_heapType       = GfxHeapType::kDefault;
+		float              m_clearColor[4]  = {0.0f, 0.0f, 0.0f, 0.0f};
+		float              m_clearDepth     = 0.0f;
 	};
 
 	class GfxTexture

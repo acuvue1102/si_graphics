@@ -11,7 +11,6 @@ namespace SI
 	class BaseGraphicsCommandList;
 	class GfxTexture;
 	class GfxGraphicsState;
-	class GfxResourceState;
 	class GfxViewport;
 	class GfxScissor;
 	class GfxVertexBufferView;
@@ -30,9 +29,9 @@ namespace SI
 		
 		void ResourceBarrier(
 			GfxTexture& texture,
-			const GfxResourceState& before,
-			const GfxResourceState& after,
-			GfxResourceBarrierFlag flag = kGfxResourceBarrierFlag_None);
+			GfxResourceStates before,
+			GfxResourceStates after,
+			GfxResourceBarrierFlag flag = GfxResourceBarrierFlag::kNone);
 
 		int Close();
 

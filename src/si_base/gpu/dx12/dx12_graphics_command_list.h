@@ -26,7 +26,6 @@ namespace SI
 {
 	class BaseTexture;
 	class BaseGraphicsState;
-	class GfxResourceState;
 
 	class BaseGraphicsCommandList : public BaseCommandList
 	{
@@ -90,16 +89,16 @@ namespace SI
 
 		inline void ResourceBarrier(
 			BaseTexture& texture,
-			const GfxResourceState& before,
-			const GfxResourceState& after,
+			GfxResourceStates before,
+			GfxResourceStates after,
 			GfxResourceBarrierFlag flag)
 		{
 			D3D12_RESOURCE_BARRIER barrier = {};
 			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 			barrier.Flags = GetDx12ResourceBarrierFlag(flag);
 			barrier.Transition.pResource = texture.GetComPtrResource().Get();
-			barrier.Transition.StateBefore = (D3D12_RESOURCE_STATES)before.GetStateFlags();
-			barrier.Transition.StateAfter  = (D3D12_RESOURCE_STATES)after.GetStateFlags();
+			barrier.Transition.StateBefore = GetDx12ResourceStates(before);
+			barrier.Transition.StateAfter  = GetDx12ResourceStates(after);
 			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		
 			m_graphicsCommandList->ResourceBarrier(1, &barrier);

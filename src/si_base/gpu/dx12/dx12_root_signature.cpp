@@ -48,7 +48,7 @@ namespace SI
 				outRange.BaseShaderRegister  = inRange.m_shaderRegisterIndex;
 				outRange.RegisterSpace       = 0;
 
-				if(inRange.m_rangeType==kGfxDescriptorRangeType_Sampler)
+				if(inRange.m_rangeType==GfxDescriptorRangeType::kSampler)
 				{
 					outRange.Flags           = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
 				}

@@ -7,10 +7,47 @@
 #include <wrl/client.h>
 #include <dxgi1_4.h>
 #include "si_base/core/core.h"
+#include "si_base/misc/bitwise.h"
 #include "si_base/gpu/gfx_enum.h"
 
 namespace SI
 {
+	inline D3D12_RESOURCE_STATES GetDx12ResourceStates(GfxResourceStates states)
+	{
+		static const D3D12_RESOURCE_STATES kTable[] = 
+		{
+			D3D12_RESOURCE_STATE_COMMON,
+			D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,
+			D3D12_RESOURCE_STATE_INDEX_BUFFER,
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+			D3D12_RESOURCE_STATE_DEPTH_WRITE,
+			D3D12_RESOURCE_STATE_DEPTH_READ,
+			D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+			D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+			D3D12_RESOURCE_STATE_STREAM_OUT,
+			D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT,
+			D3D12_RESOURCE_STATE_COPY_DEST,
+			D3D12_RESOURCE_STATE_COPY_SOURCE,
+			D3D12_RESOURCE_STATE_RESOLVE_DEST,
+			D3D12_RESOURCE_STATE_RESOLVE_SOURCE,
+		};
+
+		D3D12_RESOURCE_STATES state = (D3D12_RESOURCE_STATES)0;
+		uint32_t mask = states.GetMask();
+		while(mask != 0)
+		{
+			int msb = Bitwise::MSB32(mask);
+			if(msb<0) break;
+			if((int)ArraySize(kTable) <= msb) continue;
+
+			state |= kTable[msb];
+			mask &= ~((uint32_t)1<<(uint32_t)msb);
+		}
+
+		return state;
+	}
+
 	inline D3D12_RESOURCE_BARRIER_FLAGS GetDx12ResourceBarrierFlag(GfxResourceBarrierFlag f)
 	{
 		static const D3D12_RESOURCE_BARRIER_FLAGS kTable[] =
@@ -19,9 +56,9 @@ namespace SI
 		D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY,
 		D3D12_RESOURCE_BARRIER_FLAG_END_ONLY
 		};
-		static_assert(ArraySize(kTable) == (size_t)kGfxResourceBarrierFlag_Max, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxResourceBarrierFlag::kMax, "tableError");
 
-		return kTable[f];
+		return kTable[(int)f];
 	}
 
 	inline D3D12_COMPARISON_FUNC GetDx12ComparisonFunc(GfxComparisonFunc f)
@@ -37,9 +74,9 @@ namespace SI
 			D3D12_COMPARISON_FUNC_GREATER_EQUAL,
 			D3D12_COMPARISON_FUNC_ALWAYS
 		};
-		static_assert(ArraySize(kTable) == (size_t)kGfxComparisonFunc_Max, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxComparisonFunc::kMax, "tableError");
 
-		return kTable[f];
+		return kTable[(int)f];
 	}
 
 	inline D3D12_TEXTURE_ADDRESS_MODE GetDx12TextureAddress(GfxTextureAddress a)
@@ -52,9 +89,9 @@ namespace SI
 			D3D12_TEXTURE_ADDRESS_MODE_BORDER,
 			D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE
 		};
-		static_assert(ArraySize(kTable) == (size_t)kGfxTextureAddress_Max, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxTextureAddress::kMax, "tableError");
 
-		return kTable[a];
+		return kTable[(int)a];
 	}
 
 	inline D3D12_FILTER GetDx12Filter(GfxFilter f)
@@ -98,29 +135,29 @@ namespace SI
 			D3D12_FILTER_MAXIMUM_MIN_MAG_MIP_LINEAR,
 			D3D12_FILTER_MAXIMUM_ANISOTROPIC,
 		};
-		static_assert(ArraySize(kTable) == (size_t)kGfxFilter_Max, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxFilter::kMax, "tableError");
 
-		return kTable[f];
+		return kTable[(int)f];
 	}
 
 	inline D3D12_RESOURCE_DIMENSION GetDx12ResourceDimension(GfxDimension d)
 	{
 		static const D3D12_RESOURCE_DIMENSION kTable[] =
 		{
-			D3D12_RESOURCE_DIMENSION_BUFFER,    // kGfxDimension_Buffer,
-			D3D12_RESOURCE_DIMENSION_TEXTURE1D, // kGfxDimension_Texture1D,
-			D3D12_RESOURCE_DIMENSION_TEXTURE1D, // kGfxDimension_Texture1DArray,
-			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // kGfxDimension_Texture2D,
-			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // kGfxDimension_Texture2DArray,
-			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // kGfxDimension_Texture2DMS,
-			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // kGfxDimension_Texture2DMSArray,
-			D3D12_RESOURCE_DIMENSION_TEXTURE3D, // kGfxDimension_Texture3D,
-			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // kGfxDimension_TextureCube,
-			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // kGfxDimension_TextureCubeArray,
+			D3D12_RESOURCE_DIMENSION_BUFFER,    // GfxDimension::kBuffer,
+			D3D12_RESOURCE_DIMENSION_TEXTURE1D, // GfxDimension::kTexture1D,
+			D3D12_RESOURCE_DIMENSION_TEXTURE1D, // GfxDimension::kTexture1DArray,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::kTexture2D,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::kTexture2DArray,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::kTexture2DMS,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::kTexture2DMSArray,
+			D3D12_RESOURCE_DIMENSION_TEXTURE3D, // GfxDimension::kTexture3D,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::kTextureCube,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::kTextureCubeArray,
 		};
-		static_assert(ArraySize(kTable) == (size_t)kGfxDimension_Max, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxDimension::kMax, "tableError");
 
-		return kTable[d];
+		return kTable[(int)d];
 	};
 
 	inline D3D12_SRV_DIMENSION GetDx12SrvDimension(GfxDimension d)
@@ -138,9 +175,9 @@ namespace SI
 			D3D12_SRV_DIMENSION_TEXTURECUBE,
 			D3D12_SRV_DIMENSION_TEXTURECUBEARRAY
 		};
-		static_assert(ArraySize(kTable) == (size_t)kGfxDimension_Max, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxDimension::kMax, "tableError");
 
-		return kTable[d];
+		return kTable[(int)d];
 	}
 
 	inline D3D12_DESCRIPTOR_RANGE_FLAGS GetDx12DescriptorRangeFlags(GfxDescriptorRangeFlag flag)
@@ -151,9 +188,9 @@ namespace SI
 			D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC,
 			D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE,
 		};
-		static_assert(ArraySize(kTable) == (size_t)kGfxDescriptorRangeFlag_Max, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxDescriptorRangeFlag::kMax, "tableError");
 
-		return kTable[flag];
+		return kTable[(int)flag];
 	}
 
 	inline D3D12_DESCRIPTOR_RANGE_TYPE GetDx12DescriptorRangeType(GfxDescriptorRangeType type)
@@ -165,9 +202,9 @@ namespace SI
 			D3D12_DESCRIPTOR_RANGE_TYPE_CBV,
 			D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER,
 		};
-		static_assert(ArraySize(kTable) == (size_t)kGfxDescriptorRangeType_Max, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxDescriptorRangeType::kMax, "tableError");
 
-		return kTable[type];
+		return kTable[(int)type];
 	}
 
 	inline D3D12_DESCRIPTOR_HEAP_TYPE GetDx12DescriptorHeapType(GfxDescriptorHeapType type)
@@ -179,9 +216,9 @@ namespace SI
 			D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
 			D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
 		};
-		static_assert(ArraySize(kTable) == (size_t)kGfxDescriptorHeapType_Max, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxDescriptorHeapType::kMax, "tableError");
 
-		return kTable[type];
+		return kTable[(int)type];
 	}
 	
 	inline D3D12_DESCRIPTOR_HEAP_FLAGS GetDx12DescriptorHeapFlag(GfxDescriptorHeapFlag flag)
@@ -191,9 +228,9 @@ namespace SI
 			D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 		};
-		static_assert(ArraySize(kTable) == (size_t)kGfxDescriptorHeapFlag_Max, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxDescriptorHeapFlag::kMax, "tableError");
 
-		return kTable[flag];
+		return kTable[(int)flag];
 	}
 
 	inline D3D12_PRIMITIVE_TOPOLOGY GetDx12PrimitiveTopology(GfxPrimitiveTopology topology)
@@ -243,9 +280,9 @@ namespace SI
 			D3D_PRIMITIVE_TOPOLOGY_31_CONTROL_POINT_PATCHLIST,
 			D3D_PRIMITIVE_TOPOLOGY_32_CONTROL_POINT_PATCHLIST,
 		};
-		static_assert(ArraySize(kTable)==kGfxPrimitiveTopology_Max, "TableError");
+		static_assert(ArraySize(kTable)==(size_t)GfxPrimitiveTopology::kMax, "TableError");
 
-		return kTable[topology];
+		return kTable[(int)topology];
 	}
 
 	inline D3D12_HEAP_TYPE GetDx12HeapType(GfxHeapType type)
@@ -257,9 +294,9 @@ namespace SI
 			D3D12_HEAP_TYPE_READBACK,
 			D3D12_HEAP_TYPE_CUSTOM
 		};
-		static_assert(ArraySize(kTable) == (size_t)kGfxHeapType_Max, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxHeapType::kMax, "tableError");
 
-		return kTable[type];
+		return kTable[(int)type];
 	}
 
 	inline DXGI_FORMAT GetDx12Format(GfxFormat format)
@@ -386,9 +423,9 @@ namespace SI
 			//DXGI_FORMAT_V208                        ,
 			//DXGI_FORMAT_V408                        ,
 		};
-		static_assert(SI::ArraySize(kTable) == (size_t)kGfxFormat_Max, "tableError");
+		static_assert(SI::ArraySize(kTable) == (size_t)GfxFormat::kMax, "tableError");
 
-		return kTable[format];
+		return kTable[(int)format];
 	}
 
 } // namespace SI

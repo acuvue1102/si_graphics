@@ -70,7 +70,7 @@ namespace SI
 		rtvDesc.Texture2D.MipSlice = 0;
 		rtvDesc.Texture2D.PlaneSlice = 0;
 
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(kGfxDescriptorHeapType_Rtv);
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::kRtv);
 		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
 		device.CreateRenderTargetView(texture.GetComPtrResource().Get(), &rtvDesc, descriptor);
 	}
@@ -87,31 +87,31 @@ namespace SI
 		srvDesc.ViewDimension           = GetDx12SrvDimension(desc.m_srvDimension);
 		switch(desc.m_srvDimension)
 		{
-		case kGfxDimension_Buffer:
-		case kGfxDimension_Texture1D:
+		case GfxDimension::kBuffer:
+		case GfxDimension::kTexture1D:
 			srvDesc.Texture1D.MipLevels = desc.m_miplevels;
 			break;
-		case kGfxDimension_Texture1DArray:
+		case GfxDimension::kTexture1DArray:
 			srvDesc.Texture1DArray.MipLevels = desc.m_miplevels;
 			srvDesc.Texture1DArray.ArraySize = desc.m_arraySize;
 			break;
-		case kGfxDimension_Texture2D:
+		case GfxDimension::kTexture2D:
 			srvDesc.Texture2D.MipLevels = desc.m_miplevels;
 			break;
-		case kGfxDimension_Texture2DArray:
+		case GfxDimension::kTexture2DArray:
 			srvDesc.Texture2DArray.MipLevels = desc.m_miplevels;
 			srvDesc.Texture2DArray.ArraySize = desc.m_arraySize;
 			break;
-		case kGfxDimension_Texture2DMS:
-		case kGfxDimension_Texture2DMSArray:
+		case GfxDimension::kTexture2DMS:
+		case GfxDimension::kTexture2DMSArray:
 			break;
-		case kGfxDimension_Texture3D:
+		case GfxDimension::kTexture3D:
 			srvDesc.Texture3D.MipLevels = desc.m_miplevels;
 			break;
-		case kGfxDimension_TextureCube:
+		case GfxDimension::kTextureCube:
 			srvDesc.TextureCube.MipLevels = desc.m_miplevels;
 			break;
-		case kGfxDimension_TextureCubeArray:
+		case GfxDimension::kTextureCubeArray:
 			srvDesc.TextureCubeArray.MipLevels = desc.m_miplevels;
 			srvDesc.TextureCubeArray.NumCubes  = desc.m_arraySize;
 			break;
@@ -120,7 +120,7 @@ namespace SI
 			break;
 		}
 
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(kGfxDescriptorHeapType_CbvSrvUav);
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::kCbvSrvUav);
 		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
 		device.CreateShaderResourceView(texture.GetComPtrResource().Get(), &srvDesc, descriptor);
 	}
@@ -145,7 +145,7 @@ namespace SI
 		samplerDesc.MinLOD         = desc.m_minLOD;
 		samplerDesc.MaxLOD         = desc.m_maxLOD;
 
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(kGfxDescriptorHeapType_Sampler);
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::kSampler);
 		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
 		device.CreateSampler(&samplerDesc, descriptor);
 	}
@@ -161,7 +161,7 @@ namespace SI
 		constantDesc.BufferLocation = baseBuffer->GetLocation();
 		constantDesc.SizeInBytes    = (UINT)baseBuffer->GetSize();
 
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(kGfxDescriptorHeapType_CbvSrvUav);
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::kCbvSrvUav);
 		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
 		device.CreateConstantBufferView(&constantDesc, descriptor);
 	}
