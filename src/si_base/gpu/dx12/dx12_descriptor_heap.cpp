@@ -46,6 +46,7 @@ namespace SI
 			
 		m_cpuDescriptor = m_descriptorHeap->GetCPUDescriptorHandleForHeapStart();
 		m_gpuDescriptor = m_descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+		m_type          = desc.m_type;
 
 		return 0;
 	}
@@ -73,6 +74,25 @@ namespace SI
 		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::kRtv);
 		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
 		device.CreateRenderTargetView(texture.GetComPtrResource().Get(), &rtvDesc, descriptor);
+	}
+	
+	void BaseDescriptorHeap::CreateDepthStencilView(
+		ID3D12Device& device,
+		uint32_t descriptorIndex,
+		BaseTexture& texture,
+		const GfxDepthStencilViewDesc& desc)
+	{
+		SI_ASSERT(texture.GetComPtrResource()->GetDesc().Format == DXGI_FORMAT_R32_TYPELESS);
+
+		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+		dsvDesc.Format              = DXGI_FORMAT_D32_FLOAT;
+		dsvDesc.ViewDimension       = D3D12_DSV_DIMENSION_TEXTURE2D;
+		dsvDesc.Texture2D.MipSlice  = 0;
+		dsvDesc.Flags               = D3D12_DSV_FLAG_NONE;
+
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::kRtv);
+		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
+		device.CreateDepthStencilView(texture.GetComPtrResource().Get(), &dsvDesc, descriptor);
 	}
 	
 	void BaseDescriptorHeap::CreateShaderResourceView(
@@ -166,18 +186,18 @@ namespace SI
 		device.CreateConstantBufferView(&constantDesc, descriptor);
 	}
 	
-	GfxCpuDescriptor BaseDescriptorHeap::GetCpuDescriptor(GfxDescriptorHeapType type, uint32_t descriptorIndex) const
+	GfxCpuDescriptor BaseDescriptorHeap::GetCpuDescriptor(uint32_t descriptorIndex) const
 	{
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(type);
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(m_type);
 
 		GfxCpuDescriptor d;
 		d.m_ptr = m_cpuDescriptor.ptr + descriptorIndex * descriptorSize;
 		return d;
 	}
 	
-	GfxGpuDescriptor BaseDescriptorHeap::GetGpuDescriptor(GfxDescriptorHeapType type, uint32_t descriptorIndex) const
+	GfxGpuDescriptor BaseDescriptorHeap::GetGpuDescriptor(uint32_t descriptorIndex) const
 	{
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(type);
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(m_type);
 
 		GfxGpuDescriptor d;
 		d.m_ptr = m_gpuDescriptor.ptr + descriptorIndex * descriptorSize;

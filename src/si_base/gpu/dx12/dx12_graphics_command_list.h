@@ -87,6 +87,27 @@ namespace SI
 			m_graphicsCommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
 		}
 
+		inline void ClearDepthStencilTarget(
+			const GfxCpuDescriptor& tex,
+			float clearDepth,
+			uint8_t stencil,
+			GfxClearFlags flags)
+		{
+			D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = {};
+			dsvHandle.ptr = tex.m_ptr;
+
+			D3D12_CLEAR_FLAGS clearFlag = 
+				(flags == (GfxClearFlag::kDepth | GfxClearFlag::kStencil))? D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL :
+				(flags == (GfxClearFlag::kDepth))? D3D12_CLEAR_FLAG_DEPTH : D3D12_CLEAR_FLAG_STENCIL;
+
+			m_graphicsCommandList->ClearDepthStencilView(
+				dsvHandle,
+				clearFlag,
+				clearDepth,
+				stencil,
+				0, nullptr);
+		}
+
 		inline void ResourceBarrier(
 			BaseTexture& texture,
 			GfxResourceStates before,

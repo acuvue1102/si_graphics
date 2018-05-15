@@ -4,6 +4,120 @@
 
 namespace SI
 {
+	enum class GfxDepthWriteMask
+	{
+		kZero = 0,
+		kAll,
+
+		kMax
+	};
+
+	enum class GfxFillMode
+	{
+		kWireframe = 0,
+		kSolid,
+
+		kMax
+	};
+	
+	enum class GfxCullMode
+	{
+		kNone = 0,
+		kFront,
+		kBack,
+
+		kMax
+	};
+
+	enum class GfxPrimitiveTopologyType
+	{
+		kUndefined = 0,
+		kPoint,
+		kLine,
+		kTriangle,
+		kPatch,
+
+		kMax,
+	};
+
+	enum class GfxColorWriteFlag
+	{
+		kRed     = 1 << 0,
+		kGreen   = 1 << 1,
+		kBlue    = 1 << 2,
+		kAlpha   = 1 << 3,
+		kRGB     = kRed | kGreen | kBlue,
+		kRGBA    = kRed | kGreen | kBlue | kAlpha,
+
+		kMax     = 1 << 4,
+	};
+	SI_DECLARE_ENUM_FLAGS(GfxColorWriteFlags, GfxColorWriteFlag);
+
+	enum class GfxBlend
+	{
+		kZero = 0,
+		kOne,
+		kSrcColor,
+		kInvSrcColor,
+		kSrcAlpha,
+		kInvSrcAlpha,
+		kDestAlpha,
+		kInvDestAlpha,
+		kDestColor,
+		kInvDestColor,
+		kSrcAlphaSat,
+		kBlendFactor,
+		kInvBlendFactor,
+		kSrc1Color,
+		kInvSrc1Color,
+		kSrc1Alpha,
+		kInvSrc1Alpha,
+
+		kMax
+	};
+	
+	enum class GfxBlendOp
+	{
+		kAdd = 0,
+		kSubtract,
+		kRevSubtract,
+		kMin,
+		kMax,
+
+		kEnumMax
+	};
+
+	enum class GfxLogicOp
+	{ 
+		kClear = 0,
+		kSet,
+		kCopy,
+		kCopyInverted,
+		kNoop,
+		kInvert,
+		kAnd,
+		kNand,
+		kOr,
+		kNor,
+		kXor,
+		kEquiv,
+		kAndReverse,
+		kAndInverted,
+		kOrReverse,
+		kOrInverted,
+
+		kMax
+	};
+
+	enum class GfxClearFlag
+	{
+		kDepth   = 1 << 0,
+		kStencil = 1 << 1,
+
+		kMax     = 1 << 2,
+	};
+	SI_DECLARE_ENUM_FLAGS(GfxClearFlags, GfxClearFlag);
+
 	enum class GfxResourceState
 	{
 		kCommon                  = 1 << 0,
@@ -20,7 +134,15 @@ namespace SI
 		kCopyDest                = 1 << 11,
 		kCopySource              = 1 << 12,
 		kResolveDest             = 1 << 13,
-		kResolveSource           = 1 << 14,
+		kResolveSource           = 1 << 14,		
+		kGenericRead             = 1 << 15,
+		kPredication             = 1 << 16,
+		kVideoDecodeRead         = 1 << 17,
+		kVideoDecodeWrite        = 1 << 18,
+		kVideoProcessRead        = 1 << 19,
+		kVideoProcessWrite       = 1 << 20,
+
+		kMax                     = 1 << 21,
 	};
 	SI_DECLARE_ENUM_FLAGS(GfxResourceStates, GfxResourceState);
 
@@ -34,6 +156,8 @@ namespace SI
 		kAllowCrossAdapter        = 1<<4,
 		kAllowSimultaneousAccess  = 1<<5,
 		kVideoDecodeReferenceOnly = 1<<6,
+
+		kMax                      = 1<<7,
 	};
 	SI_DECLARE_ENUM_FLAGS(GfxResourceFlags, GfxResourceFlag);
 
@@ -48,7 +172,7 @@ namespace SI
 
 	enum class GfxComparisonFunc
 	{
-		kNever,
+		kNever = 0,
 		kLess,
 		kEqual,
 		kLessEqual,
@@ -347,55 +471,5 @@ namespace SI
 
 		kMax
 	};
-
-	// enumで表現したいが、重複して指定できるenumなので、Gfx Wrapperではclassにする.
-	//class GfxResourceState
-	//{
-	//public:
-	//	GfxResourceState(int stateFlag = 0)
-	//		: m_stateFlags(stateFlag)
-	//	{
-	//	}
-
-	//	~GfxResourceState()
-	//	{
-	//	}
-
-	//	inline int GetStateFlags() const{ return m_stateFlags; }
-	//	inline void SetStateFlags(int stateFlags){ m_stateFlags = stateFlags; }
-	//	inline void MergeStateFlags(const GfxResourceState& state){ m_stateFlags |= state.GetStateFlags();  }
-	//	
-	//	inline GfxResourceState& operator|=(const GfxResourceState& a)
-	//	{
-	//		MergeStateFlags(a);
-	//		return *this;
-	//	}
-
-	//	// 各ResourceStateタイプ. 組み合わせれる.
-	//	static const GfxResourceState kCommon; // present
-	//	static const GfxResourceState kVertexAndConstantBuffer;
-	//	static const GfxResourceState kIndexBuffer;
-	//	static const GfxResourceState kRenderTarget;
-	//	static const GfxResourceState kUnorderedAccess;
-	//	static const GfxResourceState kDepthWrite;
-	//	static const GfxResourceState kDepthRead;
-	//	static const GfxResourceState kNonPixelShaderResource;
-	//	static const GfxResourceState kPixelShaderResource;
-	//	static const GfxResourceState kStreamOut;
-	//	static const GfxResourceState kIndirectArgument;
-	//	static const GfxResourceState kCopyDest;
-	//	static const GfxResourceState kCopySource;
-	//	static const GfxResourceState kResolveDest;
-	//	static const GfxResourceState kResolveSource;
-
-	//private:
-	//	int m_stateFlags;
-	//};
-	//
-	//inline GfxResourceState operator|(const GfxResourceState& a, const GfxResourceState& b)
-	//{
-	//	return GfxResourceState(a.GetStateFlags() | b.GetStateFlags());
-	//}
-
 
 } // namespace SI

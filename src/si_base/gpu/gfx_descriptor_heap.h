@@ -20,6 +20,10 @@ namespace SI
 	{
 	};
 
+	struct GfxDepthStencilViewDesc
+	{
+	};
+
 	struct GfxShaderResourceViewDesc
 	{
 		GfxDimension    m_srvDimension = GfxDimension::kTexture2D;
@@ -68,8 +72,8 @@ namespace SI
 		{
 		}
 		
-		GfxCpuDescriptor GetCpuDescriptor(GfxDescriptorHeapType type, uint32_t descriptorIndex) const;
-		GfxGpuDescriptor GetGpuDescriptor(GfxDescriptorHeapType type, uint32_t descriptorIndex) const;
+		GfxCpuDescriptor GetCpuDescriptor(uint32_t descriptorIndex) const;
+		GfxGpuDescriptor GetGpuDescriptor(uint32_t descriptorIndex) const;
 
 	public:
 		      BaseDescriptorHeap* GetBaseDescriptorHeap()      { return m_base; }

@@ -18,6 +18,7 @@ namespace SI
 		GfxFormat          m_format         = GfxFormat::kR8G8B8A8_Unorm;
 		GfxDimension       m_dimension      = GfxDimension::kTexture2D;
 		GfxResourceStates  m_resourceStates = GfxResourceState::kCopyDest;
+		GfxResourceFlags   m_resourceFlags  = GfxResourceFlag::kNone;
 		GfxHeapType        m_heapType       = GfxHeapType::kDefault;
 		float              m_clearColor[4]  = {0.0f, 0.0f, 0.0f, 0.0f};
 		float              m_clearDepth     = 0.0f;

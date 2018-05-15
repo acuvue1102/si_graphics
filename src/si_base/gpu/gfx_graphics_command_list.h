@@ -22,8 +22,13 @@ namespace SI
 	public:
 		GfxGraphicsCommandList(BaseGraphicsCommandList* base = nullptr);
 		virtual ~GfxGraphicsCommandList();
-
+		
 		void ClearRenderTarget(const GfxCpuDescriptor& tex, float r, float g, float b, float a);
+		void ClearDepthStencilTarget(
+			const GfxCpuDescriptor& tex,
+			float depth,
+			uint8_t stencil = 0,
+			GfxClearFlags clearFlags = GfxClearFlag::kDepth);
 		
 		int Reset(GfxGraphicsState* graphicsState);
 		

@@ -60,45 +60,55 @@ namespace SI
 		psoDesc.PS.pShaderBytecode = pixelShader? pixelShader->GetBinary() : nullptr;
 		psoDesc.PS.BytecodeLength  = pixelShader? pixelShader->GetBinarySize() : 0;
 				
-        psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-        psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
-        psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
-        psoDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
-        psoDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
-        psoDesc.RasterizerState.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
-        psoDesc.RasterizerState.DepthClipEnable = TRUE;
-        psoDesc.RasterizerState.MultisampleEnable = FALSE;
-        psoDesc.RasterizerState.AntialiasedLineEnable = FALSE;
-        psoDesc.RasterizerState.ForcedSampleCount = 0;
-        psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
-
-        psoDesc.BlendState.AlphaToCoverageEnable = FALSE;
-        psoDesc.BlendState.IndependentBlendEnable = FALSE;
-        const D3D12_RENDER_TARGET_BLEND_DESC defaultRenderTargetBlendDesc =
-        {
-            FALSE,FALSE,
-            D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
-            D3D12_BLEND_ONE, D3D12_BLEND_ZERO, D3D12_BLEND_OP_ADD,
-            D3D12_LOGIC_OP_NOOP,
-            D3D12_COLOR_WRITE_ENABLE_ALL,
-        };
-        for (UINT i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i)
+		psoDesc.RasterizerState.FillMode              = GetDx12FillMode(desc.m_fillMode);
+		psoDesc.RasterizerState.CullMode              = GetDx12CullMode(desc.m_cullMode);
+		psoDesc.RasterizerState.FrontCounterClockwise = desc.m_frontCounterClockwise? TRUE : FALSE;
+		psoDesc.RasterizerState.DepthBias             = desc.m_depthBias;
+		psoDesc.RasterizerState.DepthBiasClamp        = desc.m_depthBiasClamp;
+		psoDesc.RasterizerState.SlopeScaledDepthBias  = desc.m_slopeScaledDepthBias;
+		psoDesc.RasterizerState.DepthClipEnable       = TRUE;
+		psoDesc.RasterizerState.MultisampleEnable     = FALSE;
+		psoDesc.RasterizerState.AntialiasedLineEnable = FALSE;
+		psoDesc.RasterizerState.ForcedSampleCount     = 0;
+		psoDesc.RasterizerState.ConservativeRaster    = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+		psoDesc.SampleMask                            = UINT_MAX;
+		psoDesc.PrimitiveTopologyType                 = GetDx12PrimitiveTopologyType(desc.m_primitiveTopologyType);		
+		psoDesc.SampleDesc.Count                      = 1;
+		psoDesc.NumRenderTargets                      = desc.m_renderTargetCount;
+		psoDesc.BlendState.AlphaToCoverageEnable      = FALSE;
+		psoDesc.BlendState.IndependentBlendEnable     = FALSE;
+		psoDesc.DepthStencilState.DepthEnable         = desc.m_depthEnable? TRUE : FALSE;
+		psoDesc.DepthStencilState.StencilEnable       = desc.m_stencilEnable? TRUE : FALSE;
+		if(psoDesc.DepthStencilState.DepthEnable)
 		{
-            psoDesc.BlendState.RenderTarget[i] = defaultRenderTargetBlendDesc;
+			psoDesc.DepthStencilState.DepthWriteMask  = GetDx12DepthWriteMask(desc.m_depthWriteMask);
+			psoDesc.DepthStencilState.DepthFunc       = GetDx12ComparisonFunc(desc.m_depthFunc);
 		}
-		psoDesc.DepthStencilState.DepthEnable = FALSE;
-		psoDesc.DepthStencilState.StencilEnable = FALSE;
-		psoDesc.SampleMask = UINT_MAX;
-		psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		psoDesc.NumRenderTargets = 1;
 		
-		static_assert(ArraySize(psoDesc.RTVFormats) == 8, "array count error");
-		SI_ASSERT(ArraySize(psoDesc.RTVFormats) == ArraySize(desc.m_rtvFormats));
-		for(uint32_t rt=0; rt<ArraySize(desc.m_rtvFormats); ++rt)
+		SI_ASSERT(desc.m_renderTargetCount <= D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT);
+		UINT blendRtCount = psoDesc.BlendState.IndependentBlendEnable? psoDesc.NumRenderTargets : 1;
+
+		for (UINT rt = 0; rt<blendRtCount; ++rt)
 		{
+			D3D12_RENDER_TARGET_BLEND_DESC& outBlend = psoDesc.BlendState.RenderTarget[rt];
+			const GfxRenderTargetBlendDesc&  inBlend = desc.m_rtvBlend[rt];
+
+			outBlend.BlendEnable            = inBlend.m_blendEnable?   TRUE : FALSE;
+			outBlend.LogicOpEnable          = inBlend.m_logicOpEnable? TRUE : FALSE;
+			outBlend.SrcBlend               = GetDx12Blend(inBlend.m_srcBlend);
+			outBlend.DestBlend              = GetDx12Blend(inBlend.m_destBlend);
+			outBlend.BlendOp                = GetDx12BlendOp(inBlend.m_blendOp);
+			outBlend.SrcBlendAlpha          = GetDx12Blend(inBlend.m_srcBlendAlpha);
+			outBlend.DestBlendAlpha         = GetDx12Blend(inBlend.m_destBlendAlpha);
+			outBlend.BlendOpAlpha           = GetDx12BlendOp(inBlend.m_blendOpAlpha);
+			outBlend.LogicOp                = GetDx12LogicOp(inBlend.m_logicOp);
+			outBlend.RenderTargetWriteMask  = GetDx12RenderTargetWriteMask(inBlend.m_rtWriteMask);
+		}
+
+		for (UINT rt = 0; rt<psoDesc.NumRenderTargets; ++rt)
+		{			
 			psoDesc.RTVFormats[rt] = GetDx12Format(desc.m_rtvFormats[rt]);
 		}
-		psoDesc.SampleDesc.Count = 1;
 
 		HRESULT hr = device.CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState));
 		if(FAILED(hr))

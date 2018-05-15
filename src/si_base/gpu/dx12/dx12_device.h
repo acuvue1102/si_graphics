@@ -67,6 +67,12 @@ namespace SI
 			BaseTexture& texture,
 			const GfxRenderTargetViewDesc& desc);
 
+		void CreateDepthStencilView(
+			BaseDescriptorHeap& descriptorHeap,
+			uint32_t descriptorIndex,
+			BaseTexture& texture,
+			const GfxDepthStencilViewDesc& desc);
+
 		void CreateShaderResourceView(
 			BaseDescriptorHeap& descriptorHeap,
 			uint32_t descriptorIndex,

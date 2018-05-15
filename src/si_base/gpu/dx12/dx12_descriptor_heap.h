@@ -32,6 +32,12 @@ namespace SI
 			BaseTexture& texture,
 			const GfxRenderTargetViewDesc& desc);
 
+		void CreateDepthStencilView(
+			ID3D12Device& device,
+			uint32_t descriptorIndex,
+			BaseTexture& texture,
+			const GfxDepthStencilViewDesc& desc);
+
 		void CreateShaderResourceView(
 			ID3D12Device& device,
 			uint32_t descriptorIndex,
@@ -49,8 +55,8 @@ namespace SI
 			const GfxConstantBufferViewDesc& desc);
 
 	public:
-		GfxCpuDescriptor GetCpuDescriptor(GfxDescriptorHeapType type, uint32_t descriptorIndex) const;
-		GfxGpuDescriptor GetGpuDescriptor(GfxDescriptorHeapType type, uint32_t descriptorIndex) const;
+		GfxCpuDescriptor GetCpuDescriptor(uint32_t descriptorIndex) const;
+		GfxGpuDescriptor GetGpuDescriptor(uint32_t descriptorIndex) const;
 
 		ID3D12DescriptorHeap* GetDx12DescriptorHeap()
 		{
@@ -64,6 +70,7 @@ namespace SI
 		ComPtr<ID3D12DescriptorHeap>      m_descriptorHeap;
 		D3D12_CPU_DESCRIPTOR_HANDLE       m_cpuDescriptor;
 		D3D12_GPU_DESCRIPTOR_HANDLE       m_gpuDescriptor;
+		GfxDescriptorHeapType             m_type;
 	};
 
 } // namespace SI

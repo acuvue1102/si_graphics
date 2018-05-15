@@ -4,13 +4,13 @@
 
 namespace SI
 {
-	GfxCpuDescriptor GfxDescriptorHeap::GetCpuDescriptor(GfxDescriptorHeapType type, uint32_t descriptorIndex) const
+	GfxCpuDescriptor GfxDescriptorHeap::GetCpuDescriptor(uint32_t descriptorIndex) const
 	{
-		return m_base->GetCpuDescriptor(type, descriptorIndex);
+		return m_base->GetCpuDescriptor(descriptorIndex);
 	}
 
-	GfxGpuDescriptor GfxDescriptorHeap::GetGpuDescriptor(GfxDescriptorHeapType type, uint32_t descriptorIndex) const
+	GfxGpuDescriptor GfxDescriptorHeap::GetGpuDescriptor(uint32_t descriptorIndex) const
 	{
-		return m_base->GetGpuDescriptor(type, descriptorIndex);
+		return m_base->GetGpuDescriptor(descriptorIndex);
 	}
 } // namespace SI

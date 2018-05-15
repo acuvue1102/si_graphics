@@ -19,6 +19,7 @@ namespace SI
 	struct GfxTextureDesc;
 	struct GfxDescriptorHeapDesc;
 	struct GfxRenderTargetViewDesc;
+	struct GfxDepthStencilViewDesc;
 	struct GfxShaderResourceViewDesc;
 	struct GfxRootSignatureDesc;
 	struct GfxSamplerDesc;

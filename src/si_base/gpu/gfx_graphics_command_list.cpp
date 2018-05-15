@@ -21,6 +21,15 @@ namespace SI
 		m_base->ClearRenderTarget(tex, r, g, b, a);
 	}
 
+	void GfxGraphicsCommandList::ClearDepthStencilTarget(
+		const GfxCpuDescriptor& tex,
+		float depth,
+		uint8_t stencil,
+		GfxClearFlags clearFlags)
+	{
+		m_base->ClearDepthStencilTarget(tex, depth, stencil, clearFlags);
+	}
+
 	int GfxGraphicsCommandList::Reset(GfxGraphicsState* graphicsState)
 	{
 		return m_base->Reset(graphicsState? graphicsState->GetBaseGraphicsState() : nullptr);

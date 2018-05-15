@@ -34,11 +34,8 @@ namespace SI
 		const D3D12_CLEAR_VALUE* clearValue = nullptr;
 		D3D12_CLEAR_VALUE cv = {};
 
-		D3D12_RESOURCE_FLAGS resourceFlag = D3D12_RESOURCE_FLAG_NONE;
 		if(desc.m_resourceStates & GfxResourceStates(GfxResourceState::kRenderTarget))
 		{
-			resourceFlag |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-
 			cv.Format = format;
 			cv.Color[0] = desc.m_clearColor[0];
 			cv.Color[1] = desc.m_clearColor[1];
@@ -52,7 +49,7 @@ namespace SI
 		textureDesc.Format             = format;
 		textureDesc.Width              = desc.m_width;
 		textureDesc.Height             = desc.m_height;
-		textureDesc.Flags              = resourceFlag;
+		textureDesc.Flags              = GetDx12ResourceFlags(desc.m_resourceFlags);
 		textureDesc.DepthOrArraySize   = desc.m_depth;
 		textureDesc.SampleDesc.Count   = 1;
 		textureDesc.SampleDesc.Quality = 0;

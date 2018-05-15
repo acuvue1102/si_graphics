@@ -12,6 +12,167 @@
 
 namespace SI
 {
+	inline D3D12_DEPTH_WRITE_MASK GetDx12DepthWriteMask(GfxDepthWriteMask mask)
+	{
+		static const D3D12_DEPTH_WRITE_MASK kTable[] = 
+		{
+			D3D12_DEPTH_WRITE_MASK_ZERO,
+			D3D12_DEPTH_WRITE_MASK_ALL
+		};
+		static_assert(ArraySize(kTable) == (size_t)GfxDepthWriteMask::kMax, "tableError");
+
+		return kTable[(int)mask];		
+	}
+
+	inline D3D12_FILL_MODE GetDx12FillMode(GfxFillMode mode)
+	{
+		static const D3D12_FILL_MODE kTable[] = 
+		{
+			D3D12_FILL_MODE_WIREFRAME,
+			D3D12_FILL_MODE_SOLID,
+		};
+		static_assert(ArraySize(kTable) == (size_t)GfxFillMode::kMax, "tableError");
+
+		return kTable[(int)mode];
+	}
+	
+	
+	inline D3D12_CULL_MODE GetDx12CullMode(GfxCullMode mode)
+	{
+		static const D3D12_CULL_MODE kTable[] = 
+		{
+			D3D12_CULL_MODE_NONE,
+			D3D12_CULL_MODE_FRONT,
+			D3D12_CULL_MODE_BACK,
+		};
+		static_assert(ArraySize(kTable) == (size_t)GfxCullMode::kMax, "tableError");
+
+		return kTable[(int)mode];
+	}
+
+	inline D3D12_PRIMITIVE_TOPOLOGY_TYPE GetDx12PrimitiveTopologyType(GfxPrimitiveTopologyType topologyType)
+	{
+		static const D3D12_PRIMITIVE_TOPOLOGY_TYPE kTable[] = 
+		{
+			D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED,
+			D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT,
+			D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE,
+			D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
+			D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH
+		};
+		static_assert(ArraySize(kTable) == (size_t)GfxPrimitiveTopologyType::kMax, "tableError");
+
+		return kTable[(int)topologyType];
+	}
+
+	inline uint8_t GetDx12RenderTargetWriteMask(GfxColorWriteFlags writeFlags)
+	{
+		uint8_t mask = 0;
+		if(writeFlags&GfxColorWriteFlag::kRed)   mask |= D3D12_COLOR_WRITE_ENABLE_RED;
+		if(writeFlags&GfxColorWriteFlag::kGreen) mask |= D3D12_COLOR_WRITE_ENABLE_GREEN;
+		if(writeFlags&GfxColorWriteFlag::kBlue)  mask |= D3D12_COLOR_WRITE_ENABLE_BLUE;
+		if(writeFlags&GfxColorWriteFlag::kAlpha) mask |= D3D12_COLOR_WRITE_ENABLE_ALPHA;
+
+		return mask;
+	}
+
+	inline D3D12_LOGIC_OP GetDx12LogicOp(GfxLogicOp logicOp)
+	{
+		static const D3D12_LOGIC_OP kTable[] = 
+		{
+			D3D12_LOGIC_OP_CLEAR,
+			D3D12_LOGIC_OP_SET,
+			D3D12_LOGIC_OP_COPY,
+			D3D12_LOGIC_OP_COPY_INVERTED,
+			D3D12_LOGIC_OP_NOOP,
+			D3D12_LOGIC_OP_INVERT,
+			D3D12_LOGIC_OP_AND,
+			D3D12_LOGIC_OP_NAND,
+			D3D12_LOGIC_OP_OR,
+			D3D12_LOGIC_OP_NOR,
+			D3D12_LOGIC_OP_XOR,
+			D3D12_LOGIC_OP_EQUIV,
+			D3D12_LOGIC_OP_AND_REVERSE,
+			D3D12_LOGIC_OP_AND_INVERTED,
+			D3D12_LOGIC_OP_OR_REVERSE,
+			D3D12_LOGIC_OP_OR_INVERTED,
+		};
+		static_assert(ArraySize(kTable) == (size_t)GfxLogicOp::kMax, "tableError");
+
+		return kTable[(int)logicOp];
+	}
+
+	inline D3D12_BLEND GetDx12Blend(GfxBlend blend)
+	{
+		static const D3D12_BLEND kTable[] = 
+		{
+			D3D12_BLEND_ZERO,
+			D3D12_BLEND_ONE,
+			D3D12_BLEND_SRC_COLOR,
+			D3D12_BLEND_INV_SRC_COLOR,
+			D3D12_BLEND_SRC_ALPHA,
+			D3D12_BLEND_INV_SRC_ALPHA,
+			D3D12_BLEND_DEST_ALPHA,
+			D3D12_BLEND_INV_DEST_ALPHA,
+			D3D12_BLEND_DEST_COLOR,
+			D3D12_BLEND_INV_DEST_COLOR,
+			D3D12_BLEND_SRC_ALPHA_SAT,
+			D3D12_BLEND_BLEND_FACTOR,
+			D3D12_BLEND_INV_BLEND_FACTOR,
+			D3D12_BLEND_SRC1_COLOR,
+			D3D12_BLEND_INV_SRC1_COLOR,
+			D3D12_BLEND_SRC1_ALPHA,
+			D3D12_BLEND_INV_SRC1_ALPHA,
+		};
+		static_assert(ArraySize(kTable) == (size_t)GfxBlend::kMax, "tableError");
+
+		return kTable[(int)blend];
+	}
+
+	inline D3D12_BLEND_OP GetDx12BlendOp(GfxBlendOp blendOp)
+	{
+		static const D3D12_BLEND_OP kTable[] = 
+		{
+			D3D12_BLEND_OP_ADD,
+			D3D12_BLEND_OP_SUBTRACT,
+			D3D12_BLEND_OP_REV_SUBTRACT,
+			D3D12_BLEND_OP_MIN,
+			D3D12_BLEND_OP_MAX,
+		};
+		static_assert(ArraySize(kTable) == (size_t)GfxBlendOp::kEnumMax, "tableError");
+
+		return kTable[(int)blendOp];
+	}
+
+	inline D3D12_RESOURCE_FLAGS GetDx12ResourceFlags(GfxResourceFlags flags)
+	{
+		static const D3D12_RESOURCE_FLAGS kTable[] = 
+		{
+			D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
+			D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL,
+			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+			D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE,
+			D3D12_RESOURCE_FLAG_ALLOW_CROSS_ADAPTER,
+			D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS,
+			D3D12_RESOURCE_FLAG_VIDEO_DECODE_REFERENCE_ONLY
+		};
+		static_assert(((size_t)1<<(ArraySize(kTable))) == ((size_t)GfxResourceFlag::kMax), "tableError");
+
+		D3D12_RESOURCE_FLAGS dxFlags = D3D12_RESOURCE_FLAG_NONE;
+		uint32_t mask = flags.GetMask();
+		while(mask != 0)
+		{
+			int msb = Bitwise::MSB32(mask);
+			if(msb<0) break;
+			if((int)ArraySize(kTable) <= msb) continue;
+
+			dxFlags |= kTable[msb];
+			mask &= ~((uint32_t)1<<(uint32_t)msb);
+		}
+
+		return dxFlags;
+	}
+
 	inline D3D12_RESOURCE_STATES GetDx12ResourceStates(GfxResourceStates states)
 	{
 		static const D3D12_RESOURCE_STATES kTable[] = 
@@ -31,7 +192,14 @@ namespace SI
 			D3D12_RESOURCE_STATE_COPY_SOURCE,
 			D3D12_RESOURCE_STATE_RESOLVE_DEST,
 			D3D12_RESOURCE_STATE_RESOLVE_SOURCE,
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			D3D12_RESOURCE_STATE_PREDICATION,
+			D3D12_RESOURCE_STATE_VIDEO_DECODE_READ,
+			D3D12_RESOURCE_STATE_VIDEO_DECODE_WRITE,
+			D3D12_RESOURCE_STATE_VIDEO_PROCESS_READ,
+			D3D12_RESOURCE_STATE_VIDEO_PROCESS_WRITE,
 		};
+		static_assert(((size_t)1<<(ArraySize(kTable))) == ((size_t)GfxResourceState::kMax), "tableError");
 
 		D3D12_RESOURCE_STATES state = (D3D12_RESOURCE_STATES)0;
 		uint32_t mask = states.GetMask();
@@ -52,9 +220,9 @@ namespace SI
 	{
 		static const D3D12_RESOURCE_BARRIER_FLAGS kTable[] =
 		{
-		D3D12_RESOURCE_BARRIER_FLAG_NONE,
-		D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY,
-		D3D12_RESOURCE_BARRIER_FLAG_END_ONLY
+			D3D12_RESOURCE_BARRIER_FLAG_NONE,
+			D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY,
+			D3D12_RESOURCE_BARRIER_FLAG_END_ONLY
 		};
 		static_assert(ArraySize(kTable) == (size_t)GfxResourceBarrierFlag::kMax, "tableError");
 

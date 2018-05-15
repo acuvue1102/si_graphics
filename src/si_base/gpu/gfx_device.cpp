@@ -180,6 +180,19 @@ namespace SI
 			desc);
 	}
 
+	void GfxDevice::CreateDepthStencilView(
+		GfxDescriptorHeap& descriptorHeap,
+		uint32_t descriptorIndex,
+		GfxTexture& texture,
+		const GfxDepthStencilViewDesc& desc)
+	{
+		m_base->CreateDepthStencilView(
+			*descriptorHeap.GetBaseDescriptorHeap(),
+			descriptorIndex,
+			*texture.GetBaseTexture(),
+			desc);
+	}
+
 	void GfxDevice::CreateShaderResourceView(
 		GfxDescriptorHeap& descriptorHeap,
 		uint32_t descriptorIndex,

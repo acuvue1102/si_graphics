@@ -386,6 +386,19 @@ namespace SI
 			texture,
 			desc);
 	}
+	
+	void BaseDevice::CreateDepthStencilView(
+		BaseDescriptorHeap& descriptorHeap,
+		uint32_t descriptorIndex,
+		BaseTexture& texture,
+		const GfxDepthStencilViewDesc& desc)
+	{
+		descriptorHeap.CreateDepthStencilView(
+			*m_device.Get(),
+			descriptorIndex,
+			texture,
+			desc);
+	}
 
 	void BaseDevice::CreateShaderResourceView(
 		BaseDescriptorHeap& descriptorHeap,

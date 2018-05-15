@@ -184,7 +184,7 @@ namespace SI
 	
 	GfxCpuDescriptor BaseSwapChain::GetSwapChainCpuDescriptor()
 	{
-		return m_rtvHeap->GetCpuDescriptor(GfxDescriptorHeapType::kRtv, m_frameIndex);
+		return m_rtvHeap->GetCpuDescriptor(m_frameIndex);
 	}
 
 } // namespace SI

@@ -157,6 +157,7 @@ namespace APP002
 			rtDesc.m_format    = GfxFormat::kR8G8B8A8_Unorm;
 			rtDesc.m_dimension = GfxDimension::kTexture2D;
 			rtDesc.m_resourceStates = GfxResourceState::kRenderTarget;
+			rtDesc.m_resourceFlags = GfxResourceFlag::kAllowRenderTarget;
 			rtDesc.m_heapType  = GfxHeapType::kDefault;
 			rtDesc.m_name      = "RT0";
 			rtDesc.m_clearColor[0] = kRtCleaColor[0];
@@ -175,29 +176,30 @@ namespace APP002
 			m_device.CreateRenderTargetView(m_rtvHeap, 0, m_rt, rtvDesc);
 		}
 		
-		//// depth render targetのセットアップ.
-		//{
-		//	GfxTextureDesc depthDesc;
-		//	depthDesc.m_width     = 1024;
-		//	depthDesc.m_height    = 1024;
-		//	depthDesc.m_mipLevels = 1;
-		//	depthDesc.m_format    = GfxFormat::kD32_Float;
-		//	depthDesc.m_dimension = GfxDimension::kTexture2D;
-		//	depthDesc.m_resourceState = GfxResourceState::kRenderTarget;
-		//	depthDesc.m_heapType  = GfxHeapType::kDefault;
-		//	depthDesc.m_name      = "Depth";
-		//	depthDesc.m_clearDepth = 1.0f;
-		//	m_depth = m_device.CreateTexture(depthDesc);
-		//
-		//	GfxDescriptorHeapDesc dsvHeapDesc;
-		//	dsvHeapDesc.m_type = GfxDescriptorHeapType::kDsv;
-		//	dsvHeapDesc.m_descriptorCount = 1;
-		//	dsvHeapDesc.m_flag = GfxDescriptorHeapFlag::kNone;
-		//	m_depthHeap = m_device.CreateDescriptorHeap(dsvHeapDesc);
+		// depth render targetのセットアップ.
+		{
+			GfxTextureDesc depthDesc;
+			depthDesc.m_width          = 1024;
+			depthDesc.m_height         = 1024;
+			depthDesc.m_mipLevels      = 1;
+			depthDesc.m_format         = GfxFormat::kR32_Typeless;
+			depthDesc.m_dimension      = GfxDimension::kTexture2D;
+			depthDesc.m_resourceStates = GfxResourceState::kGenericRead;
+			depthDesc.m_resourceFlags  = GfxResourceFlag::kAllowDepthStencil;
+			depthDesc.m_heapType       = GfxHeapType::kDefault;
+			depthDesc.m_name           = "Depth";
+			depthDesc.m_clearDepth     = 1.0f;
+			m_depth = m_device.CreateTexture(depthDesc);
+		
+			GfxDescriptorHeapDesc dsvHeapDesc;
+			dsvHeapDesc.m_type = GfxDescriptorHeapType::kDsv;
+			dsvHeapDesc.m_descriptorCount = 1;
+			dsvHeapDesc.m_flag = GfxDescriptorHeapFlag::kNone;
+			m_dsvHeap = m_device.CreateDescriptorHeap(dsvHeapDesc);
 
-		//	GfxRenderTargetViewDesc dsvDesc;
-		//	m_device.CreateRenderTargetView(m_depthHeap, 0, m_depth, dsvDesc);
-		//}
+			GfxDepthStencilViewDesc dsvDesc;
+			m_device.CreateDepthStencilView(m_dsvHeap, 0, m_depth, dsvDesc);
+		}
 		
 		// cbv/srv/uav Heapのセットアップ
 		{
@@ -284,9 +286,12 @@ namespace APP002
 			stateDesc.m_vertexShader       = &m_vertexShader;
 			stateDesc.m_pixelShader        = &m_pixelShader;
 			stateDesc.m_rtvFormats[0]      = GfxFormat::kR8G8B8A8_Unorm;
+			stateDesc.m_depthEnable        = true;
+			stateDesc.m_depthWriteMask     = GfxDepthWriteMask::kAll;
 			m_graphicsStates[0] = m_device.CreateGraphicsState(stateDesc);
 		
 			stateDesc.m_rootSignature      = &m_rootSignatures[1];
+			stateDesc.m_depthEnable        = false;
 			m_graphicsStates[1] = m_device.CreateGraphicsState(stateDesc);
 		}
 
@@ -318,6 +323,9 @@ namespace APP002
 		
 		m_device.ReleaseDescriptorHeap(m_cbvSrvUavHeaps[1]);
 		m_device.ReleaseDescriptorHeap(m_cbvSrvUavHeaps[0]);
+
+		m_device.ReleaseDescriptorHeap(m_dsvHeap);
+		m_device.ReleaseTexture(m_depth);
 		
 		m_device.ReleaseDescriptorHeap(m_rtvHeap);
 		m_device.ReleaseTexture(m_rt);
@@ -361,11 +369,12 @@ namespace APP002
 
 		GfxDescriptorHeap* heaps[] = {&m_cbvSrvUavHeaps[0], &m_samplerHeaps[0]};
 		m_graphicsCommandList.SetDescriptorHeaps((uint32_t)ArraySize(heaps), heaps);
-		m_graphicsCommandList.SetGraphicsDescriptorTable(0, m_cbvSrvUavHeaps[0].GetGpuDescriptor(GfxDescriptorHeapType::kCbvSrvUav, 0));
-		m_graphicsCommandList.SetGraphicsDescriptorTable(1, m_samplerHeaps[0].GetGpuDescriptor(GfxDescriptorHeapType::kSampler, 0));
+		m_graphicsCommandList.SetGraphicsDescriptorTable(0, m_cbvSrvUavHeaps[0].GetGpuDescriptor(0));
+		m_graphicsCommandList.SetGraphicsDescriptorTable(1, m_samplerHeaps[0].GetGpuDescriptor(0));
 		
-		GfxCpuDescriptor rtDescriptor = m_rtvHeap.GetCpuDescriptor(GfxDescriptorHeapType::kRtv, 0);
-		m_graphicsCommandList.SetRenderTargets(1, &rtDescriptor);
+		GfxCpuDescriptor rtDescriptor[]  = {m_rtvHeap.GetCpuDescriptor(0)};
+		GfxCpuDescriptor dsvDescriptor = m_dsvHeap.GetCpuDescriptor(0);
+		m_graphicsCommandList.SetRenderTargets(1, rtDescriptor, dsvDescriptor);
 		
 		GfxViewport viewport0 = GfxViewport(0.0f, 0.0f, (float)m_rt.GetWidth(), (float)m_rt.GetHeight());
 		GfxScissor scissor0  = GfxScissor(0, 0, m_rt.GetWidth(), m_rt.GetHeight());
@@ -373,11 +382,13 @@ namespace APP002
 		m_graphicsCommandList.SetScissors(1, &scissor0);
 
 		m_graphicsCommandList.ClearRenderTarget(
-			rtDescriptor,
+			rtDescriptor[0],
 			kRtCleaColor[0],
 			kRtCleaColor[1],
 			kRtCleaColor[2],
 			kRtCleaColor[3]);
+
+		m_graphicsCommandList.ClearDepthStencilTarget(dsvDescriptor, 1.0f);
 
 		m_graphicsCommandList.SetPrimitiveTopology(GfxPrimitiveTopology::kTriangleList);
 		m_graphicsCommandList.SetVertexBuffers(
@@ -405,8 +416,8 @@ namespace APP002
 
 		GfxDescriptorHeap* heapsOut[] = {&m_cbvSrvUavHeaps[1], &m_samplerHeaps[1]};
  		m_graphicsCommandList.SetDescriptorHeaps((uint32_t)ArraySize(heapsOut), heapsOut);
-		m_graphicsCommandList.SetGraphicsDescriptorTable(0, m_cbvSrvUavHeaps[1].GetGpuDescriptor(GfxDescriptorHeapType::kCbvSrvUav, 0));
-		m_graphicsCommandList.SetGraphicsDescriptorTable(1, m_samplerHeaps[1].GetGpuDescriptor(GfxDescriptorHeapType::kSampler, 0));
+		m_graphicsCommandList.SetGraphicsDescriptorTable(0, m_cbvSrvUavHeaps[1].GetGpuDescriptor(0));
+		m_graphicsCommandList.SetGraphicsDescriptorTable(1, m_samplerHeaps[1].GetGpuDescriptor(0));
 
 		m_graphicsCommandList.ClearRenderTarget(swapChainDescriptor, 0.0f, 0.2f, 0.4f, 1.0f);
 
