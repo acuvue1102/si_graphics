@@ -13,6 +13,7 @@ namespace SI
 	class GfxGraphicsState;
 	class GfxViewport;
 	class GfxScissor;
+	class GfxIndexBufferView;
 	class GfxVertexBufferView;
 	class GfxRootSignature;
 	class GfxDevice;
@@ -59,7 +60,16 @@ namespace SI
 		
 		void SetPrimitiveTopology(GfxPrimitiveTopology topology);
 		
+		void SetIndexBuffer(GfxIndexBufferView* indexBufferView);
+
 		void SetVertexBuffers(uint32_t inputSlot, uint32_t viewCount, GfxVertexBufferView* bufferViews);
+		
+		void DrawIndexInstanced(
+			uint32_t indexCountPerInstance,
+			uint32_t instanceCount         = 1,
+			uint32_t startIndexLocation    = 0,
+			uint32_t baseVertexLocation    = 0,
+			uint32_t startInstanceLocation = 0);
 
 		void DrawInstanced(
 			uint32_t vertexCountPerInstance,

@@ -5,6 +5,7 @@
 #include <vector>
 #include <si_base/core/core.h>
 #include <si_app/file/path_storage.h>
+#include <si_base/math/math.h>
 
 namespace SI
 {
@@ -20,6 +21,74 @@ namespace APP002
 
 			float m_u;
 			float m_v;
+		};
+		
+		static const PosUvVertex kVertexData[] = 
+		{
+			{ -1.0f,  1.0f, 0.5f ,  0.0f, 0.0f },
+			{  1.0f, -1.0f, 0.5f ,  1.0f, 1.0f },
+			{ -1.0f, -1.0f, 0.5f ,  0.0f, 1.0f },
+
+			{ -1.0f,  1.0f, 0.5f ,  0.0f, 0.0f },
+			{  1.0f,  1.0f, 0.5f ,  1.0f, 0.0f },
+			{  1.0f, -1.0f, 0.5f ,  1.0f, 1.0f },
+		};
+		
+		struct PosNormalUvVertex
+		{
+			float m_x;
+			float m_y;
+			float m_z;
+
+			float m_nx;
+			float m_ny;
+			float m_nz;
+
+			float m_u;
+			float m_v;
+		};
+		
+		static const PosNormalUvVertex kBoxVertexData[] =
+		{
+			{ -0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   0.0f, 0.0f },
+			{ -0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   0.0f, 1.0f },
+			{  0.5f,  0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   1.0f, 1.0f },
+			{  0.5f, -0.5f, -0.5f,    0.0f,  0.0f, -1.0f,   1.0f, 0.0f },
+											 
+			{ -0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,   0.0f, 0.0f },
+			{  0.5f, -0.5f,  0.5f,    0.0f,  0.0f,  1.0f,   1.0f, 0.0f },
+			{  0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,   1.0f, 1.0f },
+			{ -0.5f,  0.5f,  0.5f,    0.0f,  0.0f,  1.0f,   0.0f, 1.0f },
+						
+			{ -0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,   0.0f, 0.0f },
+			{  0.5f, -0.5f, -0.5f,    0.0f, -1.0f,  0.0f,   1.0f, 0.0f },
+			{  0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,   1.0f, 1.0f },
+			{ -0.5f, -0.5f,  0.5f,    0.0f, -1.0f,  0.0f,   0.0f, 1.0f },
+											 
+			{ -0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,   0.0f, 0.0f },
+			{ -0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,   0.0f, 1.0f },
+			{  0.5f,  0.5f,  0.5f,    0.0f,  1.0f,  0.0f,   1.0f, 1.0f },
+			{  0.5f,  0.5f, -0.5f,    0.0f,  1.0f,  0.0f,   1.0f, 0.0f },
+						
+			{ -0.5f, -0.5f, -0.5f,   -1.0f,  0.0f,  0.0f,   0.0f, 0.0f },
+			{ -0.5f, -0.5f,  0.5f,   -1.0f,  0.0f,  0.0f,   0.0f, 1.0f },
+			{ -0.5f,  0.5f,  0.5f,   -1.0f,  0.0f,  0.0f,   1.0f, 1.0f },
+			{ -0.5f,  0.5f, -0.5f,   -1.0f,  0.0f,  0.0f,   1.0f, 0.0f },
+											   
+			{  0.5f, -0.5f, -0.5f,    1.0f,  0.0f,  0.0f,   0.0f, 0.0f },
+			{  0.5f,  0.5f, -0.5f,    1.0f,  0.0f,  0.0f,   1.0f, 0.0f },
+			{  0.5f,  0.5f,  0.5f,    1.0f,  0.0f,  0.0f,   1.0f, 1.0f },
+			{  0.5f, -0.5f,  0.5f,    1.0f,  0.0f,  0.0f,   0.0f, 1.0f },
+		};
+
+		static const uint16_t kBoxIndexData[] =
+		{
+			 0, 1, 2,  0, 2, 3,
+			 4, 5, 6,  4, 6, 7,
+			 8, 9,10,  8,10,11,
+			12,13,14, 12,14,15,
+			16,17,18, 16,18,19,
+			20,21,22, 20,22,23,
 		};
 
 		std::vector<uint8_t> GenerateTextureData(uint32_t width, uint32_t height)
@@ -42,9 +111,9 @@ namespace APP002
 
 				if (i % 2 == j % 2)
 				{
-					pData[n] = 0x00;		// R
-					pData[n + 1] = 0x00;	// G
-					pData[n + 2] = 0x00;	// B
+					pData[n] = 0x80;		// R
+					pData[n + 1] = 0x80;	// G
+					pData[n + 2] = 0x80;	// B
 					pData[n + 3] = 0xff;	// A
 				}
 				else
@@ -58,36 +127,39 @@ namespace APP002
 
 			return data;
 		}
-		
-		static const PosUvVertex kVertexData[] = 
-		{
-			{ -1.0f,  1.0f, 0.5f ,  0.0f, 0.0f },
-			{  1.0f, -1.0f, 0.5f ,  1.0f, 1.0f },
-			{ -1.0f, -1.0f, 0.5f ,  0.0f, 1.0f },
 
-			{ -1.0f,  1.0f, 0.5f ,  0.0f, 0.0f },
-			{  1.0f,  1.0f, 0.5f ,  1.0f, 0.0f },
-			{  1.0f, -1.0f, 0.5f ,  1.0f, 1.0f },
-		};
-
-		static const float kRtCleaColor[4] = {0.5f, 0.2f, 0.2f, 1.0f};
+		static const float kRtCleaColor[4] = {0.15f, 0.15f, 0.15f, 1.0f};
 	}
-
-	struct Pipeline::ShaderConstant
+	
+	struct Pipeline::TextureShaderConstant
 	{
 		float m_vertexScale;
 		float m_uvScale;
+	};
+
+	struct PointLightInfo
+	{
+		Vfloat3    m_lightPos;
+		Vfloat3    m_lightColor;
+	};
+
+	struct Pipeline::LambertShaderConstant
+	{
+		Vfloat4x4  m_world[8];
+		Vfloat4x4  m_view;
+		Vfloat4x4  m_viewProj;
+		float      m_uvScale[2];
+		float      m_padding[2];
+		PointLightInfo m_pointLightInfo[4];
 	};
 
 	//////////////////////////////////////////////////////////
 	
 	Pipeline::Pipeline(int observerSortKey)
 		: PipelineBase(observerSortKey)
+		, m_textureConstant(nullptr)
+		, m_lambertConstant(nullptr)
 	{
-		for(auto addr : m_constantAddrs)
-		{
-			addr = nullptr;
-		}
 	}
 
 	Pipeline::~Pipeline()
@@ -104,36 +176,84 @@ namespace APP002
 
 	int Pipeline::LoadAsset(const AppInitializeInfo& info)
 	{
-		// 頂点バッファのセットアップ.
+		// 四角形の頂点バッファのセットアップ.
 		{
 			GfxBufferDesc vertexBufferDesc;
 			vertexBufferDesc.m_heapType = GfxHeapType::kDefault;
 			vertexBufferDesc.m_bufferSizeInByte = sizeof(kVertexData);
-			m_vertexBuffer = m_device.CreateBuffer(vertexBufferDesc);
+			m_quadVertexBuffer = m_device.CreateBuffer(vertexBufferDesc);
 		}
 
-		// シェーダのセットアップ.
+		// ボックスの頂点バッファのセットアップ.
+		{
+			GfxBufferDesc vertexBufferDesc;
+			vertexBufferDesc.m_heapType = GfxHeapType::kDefault;
+			vertexBufferDesc.m_bufferSizeInByte = sizeof(kBoxVertexData);
+			m_boxVertexBuffer = m_device.CreateBuffer(vertexBufferDesc);
+			
+			GfxBufferDesc indexBufferDesc;
+			indexBufferDesc.m_heapType = GfxHeapType::kDefault;
+			indexBufferDesc.m_bufferSizeInByte = sizeof(kBoxIndexData);
+			m_boxIndexBuffer = m_device.CreateBuffer(indexBufferDesc);
+		}
+
+		// textureシェーダのセットアップ.
 		{
 			std::string shaderPath = PathStorage::GetInstance()->GetExeDirPath();
 			shaderPath += "shaders\\texture.hlsl";
-			if(m_vertexShader.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
-			if(m_pixelShader. LoadAndCompile(shaderPath.c_str()) != 0) return -1;
+			if(m_textureVS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
+			if(m_texturePS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
+		}
+
+		// lambertシェーダのセットアップ.
+		{
+			std::string shaderPath = PathStorage::GetInstance()->GetExeDirPath();
+			shaderPath += "shaders\\lambert.hlsl";
+			if(m_lambertVS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
+			if(m_lambertPS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
 		}
 
 		// コンスタントバッファのセットアップ
 		{
-			GfxBufferDesc constantBufferDesc;
-			constantBufferDesc.m_heapType = GfxHeapType::kUpload;
-			constantBufferDesc.m_bufferSizeInByte = (sizeof(ShaderConstant) + 255) & ~255; // should be multiple of 256 bytes.
-			m_constantBuffers[0] = m_device.CreateBuffer(constantBufferDesc);
-			m_constantAddrs[0] = static_cast<ShaderConstant*>(m_constantBuffers[0].Map());
-			m_constantAddrs[0]->m_vertexScale = 0.8f;
-			m_constantAddrs[0]->m_uvScale     = 1.0f;
+			GfxBufferDesc lambertConstantBufferDesc;
+			lambertConstantBufferDesc.m_name = "lambertConstant";
+			lambertConstantBufferDesc.m_heapType = GfxHeapType::kUpload;
+			lambertConstantBufferDesc.m_bufferSizeInByte = (sizeof(LambertShaderConstant) + 255) & ~255; // should be multiple of 256 bytes.
+			m_constantBuffers[0] = m_device.CreateBuffer(lambertConstantBufferDesc);
+			m_lambertConstant = static_cast<LambertShaderConstant*>(m_constantBuffers[0].Map());
+			memset(m_lambertConstant, 0, sizeof(LambertShaderConstant));
 
-			m_constantBuffers[1] = m_device.CreateBuffer(constantBufferDesc);
-			m_constantAddrs[1] = static_cast<ShaderConstant*>(m_constantBuffers[1].Map());
-			m_constantAddrs[1]->m_vertexScale = 0.8f;
-			m_constantAddrs[1]->m_uvScale     = 1.0f;
+			Vfloat3 cameraPos(2,2,2);
+			Vfloat3 cameraTarget(0,0,0);
+			Vfloat3 cameraUp(0,1,0);
+			Vfloat4x4 viewMatrix = Math::LookAtMatrix(cameraPos, cameraTarget, cameraUp);
+			Vfloat4x4 projMatrix = Math::Perspective(1.6f, 0.9f, 0.5f, 10.0f);
+			for(size_t i=0; i<ArraySize(m_lambertConstant->m_world); ++i)
+			{
+				float t = (float)i / (float)ArraySize(m_lambertConstant->m_world);
+				t *= 2.0f * kPi;
+
+				Vfloat3 pos(1.5f*cosf(t), 0.0f, 1.5f*sinf(t));
+
+				m_lambertConstant->m_world[i] = Math::Translate4x4(pos);
+			}
+			m_lambertConstant->m_view        = viewMatrix;
+			m_lambertConstant->m_viewProj    = viewMatrix * projMatrix;
+			m_lambertConstant->m_pointLightInfo[0].m_lightColor = Vfloat3(1.0f, 3.0f, 5.0f);
+			m_lambertConstant->m_pointLightInfo[1].m_lightColor = Vfloat3(5.0f, 0.5f, 0.5f);
+			m_lambertConstant->m_pointLightInfo[2].m_lightColor = Vfloat3(0.5f, 2.0f, 1.0f);
+			m_lambertConstant->m_pointLightInfo[3].m_lightColor = Vfloat3(3.0f, 1.0f, 3.0f);
+			m_lambertConstant->m_uvScale[0]  = 1.0f;
+			m_lambertConstant->m_uvScale[1]  = 1.0f;
+			
+			GfxBufferDesc textureConstantBufferDesc;
+			textureConstantBufferDesc.m_name = "textureConstant";
+			textureConstantBufferDesc.m_heapType = GfxHeapType::kUpload;
+			textureConstantBufferDesc.m_bufferSizeInByte = (sizeof(TextureShaderConstant) + 255) & ~255; // should be multiple of 256 bytes.
+			m_constantBuffers[1] = m_device.CreateBuffer(textureConstantBufferDesc);
+			m_textureConstant = static_cast<TextureShaderConstant*>(m_constantBuffers[1].Map());
+			m_textureConstant->m_vertexScale = 0.8f;
+			m_textureConstant->m_uvScale     = 1.0f;
 		}
 
 		// static textureのセットアップ.
@@ -200,7 +320,7 @@ namespace APP002
 			GfxDepthStencilViewDesc dsvDesc;
 			m_device.CreateDepthStencilView(m_dsvHeap, 0, m_depth, dsvDesc);
 		}
-		
+
 		// cbv/srv/uav Heapのセットアップ
 		{
 			GfxDescriptorHeapDesc cbvSrvUavHeapDesc;
@@ -273,24 +393,40 @@ namespace APP002
 
 		// PSOのセットアップ.
 		{
-			static const GfxInputElement kElements[] =
+			static const GfxInputElement kPosNormalUvVertexElements[] =
+			{
+				{"POSITION",  0, GfxFormat::kR32G32B32_Float,  0, 0},
+				{"NORMAL",    0, GfxFormat::kR32G32B32_Float,  0, 12},
+				{"TEXCOORD",  0, GfxFormat::kR32G32_Float,     0, 24},
+			};
+
+			static const GfxInputElement kPosUvVertexElements[] =
 			{
 				{"POSITION",  0, GfxFormat::kR32G32B32_Float,  0, 0},
 				{"TEXCOORD",  0, GfxFormat::kR32G32_Float,     0, 12},
 			};
 
 			GfxGraphicsStateDesc stateDesc;
-			stateDesc.m_inputElements      = kElements;
-			stateDesc.m_inputElementCount  = (int)ArraySize(kElements);
+			stateDesc.m_cullMode           = GfxCullMode::kBack;
+			stateDesc.m_inputElements      = kPosNormalUvVertexElements;
+			stateDesc.m_inputElementCount  = (int)ArraySize(kPosNormalUvVertexElements);
 			stateDesc.m_rootSignature      = &m_rootSignatures[0];
-			stateDesc.m_vertexShader       = &m_vertexShader;
-			stateDesc.m_pixelShader        = &m_pixelShader;
+			stateDesc.m_vertexShader       = &m_lambertVS;
+			stateDesc.m_pixelShader        = &m_lambertPS;
 			stateDesc.m_rtvFormats[0]      = GfxFormat::kR8G8B8A8_Unorm;
+			stateDesc.m_dsvFormat          = GfxFormat::kD32_Float;
 			stateDesc.m_depthEnable        = true;
+			stateDesc.m_depthFunc          = GfxComparisonFunc::kLessEqual;
 			stateDesc.m_depthWriteMask     = GfxDepthWriteMask::kAll;
 			m_graphicsStates[0] = m_device.CreateGraphicsState(stateDesc);
 		
+			stateDesc.m_vertexShader       = &m_textureVS;
+			stateDesc.m_pixelShader        = &m_texturePS;
+			stateDesc.m_inputElements      = kPosUvVertexElements;
+			stateDesc.m_inputElementCount  = (int)ArraySize(kPosUvVertexElements);
 			stateDesc.m_rootSignature      = &m_rootSignatures[1];
+			stateDesc.m_rtvFormats[0]      = GfxFormat::kR8G8B8A8_Unorm;
+			stateDesc.m_dsvFormat          = GfxFormat::kUnknown;
 			stateDesc.m_depthEnable        = false;
 			m_graphicsStates[1] = m_device.CreateGraphicsState(stateDesc);
 		}
@@ -298,7 +434,9 @@ namespace APP002
 		// commandList経由でリソースのデータをアップロードする.
 		BeginRender();
 		{
-			m_graphicsCommandList.UploadBuffer(m_device, m_vertexBuffer, kVertexData, sizeof(kVertexData));
+			m_graphicsCommandList.UploadBuffer(m_device, m_quadVertexBuffer, kVertexData, sizeof(kVertexData));
+			m_graphicsCommandList.UploadBuffer(m_device, m_boxVertexBuffer, kBoxVertexData, sizeof(kBoxVertexData));
+			m_graphicsCommandList.UploadBuffer(m_device, m_boxIndexBuffer, kBoxIndexData, sizeof(kBoxIndexData));
 
 			std::vector<uint8_t> texData = GenerateTextureData(m_texture.GetWidth(), m_texture.GetHeight());
 			m_graphicsCommandList.UploadTexture(m_device, m_texture, &texData[0], texData.size());
@@ -334,10 +472,16 @@ namespace APP002
 		m_device.ReleaseBuffer(m_constantBuffers[1]);
 		m_device.ReleaseBuffer(m_constantBuffers[0]);
 
-		m_pixelShader.Release();
-		m_vertexShader.Release();
+		m_lambertPS.Release();
+		m_lambertVS.Release();
 
-		m_device.ReleaseBuffer(m_vertexBuffer);
+		m_texturePS.Release();
+		m_textureVS.Release();
+
+		m_device.ReleaseBuffer(m_boxIndexBuffer);
+		m_device.ReleaseBuffer(m_boxVertexBuffer);
+
+		m_device.ReleaseBuffer(m_quadVertexBuffer);
 
 		PipelineBase::OnTerminate();
 
@@ -346,17 +490,12 @@ namespace APP002
 	
 	int Pipeline::OnUpdate(const AppUpdateInfo&)
 	{
-		static float s_delta = 0.1f;
-		if(8.0f <= m_constantAddrs[0]->m_uvScale)
-		{
-			s_delta = -0.1f;
-		}
-		else
-		if(m_constantAddrs[0]->m_uvScale <= 1.0f)
-		{
-			s_delta = 0.1f;
-		}
-		m_constantAddrs[0]->m_uvScale += s_delta;
+		static float s_t = 0.0f;
+		s_t += 0.03f;		
+		m_lambertConstant->m_pointLightInfo[0].m_lightPos   = Vfloat3(4*cos(0.5f*s_t), 1.5f, 4*sin(0.5f*s_t));
+		m_lambertConstant->m_pointLightInfo[1].m_lightPos   = Vfloat3(3*cos(0.6f*s_t), -0.5f, 3*sin(0.6f*s_t));
+		m_lambertConstant->m_pointLightInfo[2].m_lightPos   = Vfloat3(3*sin(0.4f*s_t), 2*sin(0.3f*s_t), -1.5f);
+		m_lambertConstant->m_pointLightInfo[3].m_lightPos   = Vfloat3(2*sin(0.4f*s_t), 3*cos(0.2f*s_t), 0.5f);
 		return 0;
 	}
 	
@@ -364,70 +503,87 @@ namespace APP002
 	{
 		BeginRender();
 
-		m_graphicsCommandList.SetGraphicsState(m_graphicsStates[0]);
-		m_graphicsCommandList.SetGraphicsRootSignature(m_rootSignatures[0]);
+		m_graphicsCommandList.ResourceBarrier(
+			m_depth,
+			GfxResourceState::kGenericRead,
+			GfxResourceState::kDepthWrite);
 
-		GfxDescriptorHeap* heaps[] = {&m_cbvSrvUavHeaps[0], &m_samplerHeaps[0]};
-		m_graphicsCommandList.SetDescriptorHeaps((uint32_t)ArraySize(heaps), heaps);
-		m_graphicsCommandList.SetGraphicsDescriptorTable(0, m_cbvSrvUavHeaps[0].GetGpuDescriptor(0));
-		m_graphicsCommandList.SetGraphicsDescriptorTable(1, m_samplerHeaps[0].GetGpuDescriptor(0));
+		// 箱をレンダーターゲットに対して描く
+		{
+			m_graphicsCommandList.SetGraphicsState(m_graphicsStates[0]);
+			m_graphicsCommandList.SetGraphicsRootSignature(m_rootSignatures[0]);
+
+			GfxDescriptorHeap* heaps[] = {&m_cbvSrvUavHeaps[0], &m_samplerHeaps[0]};
+			m_graphicsCommandList.SetDescriptorHeaps((uint32_t)ArraySize(heaps), heaps);
+			m_graphicsCommandList.SetGraphicsDescriptorTable(0, m_cbvSrvUavHeaps[0].GetGpuDescriptor(0));
+			m_graphicsCommandList.SetGraphicsDescriptorTable(1, m_samplerHeaps[0].GetGpuDescriptor(0));
 		
-		GfxCpuDescriptor rtDescriptor[]  = {m_rtvHeap.GetCpuDescriptor(0)};
-		GfxCpuDescriptor dsvDescriptor = m_dsvHeap.GetCpuDescriptor(0);
-		m_graphicsCommandList.SetRenderTargets(1, rtDescriptor, dsvDescriptor);
+			GfxCpuDescriptor rtDescriptor[]  = {m_rtvHeap.GetCpuDescriptor(0)};
+			GfxCpuDescriptor dsvDescriptor = m_dsvHeap.GetCpuDescriptor(0);
+			m_graphicsCommandList.SetRenderTargets(1, rtDescriptor, dsvDescriptor);
 		
-		GfxViewport viewport0 = GfxViewport(0.0f, 0.0f, (float)m_rt.GetWidth(), (float)m_rt.GetHeight());
-		GfxScissor scissor0  = GfxScissor(0, 0, m_rt.GetWidth(), m_rt.GetHeight());
-		m_graphicsCommandList.SetViewports(1, &viewport0);
-		m_graphicsCommandList.SetScissors(1, &scissor0);
+			GfxViewport viewport0 = GfxViewport(0.0f, 0.0f, (float)m_rt.GetWidth(), (float)m_rt.GetHeight());
+			GfxScissor scissor0  = GfxScissor(0, 0, m_rt.GetWidth(), m_rt.GetHeight());
+			m_graphicsCommandList.SetViewports(1, &viewport0);
+			m_graphicsCommandList.SetScissors(1, &scissor0);
 
-		m_graphicsCommandList.ClearRenderTarget(
-			rtDescriptor[0],
-			kRtCleaColor[0],
-			kRtCleaColor[1],
-			kRtCleaColor[2],
-			kRtCleaColor[3]);
+			m_graphicsCommandList.ClearRenderTarget(
+				rtDescriptor[0],
+				kRtCleaColor[0],
+				kRtCleaColor[1],
+				kRtCleaColor[2],
+				kRtCleaColor[3]);
 
-		m_graphicsCommandList.ClearDepthStencilTarget(dsvDescriptor, 1.0f);
+			m_graphicsCommandList.ClearDepthStencilTarget(dsvDescriptor, 1.0f);
 
-		m_graphicsCommandList.SetPrimitiveTopology(GfxPrimitiveTopology::kTriangleList);
-		m_graphicsCommandList.SetVertexBuffers(
-			0,
-			1,
-			&GfxVertexBufferView(&m_vertexBuffer, sizeof(PosUvVertex)));
+			m_graphicsCommandList.SetPrimitiveTopology(GfxPrimitiveTopology::kTriangleList);
+
+			GfxVertexBufferView vertexBufferView(&m_boxVertexBuffer, sizeof(PosNormalUvVertex));
+			m_graphicsCommandList.SetVertexBuffers(0, 1, &vertexBufferView);
+
+			GfxIndexBufferView indexBufferView(&m_boxIndexBuffer, GfxFormat::kR16_Uint);
+			m_graphicsCommandList.SetIndexBuffer(&indexBufferView);
 			
-		m_graphicsCommandList.DrawInstanced(6, 1, 0, 0);
+			m_graphicsCommandList.DrawIndexInstanced((uint32_t)ArraySize(kBoxIndexData), 8);
+		}
 
 		m_graphicsCommandList.ResourceBarrier(
 			m_rt,
 			GfxResourceState::kRenderTarget,
 			GfxResourceState::kPixelShaderResource);
 		
-		GfxCpuDescriptor swapChainDescriptor = m_swapChain.GetSwapChainCpuDescriptor();
-		GfxTexture swapChainTexture = m_swapChain.GetSwapChainTexture();
-		GfxViewport viewport1(0.0f, 0.0f, (float)swapChainTexture.GetWidth(), (float)swapChainTexture.GetHeight());
-		GfxScissor  scissor1(0, 0, swapChainTexture.GetWidth(), swapChainTexture.GetHeight());
-		m_graphicsCommandList.SetRenderTargets(1, &swapChainDescriptor);
-		m_graphicsCommandList.SetViewports(1, &viewport1);
-		m_graphicsCommandList.SetScissors(1, &scissor1);
+		m_graphicsCommandList.ResourceBarrier(
+			m_depth,
+			GfxResourceState::kDepthWrite,
+			GfxResourceState::kGenericRead);
 		
-		m_graphicsCommandList.SetGraphicsState(m_graphicsStates[1]);
-		m_graphicsCommandList.SetGraphicsRootSignature(m_rootSignatures[1]);
+		// 箱を描いたレンダーターゲットテクスチャをスワップチェインに描画する
+		{
+			GfxCpuDescriptor swapChainDescriptor = m_swapChain.GetSwapChainCpuDescriptor();
+			GfxTexture swapChainTexture = m_swapChain.GetSwapChainTexture();
+			GfxViewport viewport1(0.0f, 0.0f, (float)swapChainTexture.GetWidth(), (float)swapChainTexture.GetHeight());
+			GfxScissor  scissor1(0, 0, swapChainTexture.GetWidth(), swapChainTexture.GetHeight());
+			m_graphicsCommandList.SetRenderTargets(1, &swapChainDescriptor);
+			m_graphicsCommandList.SetViewports(1, &viewport1);
+			m_graphicsCommandList.SetScissors(1, &scissor1);
+		
+			m_graphicsCommandList.SetGraphicsState(m_graphicsStates[1]);
+			m_graphicsCommandList.SetGraphicsRootSignature(m_rootSignatures[1]);
 
-		GfxDescriptorHeap* heapsOut[] = {&m_cbvSrvUavHeaps[1], &m_samplerHeaps[1]};
- 		m_graphicsCommandList.SetDescriptorHeaps((uint32_t)ArraySize(heapsOut), heapsOut);
-		m_graphicsCommandList.SetGraphicsDescriptorTable(0, m_cbvSrvUavHeaps[1].GetGpuDescriptor(0));
-		m_graphicsCommandList.SetGraphicsDescriptorTable(1, m_samplerHeaps[1].GetGpuDescriptor(0));
+			GfxDescriptorHeap* heapsOut[] = {&m_cbvSrvUavHeaps[1], &m_samplerHeaps[1]};
+			m_graphicsCommandList.SetDescriptorHeaps((uint32_t)ArraySize(heapsOut), heapsOut);
+			m_graphicsCommandList.SetGraphicsDescriptorTable(0, m_cbvSrvUavHeaps[1].GetGpuDescriptor(0));
+			m_graphicsCommandList.SetGraphicsDescriptorTable(1, m_samplerHeaps[1].GetGpuDescriptor(0));
 
-		m_graphicsCommandList.ClearRenderTarget(swapChainDescriptor, 0.0f, 0.2f, 0.4f, 1.0f);
+			m_graphicsCommandList.ClearRenderTarget(swapChainDescriptor, 0.0f, 0.2f, 0.4f, 1.0f);
 
-		m_graphicsCommandList.SetPrimitiveTopology(GfxPrimitiveTopology::kTriangleList);
-		m_graphicsCommandList.SetVertexBuffers(
-			0,
-			1,
-			&GfxVertexBufferView(&m_vertexBuffer, sizeof(PosUvVertex)));
+			m_graphicsCommandList.SetPrimitiveTopology(GfxPrimitiveTopology::kTriangleList);
+
+			GfxVertexBufferView vertexBufferView(&m_quadVertexBuffer, sizeof(PosUvVertex));
+			m_graphicsCommandList.SetVertexBuffers(0, 1, &vertexBufferView);
 			
-		m_graphicsCommandList.DrawInstanced(6, 1, 0, 0);
+			m_graphicsCommandList.DrawInstanced(6, 1, 0, 0);
+		}
 		
 		m_graphicsCommandList.ResourceBarrier(
 			m_rt,

@@ -1,7 +1,7 @@
 
 struct VSInput
 {
-	float4 position : POSITION;
+	float3 position : POSITION;
 	float4 color    : COLOR;
 };
 
@@ -20,7 +20,7 @@ PSInput VSMain(VSInput input)
 {
 	PSInput result;
 
-	result.position = input.position;
+	result.position = float4(input.position.xyz, 1);
 	result.color    = input.color;
 
 	return result;

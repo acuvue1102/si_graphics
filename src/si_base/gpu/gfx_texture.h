@@ -22,6 +22,7 @@ namespace SI
 		GfxHeapType        m_heapType       = GfxHeapType::kDefault;
 		float              m_clearColor[4]  = {0.0f, 0.0f, 0.0f, 0.0f};
 		float              m_clearDepth     = 0.0f;
+		uint8_t            m_clearStencil   = 0;
 	};
 
 	class GfxTexture

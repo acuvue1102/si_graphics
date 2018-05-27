@@ -154,6 +154,42 @@
     <ClInclude Include="misc\enum_flags.h">
       <Filter>misc</Filter>
     </ClInclude>
+    <ClInclude Include="math\vfloat4x4.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\vfloat.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\vfloat4.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\vfloat3x3.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\vfloat3.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\vfloat4x3.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\vquat.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\math_function.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\math.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\math_declare.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\math_internal.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\math_print.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -173,6 +209,12 @@
     </Filter>
     <Filter Include="misc">
       <UniqueIdentifier>{c5bee82b-603f-4b6e-b779-aacb19c32a73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{026a79d6-eba4-4e38-b5a7-9f8adb8a0e91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\inl">
+      <UniqueIdentifier>{bbf40be8-9b06-47bc-a59f-f47067e63780}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -266,5 +308,31 @@
     <ClCompile Include="misc\bitwise.cpp">
       <Filter>misc</Filter>
     </ClCompile>
+    <ClCompile Include="math\math_print.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="math\inl\vfloat.inl">
+      <Filter>math\inl</Filter>
+    </None>
+    <None Include="math\inl\vfloat3.inl">
+      <Filter>math\inl</Filter>
+    </None>
+    <None Include="math\inl\vfloat3x3.inl">
+      <Filter>math\inl</Filter>
+    </None>
+    <None Include="math\inl\vfloat4.inl">
+      <Filter>math\inl</Filter>
+    </None>
+    <None Include="math\inl\vfloat4x3.inl">
+      <Filter>math\inl</Filter>
+    </None>
+    <None Include="math\inl\vfloat4x4.inl">
+      <Filter>math\inl</Filter>
+    </None>
+    <None Include="math\inl\vquat.inl">
+      <Filter>math\inl</Filter>
+    </None>
   </ItemGroup>
 </Project>

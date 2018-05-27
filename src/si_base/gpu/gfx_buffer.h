@@ -8,6 +8,7 @@ namespace SI
 	class BaseBuffer;
 	struct GfxBufferDesc
 	{
+		const char*  m_name              = nullptr;
 		size_t       m_bufferSizeInByte  = 0;
 		GfxHeapType  m_heapType          = GfxHeapType::kDefault;
 	};
@@ -33,6 +34,27 @@ namespace SI
 
 	private:
 		BaseBuffer* m_base;
+	};
+
+	class GfxIndexBufferView
+	{
+	public:
+		GfxIndexBufferView(
+			GfxBuffer* buffer = nullptr,
+			GfxFormat format = GfxFormat::kR32_Uint)
+			: m_buffer(buffer)
+			, m_format(format)
+		{}
+		
+		inline void             SetBuffer(GfxBuffer* buffer) { m_buffer = buffer;             }
+		inline void             SetFormat(GfxFormat format) { m_format = format; }
+
+		inline const GfxBuffer* GetBuffer() const{ return m_buffer; }
+		inline GfxFormat        GetFormat() const{ return m_format; }
+
+	private:
+		GfxBuffer* m_buffer;
+		GfxFormat  m_format;
 	};
 
 	class GfxVertexBufferView

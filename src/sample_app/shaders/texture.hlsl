@@ -10,7 +10,7 @@ cbuffer ConstantBuffer : register(b1)
 
 struct VSInput
 {
-	float4 position : POSITION;
+	float3 position : POSITION;
 	float2 uv       : TEXCOORD0;
 };
 

@@ -61,6 +61,18 @@ namespace SI
 
 		m_bufferSizeInByte = desc.m_bufferSizeInByte;
 		m_location         = m_resource->GetGPUVirtualAddress();
+		
+		if(desc.m_name)
+		{
+			wchar_t wName[64];
+			wName[0] = 0;
+			size_t num = 0;
+			errno_t ret = mbstowcs_s(&num, wName, desc.m_name, ArraySize(wName));
+			if(ret == 0)
+			{
+				m_resource->SetName(wName);
+			}
+		}
 
 		return 0;
 	}

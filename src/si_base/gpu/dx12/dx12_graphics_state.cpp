@@ -109,6 +109,7 @@ namespace SI
 		{			
 			psoDesc.RTVFormats[rt] = GetDx12Format(desc.m_rtvFormats[rt]);
 		}
+		psoDesc.DSVFormat = GetDx12Format(desc.m_dsvFormat);
 
 		HRESULT hr = device.CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState));
 		if(FAILED(hr))

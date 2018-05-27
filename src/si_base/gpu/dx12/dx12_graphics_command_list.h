@@ -227,6 +227,18 @@ namespace SI
 		{
 			m_graphicsCommandList->IASetPrimitiveTopology(GetDx12PrimitiveTopology(topology));
 		}
+
+		inline void SetIndexBuffer(GfxIndexBufferView* indexBufferView)
+		{
+			const BaseBuffer* buffer = indexBufferView->GetBuffer()->GetBaseBuffer();
+
+			D3D12_INDEX_BUFFER_VIEW d3View;
+			d3View.BufferLocation = buffer->GetLocation();
+			d3View.Format         = GetDx12Format(indexBufferView->GetFormat());
+			d3View.SizeInBytes    = (UINT)buffer->GetSize();
+
+			m_graphicsCommandList->IASetIndexBuffer(&d3View);
+		}
 		
 		inline void SetVertexBuffers(uint32_t inputSlot, uint32_t viewCount, GfxVertexBufferView* bufferViews)
 		{
@@ -245,7 +257,23 @@ namespace SI
 				outV.SizeInBytes    = (uint32_t)baseBuffer->GetSize();
 				outV.StrideInBytes  = (uint32_t)inV.GetStride();
 			}
+
 			m_graphicsCommandList->IASetVertexBuffers(inputSlot, d3dViewCount, d3Views);
+		}
+
+		inline void DrawIndexInstanced(
+			uint32_t indexCountPerInstance,
+			uint32_t instanceCount,
+			uint32_t startIndexLocation,
+			uint32_t baseVertexLocation,
+			uint32_t startInstanceLocation)
+		{
+			m_graphicsCommandList->DrawIndexedInstanced(
+				indexCountPerInstance,
+				instanceCount,
+				startIndexLocation,
+				baseVertexLocation,
+				startInstanceLocation);
 		}
 
 		inline void DrawInstanced(

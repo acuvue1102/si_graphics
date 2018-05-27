@@ -94,6 +94,7 @@
     <ClCompile Include="gpu\gfx_shader.cpp" />
     <ClCompile Include="gpu\gfx_swap_chain.cpp" />
     <ClCompile Include="gpu\gfx_texture.cpp" />
+    <ClCompile Include="math\math_print.cpp" />
     <ClCompile Include="memory\dlmalloc.c" />
     <ClCompile Include="memory\pool_allocator.cpp" />
     <ClCompile Include="misc\bitwise.cpp" />
@@ -146,11 +147,32 @@
     <ClInclude Include="gpu\gfx_texture.h" />
     <ClInclude Include="gpu\gfx_utility.h" />
     <ClInclude Include="gpu\gfx_viewport.h" />
+    <ClInclude Include="math\math.h" />
+    <ClInclude Include="math\math_declare.h" />
+    <ClInclude Include="math\math_function.h" />
+    <ClInclude Include="math\math_internal.h" />
+    <ClInclude Include="math\math_print.h" />
+    <ClInclude Include="math\vfloat.h" />
+    <ClInclude Include="math\vfloat3.h" />
+    <ClInclude Include="math\vfloat3x3.h" />
+    <ClInclude Include="math\vfloat4x3.h" />
+    <ClInclude Include="math\vfloat4.h" />
+    <ClInclude Include="math\vfloat4x4.h" />
+    <ClInclude Include="math\vquat.h" />
     <ClInclude Include="memory\dlmalloc.h" />
     <ClInclude Include="memory\pool_allocator.h" />
     <ClInclude Include="misc\bitwise.h" />
     <ClInclude Include="misc\enum_flags.h" />
     <ClInclude Include="platform\window_util.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="math\inl\vfloat.inl" />
+    <None Include="math\inl\vfloat3.inl" />
+    <None Include="math\inl\vfloat3x3.inl" />
+    <None Include="math\inl\vfloat4.inl" />
+    <None Include="math\inl\vfloat4x3.inl" />
+    <None Include="math\inl\vfloat4x4.inl" />
+    <None Include="math\inl\vquat.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

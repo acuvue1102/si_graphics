@@ -99,6 +99,11 @@ namespace SI
 	{
 		m_base->SetPrimitiveTopology(topology);
 	}
+	
+	void GfxGraphicsCommandList::SetIndexBuffer(GfxIndexBufferView* indexBufferView)
+	{
+		m_base->SetIndexBuffer(indexBufferView);
+	}
 		
 	void GfxGraphicsCommandList::SetVertexBuffers(
 		uint32_t              inputSlot,
@@ -106,6 +111,21 @@ namespace SI
 		GfxVertexBufferView*  bufferViews)
 	{
 		m_base->SetVertexBuffers(inputSlot, viewCount, bufferViews);
+	}
+
+	void GfxGraphicsCommandList::DrawIndexInstanced(
+		uint32_t indexCountPerInstance,
+		uint32_t instanceCount,
+		uint32_t startIndexLocation,
+		uint32_t baseVertexLocation,
+		uint32_t startInstanceLocation)
+	{
+		m_base->DrawIndexInstanced(
+			indexCountPerInstance,
+			instanceCount,
+			startIndexLocation,
+			baseVertexLocation,
+			startInstanceLocation);
 	}
 
 	void GfxGraphicsCommandList::DrawInstanced(

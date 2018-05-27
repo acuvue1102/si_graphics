@@ -21,7 +21,8 @@ namespace APP002
 		int LoadAsset(const AppInitializeInfo& info);
 
 	protected:
-		struct ShaderConstant;
+		struct TextureShaderConstant;
+		struct LambertShaderConstant;
 
 	protected:
 		GfxRootSignature         m_rootSignatures[2];
@@ -29,12 +30,19 @@ namespace APP002
 		GfxDescriptorHeap        m_cbvSrvUavHeaps[2];
 		GfxDescriptorHeap        m_samplerHeaps[2];
 		GfxBuffer                m_constantBuffers[2];
-		ShaderConstant*          m_constantAddrs[2];
-		
-		GfxVertexShader          m_vertexShader;
-		GfxPixelShader           m_pixelShader;
+		TextureShaderConstant*   m_textureConstant;
+		LambertShaderConstant*   m_lambertConstant;
 
-		GfxBuffer                m_vertexBuffer;
+		GfxVertexShader          m_textureVS;
+		GfxPixelShader           m_texturePS;
+		
+		GfxVertexShader          m_lambertVS;
+		GfxPixelShader           m_lambertPS;
+
+		GfxBuffer                m_boxVertexBuffer;
+		GfxBuffer                m_boxIndexBuffer;
+
+		GfxBuffer                m_quadVertexBuffer;
 		GfxTexture               m_texture;
 
 		GfxTexture               m_rt;

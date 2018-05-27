@@ -39,6 +39,7 @@ namespace SI
 		uint32_t                 m_renderTargetCount      = 1;
 		GfxFormat                m_rtvFormats[8]          = {};
 		GfxRenderTargetBlendDesc m_rtvBlend[8];
+		GfxFormat                m_dsvFormat              = GfxFormat::kD32_Float;
 		GfxPrimitiveTopologyType m_primitiveTopologyType  = GfxPrimitiveTopologyType::kTriangle;
 		GfxDepthWriteMask        m_depthWriteMask         = GfxDepthWriteMask::kAll;
 		GfxComparisonFunc        m_depthFunc              = GfxComparisonFunc::kLessEqual;
