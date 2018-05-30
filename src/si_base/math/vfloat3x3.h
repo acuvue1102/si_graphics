@@ -48,7 +48,7 @@ namespace SI
 
 	public:
 		Vfloat3   operator[](size_t i) const &&; // [] operatorは代入を許可しないようにしておく.
-		Vfloat3x3 operator*(Vfloat3x3_arg m);
+		Vfloat3x3 operator*(Vfloat3x3_arg m) const;
 				
 	public:
 		__m128 GetRow128(uint32_t rowIndex) const;

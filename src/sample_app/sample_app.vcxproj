@@ -78,6 +78,7 @@
   <ItemGroup>
     <ClCompile Include="app000_clear_color\pipeline_000.cpp" />
     <ClCompile Include="app001_simple_polygon\pipeline_001.cpp" />
+    <ClCompile Include="app002_texture\app_002.cpp" />
     <ClCompile Include="app002_texture\pipeline_002.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -93,6 +94,7 @@
   <ItemGroup>
     <ClInclude Include="app000_clear_color\pipeline_000.h" />
     <ClInclude Include="app001_simple_polygon\pipeline_001.h" />
+    <ClInclude Include="app002_texture\app_002.h" />
     <ClInclude Include="app002_texture\pipeline_002.h" />
   </ItemGroup>
   <ItemGroup>

@@ -54,7 +54,14 @@ namespace SI
 
 	public:
 		Vfloat3   operator[](size_t i) const &&; // [] operatorは代入を許可しないようにしておく.
-		Vfloat4x3 operator*(Vfloat4x3_arg m);
+		Vfloat4x3 operator*(Vfloat4x3_arg m) const;
+
+	public:
+		static Vfloat4x3 Translate(Vfloat3_arg);
+		static Vfloat4x3 Scale(Vfloat3_arg);
+		static Vfloat4x3 RotateX(float radian);
+		static Vfloat4x3 RotateY(float radian);
+		static Vfloat4x3 RotateZ(float radian);
 				
 	public:
 		__m128 GetRow128(uint32_t rowIndex) const;
@@ -70,8 +77,9 @@ namespace SI
 		Vfloat4x3 Multiply(Vfloat4x3_arg m0, Vfloat4x3_arg m1);
 		Vfloat4   Multiply(Vfloat4_arg    v, Vfloat4x3_arg m);
 		Vfloat3   Multiply(Vfloat3_arg    v, Vfloat4x3_arg m);
-
+		
 		Vfloat4x3 LookAtMatrix(Vfloat3_arg pos, Vfloat3_arg target, Vfloat3_arg up);
+		Vfloat4x3 LookToMatrix(Vfloat3_arg pos, Vfloat3_arg targetDir, Vfloat3_arg up);
 		Vfloat4x3 Translate4x3(Vfloat3_arg);
 		Vfloat4x3 Scale4x3(Vfloat3_arg);
 		Vfloat4x3 RotateX4x3(float radian);

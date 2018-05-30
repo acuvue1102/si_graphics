@@ -182,9 +182,34 @@ namespace SI
 		return Vfloat4(m_row[i]);
 	}
 	
-	inline Vfloat4x4 Vfloat4x4::operator*(Vfloat4x4_arg m)
+	inline Vfloat4x4 Vfloat4x4::operator*(Vfloat4x4_arg m) const
 	{
 		return Math::Multiply(*this, m);
+	}
+	
+	inline Vfloat4x4 Vfloat4x4::Translate(Vfloat3_arg translate)
+	{
+		return Math::Translate4x4(translate);
+	}
+
+	inline Vfloat4x4 Vfloat4x4::Scale(Vfloat3_arg scale)
+	{
+		return Math::Scale4x4(scale);
+	}
+
+	inline Vfloat4x4 Vfloat4x4::RotateX(float radian)
+	{
+		return Math::RotateX4x4(radian);
+	}
+
+	inline Vfloat4x4 Vfloat4x4::RotateY(float radian)
+	{
+		return Math::RotateY4x4(radian);
+	}
+
+	inline Vfloat4x4 Vfloat4x4::RotateZ(float radian)
+	{
+		return Math::RotateZ4x4(radian);
 	}
 	
 	inline __m128 Vfloat4x4::GetRow128(uint32_t rowIndex) const

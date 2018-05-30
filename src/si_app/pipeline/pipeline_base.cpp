@@ -23,7 +23,7 @@ namespace SI
 	//////////////////////////////////////////////////////////
 	
 	PipelineBase::PipelineBase(int observerSortKey)
-		: AppObserver(observerSortKey)
+		: AppModule(observerSortKey)
 	{
 	}
 
@@ -62,21 +62,18 @@ namespace SI
 		return 0;
 	}
 	
-	int PipelineBase::OnUpdate(const AppUpdateInfo&)
+	void PipelineBase::OnUpdate(const App& app, const AppUpdateInfo&)
 	{
-		return 0;
 	}
 
-	int PipelineBase::OnRender(const AppRenderInfo&)
+	void PipelineBase::OnRender(const App& app, const AppUpdateInfo&)
 	{
 		BeginRender();
 
 		EndRender();
-
-		return 0;
 	}
 	
-	int PipelineBase::BeginRender()
+	void PipelineBase::BeginRender()
 	{
 		m_graphicsCommandList.Reset(nullptr);
 
@@ -85,11 +82,9 @@ namespace SI
 			swapChainTexture,
 			GfxResourceState::kCommon,
 			GfxResourceState::kRenderTarget);
-
-		return 0;
 	}
 
-	int PipelineBase::EndRender()
+	void PipelineBase::EndRender()
 	{
 		GfxTexture swapChainTexture = m_swapChain.GetSwapChainTexture();
 		m_graphicsCommandList.ResourceBarrier(
@@ -98,19 +93,17 @@ namespace SI
 			GfxResourceState::kCommon);
 
 		int ret = m_graphicsCommandList.Close();
-		if(ret != 0) return -1;
+		if(ret != 0) return;
 		
 		m_commandQueue.ExecuteCommandList(m_graphicsCommandList);
 			
 		ret = m_swapChain.Present(1);
-		if(ret != 0) return -1;
+		if(ret != 0) return;
 
 		if( m_swapChain.Flip() != 0 )
 		{
-			return -1;
+			return;
 		}
-
-		return 0;
 	}
 
 } // namespace SI

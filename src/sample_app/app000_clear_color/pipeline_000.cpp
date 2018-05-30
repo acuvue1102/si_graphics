@@ -34,7 +34,7 @@ namespace APP000
 		return 0;
 	}
 	
-	int Pipeline::OnRender(const AppRenderInfo&)
+	void Pipeline::OnRender(const App& app, const AppUpdateInfo&)
 	{
 		BeginRender();
 
@@ -43,8 +43,6 @@ namespace APP000
 		m_graphicsCommandList.ClearRenderTarget(swapChainDescriptor, 0.0f, 0.2f, 0.4f, 1.0f);
 
 		EndRender();
-
-		return 0;
 	}
 	
 } // namespace APP000

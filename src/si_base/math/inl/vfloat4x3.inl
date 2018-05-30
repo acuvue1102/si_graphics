@@ -154,11 +154,36 @@ namespace SI
 		return Vfloat3(m_row[i]);
 	}
 	
-	inline Vfloat4x3 Vfloat4x3::operator*(Vfloat4x3_arg m)
+	inline Vfloat4x3 Vfloat4x3::operator*(Vfloat4x3_arg m) const
 	{
 		return Math::Multiply(*this, m);
 	}
 	
+	inline Vfloat4x3 Vfloat4x3::Translate(Vfloat3_arg translate)
+	{
+		return Math::Translate4x3(translate);
+	}
+
+	inline Vfloat4x3 Vfloat4x3::Scale(Vfloat3_arg scale)
+	{
+		return Math::Scale4x3(scale);
+	}
+
+	inline Vfloat4x3 Vfloat4x3::RotateX(float radian)
+	{
+		return Math::RotateX4x3(radian);
+	}
+
+	inline Vfloat4x3 Vfloat4x3::RotateY(float radian)
+	{
+		return Math::RotateY4x3(radian);
+	}
+
+	inline Vfloat4x3 Vfloat4x3::RotateZ(float radian)
+	{
+		return Math::RotateZ4x3(radian);
+	}
+
 	inline Vfloat4 operator*(Vfloat4_arg v, Vfloat4x3_arg m)
 	{
 		return Math::Multiply(v, m);
@@ -233,7 +258,12 @@ namespace SI
 		
 		inline Vfloat4x3 LookAtMatrix(Vfloat3_arg pos, Vfloat3_arg target, Vfloat3_arg up)
 		{
-			Vfloat3 newZ = Normalize(target - pos);
+			return LookToMatrix(pos, target - pos, up);
+		}
+		
+		inline Vfloat4x3 LookToMatrix(Vfloat3_arg pos, Vfloat3_arg targetDir, Vfloat3_arg up)
+		{
+			Vfloat3 newZ = Normalize(targetDir);
 			Vfloat3 newX = Normalize(Cross(up, newZ));
 			Vfloat3 newY = Cross(newZ, newX);
 

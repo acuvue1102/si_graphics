@@ -20,10 +20,10 @@ namespace SI
 
 	public:
 		operator float() const;
-		Vfloat operator+(Vfloat_arg r);
-		Vfloat operator-(Vfloat_arg r);
-		Vfloat operator*(Vfloat_arg r);
-		Vfloat operator/(Vfloat_arg r);
+		Vfloat operator+(Vfloat_arg r) const;
+		Vfloat operator-(Vfloat_arg r) const;
+		Vfloat operator*(Vfloat_arg r) const;
+		Vfloat operator/(Vfloat_arg r) const;
 
 	public:
 		__m128 Get128() const;

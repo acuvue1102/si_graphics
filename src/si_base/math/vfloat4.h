@@ -60,18 +60,28 @@ namespace SI
 		Vfloat4 NormalizeFast() const;
 
 	public:
+		Vfloat4 operator-() const;
 		Vfloat operator[](size_t i) const &&; // [] operatorは代入を許可しないようにしておく.
-		Vfloat4 operator+(Vfloat4_arg v);
-		Vfloat4 operator-(Vfloat4_arg v);
-		Vfloat4 operator*(Vfloat4_arg v);
-		Vfloat4 operator/(Vfloat4_arg v);
-		Vfloat4 operator*(Vfloat_arg f);
-		Vfloat4 operator/(Vfloat_arg f);
-		Vfloat4 operator*(float f);
-		Vfloat4 operator/(float f);
-		Vfloat4 operator*(Vfloat4x4_arg m);
-		Vfloat4 operator*(Vfloat4x3_arg m);
-		Vfloat4 operator-();
+		Vfloat4 operator+(Vfloat4_arg v) const;
+		Vfloat4 operator-(Vfloat4_arg v) const;
+		Vfloat4 operator*(Vfloat4_arg v) const;
+		Vfloat4 operator/(Vfloat4_arg v) const;
+		Vfloat4 operator*(Vfloat_arg f) const;
+		Vfloat4 operator/(Vfloat_arg f) const;
+		Vfloat4 operator*(float f) const;
+		Vfloat4 operator/(float f) const;
+		Vfloat4 operator*(Vfloat4x4_arg m) const;
+		Vfloat4 operator*(Vfloat4x3_arg m) const;
+		Vfloat4& operator+=(Vfloat4_arg v);
+		Vfloat4& operator-=(Vfloat4_arg v);
+
+	public:
+		static Vfloat4 Zero();
+		static Vfloat4 One();
+		static Vfloat4 AxisX();
+		static Vfloat4 AxisY();
+		static Vfloat4 AxisZ();
+		static Vfloat4 AxisW();
 
 	public:
 		__m128 Get128() const;

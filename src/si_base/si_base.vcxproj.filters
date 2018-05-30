@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="platform\window_util.h">
-      <Filter>platform</Filter>
-    </ClInclude>
     <ClInclude Include="gpu\dx12\dx12_fence.h">
       <Filter>gpu\dx12</Filter>
     </ClInclude>
@@ -190,6 +187,18 @@
     <ClInclude Include="math\math_print.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="platform\window_app.h">
+      <Filter>platform</Filter>
+    </ClInclude>
+    <ClInclude Include="input\keyboard.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="input\mouse.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="core\print.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -216,11 +225,11 @@
     <Filter Include="math\inl">
       <UniqueIdentifier>{bbf40be8-9b06-47bc-a59f-f47067e63780}</UniqueIdentifier>
     </Filter>
+    <Filter Include="input">
+      <UniqueIdentifier>{9c835571-ce56-4956-afde-b2800803ad53}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="platform\window_util.cpp">
-      <Filter>platform</Filter>
-    </ClCompile>
     <ClCompile Include="gpu\dx12\dx12_fence.cpp">
       <Filter>gpu\dx12</Filter>
     </ClCompile>
@@ -310,6 +319,18 @@
     </ClCompile>
     <ClCompile Include="math\math_print.cpp">
       <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\window_app.cpp">
+      <Filter>platform</Filter>
+    </ClCompile>
+    <ClCompile Include="input\mouse.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="input\keyboard.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
+    <ClCompile Include="core\print.cpp">
+      <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

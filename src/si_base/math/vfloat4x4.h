@@ -4,7 +4,6 @@
 #include <xmmintrin.h>
 
 #include "si_base/math/math_declare.h"
-
 namespace SI
 {
 	class Vfloat4x4
@@ -58,7 +57,14 @@ namespace SI
 
 	public:
 		Vfloat4   operator[](size_t i) const &&; // [] operatorは代入を許可しないようにしておく.
-		Vfloat4x4 operator*(Vfloat4x4_arg m);
+		Vfloat4x4 operator*(Vfloat4x4_arg m) const;
+
+	public:
+		static Vfloat4x4 Translate(Vfloat3_arg);
+		static Vfloat4x4 Scale(Vfloat3_arg);
+		static Vfloat4x4 RotateX(float radian);
+		static Vfloat4x4 RotateY(float radian);
+		static Vfloat4x4 RotateZ(float radian);
 				
 	public:
 		__m128 GetRow128(uint32_t rowIndex) const;

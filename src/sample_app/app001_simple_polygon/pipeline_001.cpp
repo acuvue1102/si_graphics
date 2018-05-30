@@ -103,7 +103,7 @@ namespace APP001
 		return 0;
 	}
 	
-	int Pipeline::OnRender(const AppRenderInfo&)
+	void Pipeline::OnRender(const App& app, const AppUpdateInfo&)
 	{
 		BeginRender();
 		
@@ -132,8 +132,6 @@ namespace APP001
 		m_graphicsCommandList.DrawInstanced(3, 1, 0, 0);
 
 		EndRender();
-
-		return 0;
 	}
 	
 } // namespace APP001

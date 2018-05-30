@@ -10,6 +10,9 @@
     <Filter Include="app">
       <UniqueIdentifier>{7a29a7ca-6a52-48db-a2a0-1f3ca75314ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="camera">
+      <UniqueIdentifier>{41e834cc-5fdf-40ea-8a65-2539ad885e9f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file\path_storage.h">
@@ -18,13 +21,13 @@
     <ClInclude Include="app\app.h">
       <Filter>app</Filter>
     </ClInclude>
-    <ClInclude Include="app\app_observer.h">
-      <Filter>app</Filter>
-    </ClInclude>
     <ClInclude Include="pipeline\pipeline_base.h">
       <Filter>pipeline</Filter>
     </ClInclude>
-    <ClInclude Include="app\app_template.h">
+    <ClInclude Include="camera\trackball_camera.h">
+      <Filter>camera</Filter>
+    </ClInclude>
+    <ClInclude Include="app\app_module.h">
       <Filter>app</Filter>
     </ClInclude>
   </ItemGroup>
@@ -37,6 +40,9 @@
     </ClCompile>
     <ClCompile Include="pipeline\pipeline_base.cpp">
       <Filter>pipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="camera\trackball_camera.cpp">
+      <Filter>camera</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

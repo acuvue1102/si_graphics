@@ -25,6 +25,9 @@
     <ClCompile Include="app002_texture\pipeline_002.cpp">
       <Filter>app002_texture</Filter>
     </ClCompile>
+    <ClCompile Include="app002_texture\app_002.cpp">
+      <Filter>app002_texture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app000_clear_color\pipeline_000.h">
@@ -34,6 +37,9 @@
       <Filter>app001_simple_polygon</Filter>
     </ClInclude>
     <ClInclude Include="app002_texture\pipeline_002.h">
+      <Filter>app002_texture</Filter>
+    </ClInclude>
+    <ClInclude Include="app002_texture\app_002.h">
       <Filter>app002_texture</Filter>
     </ClInclude>
   </ItemGroup>

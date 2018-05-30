@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <stdint.h>
 #include "si_base/core/basic_function.h"
 
 namespace SI

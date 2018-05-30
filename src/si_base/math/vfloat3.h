@@ -63,18 +63,27 @@ namespace SI
 		PackedFloat3 GetPackedFloat3() const;
 
 	public:
-		Vfloat operator[](size_t i) const &&; // [] operatorは代入を許可しないようにしておく.
-		Vfloat3 operator+(Vfloat3_arg v);
-		Vfloat3 operator-(Vfloat3_arg v);
-		Vfloat3 operator*(Vfloat3_arg v);
-		Vfloat3 operator/(Vfloat3_arg v);
-		Vfloat3 operator*(Vfloat_arg f);
-		Vfloat3 operator/(Vfloat_arg f);
-		Vfloat3 operator*(float f);
-		Vfloat3 operator/(float f);
-		Vfloat3 operator*(Vfloat4x3_arg m);
-		Vfloat3 operator*(Vquat q);
-		Vfloat3 operator-();
+		Vfloat3  operator-() const;
+		Vfloat   operator[](size_t i) const &&; // [] operatorは代入を許可しないようにしておく.
+		Vfloat3  operator+(Vfloat3_arg v) const;
+		Vfloat3  operator-(Vfloat3_arg v) const;
+		Vfloat3  operator*(Vfloat3_arg v) const;
+		Vfloat3  operator/(Vfloat3_arg v) const;
+		Vfloat3  operator*(Vfloat_arg f) const;
+		Vfloat3  operator/(Vfloat_arg f) const;
+		Vfloat3  operator*(float f) const;
+		Vfloat3  operator/(float f) const;
+		Vfloat3  operator*(Vfloat4x3_arg m) const;
+		Vfloat3  operator*(Vquat_arg q) const;
+		Vfloat3& operator+=(Vfloat3_arg v);
+		Vfloat3& operator-=(Vfloat3_arg v);
+
+	public:
+		static Vfloat3 Zero();
+		static Vfloat3 One();
+		static Vfloat3 AxisX();
+		static Vfloat3 AxisY();
+		static Vfloat3 AxisZ();
 
 	public:
 		__m128 Get128() const;

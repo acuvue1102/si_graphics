@@ -202,7 +202,7 @@ namespace SI
 		return Vfloat3(m_row[i]);
 	}
 	
-	inline Vfloat3x3 Vfloat3x3::operator*(Vfloat3x3_arg m)
+	inline Vfloat3x3 Vfloat3x3::operator*(Vfloat3x3_arg m) const
 	{
 		return Math::Multiply(*this, m);
 	}

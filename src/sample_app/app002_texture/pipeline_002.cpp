@@ -223,11 +223,6 @@ namespace APP002
 			m_lambertConstant = static_cast<LambertShaderConstant*>(m_constantBuffers[0].Map());
 			memset(m_lambertConstant, 0, sizeof(LambertShaderConstant));
 
-			Vfloat3 cameraPos(2,2,2);
-			Vfloat3 cameraTarget(0,0,0);
-			Vfloat3 cameraUp(0,1,0);
-			Vfloat4x4 viewMatrix = Math::LookAtMatrix(cameraPos, cameraTarget, cameraUp);
-			Vfloat4x4 projMatrix = Math::Perspective(1.6f, 0.9f, 0.5f, 10.0f);
 			for(size_t i=0; i<ArraySize(m_lambertConstant->m_world); ++i)
 			{
 				float t = (float)i / (float)ArraySize(m_lambertConstant->m_world);
@@ -237,8 +232,8 @@ namespace APP002
 
 				m_lambertConstant->m_world[i] = Math::Translate4x4(pos);
 			}
-			m_lambertConstant->m_view        = viewMatrix;
-			m_lambertConstant->m_viewProj    = viewMatrix * projMatrix;
+			m_lambertConstant->m_view        = Vfloat4x4();
+			m_lambertConstant->m_viewProj    = Vfloat4x4();
 			m_lambertConstant->m_pointLightInfo[0].m_lightColor = Vfloat3(1.0f, 3.0f, 5.0f);
 			m_lambertConstant->m_pointLightInfo[1].m_lightColor = Vfloat3(5.0f, 0.5f, 0.5f);
 			m_lambertConstant->m_pointLightInfo[2].m_lightColor = Vfloat3(0.5f, 2.0f, 1.0f);
@@ -445,6 +440,14 @@ namespace APP002
 
 		return 0;
 	}
+	
+	void Pipeline::SetView(Vfloat4x4_arg view)
+	{
+		Vfloat4x4 projMatrix = Math::Perspective(1.6f, 0.9f, 0.5f, 10.0f);
+
+		m_lambertConstant->m_view        = view;
+		m_lambertConstant->m_viewProj    = view * projMatrix;
+	}
 
 	int Pipeline::OnTerminate()
 	{
@@ -488,7 +491,7 @@ namespace APP002
 		return 0;
 	}
 	
-	int Pipeline::OnUpdate(const AppUpdateInfo&)
+	void Pipeline::OnUpdate(const App& app, const AppUpdateInfo&)
 	{
 		static float s_t = 0.0f;
 		s_t += 0.03f;		
@@ -496,10 +499,9 @@ namespace APP002
 		m_lambertConstant->m_pointLightInfo[1].m_lightPos   = Vfloat3(3*cos(0.6f*s_t), -0.5f, 3*sin(0.6f*s_t));
 		m_lambertConstant->m_pointLightInfo[2].m_lightPos   = Vfloat3(3*sin(0.4f*s_t), 2*sin(0.3f*s_t), -1.5f);
 		m_lambertConstant->m_pointLightInfo[3].m_lightPos   = Vfloat3(2*sin(0.4f*s_t), 3*cos(0.2f*s_t), 0.5f);
-		return 0;
 	}
 	
-	int Pipeline::OnRender(const AppRenderInfo&)
+	void Pipeline::OnRender(const App& app, const AppUpdateInfo&)
 	{
 		BeginRender();
 
@@ -591,8 +593,6 @@ namespace APP002
 			GfxResourceState::kRenderTarget);
 
 		EndRender();
-
-		return 0;
 	}
 	
 } // namespace APP002

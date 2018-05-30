@@ -69,6 +69,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="core\assert.cpp" />
+    <ClCompile Include="core\print.cpp" />
     <ClCompile Include="gpu\dx12\dx12_buffer.cpp" />
     <ClCompile Include="gpu\dx12\dx12_command_queue.cpp" />
     <ClCompile Include="gpu\dx12\dx12_descriptor_heap.cpp" />
@@ -94,11 +95,13 @@
     <ClCompile Include="gpu\gfx_shader.cpp" />
     <ClCompile Include="gpu\gfx_swap_chain.cpp" />
     <ClCompile Include="gpu\gfx_texture.cpp" />
+    <ClCompile Include="input\keyboard.cpp" />
+    <ClCompile Include="input\mouse.cpp" />
     <ClCompile Include="math\math_print.cpp" />
     <ClCompile Include="memory\dlmalloc.c" />
     <ClCompile Include="memory\pool_allocator.cpp" />
     <ClCompile Include="misc\bitwise.cpp" />
-    <ClCompile Include="platform\window_util.cpp" />
+    <ClCompile Include="platform\window_app.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\assert.h" />
@@ -108,6 +111,7 @@
     <ClInclude Include="core\core.h" />
     <ClInclude Include="core\new_delete.h" />
     <ClInclude Include="core\non_copyable.h" />
+    <ClInclude Include="core\print.h" />
     <ClInclude Include="core\scope_exit.h" />
     <ClInclude Include="core\singleton.h" />
     <ClInclude Include="gpu\dx12\dx12_buffer.h" />
@@ -147,6 +151,8 @@
     <ClInclude Include="gpu\gfx_texture.h" />
     <ClInclude Include="gpu\gfx_utility.h" />
     <ClInclude Include="gpu\gfx_viewport.h" />
+    <ClInclude Include="input\keyboard.h" />
+    <ClInclude Include="input\mouse.h" />
     <ClInclude Include="math\math.h" />
     <ClInclude Include="math\math_declare.h" />
     <ClInclude Include="math\math_function.h" />
@@ -163,7 +169,7 @@
     <ClInclude Include="memory\pool_allocator.h" />
     <ClInclude Include="misc\bitwise.h" />
     <ClInclude Include="misc\enum_flags.h" />
-    <ClInclude Include="platform\window_util.h" />
+    <ClInclude Include="platform\window_app.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="math\inl\vfloat.inl" />

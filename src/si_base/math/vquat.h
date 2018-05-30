@@ -47,6 +47,7 @@ namespace SI
 		Vfloat operator[](size_t i) const &&; // [] operatorは代入を許可しないようにしておく.
 		Vquat operator-() const;
 		Vquat operator*(Vquat_arg q);
+		Vquat& operator*=(Vquat_arg q);
 
 	public:
 		__m128 Get128() const;

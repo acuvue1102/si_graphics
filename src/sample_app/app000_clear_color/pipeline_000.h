@@ -13,9 +13,9 @@ namespace APP000
 		explicit Pipeline(int observerSortKey);
 		virtual ~Pipeline();
 
-		int OnInitialize(const AppInitializeInfo&) override;
-		int OnTerminate()                          override;
-		int OnRender(const AppRenderInfo&)         override;
+		int  OnInitialize(const AppInitializeInfo&) override;
+		int  OnTerminate()                          override;
+		void OnRender(const App& app, const AppUpdateInfo&)         override;
 	};
 
 } // namespace APP000

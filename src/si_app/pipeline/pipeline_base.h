@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <stdint.h>
-#include "si_app/app/app_observer.h"
+#include "si_app/app/app_module.h"
 #include "si_base/gpu/gfx.h"
 
 namespace SI
@@ -13,20 +13,21 @@ namespace SI
 		void*   m_hWnd    = nullptr;
 	};
 
-	class PipelineBase : public AppObserver
+	class PipelineBase : public AppModule
 	{
 	public:
 		explicit PipelineBase(int observerSortKey);
 		virtual ~PipelineBase();
 
-		virtual int OnInitialize(const AppInitializeInfo&) override;
-		virtual int OnTerminate()                          override;
-		virtual int OnUpdate(const AppUpdateInfo&)         override;
-		virtual int OnRender(const AppRenderInfo&)         override;
+		virtual int  OnInitialize(const AppInitializeInfo&) override;
+		virtual int  OnTerminate()                          override;
+
+		virtual void OnUpdate(const App& app, const AppUpdateInfo&) override;
+		virtual void OnRender(const App& app, const AppUpdateInfo&) override;
 
 	protected:
-		int BeginRender();
-		int EndRender();
+		void BeginRender();
+		void EndRender();
 
 	protected:
 		GfxDevice                m_device;

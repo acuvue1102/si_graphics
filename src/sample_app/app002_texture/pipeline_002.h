@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <si_app/pipeline/pipeline_base.h>
+#include <si_base/math/math_declare.h>
 
 namespace SI
 {
@@ -13,12 +14,15 @@ namespace APP002
 		explicit Pipeline(int observerSortKey);
 		virtual ~Pipeline();
 
-		int OnInitialize(const AppInitializeInfo&) override;
-		int OnTerminate()                          override;
-		int OnUpdate(const AppUpdateInfo&)         override;
-		int OnRender(const AppRenderInfo&)         override;
+		int  OnInitialize(const AppInitializeInfo&) override;
+		int  OnTerminate()                          override;
+
+		void OnUpdate(const App& app, const AppUpdateInfo&)         override;
+		void OnRender(const App& app, const AppUpdateInfo&)         override;
 
 		int LoadAsset(const AppInitializeInfo& info);
+
+		void SetView(Vfloat4x4_arg view);
 
 	protected:
 		struct TextureShaderConstant;

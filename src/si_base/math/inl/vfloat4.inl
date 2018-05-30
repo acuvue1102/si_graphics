@@ -246,65 +246,107 @@ namespace SI
 	{
 		return Math::NormalizeFast(*this);
 	}
+	
+	inline Vfloat4 Vfloat4::operator-() const
+	{
+		return Vfloat4( _mm_sub_ps( kSiFloat128_0000, Get128() ) );
+	}
 
 	inline Vfloat Vfloat4::operator[](size_t i) const && // [] operatorは代入を許可しないようにしておく.
 	{
 		return GetElement((uint32_t)i);
 	}
 
-	inline Vfloat4 Vfloat4::operator+(Vfloat4_arg v)
+	inline Vfloat4 Vfloat4::operator+(Vfloat4_arg v) const
 	{
 		return Vfloat4(_mm_add_ps(m_v, v.m_v));
 	}
 
-	inline Vfloat4 Vfloat4::operator-(Vfloat4_arg v)
+	inline Vfloat4 Vfloat4::operator-(Vfloat4_arg v) const
 	{
 		return Vfloat4(_mm_sub_ps(m_v, v.m_v));
 	}
 
-	inline Vfloat4 Vfloat4::operator*(Vfloat4_arg v)
+	inline Vfloat4 Vfloat4::operator*(Vfloat4_arg v) const
 	{
 		return Vfloat4(_mm_mul_ps(m_v, v.m_v));
 	}
 
-	inline Vfloat4 Vfloat4::operator/(Vfloat4_arg v)
+	inline Vfloat4 Vfloat4::operator/(Vfloat4_arg v) const
 	{
 		return Vfloat4(_mm_div_ps(m_v, v.m_v));
 	}
 
-	inline Vfloat4 Vfloat4::operator*(Vfloat_arg f)
+	inline Vfloat4 Vfloat4::operator*(Vfloat_arg f) const
 	{
 		return (*this) * Vfloat4(f);
 	}
 
-	inline Vfloat4 Vfloat4::operator/(Vfloat_arg f)
+	inline Vfloat4 Vfloat4::operator/(Vfloat_arg f) const
 	{
 		return (*this) / Vfloat4(f);
 	}
 	
-	inline Vfloat4 Vfloat4::operator*(float f)
+	inline Vfloat4 Vfloat4::operator*(float f) const
 	{
 		return (*this) * Vfloat4(f);
 	}
 
-	inline Vfloat4 Vfloat4::operator/(float f)
+	inline Vfloat4 Vfloat4::operator/(float f) const
 	{
 		return (*this) / Vfloat4(f);
 	}
 	
-	inline Vfloat4 Vfloat4::operator*(Vfloat4x4_arg m)
+	inline Vfloat4 Vfloat4::operator*(Vfloat4x4_arg m) const
 	{
 		return Math::Multiply(*this, m);
 	}
 	
-	inline Vfloat4 Vfloat4::operator*(Vfloat4x3_arg m)
+	inline Vfloat4 Vfloat4::operator*(Vfloat4x3_arg m) const
 	{
 		return Math::Multiply(*this, m);
 	}
-	
-	inline Vfloat4 Vfloat4::operator-()
+
+	inline Vfloat4& Vfloat4::operator+=(Vfloat4_arg v)
 	{
-		return Vfloat4( _mm_sub_ps( kSiFloat128_0000, Get128() ) );
+		*this = *this + v;
+		return (*this);
+	}
+
+	inline Vfloat4& Vfloat4::operator-=(Vfloat4_arg v)
+	{
+		*this = *this - v;
+		return (*this);
+	}
+		
+	inline Vfloat4 Vfloat4::Zero()
+	{
+		return Vfloat4(kSiFloat128_0000.m_v);
+	}
+
+	inline Vfloat4 Vfloat4::One()
+	{
+		return Vfloat4(kSiFloat128_1111.m_v);
+	}
+
+	inline Vfloat4 Vfloat4::AxisX()
+	{
+		return Vfloat4(kSiFloat128_1000.m_v);
+	}
+
+	inline Vfloat4 Vfloat4::AxisY()
+	{
+		return Vfloat4(kSiFloat128_0100.m_v);
+	}
+
+	inline Vfloat4 Vfloat4::AxisZ()
+	{
+		return Vfloat4(kSiFloat128_0010.m_v);
+	}
+
+	inline Vfloat4 Vfloat4::AxisW()
+	{
+		return Vfloat4(kSiFloat128_0001.m_v);
 	}
 
 	inline __m128 Vfloat4::Get128() const

@@ -1,10 +1,10 @@
 ﻿
+#include <Windows.h>
 #include <stdio.h>
 #include <algorithm>
 #include "si_base/core/core.h"
-#include "si_base/platform/window_util.h"
 #include "si_app/file/path_storage.h"
-#include "si_app/app/app_observer.h"
+#include "si_app/app/app_module.h"
 
 #include "app.h"
 
@@ -17,64 +17,54 @@ namespace SI
 	}
 
 	App::~App()
-	{
-		Terminate();
+	{		
+		for(AppModule* m : m_modules)
+		{
+			SI_DELETE(m);
+		}
+		m_modules.clear();
 	}
 
 	int App::Run(const AppDesc& desc)
 	{
-		if(Initialize(desc) != 0)
+		if(OnInitialize(desc) != 0)
 		{
 			return -1;
 		}
 
-		while(true)
+		while(UpdateBase() == 0)
 		{
-			Update();
+			AppUpdateInfo updateInfo;
 
-			Render();
+			OnPreUpdate(updateInfo);
 
-			if(WindowUtil::MessageProc() != 0)
-			{
-				break;
-			}
+			OnUpdate(updateInfo);
+
+			OnRender(updateInfo);
 		}
 
-		if(Terminate() != 0)
+		if(OnTerminate() != 0)
 		{
 			return -1;
 		}
 
 		return 0;
 	}
-
-	int App::Initialize(const AppDesc& desc)
+	
+	int App::OnInitialize(const AppDesc& desc)
 	{
 		if(m_initialized) return 0;
-
-		if(desc.m_observerCount<=0 || desc.m_observers == nullptr)
-		{
-			SI_ASSERT(0);
-			return -1;
-		}
 
 		m_pathStorage = SI_NEW(PathStorage);
 		m_pathStorage->Initialize();
 
-		void* hWnd = WindowUtil::Initialize((int)desc.m_width,	(int)desc.m_height);
-		if(hWnd==nullptr) return -1;
+		InitializeBase((int)desc.m_width,	(int)desc.m_height);
 
 
 		// obserberの初期化.
 		{
-			m_objservers.reserve(desc.m_observerCount);
-			for(uint32_t o=0; o<desc.m_observerCount; ++o)
-			{
-				m_objservers.push_back(desc.m_observers[o]);
-			}
-
-			std::sort(m_objservers.begin(), m_objservers.end(),
-				[](const SI::AppObserver* left, const SI::AppObserver* right)->bool
+			std::sort(m_modules.begin(), m_modules.end(),
+				[](const SI::AppModule* left, const SI::AppModule* right)->bool
 				{
 					return (left->GetSortKey() < right->GetSortKey()); // 小さい順にソート.
 				});
@@ -82,33 +72,30 @@ namespace SI
 			AppInitializeInfo initializeInfo;
 			initializeInfo.m_width  = desc.m_width;
 			initializeInfo.m_height = desc.m_height;
-			initializeInfo.m_hWnd   = hWnd;
-			for(AppObserver* obs : m_objservers)
+			initializeInfo.m_hWnd   = GetWindowHandle();
+			for(AppModule* m : m_modules)
 			{
-				obs->OnInitialize(initializeInfo);
+				m->OnInitialize(initializeInfo);
 			}
 		}
 
-		if(WindowUtil::ShowWindow(hWnd, desc.m_nCmdShow) != 0) return -1;
+		if(ShowWindow(desc.m_nCmdShow) != 0) return -1;
 
 		m_initialized = true;
 		return 0;
 	}
 
-	int App::Terminate()
+	int App::OnTerminate()
 	{
 		if(!m_initialized) return 0;
 		
-		for(AppObserver* obs : m_objservers)
+		for(AppModule* m : m_modules)
 		{
-			obs->OnTerminate();
+			m->OnTerminate();
 		}
-		m_objservers.clear();
+		m_modules.clear();
 
-		if(WindowUtil::Terminate() != 0)
-		{
-			return -1;
-		}
+		TerminateBase();
 
 		if(m_pathStorage)
 		{
@@ -120,21 +107,59 @@ namespace SI
 		return 0;
 	}
 	
-	void App::Update()
+	void App::OnPreUpdate(const AppUpdateInfo& updateInfo)
 	{
-		AppUpdateInfo updateInfo;
-		for(AppObserver* obs : m_objservers)
+		for(AppModule* m : m_modules)
 		{
-			obs->OnUpdate(updateInfo);
+			m->OnPreUpdate(*this, updateInfo);
+		}
+	}
+	
+	void App::OnUpdate(const AppUpdateInfo& updateInfo)
+	{
+		for(AppModule* m : m_modules)
+		{
+			m->OnUpdate(*this, updateInfo);
 		}
 	}
 
-	void App::Render()
+	void App::OnRender(const AppUpdateInfo& updateInfo)
 	{
-		AppRenderInfo renderInfo;
-		for(AppObserver* obs : m_objservers)
+		for(AppModule* m : m_modules)
 		{
-			obs->OnRender(renderInfo);
+			m->OnRender(*this, updateInfo);
+		}
+	}
+	
+	void App::OnMouseMove(int x, int y)
+	{
+		for(AppModule* m : m_modules)
+		{
+			m->OnMouseMove(*this, x, y);
+		}
+	}
+
+	void App::OnMouseButton(MouseButton b, bool isDown)
+	{
+		for(AppModule* m : m_modules)
+		{
+			m->OnMouseButton(*this, b, isDown);
+		}
+	}
+	
+	void App::OnMouseWheel(int wheel)
+	{
+		for(AppModule* m : m_modules)
+		{
+			m->OnMouseWheel(*this, wheel);
+		}
+	}
+
+	void App::OnKeyboard(Key k, bool isDown)
+	{
+		for(AppModule* m : m_modules)
+		{
+			m->OnKeyboard(*this, k, isDown);
 		}
 	}
 } // namespace SI

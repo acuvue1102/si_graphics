@@ -40,22 +40,22 @@ namespace SI
 		return _mm_cvtss_f32(m_v);
 	}
 
-	inline Vfloat Vfloat::operator+(Vfloat_arg r)
+	inline Vfloat Vfloat::operator+(Vfloat_arg r) const
 	{
 		return Vfloat(_mm_add_ss(m_v, r.m_v));
 	}
 
-	inline Vfloat Vfloat::operator-(Vfloat_arg r)
+	inline Vfloat Vfloat::operator-(Vfloat_arg r) const
 	{
 		return Vfloat(_mm_sub_ss(m_v, r.m_v));
 	}
 
-	inline Vfloat Vfloat::operator*(Vfloat_arg r)
+	inline Vfloat Vfloat::operator*(Vfloat_arg r) const
 	{
 		return Vfloat(_mm_mul_ss(m_v, r.m_v));
 	}
 
-	inline Vfloat Vfloat::operator/(Vfloat_arg r)
+	inline Vfloat Vfloat::operator/(Vfloat_arg r) const
 	{
 		return Vfloat(_mm_div_ss(m_v, r.m_v));
 	}

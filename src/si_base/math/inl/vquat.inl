@@ -182,6 +182,12 @@ namespace SI
 	{
 		return Math::Multiply(*this, q);
 	}
+	
+	inline Vquat& Vquat::operator*=(Vquat_arg q)
+	{
+		(*this) = (*this) * q;
+		return (*this);
+	}
 
 	inline __m128 Vquat::Get128() const
 	{
