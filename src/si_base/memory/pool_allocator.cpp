@@ -1,7 +1,7 @@
 ﻿
 #include "si_base/memory/pool_allocator.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include "si_base/memory/dlmalloc.h"
 #include "si_base/core/core.h"
 

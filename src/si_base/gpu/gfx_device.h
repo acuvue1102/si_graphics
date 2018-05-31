@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include "si_base/core/singleton.h"
 #include "si_base/gpu/gfx_declare.h"
 

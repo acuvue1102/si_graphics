@@ -2,7 +2,7 @@
 
 #include "si_base/math/Vfloat3x3.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <xmmintrin.h>
 #include <smmintrin.h>
 #include "si_base/core/assert.h"

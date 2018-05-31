@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <xmmintrin.h>
 
 #include "si_base/math/math_declare.h"

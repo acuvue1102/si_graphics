@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <float.h>
 
 namespace SI

@@ -3,7 +3,7 @@
 // 内部で使用するための定義など.
 // このファイルは基本的にユーザが見る必要はない.
 
-#include <stdint.h>
+#include <cstdint>
 #include <xmmintrin.h>
 #include "si_base/core/basic_macro.h"
 

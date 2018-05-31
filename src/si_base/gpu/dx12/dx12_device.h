@@ -5,7 +5,7 @@
 #if SI_USE_DX12
 #include <d3d12.h>
 #include <wrl/client.h>
-#include <stdint.h>
+#include <cstdint>
 #include "si_base/core/singleton.h"
 #include "si_base/gpu/gfx_enum.h"
 #include "si_base/gpu/dx12/dx12_declare.h"

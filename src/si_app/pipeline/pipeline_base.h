@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include "si_app/app/app_module.h"
 #include "si_base/gpu/gfx.h"
 

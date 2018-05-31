@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include "si_base/math/math.h"
 #include "si_app/app/app_module.h"
 

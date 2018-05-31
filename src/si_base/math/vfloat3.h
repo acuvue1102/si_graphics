@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <xmmintrin.h>
-#include <stdint.h>
+#include <cstdint>
 
 #include "si_base/math/math_declare.h"
 

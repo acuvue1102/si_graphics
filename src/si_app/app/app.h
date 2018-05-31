@@ -6,7 +6,7 @@
 //
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 #include <si_base/core/new_delete.h>
 #include "si_base/platform/window_app.h"

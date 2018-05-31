@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <si_app/pipeline/pipeline_base.h>
 
 namespace SI
