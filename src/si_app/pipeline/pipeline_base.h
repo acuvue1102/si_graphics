@@ -31,6 +31,7 @@ namespace SI
 
 	protected:
 		GfxDevice                m_device;
+		GfxCore                  m_core;
 		GfxCommandQueue          m_commandQueue;
 		GfxSwapChain             m_swapChain;
 		GfxGraphicsCommandList   m_graphicsCommandList;

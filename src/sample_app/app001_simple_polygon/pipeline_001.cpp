@@ -45,7 +45,7 @@ namespace APP001
 		GfxRootSignatureDesc rootSignatureDesc;
 		m_rootSignature = m_device.CreateRootSignature(rootSignatureDesc);
 
-		std::string shaderPath = PathStorage::GetInstance()->GetExeDirPath();
+		std::string shaderPath = SI_PATH_STORAGE().GetExeDirPath();
 		shaderPath += "shaders\\color.hlsl";
 
 		if(m_vertexShader.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
@@ -124,10 +124,12 @@ namespace APP001
 		m_graphicsCommandList.ClearRenderTarget(swapChainDescriptor, 0.0f, 0.2f, 0.4f, 1.0f);
 
 		m_graphicsCommandList.SetPrimitiveTopology(GfxPrimitiveTopology::kTriangleList);
+		GfxVertexBufferView vbView(m_vertexBuffer, m_vertexBuffer.GetSize(), sizeof(PosColorVertex));
+		GfxVertexBufferView* vbViews[] = {&vbView};
 		m_graphicsCommandList.SetVertexBuffers(
 			0,
 			1,
-			&GfxVertexBufferView(&m_vertexBuffer, sizeof(PosColorVertex)));
+			vbViews);
 			
 		m_graphicsCommandList.DrawInstanced(3, 1, 0, 0);
 

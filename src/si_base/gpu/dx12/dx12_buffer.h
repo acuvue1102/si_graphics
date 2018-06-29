@@ -25,6 +25,8 @@ namespace SI
 				
 		size_t                    GetSize()     const{ return m_bufferSizeInByte; }
 		D3D12_GPU_VIRTUAL_ADDRESS GetLocation() const{ return m_location; };
+		size_t                    GetGpuAddr()  const{ return (size_t)m_location; }
+		static_assert(sizeof(D3D12_GPU_VIRTUAL_ADDRESS) == sizeof(size_t), "size error");
 
 	public:
 		ComPtr<ID3D12Resource>& GetComPtrResource()

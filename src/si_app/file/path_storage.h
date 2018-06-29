@@ -30,3 +30,5 @@ namespace SI
 		char m_exeDirPath[kPathMax];  // exeが置かれているパス.
 	};
 } // namespace SI
+
+#define SI_PATH_STORAGE() (*PathStorage::GetInstance())

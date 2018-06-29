@@ -16,6 +16,7 @@ struct IDXGIFactory4;
 namespace SI
 {
 	class PoolAllocatorEx;
+	struct GfxCpuDescriptor;
 
 	class BaseDevice : public Singleton<BaseDevice>
 	{
@@ -60,10 +61,15 @@ namespace SI
 
 		BaseDescriptorHeap* CreateDescriptorHeap(const GfxDescriptorHeapDesc& desc);
 		void ReleaseDescriptorHeap(BaseDescriptorHeap* d);
-
+		
 		void CreateRenderTargetView(
 			BaseDescriptorHeap& descriptorHeap,
 			uint32_t descriptorIndex,
+			BaseTexture& texture,
+			const GfxRenderTargetViewDesc& desc);
+
+		void CreateRenderTargetView(
+			GfxDescriptor& descriptor,
 			BaseTexture& texture,
 			const GfxRenderTargetViewDesc& desc);
 
@@ -79,6 +85,11 @@ namespace SI
 			BaseTexture& texture,
 			const GfxShaderResourceViewDesc& desc);
 
+		void CreateShaderResourceView(
+			GfxDescriptor& descriptor,
+			BaseTexture& texture,
+			const GfxShaderResourceViewDesc& desc);
+
 		void CreateSampler(
 			BaseDescriptorHeap& descriptorHeap,
 			uint32_t descriptorIndex,
@@ -88,6 +99,15 @@ namespace SI
 			BaseDescriptorHeap& descriptorHeap,
 			uint32_t descriptorIndex,
 			const GfxConstantBufferViewDesc& desc);
+
+		void CopyDescriptors(
+			uint32_t                 dstDescriptorRangeCount,
+			const GfxCpuDescriptor*  dstDescriptorRangeStarts,
+			const uint32_t*          dstDescriptorRangeSizes,
+			uint32_t                 srcDescriptorRangeCount,
+			const GfxCpuDescriptor*  srcDescriptorRangeStarts,
+			const uint32_t*          srcDescriptorRangeSizes,
+			GfxDescriptorHeapType    type);
 
 	public:
 		PoolAllocatorEx* GetObjectAllocator(){ return m_objectAllocator; }
@@ -122,5 +142,7 @@ namespace SI
 	};
 
 } // namespace SI
+
+#define SI_BASE_DEVICE() (*SI::BaseDevice::GetInstance())
 
 #endif

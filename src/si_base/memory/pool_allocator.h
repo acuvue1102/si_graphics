@@ -2,11 +2,12 @@
 
 #include <cstdint>
 #include "si_base/core/basic_function.h"
+#include "si_base/core/non_copyable.h"
 
 namespace SI
 {
 	// プールのメモリ領域は外で管理するプールアロケータ.
-	class PoolAllocator
+	class PoolAllocator : private NonCopyable
 	{
 	public:
 		PoolAllocator();
@@ -21,23 +22,25 @@ namespace SI
 		void Deallocate(void* p);
 
 		template<typename T,  class... Args>
-		T* New(Args&&... args)
+		inline T* New(Args&&... args)
 		{
 			void* buf = Allocate(sizeof(T), alignof(T));
-			return new(buf) T(args);
+			return new(buf) T(args...);
 		}
 
 		template<typename T>
-		void Delete(T* p)
+		inline void Delete(T*& p)
 		{
 			if(p==nullptr) return;
 
 			p->~T();
 			Deallocate(p);
+
+			p=nullptr;
 		}
 		
 		template<typename T>
-		T* NewArray(size_t arrayCount)
+		inline T* NewArray(size_t arrayCount)
 		{
 			// 配列数を保持するための領域を先頭に用意する.
 			static const int kExtraBufferSize = (int)sizeof(uint64_t);
@@ -57,14 +60,14 @@ namespace SI
 
 			for(size_t i=0; i<arrayCount; ++i)
 			{
-				new (&p[i]) T();
+				new(&p[i]) T;
 			}
 
 			return p;
 		}
 
 		template<typename T>
-		void DeleteArray(T* p)
+		inline void DeleteArray(T*& p)
 		{
 			// 配列数を保持するための領域を先頭に用意する.
 			static const int kExtraBufferSize = (int)sizeof(uint64_t);
@@ -81,6 +84,35 @@ namespace SI
 				p[i].~T();
 			}
 			Deallocate(buf);
+			
+			p=nullptr;
+		}
+		
+		template<typename T>
+		inline T* NewArrayRaw(size_t arrayCount)
+		{
+			if(arrayCount<=0) return nullptr;
+
+			void* buf = Allocate(arrayCount * sizeof(T), alignof(T));
+
+			T* p = (T*)buf;
+			for(size_t i=0; i<arrayCount; ++i)
+			{
+				new(&p[i]) T;
+			}
+			return p;
+		}
+
+		template<typename T>
+		inline void DeleteArrayRaw(T*& p, size_t arrayCount)
+		{
+			for(size_t i=0; i<arrayCount; ++i)
+			{
+				p[i].~T();
+			}
+			Deallocate((void*)p);
+
+			p=nullptr;
 		}
 
 	protected:

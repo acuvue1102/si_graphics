@@ -22,4 +22,7 @@ namespace SI
 		size_t   m_objectPoolSize = 1024 * 1024;
 		size_t   m_tempPoolSize   = 1024 * 1024;
 	};
+	
+	static const uint32_t kMaxNumDescriptors      = 256;
+	static const uint32_t kMaxNumDescriptorTables = 32;
 }

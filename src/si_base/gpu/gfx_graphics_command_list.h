@@ -4,6 +4,7 @@
 #include "si_base/gpu/gfx_command_list.h"
 #include "si_base/gpu/gfx_enum.h"
 #include "si_base/gpu/gfx_descriptor_heap.h"
+#include "si_base/gpu/gfx_color.h"
 
 namespace SI
 {
@@ -24,12 +25,14 @@ namespace SI
 		GfxGraphicsCommandList(BaseGraphicsCommandList* base = nullptr);
 		virtual ~GfxGraphicsCommandList();
 		
-		void ClearRenderTarget(const GfxCpuDescriptor& tex, float r, float g, float b, float a);
-		void ClearDepthStencilTarget(
-			const GfxCpuDescriptor& tex,
-			float depth,
-			uint8_t stencil = 0,
-			GfxClearFlags clearFlags = GfxClearFlag::kDepth);
+		void ClearRenderTarget(const GfxCpuDescriptor& tex, const GfxColorRGBA& clearColor);
+		void ClearRenderTarget(const GfxCpuDescriptor& tex, float r, float g, float b, float a)
+		{
+			ClearRenderTarget(tex, GfxColorRGBA(r,g,b,a));
+		}
+		void ClearDepthTarget(const GfxCpuDescriptor& tex, float depth);
+		void ClearStencilTarget(const GfxCpuDescriptor& tex, uint8_t stencil);
+		void ClearDepthStencilTarget(const GfxCpuDescriptor& tex, float depth, uint8_t stencil);
 		
 		int Reset(GfxGraphicsState* graphicsState);
 		
@@ -49,9 +52,8 @@ namespace SI
 
 		void SetGraphicsDescriptorTable(uint32_t tableIndex, GfxGpuDescriptor descriptor);
 		
-		void SetViewports(uint32_t count, GfxViewport* viewPorts);
-		
-		void SetScissors(uint32_t count, GfxScissor* scissors);
+		void SetViewports(uint32_t count, const GfxViewport* viewPorts);
+		void SetScissors(uint32_t count, const GfxScissor* scissors);
 
 		void SetRenderTargets(
 			uint32_t                 renderTargetCount,
@@ -62,9 +64,9 @@ namespace SI
 		
 		void SetIndexBuffer(GfxIndexBufferView* indexBufferView);
 
-		void SetVertexBuffers(uint32_t inputSlot, uint32_t viewCount, GfxVertexBufferView* bufferViews);
+		void SetVertexBuffers(uint32_t inputSlot, uint32_t viewCount, GfxVertexBufferView** bufferViews);
 		
-		void DrawIndexInstanced(
+		void DrawIndexedInstanced(
 			uint32_t indexCountPerInstance,
 			uint32_t instanceCount         = 1,
 			uint32_t startIndexLocation    = 0,

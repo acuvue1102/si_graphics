@@ -68,6 +68,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="concurency\atomic.cpp" />
+    <ClCompile Include="concurency\mutex.cpp" />
     <ClCompile Include="core\assert.cpp" />
     <ClCompile Include="core\print.cpp" />
     <ClCompile Include="gpu\dx12\dx12_buffer.cpp" />
@@ -85,25 +87,38 @@
     <ClCompile Include="gpu\dx12\dx12_texture.cpp" />
     <ClCompile Include="gpu\gfx_buffer.cpp" />
     <ClCompile Include="gpu\gfx_command_queue.cpp" />
+    <ClCompile Include="gpu\gfx_core.cpp" />
+    <ClCompile Include="gpu\gfx_descriptor_allocator.cpp" />
     <ClCompile Include="gpu\gfx_descriptor_heap.cpp" />
+    <ClCompile Include="gpu\gfx_descriptor_heap_pool.cpp" />
     <ClCompile Include="gpu\gfx_device.cpp" />
+    <ClCompile Include="gpu\gfx_dynamic_descriptor_heap.cpp" />
     <ClCompile Include="gpu\gfx_fence.cpp" />
     <ClCompile Include="gpu\gfx_graphics_command_list.cpp" />
+    <ClCompile Include="gpu\gfx_graphics_context.cpp" />
     <ClCompile Include="gpu\gfx_graphics_state.cpp" />
+    <ClCompile Include="gpu\gfx_linear_allocator.cpp" />
+    <ClCompile Include="gpu\gfx_linear_allocator_page.cpp" />
+    <ClCompile Include="gpu\gfx_resource_states_pool.cpp" />
     <ClCompile Include="gpu\gfx_root_signature.cpp" />
+    <ClCompile Include="gpu\gfx_root_signature_ex.cpp" />
     <ClCompile Include="gpu\gfx_sampler.cpp" />
     <ClCompile Include="gpu\gfx_shader.cpp" />
     <ClCompile Include="gpu\gfx_swap_chain.cpp" />
     <ClCompile Include="gpu\gfx_texture.cpp" />
+    <ClCompile Include="gpu\gfx_texture_ex.cpp" />
     <ClCompile Include="input\keyboard.cpp" />
     <ClCompile Include="input\mouse.cpp" />
     <ClCompile Include="math\math_print.cpp" />
     <ClCompile Include="memory\dlmalloc.c" />
+    <ClCompile Include="memory\handle_allocator.cpp" />
     <ClCompile Include="memory\pool_allocator.cpp" />
     <ClCompile Include="misc\bitwise.cpp" />
     <ClCompile Include="platform\window_app.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="concurency\atomic.h" />
+    <ClInclude Include="concurency\mutex.h" />
     <ClInclude Include="core\assert.h" />
     <ClInclude Include="core\basic_function.h" />
     <ClInclude Include="core\basic_macro.h" />
@@ -135,20 +150,31 @@
     <ClInclude Include="gpu\gfx_command_list.h" />
     <ClInclude Include="gpu\gfx_command_queue.h" />
     <ClInclude Include="gpu\gfx_config.h" />
+    <ClInclude Include="gpu\gfx_core.h" />
     <ClInclude Include="gpu\gfx_declare.h" />
     <ClInclude Include="gpu\gfx_desc.h" />
+    <ClInclude Include="gpu\gfx_descriptor_allocator.h" />
     <ClInclude Include="gpu\gfx_descriptor_heap.h" />
+    <ClInclude Include="gpu\gfx_descriptor_heap_pool.h" />
     <ClInclude Include="gpu\gfx_device.h" />
+    <ClInclude Include="gpu\gfx_dynamic_descriptor_heap.h" />
     <ClInclude Include="gpu\gfx_enum.h" />
     <ClInclude Include="gpu\gfx_fence.h" />
+    <ClInclude Include="gpu\gfx_gpu_resource.h" />
     <ClInclude Include="gpu\gfx_graphics_command_list.h" />
+    <ClInclude Include="gpu\gfx_graphics_context.h" />
     <ClInclude Include="gpu\gfx_graphics_state.h" />
     <ClInclude Include="gpu\gfx_input_layout.h" />
+    <ClInclude Include="gpu\gfx_linear_allocator.h" />
+    <ClInclude Include="gpu\gfx_linear_allocator_page.h" />
+    <ClInclude Include="gpu\gfx_resource_states_pool.h" />
     <ClInclude Include="gpu\gfx_root_signature.h" />
+    <ClInclude Include="gpu\gfx_root_signature_ex.h" />
     <ClInclude Include="gpu\gfx_sampler.h" />
     <ClInclude Include="gpu\gfx_shader.h" />
     <ClInclude Include="gpu\gfx_swap_chain.h" />
     <ClInclude Include="gpu\gfx_texture.h" />
+    <ClInclude Include="gpu\gfx_texture_ex.h" />
     <ClInclude Include="gpu\gfx_utility.h" />
     <ClInclude Include="gpu\gfx_viewport.h" />
     <ClInclude Include="input\keyboard.h" />
@@ -166,9 +192,12 @@
     <ClInclude Include="math\vfloat4x4.h" />
     <ClInclude Include="math\vquat.h" />
     <ClInclude Include="memory\dlmalloc.h" />
+    <ClInclude Include="memory\handle_allocator.h" />
     <ClInclude Include="memory\pool_allocator.h" />
+    <ClInclude Include="memory\object_pool.h" />
     <ClInclude Include="misc\bitwise.h" />
     <ClInclude Include="misc\enum_flags.h" />
+    <ClInclude Include="misc\reference_counter.h" />
     <ClInclude Include="platform\window_app.h" />
   </ItemGroup>
   <ItemGroup>

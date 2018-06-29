@@ -42,6 +42,9 @@ namespace SI
 			return -1;
 		}
 
+		GfxCoreDesc coreDesc;
+		m_core.Initialize(coreDesc);
+
 		m_commandQueue = m_device.CreateCommandQueue();
 		m_swapChain = m_device.CreateSwapChain(deviceConfig, m_commandQueue);
 		m_graphicsCommandList = m_device.CreateGraphicsCommandList();
@@ -56,6 +59,8 @@ namespace SI
 		m_device.ReleaseSwapChain(m_swapChain);
 
 		m_device.ReleaseCommandQueue(m_commandQueue);
+
+		m_core.Terminate();
 
 		m_device.Terminate();
 
@@ -104,6 +109,8 @@ namespace SI
 		{
 			return;
 		}
+
+		m_core.Flip();
 	}
 
 } // namespace SI

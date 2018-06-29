@@ -12,6 +12,7 @@ namespace SI
 	class BaseBuffer;
 	class BaseTexture;
 	class BaseDescriptorHeap;
+	class GfxDescriptor;
 
 	struct GfxDeviceConfig;
 	struct GfxGraphicsStateDesc;

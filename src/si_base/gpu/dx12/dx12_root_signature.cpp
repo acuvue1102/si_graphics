@@ -30,11 +30,11 @@ namespace SI
 		for(uint32_t t=0; t<desc.m_tableCount; ++t)
 		{
 			D3D12_ROOT_PARAMETER1& outParameter = parameters[t];
-			outParameter.ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-			outParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
 			D3D12_ROOT_DESCRIPTOR_TABLE1& outTable = outParameter.DescriptorTable;
 			const GfxDescriptorHeapTable& inTable = desc.m_tables[t];
+
+			outParameter.ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+			outParameter.ShaderVisibility = GetDx12ShaderVisibility(inTable.m_visibility);
 			
 			D3D12_DESCRIPTOR_RANGE1* ranges = tempAllocator->NewArray<D3D12_DESCRIPTOR_RANGE1>((size_t)desc.m_tableCount);
 

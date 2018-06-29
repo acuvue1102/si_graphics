@@ -16,18 +16,31 @@ namespace SI
 	{
 	}
 
-	void GfxGraphicsCommandList::ClearRenderTarget(const GfxCpuDescriptor& tex, float r, float g, float b, float a)
+	void GfxGraphicsCommandList::ClearRenderTarget(const GfxCpuDescriptor& tex, const GfxColorRGBA& clearColor)
 	{
-		m_base->ClearRenderTarget(tex, r, g, b, a);
+		m_base->ClearRenderTarget(tex, clearColor.GetPtr());
+	}
+
+	void GfxGraphicsCommandList::ClearDepthTarget(
+		const GfxCpuDescriptor& tex,
+		float depth)
+	{
+		m_base->ClearDepthTarget(tex, depth);
+	}
+
+	void GfxGraphicsCommandList::ClearStencilTarget(
+		const GfxCpuDescriptor& tex,
+		uint8_t stencil)
+	{
+		m_base->ClearStencilTarget(tex, stencil);
 	}
 
 	void GfxGraphicsCommandList::ClearDepthStencilTarget(
 		const GfxCpuDescriptor& tex,
 		float depth,
-		uint8_t stencil,
-		GfxClearFlags clearFlags)
+		uint8_t stencil)
 	{
-		m_base->ClearDepthStencilTarget(tex, depth, stencil, clearFlags);
+		m_base->ClearDepthStencilTarget(tex, depth, stencil);
 	}
 
 	int GfxGraphicsCommandList::Reset(GfxGraphicsState* graphicsState)
@@ -77,12 +90,12 @@ namespace SI
 		m_base->SetGraphicsDescriptorTable(tableIndex, descriptor);
 	}
 		
-	void GfxGraphicsCommandList::SetViewports(uint32_t count, GfxViewport* viewPorts)
+	void GfxGraphicsCommandList::SetViewports(uint32_t count, const GfxViewport* viewPorts)
 	{
 		m_base->SetViewports(count, viewPorts);
 	}
 		
-	void GfxGraphicsCommandList::SetScissors(uint32_t count, GfxScissor* scissors)
+	void GfxGraphicsCommandList::SetScissors(uint32_t count, const GfxScissor* scissors)
 	{
 		m_base->SetScissors(count, scissors);
 	}
@@ -108,19 +121,19 @@ namespace SI
 	void GfxGraphicsCommandList::SetVertexBuffers(
 		uint32_t              inputSlot,
 		uint32_t              viewCount,
-		GfxVertexBufferView*  bufferViews)
+		GfxVertexBufferView** bufferViews)
 	{
 		m_base->SetVertexBuffers(inputSlot, viewCount, bufferViews);
 	}
 
-	void GfxGraphicsCommandList::DrawIndexInstanced(
+	void GfxGraphicsCommandList::DrawIndexedInstanced(
 		uint32_t indexCountPerInstance,
 		uint32_t instanceCount,
 		uint32_t startIndexLocation,
 		uint32_t baseVertexLocation,
 		uint32_t startInstanceLocation)
 	{
-		m_base->DrawIndexInstanced(
+		m_base->DrawIndexedInstanced(
 			indexCountPerInstance,
 			instanceCount,
 			startIndexLocation,

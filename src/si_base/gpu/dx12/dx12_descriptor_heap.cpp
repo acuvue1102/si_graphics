@@ -186,6 +186,15 @@ namespace SI
 		device.CreateConstantBufferView(&constantDesc, descriptor);
 	}
 	
+	GfxDescriptor BaseDescriptorHeap::GetDescriptor(uint32_t descriptorIndex) const
+	{
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(m_type);
+
+		GfxDescriptor d(m_cpuDescriptor.ptr, m_gpuDescriptor.ptr);
+		d += descriptorIndex * descriptorSize;
+		return d;
+	}
+	
 	GfxCpuDescriptor BaseDescriptorHeap::GetCpuDescriptor(uint32_t descriptorIndex) const
 	{
 		size_t descriptorSize = BaseDevice::GetDescriptorSize(m_type);

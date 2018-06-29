@@ -14,4 +14,9 @@ namespace SI
 		m_base->Unmap(subResourceId);
 	}
 	
+	size_t GfxBuffer::GetSize() const
+	{
+		return m_base->GetSize();
+	}
+	
 } // namespace SI

@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include "si_base/core/assert.h"
 #include "si_base/core/constant.h"
 #include "si_base/gpu/gfx_config.h"
 #include "si_base/gpu/gfx_enum.h"
@@ -53,11 +54,61 @@ namespace SI
 	
 	struct GfxCpuDescriptor
 	{
-		size_t m_ptr = 0;
+		size_t m_ptr;
+
+		GfxCpuDescriptor(size_t ptr = 0)
+			: m_ptr(ptr)
+		{
+		}
 	};
 	struct GfxGpuDescriptor
 	{
-		size_t m_ptr = 0;
+		size_t m_ptr;
+
+		GfxGpuDescriptor(size_t ptr = 0)
+			: m_ptr(ptr)
+		{
+		}
+	};
+
+	class GfxDescriptor
+	{
+	public:
+		GfxDescriptor()
+			: m_cpu(0)
+			, m_gpu(0)
+		{
+		}
+
+		GfxDescriptor(GfxCpuDescriptor cpu, GfxGpuDescriptor gpu)
+			: m_cpu(cpu)
+			, m_gpu(gpu)
+		{
+		}
+
+		GfxDescriptor operator+(size_t descriptorSizeOffset) const
+		{
+			GfxDescriptor d = *this;
+			d += descriptorSizeOffset;
+			return d;
+		}
+
+		GfxDescriptor& operator+=(size_t descriptorSizeOffset)
+		{
+			SI_ASSERT(m_cpu.m_ptr != 0);
+			SI_ASSERT(m_gpu.m_ptr != 0);
+			m_cpu.m_ptr += descriptorSizeOffset;
+			m_gpu.m_ptr += descriptorSizeOffset;
+			
+			return (*this);
+		}
+		
+		GfxCpuDescriptor GetCpuDescriptor() const{ return m_cpu; }
+		GfxGpuDescriptor GetGpuDescriptor() const{ return m_gpu; }
+
+	private:
+		GfxCpuDescriptor m_cpu;
+		GfxGpuDescriptor m_gpu;
 	};
 
 	class GfxDescriptorHeap
@@ -74,6 +125,8 @@ namespace SI
 		
 		GfxCpuDescriptor GetCpuDescriptor(uint32_t descriptorIndex) const;
 		GfxGpuDescriptor GetGpuDescriptor(uint32_t descriptorIndex) const;
+
+		bool IsValid() const{ return (m_base != nullptr);}
 
 	public:
 		      BaseDescriptorHeap* GetBaseDescriptorHeap()      { return m_base; }

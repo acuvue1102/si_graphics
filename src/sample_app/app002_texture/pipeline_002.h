@@ -49,8 +49,10 @@ namespace APP002
 		GfxBuffer                m_quadVertexBuffer;
 		GfxTexture               m_texture;
 
-		GfxTexture               m_rt;
-		GfxDescriptorHeap        m_rtvHeap;
+		GfxTestureEx_Rt          m_rt;
+
+		//GfxTexture               m_rt;
+		//GfxDescriptorHeap        m_rtvHeap;
 
 		GfxTexture               m_depth;
 		GfxDescriptorHeap        m_dsvHeap;

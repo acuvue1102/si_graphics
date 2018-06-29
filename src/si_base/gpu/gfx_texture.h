@@ -35,6 +35,8 @@ namespace SI
 		uint32_t GetHeight() const;
 		uint32_t GetDepth() const;
 
+		bool IsValid() const{ return (m_base!=nullptr); }
+
 	public:
 		BaseTexture*       GetBaseTexture()      { return m_base; }
 		const BaseTexture* GetBaseTexture() const{ return m_base; }

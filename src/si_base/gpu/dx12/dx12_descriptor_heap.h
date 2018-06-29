@@ -55,6 +55,7 @@ namespace SI
 			const GfxConstantBufferViewDesc& desc);
 
 	public:
+		GfxDescriptor    GetDescriptor   (uint32_t descriptorIndex) const;
 		GfxCpuDescriptor GetCpuDescriptor(uint32_t descriptorIndex) const;
 		GfxGpuDescriptor GetGpuDescriptor(uint32_t descriptorIndex) const;
 

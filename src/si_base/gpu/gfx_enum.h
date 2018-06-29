@@ -4,6 +4,18 @@
 
 namespace SI
 {
+	enum class GfxShaderVisibility
+	{
+		All	= 0,
+		Vertex,
+		Hull,
+		Domain,
+		Geometry,
+		Pixel,
+
+		Max,
+	};
+
 	enum class GfxDepthWriteMask
 	{
 		kZero = 0,
@@ -143,6 +155,7 @@ namespace SI
 		kVideoProcessWrite       = 1 << 20,
 
 		kMax                     = 1 << 21,
+		kPendding                = 1 << 31 // For system. contextが違う時にpenddingするための特別なstate
 	};
 	SI_DECLARE_ENUM_FLAGS(GfxResourceStates, GfxResourceState);
 

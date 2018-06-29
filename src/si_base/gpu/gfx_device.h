@@ -3,9 +3,12 @@
 #include <cstdint>
 #include "si_base/core/singleton.h"
 #include "si_base/gpu/gfx_declare.h"
+#include "si_base/gpu/gfx_descriptor_allocator.h"
 
 namespace SI
 {
+	class PoolAllocatorEx;
+
 	class BaseDevice;
 
 	class GfxDevice : public Singleton<GfxDevice>
@@ -56,6 +59,11 @@ namespace SI
 			GfxTexture& texture,
 			const GfxRenderTargetViewDesc& desc);
 
+		void CreateRenderTargetView(
+			GfxDescriptor& descriptor,
+			GfxTexture& texture,
+			const GfxRenderTargetViewDesc& desc);
+
 		void CreateDepthStencilView(
 			GfxDescriptorHeap& descriptorHeap,
 			uint32_t descriptorIndex,
@@ -65,6 +73,11 @@ namespace SI
 		void CreateShaderResourceView(
 			GfxDescriptorHeap& descriptorHeap,
 			uint32_t descriptorIndex,
+			GfxTexture& texture,
+			const GfxShaderResourceViewDesc& desc);
+		
+		void CreateShaderResourceView(
+			GfxDescriptor& descriptor,
 			GfxTexture& texture,
 			const GfxShaderResourceViewDesc& desc);
 
@@ -81,9 +94,17 @@ namespace SI
 	public:
 		BaseDevice* GetBaseDevice(){ return m_base; }
 		const BaseDevice* GetBaseDevice() const{ return m_base; }
+		
+		PoolAllocatorEx* GetObjectAllocator();
+		PoolAllocatorEx* GetTempAllocator();
 
 	private:
 		BaseDevice* m_base;
 	};
 
 } // namespace SI
+
+
+#define SI_DEVICE()                 (*SI::GfxDevice::GetInstance())
+#define SI_DEVICE_TEMP_ALLOCATOR()	(*SI::GfxDevice::GetInstance()->GetTempAllocator())
+#define SI_DEVICE_OBJ_ALLOCATOR()	(*SI::GfxDevice::GetInstance()->GetObjectAllocator())

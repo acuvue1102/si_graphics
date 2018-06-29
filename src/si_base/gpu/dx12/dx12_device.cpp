@@ -380,11 +380,23 @@ namespace SI
 		BaseTexture& texture,
 		const GfxRenderTargetViewDesc& desc)
 	{
-		descriptorHeap.CreateRenderTargetView(
-			*m_device.Get(),
-			descriptorIndex,
-			texture,
-			desc);
+		GfxDescriptor descriptor = descriptorHeap.GetDescriptor(descriptorIndex);
+		CreateRenderTargetView(descriptor, texture, desc);
+	}
+
+	void BaseDevice::CreateRenderTargetView(
+		GfxDescriptor& descriptor,
+		BaseTexture& texture,
+		const GfxRenderTargetViewDesc& desc)
+	{
+		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+		rtvDesc.Format = texture.GetComPtrResource()->GetDesc().Format;
+		rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+		rtvDesc.Texture2D.MipSlice = 0;
+		rtvDesc.Texture2D.PlaneSlice = 0;
+
+		D3D12_CPU_DESCRIPTOR_HANDLE dxDescriptor = {descriptor.GetCpuDescriptor().m_ptr};
+		m_device->CreateRenderTargetView(texture.GetComPtrResource().Get(), &rtvDesc, dxDescriptor);
 	}
 	
 	void BaseDevice::CreateDepthStencilView(
@@ -406,11 +418,56 @@ namespace SI
 		BaseTexture& texture,
 		const GfxShaderResourceViewDesc& desc)
 	{
-		descriptorHeap.CreateShaderResourceView(
-			*m_device.Get(),
-			descriptorIndex,
-			texture,
-			desc);
+		GfxDescriptor descriptor = descriptorHeap.GetDescriptor(descriptorIndex);
+		CreateShaderResourceView(descriptor, texture, desc);
+	}
+
+	void BaseDevice::CreateShaderResourceView(
+		GfxDescriptor& descriptor,
+		BaseTexture& texture,
+		const GfxShaderResourceViewDesc& desc)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Format                  = GetDx12Format(desc.m_format);
+		srvDesc.ViewDimension           = GetDx12SrvDimension(desc.m_srvDimension);
+		switch(desc.m_srvDimension)
+		{
+		case GfxDimension::kBuffer:
+		case GfxDimension::kTexture1D:
+			srvDesc.Texture1D.MipLevels = desc.m_miplevels;
+			break;
+		case GfxDimension::kTexture1DArray:
+			srvDesc.Texture1DArray.MipLevels = desc.m_miplevels;
+			srvDesc.Texture1DArray.ArraySize = desc.m_arraySize;
+			break;
+		case GfxDimension::kTexture2D:
+			srvDesc.Texture2D.MipLevels = desc.m_miplevels;
+			break;
+		case GfxDimension::kTexture2DArray:
+			srvDesc.Texture2DArray.MipLevels = desc.m_miplevels;
+			srvDesc.Texture2DArray.ArraySize = desc.m_arraySize;
+			break;
+		case GfxDimension::kTexture2DMS:
+		case GfxDimension::kTexture2DMSArray:
+			break;
+		case GfxDimension::kTexture3D:
+			srvDesc.Texture3D.MipLevels = desc.m_miplevels;
+			break;
+		case GfxDimension::kTextureCube:
+			srvDesc.TextureCube.MipLevels = desc.m_miplevels;
+			break;
+		case GfxDimension::kTextureCubeArray:
+			srvDesc.TextureCubeArray.MipLevels = desc.m_miplevels;
+			srvDesc.TextureCubeArray.NumCubes  = desc.m_arraySize;
+			break;
+		default:
+			SI_ASSERT(0);
+			break;
+		}
+
+		D3D12_CPU_DESCRIPTOR_HANDLE dxDescriptor = {descriptor.GetCpuDescriptor().m_ptr};
+		m_device->CreateShaderResourceView(texture.GetComPtrResource().Get(), &srvDesc, dxDescriptor);
 	}
 
 	void BaseDevice::CreateSampler(
@@ -433,6 +490,25 @@ namespace SI
 			*m_device.Get(),
 			descriptorIndex,
 			desc);
+	}
+	
+	void BaseDevice::CopyDescriptors(
+		uint32_t                 dstDescriptorRangeCount,
+		const GfxCpuDescriptor*  dstDescriptorRangeStarts,
+		const uint32_t*          dstDescriptorRangeSizes,
+		uint32_t                 srcDescriptorRangeCount,
+		const GfxCpuDescriptor*  srcDescriptorRangeStarts,
+		const uint32_t*          srcDescriptorRangeSizes,
+		GfxDescriptorHeapType    type)
+	{
+		static_assert(sizeof(GfxCpuDescriptor) == sizeof(D3D12_CPU_DESCRIPTOR_HANDLE), "size_error");
+
+		const D3D12_CPU_DESCRIPTOR_HANDLE* dxDst = (const D3D12_CPU_DESCRIPTOR_HANDLE*)dstDescriptorRangeStarts;
+		const D3D12_CPU_DESCRIPTOR_HANDLE* dxSrc = (const D3D12_CPU_DESCRIPTOR_HANDLE*)srcDescriptorRangeStarts;
+		m_device.Get()->CopyDescriptors(
+			dstDescriptorRangeCount, dxDst, dstDescriptorRangeSizes,
+			srcDescriptorRangeCount, dxSrc, srcDescriptorRangeSizes,
+			GetDx12DescriptorHeapType(type));
 	}
 
 } // namespace SI

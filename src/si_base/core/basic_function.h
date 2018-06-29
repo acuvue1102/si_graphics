@@ -19,4 +19,22 @@ namespace SI
 	{
 		return (a<b)? b : a;
 	}
+
+	template <typename T>
+	T AlignUp(T value, size_t alignment)
+	{
+		return ((value + (T)(alignment-1)) & ~((T)(alignment-1)));
+	}
+
+	template <typename T> 
+	T AlignDown(T value, size_t alignment)
+	{
+		return (value & ~((T)(alignment-1)));
+	}
+
+	template <typename T>
+	bool IsPowerOfTwo(T value)
+	{
+		return ((value & (value-1)) == 0);
+	}
 }

@@ -12,6 +12,22 @@
 
 namespace SI
 {
+	inline D3D12_SHADER_VISIBILITY GetDx12ShaderVisibility(GfxShaderVisibility v)
+	{
+		static const D3D12_SHADER_VISIBILITY kTable[] = 
+		{
+			D3D12_SHADER_VISIBILITY_ALL,
+			D3D12_SHADER_VISIBILITY_VERTEX,
+			D3D12_SHADER_VISIBILITY_HULL,
+			D3D12_SHADER_VISIBILITY_DOMAIN,
+			D3D12_SHADER_VISIBILITY_GEOMETRY,
+			D3D12_SHADER_VISIBILITY_PIXEL
+		};
+		static_assert(ArraySize(kTable) == (size_t)GfxShaderVisibility::Max, "tableError");
+
+		return kTable[(int)v];		
+	}
+
 	inline D3D12_DEPTH_WRITE_MASK GetDx12DepthWriteMask(GfxDepthWriteMask mask)
 	{
 		static const D3D12_DEPTH_WRITE_MASK kTable[] = 

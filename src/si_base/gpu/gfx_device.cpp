@@ -179,6 +179,17 @@ namespace SI
 			*texture.GetBaseTexture(),
 			desc);
 	}
+	
+	void GfxDevice::CreateRenderTargetView(
+		GfxDescriptor& descriptor,
+		GfxTexture& texture,
+		const GfxRenderTargetViewDesc& desc)
+	{
+		m_base->CreateRenderTargetView(
+			descriptor,
+			*texture.GetBaseTexture(),
+			desc);
+	}
 
 	void GfxDevice::CreateDepthStencilView(
 		GfxDescriptorHeap& descriptorHeap,
@@ -205,6 +216,17 @@ namespace SI
 			*texture.GetBaseTexture(),
 			desc);
 	}
+
+	void GfxDevice::CreateShaderResourceView(
+		GfxDescriptor& descriptor,
+		GfxTexture& texture,
+		const GfxShaderResourceViewDesc& desc)
+	{
+		m_base->CreateShaderResourceView(
+			descriptor,
+			*texture.GetBaseTexture(),
+			desc);
+	}
 	
 	void GfxDevice::CreateSampler(
 		GfxDescriptorHeap& descriptorHeap,
@@ -226,5 +248,15 @@ namespace SI
 			*descriptorHeap.GetBaseDescriptorHeap(),
 			descriptorIndex,
 			desc);
+	}
+	
+	PoolAllocatorEx* GfxDevice::GetObjectAllocator()
+	{
+		return m_base->GetObjectAllocator();
+	}
+
+	PoolAllocatorEx* GfxDevice::GetTempAllocator()
+	{
+		return m_base->GetTempAllocator();
 	}
 }

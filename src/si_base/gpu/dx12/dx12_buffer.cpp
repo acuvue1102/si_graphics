@@ -38,13 +38,9 @@ namespace SI
 		resourceDesc.SampleDesc.Count = 1;
 		resourceDesc.SampleDesc.Quality = 0;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+		resourceDesc.Flags = GetDx12ResourceFlags(desc.m_resourceFlags);
 		
-		D3D12_RESOURCE_STATES resourceState = D3D12_RESOURCE_STATE_GENERIC_READ;
-		if(desc.m_heapType == GfxHeapType::kDefault)
-		{
-			resourceState = D3D12_RESOURCE_STATE_COPY_DEST;
-		}
+		D3D12_RESOURCE_STATES resourceState = GetDx12ResourceStates(desc.m_resourceStates);
 
 		HRESULT hr = device.CreateCommittedResource(
 			&heapProperties,

@@ -78,31 +78,55 @@ namespace SI
 			m_graphicsCommandList->SetPipelineState(graphicsState.GetComPtrGraphicsState().Get());
 		}
 
-		inline void ClearRenderTarget(const GfxCpuDescriptor& tex, float r, float g, float b, float a)
+		inline void ClearRenderTarget(const GfxCpuDescriptor& tex, const float* clearColor)
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = {};
 			rtvHandle.ptr = tex.m_ptr;
 
-			float clearColor[] = { r, g, b, a };
 			m_graphicsCommandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+		}
+
+		inline void ClearDepthTarget(
+			const GfxCpuDescriptor& tex,
+			float clearDepth)
+		{
+			D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = {};
+			dsvHandle.ptr = tex.m_ptr;
+
+			m_graphicsCommandList->ClearDepthStencilView(
+				dsvHandle,
+				D3D12_CLEAR_FLAG_DEPTH,
+				clearDepth,
+				0,
+				0, nullptr);
+		}
+
+		inline void ClearStencilTarget(
+			const GfxCpuDescriptor& tex,
+			uint8_t stencil)
+		{
+			D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = {};
+			dsvHandle.ptr = tex.m_ptr;
+
+			m_graphicsCommandList->ClearDepthStencilView(
+				dsvHandle,
+				D3D12_CLEAR_FLAG_STENCIL,
+				1.0f,
+				stencil,
+				0, nullptr);
 		}
 
 		inline void ClearDepthStencilTarget(
 			const GfxCpuDescriptor& tex,
 			float clearDepth,
-			uint8_t stencil,
-			GfxClearFlags flags)
+			uint8_t stencil)
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = {};
 			dsvHandle.ptr = tex.m_ptr;
 
-			D3D12_CLEAR_FLAGS clearFlag = 
-				(flags == (GfxClearFlag::kDepth | GfxClearFlag::kStencil))? D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL :
-				(flags == (GfxClearFlag::kDepth))? D3D12_CLEAR_FLAG_DEPTH : D3D12_CLEAR_FLAG_STENCIL;
-
 			m_graphicsCommandList->ClearDepthStencilView(
 				dsvHandle,
-				clearFlag,
+				D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL,
 				clearDepth,
 				stencil,
 				0, nullptr);
@@ -154,7 +178,7 @@ namespace SI
 			m_graphicsCommandList->SetGraphicsRootDescriptorTable(tableIndex, handle);
 		}
 		
-		inline void SetViewports(uint32_t count, GfxViewport* viewPorts)
+		inline void SetViewports(uint32_t count, const GfxViewport* viewPorts)
 		{
 			D3D12_VIEWPORT d3dViewports[8];
 			SI_ASSERT(count <=ArraySize(d3dViewports));
@@ -162,8 +186,8 @@ namespace SI
 
 			for(uint32_t v=0; v<viewPortCount; ++v)
 			{
-				D3D12_VIEWPORT& outV = d3dViewports[v];
-				GfxViewport&    inV  = viewPorts[v];
+				D3D12_VIEWPORT&     outV = d3dViewports[v];
+				const GfxViewport&  inV  = viewPorts[v];
 
 				outV.TopLeftX = inV.GetTopLeftX();
 				outV.TopLeftY = inV.GetTopLeftY();
@@ -175,7 +199,7 @@ namespace SI
 			m_graphicsCommandList->RSSetViewports(viewPortCount, d3dViewports);
 		}
 		
-		inline void SetScissors(uint32_t count, GfxScissor* scissors)
+		inline void SetScissors(uint32_t count, const GfxScissor* scissors)
 		{
 			D3D12_RECT d3dScissors[8];
 			SI_ASSERT(count <=ArraySize(d3dScissors));
@@ -183,8 +207,8 @@ namespace SI
 
 			for(uint32_t s=0; s<scissorCount; ++s)
 			{
-				D3D12_RECT&   outS = d3dScissors[s];
-				GfxScissor&   inS  = scissors[s];
+				D3D12_RECT&         outS = d3dScissors[s];
+				const GfxScissor&   inS  = scissors[s];
 				
 				outS.left    = inS.GetLeft();
 				outS.top     = inS.GetTop();
@@ -230,38 +254,50 @@ namespace SI
 
 		inline void SetIndexBuffer(GfxIndexBufferView* indexBufferView)
 		{
-			const BaseBuffer* buffer = indexBufferView->GetBuffer()->GetBaseBuffer();
+			if(indexBufferView == nullptr)
+			{
+				m_graphicsCommandList->IASetIndexBuffer(nullptr);
+				return;
+			}
+
+			const BaseBuffer* buffer = indexBufferView->GetBuffer().GetBaseBuffer();
 
 			D3D12_INDEX_BUFFER_VIEW d3View;
-			d3View.BufferLocation = buffer->GetLocation();
+			d3View.BufferLocation = buffer->GetLocation() + indexBufferView->GetOffset();
 			d3View.Format         = GetDx12Format(indexBufferView->GetFormat());
-			d3View.SizeInBytes    = (UINT)buffer->GetSize();
+			d3View.SizeInBytes    = (UINT)indexBufferView->GetSize();
 
 			m_graphicsCommandList->IASetIndexBuffer(&d3View);
 		}
 		
-		inline void SetVertexBuffers(uint32_t inputSlot, uint32_t viewCount, GfxVertexBufferView* bufferViews)
+		inline void SetVertexBuffers(uint32_t inputSlot, uint32_t viewCount, const GfxVertexBufferView* const* bufferViews)
 		{
+			if(bufferViews == nullptr)
+			{
+				m_graphicsCommandList->IASetVertexBuffers(inputSlot, viewCount, nullptr);
+				return;
+			}
+
 			D3D12_VERTEX_BUFFER_VIEW d3Views[8];
 			SI_ASSERT(viewCount <= (uint32_t)ArraySize(d3Views));
 			uint32_t d3dViewCount = Min(viewCount, (uint32_t)ArraySize(d3Views));
 
 			for(uint32_t v=0; v<d3dViewCount; ++v)
 			{
-				D3D12_VERTEX_BUFFER_VIEW& outV = d3Views[v];
-				GfxVertexBufferView&       inV = bufferViews[v];
+				D3D12_VERTEX_BUFFER_VIEW&   outV = d3Views[v];
+				const GfxVertexBufferView&  inV = *bufferViews[v];
 				
-				const BaseBuffer* baseBuffer = inV.GetBuffer()->GetBaseBuffer();
+				const BaseBuffer* baseBuffer = inV.GetBuffer().GetBaseBuffer();
 
-				outV.BufferLocation = baseBuffer->GetLocation();
-				outV.SizeInBytes    = (uint32_t)baseBuffer->GetSize();
+				outV.BufferLocation = baseBuffer->GetLocation() + inV.GetOffset();
+				outV.SizeInBytes    = (uint32_t)inV.GetSize();
 				outV.StrideInBytes  = (uint32_t)inV.GetStride();
 			}
 
 			m_graphicsCommandList->IASetVertexBuffers(inputSlot, d3dViewCount, d3Views);
 		}
 
-		inline void DrawIndexInstanced(
+		inline void DrawIndexedInstanced(
 			uint32_t indexCountPerInstance,
 			uint32_t instanceCount,
 			uint32_t startIndexLocation,

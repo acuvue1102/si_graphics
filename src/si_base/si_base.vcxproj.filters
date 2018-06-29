@@ -199,6 +199,54 @@
     <ClInclude Include="core\print.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="gpu\gfx_root_signature_ex.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\handle_allocator.h">
+      <Filter>memory</Filter>
+    </ClInclude>
+    <ClInclude Include="concurency\atomic.h">
+      <Filter>concurency</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\reference_counter.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_descriptor_allocator.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_core.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_graphics_context.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_texture_ex.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_gpu_resource.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_resource_states_pool.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_linear_allocator.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_linear_allocator_page.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="concurency\mutex.h">
+      <Filter>concurency</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_dynamic_descriptor_heap.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\object_pool.h">
+      <Filter>memory</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_descriptor_heap_pool.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -227,6 +275,9 @@
     </Filter>
     <Filter Include="input">
       <UniqueIdentifier>{9c835571-ce56-4956-afde-b2800803ad53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="concurency">
+      <UniqueIdentifier>{81e79199-0c87-4c04-933d-3df66f4fbfdc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -331,6 +382,45 @@
     </ClCompile>
     <ClCompile Include="core\print.cpp">
       <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_root_signature_ex.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="memory\handle_allocator.cpp">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="concurency\atomic.cpp">
+      <Filter>concurency</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_descriptor_allocator.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_core.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_graphics_context.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_texture_ex.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_resource_states_pool.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_linear_allocator.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_linear_allocator_page.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="concurency\mutex.cpp">
+      <Filter>concurency</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_dynamic_descriptor_heap.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_descriptor_heap_pool.cpp">
+      <Filter>gpu</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
