@@ -1,6 +1,7 @@
 ﻿
 #include "si_base/gpu/gfx_resource_states_pool.h"
 #include "si_base/core/new_delete.h"
+#include "si_base/core/basic_function.h"
 
 #include "si_base/gpu/gfx_gpu_resource.h"
 
@@ -11,6 +12,7 @@ namespace SI
 		, m_allocatedStateCount(0)
 		, m_handleAllocator()
 		, m_stateItemArray(nullptr)
+		, m_maxAllocatedStateCount(0)
 	{
 	}
 
@@ -60,6 +62,8 @@ namespace SI
 
 		m_stateItemArray[handle] = StatesItem(gpuResource, initialStates);
 
+		m_maxAllocatedStateCount = Max(m_maxAllocatedStateCount, handle+1);
+
 		++m_allocatedStateCount;
 	}
 	
@@ -98,6 +102,13 @@ namespace SI
 	GfxResourceStates GfxResourceStatesPool::GetResourceStates(const GfxGpuResource* gpuResource)
 	{
 		return GetResourceStates(gpuResource->GetResourceStateHandle());
+	}
+	
+	GfxGpuResource* GfxResourceStatesPool::GetGpuResource(uint32_t resourceStateHanlde)
+	{
+		SI_ASSERT(resourceStateHanlde != kInvalidHandle);
+		SI_ASSERT(m_stateItemArray[resourceStateHanlde].m_states != GfxResourceState::kMax);
+		return m_stateItemArray[resourceStateHanlde].m_gpuResource;
 	}
 
 } // namespace SI

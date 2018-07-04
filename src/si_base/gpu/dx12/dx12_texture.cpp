@@ -98,17 +98,17 @@ namespace SI
 	}
 
 	int BaseTexture::InitializeAsSwapChainTexture(
-		const GfxDeviceConfig& config,
-		ID3D12Device& device,
-		IDXGISwapChain3& swapChain,
-		int swapChainBufferId)
+		uint32_t width,
+		uint32_t height,
+		void* nativeSwapChain,
+		uint32_t swapChainBufferId)
 	{
-		SetWidth(config.m_width);
-		SetHeight(config.m_height);
+		SetWidth(width);
+		SetHeight(height);
 		SetDepth(1);
 		
 		SI_ASSERT(m_resource == nullptr);
-		HRESULT hr = swapChain.GetBuffer(swapChainBufferId, IID_PPV_ARGS(&m_resource));
+		HRESULT hr = ((IDXGISwapChain3*)nativeSwapChain)->GetBuffer(swapChainBufferId, IID_PPV_ARGS(&m_resource));
 		if(FAILED(hr))
 		{
 			SI_ASSERT(0, "error swapChain->GetBuffer", _com_error(hr).ErrorMessage());

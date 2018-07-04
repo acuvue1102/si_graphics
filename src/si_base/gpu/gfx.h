@@ -19,3 +19,4 @@
 #include "si_base/gpu/gfx_root_signature_ex.h"
 #include "si_base/gpu/gfx_core.h"
 #include "si_base/gpu/gfx_texture_ex.h"
+#include "si_base/gpu/gfx_context_manager.h"

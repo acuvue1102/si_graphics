@@ -77,6 +77,7 @@ namespace APP001
 
 		GfxBufferDesc bufferDesc;
 		bufferDesc.m_heapType = GfxHeapType::kUpload;
+		bufferDesc.m_resourceStates = GfxResourceState::kGenericRead;
 		bufferDesc.m_bufferSizeInByte = sizeof(kVertexData);
 		m_vertexBuffer = m_device.CreateBuffer(bufferDesc);
 		{
@@ -107,31 +108,36 @@ namespace APP001
 	{
 		BeginRender();
 		
-		GfxCpuDescriptor swapChainDescriptor = m_swapChain.GetSwapChainCpuDescriptor();
-		GfxTexture swapChainTexture = m_swapChain.GetSwapChainTexture();
+		//GfxCpuDescriptor swapChainDescriptor = m_swapChain.GetSwapChainCpuDescriptor();
+		//GfxTexture swapChainTexture = m_swapChain.GetSwapChainTexture();
+		GfxTestureEx_SwapChain& swapChainTexture = m_swapChain.GetTexture();
+		
+		GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
 
-		m_graphicsCommandList.SetGraphicsState(m_graphicsState);
+		context.SetPipelineState(m_graphicsState);
 						
-		m_graphicsCommandList.SetGraphicsRootSignature(m_rootSignature);
+		context.SetGraphicsRootSignature(m_rootSignature);
 
-		m_graphicsCommandList.SetRenderTargets(1, &swapChainDescriptor);
+		context.SetRenderTarget(swapChainTexture);
+		//context.SetRenderTargets(1, &swapChainDescriptor);
 			
 		GfxViewport viewport(0.0f, 0.0f, (float)swapChainTexture.GetWidth(), (float)swapChainTexture.GetHeight());
 		GfxScissor  scissor(0, 0, swapChainTexture.GetWidth(), swapChainTexture.GetHeight());
-		m_graphicsCommandList.SetViewports(1, &viewport);
-		m_graphicsCommandList.SetScissors(1, &scissor);
+		context.SetViewports(1, &viewport);
+		context.SetScissors(1, &scissor);
 
-		m_graphicsCommandList.ClearRenderTarget(swapChainDescriptor, 0.0f, 0.2f, 0.4f, 1.0f);
+		swapChainTexture.SetClearColor(GfxColorRGBA(0.0f, 0.2f, 0.4f, 1.0f));
+		context.ClearRenderTarget(swapChainTexture);
 
-		m_graphicsCommandList.SetPrimitiveTopology(GfxPrimitiveTopology::kTriangleList);
+		context.SetPrimitiveTopology(GfxPrimitiveTopology::kTriangleList);
 		GfxVertexBufferView vbView(m_vertexBuffer, m_vertexBuffer.GetSize(), sizeof(PosColorVertex));
 		GfxVertexBufferView* vbViews[] = {&vbView};
-		m_graphicsCommandList.SetVertexBuffers(
+		context.SetVertexBuffers(
 			0,
 			1,
 			vbViews);
 			
-		m_graphicsCommandList.DrawInstanced(3, 1, 0, 0);
+		context.DrawInstanced(3, 1, 0, 0);
 
 		EndRender();
 	}

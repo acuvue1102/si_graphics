@@ -31,6 +31,11 @@ namespace SI
 		{
 			SI_ASSERT(0);
 		}
+
+		virtual void* GetNativeResource()
+		{
+			return nullptr;
+		}
 	};
 
 } // namespace SI

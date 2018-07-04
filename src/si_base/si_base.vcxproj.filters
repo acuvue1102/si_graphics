@@ -247,6 +247,9 @@
     <ClInclude Include="gpu\gfx_descriptor_heap_pool.h">
       <Filter>gpu</Filter>
     </ClInclude>
+    <ClInclude Include="gpu\gfx_context_manager.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -420,6 +423,9 @@
       <Filter>gpu</Filter>
     </ClCompile>
     <ClCompile Include="gpu\gfx_descriptor_heap_pool.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_context_manager.cpp">
       <Filter>gpu</Filter>
     </ClCompile>
   </ItemGroup>

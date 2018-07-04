@@ -14,6 +14,7 @@ namespace SI
 
 	public:
 		void ExecuteCommandList(GfxCommandList& list);
+		void ExecuteCommandLists(uint32_t count, GfxCommandList** lists);
 		int Signal(GfxFence& fence, uint64_t fenceValue);
 
 	public:

@@ -12,11 +12,10 @@
 namespace SI
 {
 	BaseSwapChain::BaseSwapChain()
-		: m_swapChainTextures(nullptr)
+		: m_textures(nullptr)
 		, m_bufferCount(0)
 		, m_frameIndex(0)
 		, m_commandQueue(nullptr)
-		, m_rtvHeap(nullptr)
 	{
 	}
 
@@ -79,35 +78,15 @@ namespace SI
 
 		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 		
-		GfxDescriptorHeapDesc rtvHeapDesc;
-		rtvHeapDesc.m_type = GfxDescriptorHeapType::kRtv;
-		rtvHeapDesc.m_descriptorCount = config.m_bufferCount;
-		m_rtvHeap = SI_NEW(BaseDescriptorHeap);
-		m_rtvHeap->Initialize(device, rtvHeapDesc);
+		SI_ASSERT(m_textures == nullptr);
+		m_textures          = SI_NEW_ARRAY(GfxTestureEx_SwapChain, config.m_bufferCount);
 
-		// create Render Target View
-		SI_ASSERT(m_swapChainTextures == nullptr);
-		m_swapChainTextures = SI_NEW_ARRAY(BaseTexture, config.m_bufferCount);
 		for (UINT bufferId = 0; bufferId < (UINT)config.m_bufferCount; bufferId++)
 		{
-			int ret = m_swapChainTextures[bufferId].InitializeAsSwapChainTexture(
-				config,
-				device,
-				*m_swapChain.Get(),
-				bufferId);
-
-			if(ret != 0)
-			{
-				SI_ASSERT(0);
-				return -1;
-			}
-
-			GfxRenderTargetViewDesc rtvDesc;
-			m_rtvHeap->CreateRenderTargetView(
-				device,
-				bufferId,
-				m_swapChainTextures[bufferId],
-				rtvDesc);
+			m_textures[bufferId].InitializeAsSwapChain(
+				"swapChain",
+				config.m_width, config.m_height,
+				swapChain.Get(), bufferId);
 		}
 		
 		m_fenceValue = 0;
@@ -125,11 +104,14 @@ namespace SI
 		m_fenceValue = 0;
 		m_commandQueue = nullptr;
 
-		SI_DELETE(m_rtvHeap);
+		for(uint32_t i=0; i<m_bufferCount; ++i)
+		{
+			m_textures[i].TerminateSwapChain();
+		}
 
 		m_bufferCount = 0;
 		m_frameIndex = 0;
-		SI_DELETE_ARRAY(m_swapChainTextures);
+		SI_DELETE_ARRAY(m_textures);
 		m_swapChain.Reset();
 		return 0;
 	}
@@ -179,12 +161,17 @@ namespace SI
 	
 	BaseTexture& BaseSwapChain::GetSwapChainTexture()
 	{
-		return m_swapChainTextures[m_frameIndex];
+		return *m_textures[m_frameIndex].GetBaseTexture();
 	}
 	
 	GfxCpuDescriptor BaseSwapChain::GetSwapChainCpuDescriptor()
 	{
-		return m_rtvHeap->GetCpuDescriptor(m_frameIndex);
+		return m_textures[m_frameIndex].GetRtvDescriptor().GetCpuDescriptor();
+	}
+	
+	GfxTestureEx_SwapChain& BaseSwapChain::GetTexture()
+	{
+		return m_textures[m_frameIndex];
 	}
 
 } // namespace SI

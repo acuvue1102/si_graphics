@@ -47,14 +47,19 @@ namespace SI
 
 		m_commandQueue = m_device.CreateCommandQueue();
 		m_swapChain = m_device.CreateSwapChain(deviceConfig, m_commandQueue);
-		m_graphicsCommandList = m_device.CreateGraphicsCommandList();
+
+		GfxContextManagerDesc contextManagerDesc;
+		m_contextManager.Initialize(contextManagerDesc);
+		//m_graphicsCommandList = m_device.CreateGraphicsCommandList();
 
 		return 0;
 	}
 
 	int PipelineBase::OnTerminate()
 	{
-		m_device.ReleaseGraphicsCommandList(m_graphicsCommandList);
+		//m_device.ReleaseGraphicsCommandList(m_graphicsCommandList);
+
+		m_contextManager.Terminate();
 			
 		m_device.ReleaseSwapChain(m_swapChain);
 
@@ -80,29 +85,26 @@ namespace SI
 	
 	void PipelineBase::BeginRender()
 	{
-		m_graphicsCommandList.Reset(nullptr);
+		m_contextManager.ResetContexts();
 
-		GfxTexture swapChainTexture = m_swapChain.GetSwapChainTexture();
-		m_graphicsCommandList.ResourceBarrier(
-			swapChainTexture,
-			GfxResourceState::kCommon,
+		GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
+		context.ResourceBarrier(
+			m_swapChain.GetTexture(),
 			GfxResourceState::kRenderTarget);
 	}
 
 	void PipelineBase::EndRender()
 	{
-		GfxTexture swapChainTexture = m_swapChain.GetSwapChainTexture();
-		m_graphicsCommandList.ResourceBarrier(
-			swapChainTexture,
-			GfxResourceState::kRenderTarget,
+		GfxGraphicsContext& context = m_contextManager.GetLastGraphicsContext();
+		context.ResourceBarrier(
+			m_swapChain.GetTexture(),
 			GfxResourceState::kCommon);
-
-		int ret = m_graphicsCommandList.Close();
-		if(ret != 0) return;
 		
-		m_commandQueue.ExecuteCommandList(m_graphicsCommandList);
+		m_contextManager.CloseContexts();
+
+		m_contextManager.Execute(m_commandQueue);
 			
-		ret = m_swapChain.Present(1);
+		int ret = m_swapChain.Present(1);
 		if(ret != 0) return;
 
 		if( m_swapChain.Flip() != 0 )

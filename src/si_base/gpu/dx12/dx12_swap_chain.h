@@ -8,6 +8,7 @@
 #include <wrl/client.h>
 #include "si_base/gpu/dx12/dx12_fence.h"
 #include "si_base/gpu/gfx_descriptor_heap.h"
+#include "si_base/gpu/gfx_texture_ex.h"
 
 namespace SI
 {
@@ -37,19 +38,18 @@ namespace SI
 		UINT GetFrameIndex() const{ return m_frameIndex; }
 		BaseTexture& GetSwapChainTexture();
 		GfxCpuDescriptor GetSwapChainCpuDescriptor();
+		GfxTestureEx_SwapChain& GetTexture();
 
 	private:
 		ComPtr<IDXGISwapChain3>           m_swapChain;
-		BaseTexture*                      m_swapChainTextures;
+		GfxTestureEx_SwapChain*           m_textures;
 		UINT                              m_bufferCount;
 		UINT                              m_frameIndex;
 
 		ID3D12CommandQueue*               m_commandQueue; // 参照しているだけ.
 		BaseFence                         m_fence;
 		BaseFenceEvent                    m_fenceEvent;
-		uint64_t                          m_fenceValue;
-
-		BaseDescriptorHeap*               m_rtvHeap;
+		uint64_t                          m_fenceValue;		
 	};
 
 } // namespace SI

@@ -26,13 +26,19 @@ namespace SI
 	void GfxGraphicsContext::Initialize()
 	{
 		SI_ASSERT(m_base==nullptr);
-		m_base = SI_BASE_DEVICE().CreateGraphicsCommandList();
+		m_commandList = SI_DEVICE().CreateGraphicsCommandList();
+		m_base = m_commandList.GetBaseGraphicsCommandList();
 
 
 		SI_ASSERT(m_maxStateCount==0 && m_penddingStates == nullptr && m_currentStates==nullptr);
 		m_maxStateCount = SI_RESOURCE_STATES_POOL().GetMaxStateCount();
 		m_penddingStates = SI_NEW_ARRAY(GfxResourceStates, m_maxStateCount);
 		m_currentStates  = SI_NEW_ARRAY(GfxResourceStates, m_maxStateCount);
+		for(uint32_t i=0; i<m_maxStateCount; ++i)
+		{
+			m_penddingStates[i] = GfxResourceState::kPendding;
+			m_currentStates [i] = GfxResourceState::kPendding;
+		}
 		m_cpuLinearAllocator.Initialize(true);
 		m_gpuLinearAllocator.Initialize(false);
 	}
@@ -48,7 +54,7 @@ namespace SI
 			SI_DELETE_ARRAY(m_penddingStates);
 			SI_DELETE_ARRAY(m_currentStates);
 
-			SI_BASE_DEVICE().ReleaseGraphicsCommandList(m_base);
+			SI_DEVICE().ReleaseGraphicsCommandList(m_commandList);
 			m_base = nullptr;
 		}
 	}
@@ -56,8 +62,9 @@ namespace SI
 	void GfxGraphicsContext::Reset()
 	{
 		m_base->Reset(nullptr);
-
-		for(uint32_t i=0; i<m_maxStateCount; ++i)
+		
+		uint32_t maxAllocatedStateCount = SI_RESOURCE_STATES_POOL().GetMaxAllocatedStateCount(); // 確保された最大ハンドル.
+		for(uint32_t i=0; i<maxAllocatedStateCount; ++i)
 		{
 			m_penddingStates[i] = GfxResourceState::kPendding;
 			m_currentStates [i] = GfxResourceState::kPendding;
@@ -98,7 +105,7 @@ namespace SI
 
 	void GfxGraphicsContext::ClearDepthStencilTarget(const GfxTextureEx& tex)
 	{
-		GfxCpuDescriptor descriptor = tex.GetRtvDescriptor().GetCpuDescriptor();
+		GfxCpuDescriptor descriptor = tex.GetDsvDescriptor().GetCpuDescriptor();
 
 		GfxDepthStencil clearDepthStencil = tex.GetClearDepthStencil();
 		m_base->ClearDepthStencilTarget(
@@ -107,31 +114,34 @@ namespace SI
 	}
 	
 	void GfxGraphicsContext::ResourceBarrier(
-		GfxTextureEx& texture,
+		GfxGpuResource& resource,
 		GfxResourceStates after,
 		GfxResourceBarrierFlag flag)
 	{
-		GfxResourceStates before = GetCurrentResourceState(texture.GetResourceStateHandle());
+		uint32_t resourceStateHandle = resource.GetResourceStateHandle();
+		GfxResourceStates before = GetCurrentResourceState(resourceStateHandle);
 
 		if(before == GfxResourceState::kPendding)
 		{
 			// 前のコンテキストでの設定の影響を受けるので、後で解決する.
-			SetPenddingResourceState(texture.GetResourceStateHandle(), after);
-			SetCurrentResourceState (texture.GetResourceStateHandle(), after);
+			SetPenddingResourceState(resourceStateHandle, after);
+			SetCurrentResourceState (resourceStateHandle, after);
 
 			return;
 		}
 
+		if(before == after) return;
+
 		m_base->ResourceBarrier(
-			*texture.GetBaseTexture(),
+			resource.GetNativeResource(),
 			before,
 			after,
 			flag);
 		
-		SetCurrentResourceState(texture.GetResourceStateHandle(), after);
+		SetCurrentResourceState(resourceStateHandle, after);
 	}
 	
-	void GfxGraphicsContext::SetGraphicsPso(GfxGraphicsState& graphicsState)
+	void GfxGraphicsContext::SetPipelineState(GfxGraphicsState& graphicsState)
 	{
 		m_base->SetGraphicsState(*graphicsState.GetBaseGraphicsState());
 	}

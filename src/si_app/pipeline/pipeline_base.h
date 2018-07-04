@@ -34,7 +34,9 @@ namespace SI
 		GfxCore                  m_core;
 		GfxCommandQueue          m_commandQueue;
 		GfxSwapChain             m_swapChain;
-		GfxGraphicsCommandList   m_graphicsCommandList;
+		GfxContextManager        m_contextManager;
+		//GfxGraphicsCommandList   m_graphicsCommandList;
+		
 	};
 
 } // namespace SI

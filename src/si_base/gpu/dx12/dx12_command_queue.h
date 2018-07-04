@@ -10,6 +10,7 @@ namespace SI
 {
 	class BaseCommandList;
 	class BaseFence;
+	class GfxCommandList;
 
 	class BaseCommandQueue
 	{
@@ -22,7 +23,7 @@ namespace SI
 		int Initialize(ID3D12Device& device);
 		
 		void ExecuteCommandList(BaseCommandList& list);
-		void ExecuteCommandLists(int count, BaseCommandList* list);
+		void ExecuteCommandLists(int count, GfxCommandList** lists);
 		
 		int Signal(BaseFence& fence, uint64_t fenceIndex);
 

@@ -101,7 +101,7 @@ namespace SI
 			IID_PPV_ARGS(&m_rootSignature));
 		if(FAILED(hr))
 		{
-			SI_ASSERT(0, "error CreateRootSignature", _com_error(hr).ErrorMessage());
+			SI_ASSERT(0, "error CreateRootSignature\n%s", _com_error(hr).ErrorMessage());
 			return -1;
 		}
 

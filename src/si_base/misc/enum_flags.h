@@ -79,7 +79,12 @@ namespace SI
 		}
 
 	private:
-		MaskType m_mask;
+		union
+		{
+			MaskType m_mask;
+
+			BitType  m_type; // debugerで見た時にタイプが見えるように. 使わない.
+		};
 	};
 }
 

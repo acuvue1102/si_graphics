@@ -5,6 +5,9 @@
 #include "si_base/gpu/gfx_enum.h"
 #include "si_base/gpu/gfx_descriptor_heap.h"
 #include "si_base/gpu/gfx_linear_allocator.h"
+#include "si_base/gpu/gfx_graphics_command_list.h"
+#include "si_base/core/non_copyable.h"
+#include "si_base/gpu/gfx_texture_ex.h"
 
 namespace SI
 {
@@ -20,7 +23,7 @@ namespace SI
 	class GfxRootSignature;
 	class GfxDevice;
 
-	class GfxGraphicsContext
+	class GfxGraphicsContext : private NonCopyable
 	{
 	public:
 		GfxGraphicsContext();
@@ -39,7 +42,7 @@ namespace SI
 		void ClearDepthStencilTarget(const GfxTextureEx& tex);
 				
 		void ResourceBarrier(
-			GfxTextureEx& texture,
+			GfxGpuResource& resource,
 			GfxResourceStates after,
 			GfxResourceBarrierFlag flag = GfxResourceBarrierFlag::kNone);
 
@@ -49,7 +52,7 @@ namespace SI
 
 		void SetGraphicsDescriptorTable(uint32_t tableIndex, GfxGpuDescriptor descriptor);
 
-		void SetGraphicsPso(GfxGraphicsState& graphicsState);
+		void SetPipelineState(GfxGraphicsState& graphicsState);
 		
 		void SetViewports(uint32_t count, const GfxViewport* viewPorts);
 		void SetViewport(const GfxViewport& viewPort){ SetViewports(1, &viewPort); }
@@ -66,6 +69,20 @@ namespace SI
 			const GfxCpuDescriptor&  depthStencilTarget = GfxCpuDescriptor())
 		{
 			SetRenderTargets(1, &renderTarget, depthStencilTarget);
+		}
+		void SetRenderTarget(
+			const GfxTextureEx&  renderTarget)
+		{
+			GfxCpuDescriptor descriptor = renderTarget.GetRtvDescriptor().GetCpuDescriptor();
+			SetRenderTargets(1, &descriptor);
+		}
+		void SetRenderTarget(
+			const GfxTextureEx&  renderTarget,
+			const GfxTextureEx&  depthStencilTarget)
+		{
+			GfxCpuDescriptor descriptor = renderTarget.GetRtvDescriptor().GetCpuDescriptor();
+			GfxCpuDescriptor depthDescriptor = depthStencilTarget.GetDsvDescriptor().GetCpuDescriptor();
+			SetRenderTargets(1, &descriptor, depthDescriptor);
 		}
 		
 		void SetPrimitiveTopology(GfxPrimitiveTopology topology);
@@ -109,6 +126,9 @@ namespace SI
 			size_t srcBufferSize);
 
 	public:
+		GfxGraphicsCommandList* GetGraphicsCommandList(){ return &m_commandList; }
+		const GfxGraphicsCommandList* GetGraphicsCommandList() const{ return &m_commandList; }
+
 		BaseGraphicsCommandList* GetBaseGraphicsCommandList(){ return m_base; }
 		const BaseGraphicsCommandList* GetBaseGraphicsCommandList() const{ return m_base; }
 
@@ -116,11 +136,11 @@ namespace SI
 		GfxResourceStates GetPenddingResourceState(uint32_t resourceStateHandle) const;
 		void SetPenddingResourceState(uint32_t resourceStateHandle, GfxResourceStates states);
 
-	private:
 		GfxResourceStates GetCurrentResourceState(uint32_t resourceStateHandle) const;
 		void SetCurrentResourceState(uint32_t resourceStateHandle, GfxResourceStates states);
 		
 	private:
+		GfxGraphicsCommandList   m_commandList;
 		BaseGraphicsCommandList* m_base;
 		GfxResourceStates*       m_penddingStates; // keep the first state for this context
 		GfxResourceStates*       m_currentStates;

@@ -23,10 +23,10 @@ namespace SI
 		int Initialize(ID3D12Device& device, const GfxTextureDesc& desc);
 
 		int InitializeAsSwapChainTexture(
-			const GfxDeviceConfig& config,
-			ID3D12Device& device,
-			IDXGISwapChain3& swapChain,
-			int swapChainBufferId);
+			uint32_t width,
+			uint32_t height,
+			void* nativeSwapChain,
+			uint32_t swapChainBufferId);
 
 		int Terminate();
 		
@@ -64,6 +64,11 @@ namespace SI
 		ComPtr<ID3D12Resource>& GetComPtrResource()
 		{
 			return m_resource;
+		}
+
+		ID3D12Resource* GetNativeResource()
+		{
+			return m_resource.Get();
 		}
 
 	private:

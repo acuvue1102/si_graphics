@@ -34,6 +34,10 @@ namespace SI
 	{
 		return m_base->GetSwapChainCpuDescriptor();
 	}
+	
+	GfxTestureEx_SwapChain& GfxSwapChain::GetTexture()
+	{
+		return m_base->GetTexture();
+	}
 
 } // namespace SI
-

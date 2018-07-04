@@ -18,6 +18,7 @@ namespace SI
 	class GfxVertexBufferView;
 	class GfxRootSignature;
 	class GfxDevice;
+	class GfxGpuResource;
 
 	class GfxGraphicsCommandList : public GfxCommandList
 	{
@@ -38,6 +39,12 @@ namespace SI
 		
 		void ResourceBarrier(
 			GfxTexture& texture,
+			GfxResourceStates before,
+			GfxResourceStates after,
+			GfxResourceBarrierFlag flag = GfxResourceBarrierFlag::kNone);
+		
+		void ResourceBarrier(
+			GfxGpuResource& resource,
 			GfxResourceStates before,
 			GfxResourceStates after,
 			GfxResourceBarrierFlag flag = GfxResourceBarrierFlag::kNone);

@@ -114,10 +114,12 @@ namespace SI
 		UINT dxgiFactoryFlags = 0;
 
 	#if defined(_DEBUG)
-		ComPtr<ID3D12Debug> debugController;
+		ComPtr<ID3D12Debug1> debugController;
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 		{
 			debugController->EnableDebugLayer();
+			debugController->SetEnableSynchronizedCommandQueueValidation(TRUE);
+			//debugController->SetEnableGPUBasedValidation(TRUE);
 		
 			dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 		}
@@ -405,11 +407,28 @@ namespace SI
 		BaseTexture& texture,
 		const GfxDepthStencilViewDesc& desc)
 	{
-		descriptorHeap.CreateDepthStencilView(
-			*m_device.Get(),
-			descriptorIndex,
+		GfxDescriptor descriptor = descriptorHeap.GetDescriptor(descriptorIndex);
+		CreateDepthStencilView(
+			descriptor,
 			texture,
 			desc);
+	}
+	
+	void BaseDevice::CreateDepthStencilView(
+		GfxDescriptor& descriptor,
+		BaseTexture& texture,
+		const GfxDepthStencilViewDesc& desc)
+	{
+		SI_ASSERT(texture.GetComPtrResource()->GetDesc().Format == DXGI_FORMAT_R32_TYPELESS);
+
+		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+		dsvDesc.Format              = DXGI_FORMAT_D32_FLOAT;
+		dsvDesc.ViewDimension       = D3D12_DSV_DIMENSION_TEXTURE2D;
+		dsvDesc.Texture2D.MipSlice  = 0;
+		dsvDesc.Flags               = D3D12_DSV_FLAG_NONE;
+
+		D3D12_CPU_DESCRIPTOR_HANDLE dxDescriptor = {descriptor.GetCpuDescriptor().m_ptr};
+		m_device->CreateDepthStencilView(texture.GetComPtrResource().Get(), &dsvDesc, dxDescriptor);
 	}
 
 	void BaseDevice::CreateShaderResourceView(

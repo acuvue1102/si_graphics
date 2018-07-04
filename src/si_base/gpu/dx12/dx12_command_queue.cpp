@@ -9,6 +9,7 @@
 #include "si_base/gpu/dx12/dx12_fence.h"
 #include "si_base/gpu/dx12/dx12_command_list.h"
 #include "si_base/gpu/dx12/dx12_command_queue.h"
+#include "si_base/gpu/gfx_command_list.h"
 
 namespace SI
 {
@@ -40,16 +41,16 @@ namespace SI
 	void BaseCommandQueue::ExecuteCommandList(BaseCommandList& list)
 	{
 		ID3D12CommandList* commandLists[] = { list.GetCommandList() };
-		m_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+		m_commandQueue->ExecuteCommandLists((UINT)ArraySize(commandLists), commandLists);
 
 		list.OnExecute();
 	}
 	
-	void BaseCommandQueue::ExecuteCommandLists(int count, BaseCommandList* lists)
+	void BaseCommandQueue::ExecuteCommandLists(int count, GfxCommandList** lists)
 	{
 		SI_ASSERT(0<count);
 
-		BaseCommandList* tmpLists = lists;
+		GfxCommandList** tmpLists = lists;
 		do
 		{
 			// 16個毎に分割してExecuteする.
@@ -58,7 +59,7 @@ namespace SI
 			int commandListCount = min((int)ArraySize(commandLists), count);
 			for(size_t listId = 0; listId<commandListCount; ++listId)
 			{
-				commandLists[listId] = tmpLists[listId].GetCommandList();
+				commandLists[listId] = tmpLists[listId]->GetBaseCommandList()->GetCommandList();
 			}
 			
 			m_commandQueue->ExecuteCommandLists(commandListCount, commandLists);
@@ -69,7 +70,7 @@ namespace SI
 
 		for(int i=0; i<count; ++i)
 		{
-			lists[i].OnExecute();
+			lists[i]->GetBaseCommandList()->OnExecute();
 		}
 	}
 

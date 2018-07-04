@@ -87,6 +87,7 @@
     <ClCompile Include="gpu\dx12\dx12_texture.cpp" />
     <ClCompile Include="gpu\gfx_buffer.cpp" />
     <ClCompile Include="gpu\gfx_command_queue.cpp" />
+    <ClCompile Include="gpu\gfx_context_manager.cpp" />
     <ClCompile Include="gpu\gfx_core.cpp" />
     <ClCompile Include="gpu\gfx_descriptor_allocator.cpp" />
     <ClCompile Include="gpu\gfx_descriptor_heap.cpp" />
@@ -150,6 +151,7 @@
     <ClInclude Include="gpu\gfx_command_list.h" />
     <ClInclude Include="gpu\gfx_command_queue.h" />
     <ClInclude Include="gpu\gfx_config.h" />
+    <ClInclude Include="gpu\gfx_context_manager.h" />
     <ClInclude Include="gpu\gfx_core.h" />
     <ClInclude Include="gpu\gfx_declare.h" />
     <ClInclude Include="gpu\gfx_desc.h" />

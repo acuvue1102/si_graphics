@@ -24,8 +24,10 @@ namespace SI
 		void SetResourceStates(const GfxGpuResource* gpuResource, GfxResourceStates states);
 		GfxResourceStates GetResourceStates(uint32_t resourceStateHanlde);
 		GfxResourceStates GetResourceStates(const GfxGpuResource* gpuResource);
-
+		GfxGpuResource*   GetGpuResource(uint32_t resourceStateHanlde);
+		
 		uint32_t GetMaxStateCount() const{ return m_maxStateCount; }
+		uint32_t GetMaxAllocatedStateCount() const{ return m_maxAllocatedStateCount; }
 
 	private:
 		class StatesItem
@@ -52,6 +54,7 @@ namespace SI
 		uint32_t              m_allocatedStateCount;
 		HandleAllocator       m_handleAllocator;
 		StatesItem*           m_stateItemArray;
+		uint32_t              m_maxAllocatedStateCount;
 	};
 
 } // namespace SI

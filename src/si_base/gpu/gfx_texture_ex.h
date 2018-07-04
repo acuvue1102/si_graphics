@@ -20,7 +20,8 @@ namespace SI
 		Rt,
 		DepthRt,
 		Uav,
-		RtUav
+		RtUav,
+		SwapChain
 	};
 
 	class GfxTextureEx : public GfxGpuResource
@@ -63,6 +64,8 @@ namespace SI
 		uint32_t GetWidth() const;
 		uint32_t GetHeight() const;
 		uint32_t GetDepth() const;
+		
+		virtual void* GetNativeResource() override;
 		
 	public:
 		BaseTexture*  GetBaseTexture(){ return m_texture; }
@@ -115,7 +118,6 @@ namespace SI
 		GfxResourceStates  m_initialStates;
 		uint32_t           m_stateHandle;
 	};
-
 
 	class GfxTestureEx_Rt : public _GfxTextureEx_Writable
 	{
@@ -204,6 +206,55 @@ namespace SI
 		GfxDescriptor           m_dsvDescriptor;
 		GfxResourceStates       m_resourceStates;
 		GfxDepthStencil         m_clearDepthStencil;
+	};
+
+	
+	class GfxTestureEx_SwapChain : public _GfxTextureEx_Writable
+	{
+	public:
+		GfxTestureEx_SwapChain();
+		virtual ~GfxTestureEx_SwapChain();
+		
+		void InitializeAsSwapChain(
+			const char* name, uint32_t width, uint32_t height,
+			void* nativeSwapChain, uint32_t swapChainIndex);
+		void TerminateSwapChain();
+		
+		virtual GfxResourceStates GetResourceStates() const override
+		{
+			return m_resourceStates;
+		}
+
+		virtual void SetResourceStates(GfxResourceStates state) override
+		{
+			m_resourceStates = state;
+		}
+		
+		virtual GfxTextureExType GetType() const override
+		{
+			return GfxTextureExType::SwapChain;
+		}
+
+		virtual const GfxDescriptor GetRtvDescriptor() const override
+		{
+			return m_rtvDescriptor;
+		}
+
+		virtual GfxColorRGBA GetClearColor() const override
+		{
+			return m_clearColor;
+		}
+
+		// SwapChainのテクスチャは初期化時にクリアカラーを指定しないので、外から変えられるようにしておく.
+		void SetClearColor(const GfxColorRGBA& color)
+		{
+			m_clearColor = color;
+		}
+
+	private:
+		GfxDescriptor           m_rtvDescriptor;
+		GfxResourceStates       m_resourceStates;
+		GfxColorRGBA            m_clearColor;
 	};
 
 } // namespace SI

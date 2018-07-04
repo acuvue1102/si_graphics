@@ -55,7 +55,20 @@ namespace SI
 		GfxResourceBarrierFlag flag)
 	{
 		m_base->ResourceBarrier(
-			*texture.GetBaseTexture(),
+			texture.GetBaseTexture()->GetNativeResource(),
+			before,
+			after,
+			flag);
+	}
+	
+	void GfxGraphicsCommandList::ResourceBarrier(
+		GfxGpuResource& resource,
+		GfxResourceStates before,
+		GfxResourceStates after,
+		GfxResourceBarrierFlag flag)
+	{
+		m_base->ResourceBarrier(
+			resource.GetNativeResource(),
 			before,
 			after,
 			flag);

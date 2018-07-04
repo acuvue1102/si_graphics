@@ -21,6 +21,7 @@
 #include "si_base/gpu/gfx_texture.h"
 #include "si_base/gpu/gfx_buffer.h"
 #include "si_base/gpu/gfx_viewport.h"
+#include "si_base/gpu/gfx_gpu_resource.h"
 
 namespace SI
 {
@@ -133,7 +134,7 @@ namespace SI
 		}
 
 		inline void ResourceBarrier(
-			BaseTexture& texture,
+			void* resource,
 			GfxResourceStates before,
 			GfxResourceStates after,
 			GfxResourceBarrierFlag flag)
@@ -141,7 +142,7 @@ namespace SI
 			D3D12_RESOURCE_BARRIER barrier = {};
 			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 			barrier.Flags = GetDx12ResourceBarrierFlag(flag);
-			barrier.Transition.pResource = texture.GetComPtrResource().Get();
+			barrier.Transition.pResource   = (ID3D12Resource*)resource;
 			barrier.Transition.StateBefore = GetDx12ResourceStates(before);
 			barrier.Transition.StateAfter  = GetDx12ResourceStates(after);
 			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;

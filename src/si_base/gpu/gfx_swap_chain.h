@@ -6,6 +6,7 @@ namespace SI
 {
 	class BaseSwapChain;
 	class GfxCommandQueue;
+	class GfxTestureEx_SwapChain;
 
 	class GfxSwapChain
 	{
@@ -19,7 +20,7 @@ namespace SI
 	public:
 		GfxTexture GetSwapChainTexture();
 		GfxCpuDescriptor GetSwapChainCpuDescriptor();
-		
+		GfxTestureEx_SwapChain& GetTexture();
 
 	public:
 		BaseSwapChain* GetBaseSwapChain(){ return m_base; }

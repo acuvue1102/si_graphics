@@ -20,6 +20,11 @@ namespace SI
 		m_base->ExecuteCommandList(*list.GetBaseCommandList());
 	}
 	
+	void GfxCommandQueue::ExecuteCommandLists(uint32_t count, GfxCommandList** lists)
+	{
+		m_base->ExecuteCommandLists(count, lists);
+	}
+	
 	int GfxCommandQueue::Signal(GfxFence& fence, uint64_t fenceValue)
 	{
 		return m_base->Signal(*fence.GetBaseFence(), fenceValue);
