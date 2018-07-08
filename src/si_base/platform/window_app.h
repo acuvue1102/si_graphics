@@ -38,6 +38,7 @@ namespace SI
 		intptr_t WndProc(void* hWnd, uint32_t msg, uintptr_t wParam, intptr_t lParam);
 
 	private:
+		void UpdateMouseMove();
 		int MessageProc();
 
 	private:

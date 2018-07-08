@@ -173,6 +173,8 @@ namespace SI
 		m_mouse.Flip();
 
 		int ret = MessageProc();
+
+		UpdateMouseMove();
 		
 		m_keyboard.UpdateModifier();
 		
@@ -187,17 +189,32 @@ namespace SI
 		return 0;
 	}
 
+	void WindowsApp::UpdateMouseMove()
+	{
+		POINT p;
+		if(!GetCursorPos(&p)) return;		
+		if(!ScreenToClient((HWND)m_hWnd, &p)) return;
+		if(m_mouse.GetX() == p.x && m_mouse.GetY() == p.y) return;
+		
+		m_mouse.SetX( p.x );
+		m_mouse.SetY( p.y );
+		OnMouseMove(m_mouse.GetX(), m_mouse.GetY());
+	}
+
 	int WindowsApp::MessageProc()
 	{
 		// message loop
 		MSG msg = {0};
-		if(GetMessage(&msg, NULL, 0, 0)<= 0)
+		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
 		{
-			return -1;
+			if(msg.message == WM_QUIT)
+			{
+				return -1;
+			}
+			
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
-	
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
 
 		return 0;
 	}
@@ -209,6 +226,9 @@ namespace SI
 		switch (msg)
 		{
 		// マウス関連の処理.
+#if 0
+		// メッセージループで処理すると、
+		// メッセージが遅いのかマウスの反応が悪いので別途処理する.
 		case WM_MOUSEMOVE:
 		{
 			m_mouse.SetX( (int)(short)LOWORD(lParam) );
@@ -216,6 +236,7 @@ namespace SI
 			OnMouseMove(m_mouse.GetX(), m_mouse.GetY());
 			break;
 		}
+#endif
 		case WM_LBUTTONDOWN:
 		{
 			m_mouse.SetLButton( true );
