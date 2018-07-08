@@ -263,7 +263,7 @@ namespace SI
 			m_graphicsCommandList->IASetPrimitiveTopology(GetDx12PrimitiveTopology(topology));
 		}
 
-		inline void SetIndexBuffer(GfxIndexBufferView* indexBufferView)
+		inline void SetIndexBuffer(const GfxIndexBufferView* indexBufferView)
 		{
 			if(indexBufferView == nullptr)
 			{
@@ -281,7 +281,7 @@ namespace SI
 			m_graphicsCommandList->IASetIndexBuffer(&d3View);
 		}
 		
-		inline void SetVertexBuffers(uint32_t inputSlot, uint32_t viewCount, const GfxVertexBufferView* const* bufferViews)
+		inline void SetVertexBuffers(uint32_t inputSlot, uint32_t viewCount, const GfxVertexBufferView* bufferViews)
 		{
 			if(bufferViews == nullptr)
 			{
@@ -296,7 +296,7 @@ namespace SI
 			for(uint32_t v=0; v<d3dViewCount; ++v)
 			{
 				D3D12_VERTEX_BUFFER_VIEW&   outV = d3Views[v];
-				const GfxVertexBufferView&  inV = *bufferViews[v];
+				const GfxVertexBufferView&  inV = bufferViews[v];
 				
 				const BaseBuffer* baseBuffer = inV.GetBuffer().GetBaseBuffer();
 

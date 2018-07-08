@@ -41,10 +41,10 @@ namespace APP002
 		GfxVertexShader          m_lambertVS;
 		GfxPixelShader           m_lambertPS;
 
-		GfxBuffer                m_boxVertexBuffer;
-		GfxBuffer                m_boxIndexBuffer;
+		GfxBufferEx_Vertex       m_boxVertexBuffer;
+		GfxBufferEx_Index        m_boxIndexBuffer;
 
-		GfxBuffer                m_quadVertexBuffer;
+		GfxBufferEx_Vertex       m_quadVertexBuffer;
 		GfxTextureEx             m_texture;
 
 		GfxTestureEx_Rt          m_rt;

@@ -27,7 +27,7 @@ namespace SI
 		BaseDevice& device = SI_BASE_DEVICE();
 		
 		GfxBufferDesc desc;
-		desc.m_name = "textureConstant";
+		desc.m_name = name;
 		desc.m_heapType = GfxHeapType::Default;
 		desc.m_bufferSizeInByte = size;
 		desc.m_resourceStates   = GfxResourceState::CopyDest;
@@ -37,7 +37,7 @@ namespace SI
 		m_ref.Create();
 	}
 
-	void GfxBufferEx::TerminateStatic()
+	void GfxBufferEx::TerminateAsStatic()
 	{
 		if(GetType() != GfxBufferExType::Static) return;
 
@@ -79,7 +79,7 @@ namespace SI
 		BaseDevice& device = SI_BASE_DEVICE();
 		
 		GfxBufferDesc desc;
-		desc.m_name = "textureConstant";
+		desc.m_name = name;
 		desc.m_heapType = GfxHeapType::Upload;
 		desc.m_bufferSizeInByte = AlignUp(size, (size_t)256); // 256byteの倍数じゃないとダメ.
 		desc.m_resourceStates = GfxResourceState::GenericRead;
@@ -96,7 +96,7 @@ namespace SI
 		m_ref.Create();
 	}
 
-	void GfxBufferEx_Constant::TerminateConstant()
+	void GfxBufferEx_Constant::TerminateAsConstant()
 	{
 		if(GetType() != GfxBufferExType::Constant) return;
 
@@ -115,4 +115,96 @@ namespace SI
 		}
 	}
 	
+
+	////////////////////////////////////////////////////////////////////
+	
+	GfxBufferEx_Index::GfxBufferEx_Index()
+		: m_format(GfxFormat::Max)
+	{
+	}
+
+	GfxBufferEx_Index::~GfxBufferEx_Index()
+	{
+		SI_ASSERT(m_format == GfxFormat::Max);
+	}
+		
+	void GfxBufferEx_Index::InitializeAsIndex( const char* name, size_t size, bool is16bit)
+	{
+		BaseDevice& device = SI_BASE_DEVICE();
+		
+		GfxBufferDesc desc;
+		desc.m_name = name;
+		desc.m_heapType = GfxHeapType::Default;
+		desc.m_bufferSizeInByte = size;
+		desc.m_resourceStates   = GfxResourceState::CopyDest;
+		desc.m_resourceFlags    = GfxResourceFlag::None;
+		m_buffer = device.CreateBuffer(desc);
+		m_format = is16bit? GfxFormat::R16_Uint : GfxFormat::R32_Uint;
+
+		m_ref.Create();
+	}
+
+	void GfxBufferEx_Index::TerminateAsIndex()
+	{
+		if(GetType() != GfxBufferExType::Index) return;
+
+		if(m_buffer)
+		{
+			if(m_ref.ReleaseRef()==0)
+			{
+				SI_BASE_DEVICE().ReleaseBuffer(m_buffer);
+			}
+			
+			m_buffer = nullptr;
+		}
+
+		m_format = GfxFormat::Max;
+	}
+
+	////////////////////////////////////////////////////////////////////
+	
+	GfxBufferEx_Vertex::GfxBufferEx_Vertex()
+		: m_stride(0)
+		, m_offset(0)
+	{
+	}
+
+	GfxBufferEx_Vertex::~GfxBufferEx_Vertex()
+	{
+		SI_ASSERT(m_stride == 0);
+	}
+		
+	void GfxBufferEx_Vertex::InitializeAsVertex( const char* name, size_t size, size_t stride, size_t offset)
+	{
+		BaseDevice& device = SI_BASE_DEVICE();
+		
+		GfxBufferDesc desc;
+		desc.m_name = name;
+		desc.m_heapType = GfxHeapType::Default;
+		desc.m_bufferSizeInByte = size;
+		desc.m_resourceStates   = GfxResourceState::CopyDest;
+		desc.m_resourceFlags    = GfxResourceFlag::None;
+		m_buffer = device.CreateBuffer(desc);
+		m_stride = stride;
+
+		m_ref.Create();
+	}
+
+	void GfxBufferEx_Vertex::TerminateAsVertex()
+	{
+		if(GetType() != GfxBufferExType::Vertex) return;
+
+		if(m_buffer)
+		{
+			if(m_ref.ReleaseRef()==0)
+			{
+				SI_BASE_DEVICE().ReleaseBuffer(m_buffer);
+			}
+			
+			m_buffer = nullptr;
+		}
+
+		m_stride = 0;
+	}
+
 } // namespace SI

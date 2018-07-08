@@ -129,11 +129,9 @@ namespace APP001
 
 		context.SetPrimitiveTopology(GfxPrimitiveTopology::TriangleList);
 		GfxVertexBufferView vbView(m_vertexBuffer, m_vertexBuffer.GetSize(), sizeof(PosColorVertex));
-		GfxVertexBufferView* vbViews[] = {&vbView};
-		context.SetVertexBuffers(
+		context.SetVertexBuffer(
 			0,
-			1,
-			vbViews);
+			vbView);
 			
 		context.DrawInstanced(3, 1, 0, 0);
 

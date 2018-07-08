@@ -18,6 +18,8 @@ namespace SI
 	{
 		Static = 0,
 		Constant,
+		Index,
+		Vertex
 	};
 	
 	class GfxBufferEx : public GfxGpuResource
@@ -27,7 +29,7 @@ namespace SI
 		virtual ~GfxBufferEx();
 		
 		void InitializeAsStatic( const char* name, size_t size);
-		void TerminateStatic();
+		void TerminateAsStatic();
 		
 		virtual GfxDescriptor GetSrvDescriptor() const{ return GfxDescriptor(); }
 		virtual GfxDescriptor GetUavDescriptor() const{ return GfxDescriptor(); }
@@ -40,7 +42,7 @@ namespace SI
 			return GfxBufferExType::Static;
 		}
 		
-		GfxBuffer GetBuffer()
+		GfxBuffer GetBuffer() const
 		{
 			return GfxBuffer(m_buffer);
 		}
@@ -63,7 +65,7 @@ namespace SI
 		virtual ~GfxBufferEx_Constant();
 		
 		void InitializeAsConstant( const char* name, size_t size);
-		void TerminateConstant();
+		void TerminateAsConstant();
 		
 		virtual GfxDescriptor GetSrvDescriptor() const override{ return m_srvDescriptor; }
 		
@@ -80,6 +82,49 @@ namespace SI
 	protected:
 		void*                   m_mapPtr;
 		GfxDescriptor           m_srvDescriptor;
+	};
+	
+	class GfxBufferEx_Index : public GfxBufferEx
+	{
+	public:
+		GfxBufferEx_Index();
+		virtual ~GfxBufferEx_Index();
+		
+		void InitializeAsIndex( const char* name, size_t size, bool is16bit);
+		void TerminateAsIndex();
+		
+		virtual GfxBufferExType GetType() const override
+		{
+			return GfxBufferExType::Index;
+		}
+
+		GfxFormat GetFormat() const{ return m_format; }
+
+	protected:
+		GfxFormat m_format;
+	};
+	
+	class GfxBufferEx_Vertex : public GfxBufferEx
+	{
+	public:
+		GfxBufferEx_Vertex();
+		virtual ~GfxBufferEx_Vertex();
+		
+		void InitializeAsVertex( const char* name, size_t size, size_t stride, size_t offset);
+		void TerminateAsVertex();
+		
+		virtual GfxBufferExType GetType() const override
+		{
+			return GfxBufferExType::Vertex;
+		}
+		
+		size_t GetStride() const{ return m_stride; }
+		size_t GetOffset() const{ return m_offset; }
+		void SetOffset(size_t o){ m_offset = o; }
+
+	protected:
+		size_t m_stride;
+		size_t m_offset;
 	};
 
 } // namespace SI

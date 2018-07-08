@@ -294,23 +294,61 @@ namespace SI
 		m_base->SetPrimitiveTopology(topology);
 	}
 	
-	void GfxGraphicsContext::SetIndexBuffer(GfxIndexBufferView* indexBufferView)
+	void GfxGraphicsContext::SetIndexBuffer(const GfxIndexBufferView* indexBufferView)
 	{
 		m_base->SetIndexBuffer(indexBufferView);
+	}
+	
+	void GfxGraphicsContext::SetIndexBuffer(const GfxBufferEx_Index& indexBuffer)
+	{
+		GfxIndexBufferView indexBufferView(
+			indexBuffer.GetBuffer(), indexBuffer.GetFormat(), indexBuffer.GetSize());
+		m_base->SetIndexBuffer(&indexBufferView);
 	}
 		
 	void GfxGraphicsContext::SetVertexBuffers(
 		uint32_t                          slot,
 		uint32_t                          viewCount,
-		const GfxVertexBufferView* const* bufferViews)
+		const GfxVertexBufferView*        bufferViews)
 	{
 		m_base->SetVertexBuffers(slot, viewCount, bufferViews);
+	}
+		
+	void GfxGraphicsContext::SetVertexBuffers(
+		uint32_t                          slot,
+		uint32_t                          viewCount,
+		const GfxBufferEx_Vertex* const* buffers)
+	{
+		GfxVertexBufferView views[16];
+		if((uint32_t)ArraySize(views) < viewCount)
+		{
+			SI_ASSERT(0);
+			return;
+		}
+		for(uint32_t i=0; i<viewCount; ++i)
+		{
+			const GfxBufferEx_Vertex& buffer = *buffers[i];
+			
+			views[i] = GfxVertexBufferView(
+				buffer.GetBuffer(),
+				buffer.GetSize(),
+				buffer.GetStride(),
+				buffer.GetOffset() );
+		}
+
+		m_base->SetVertexBuffers(slot, viewCount, views);
 	}
 	
 	void GfxGraphicsContext::SetVertexBuffer(uint32_t slot, const GfxVertexBufferView& bufferViews)
 	{
-		const GfxVertexBufferView* views[1] = {&bufferViews};
-		SetVertexBuffers(slot, 1, views);
+		SetVertexBuffers(slot, 1, &bufferViews);
+	}
+	
+	void GfxGraphicsContext::SetVertexBuffer(uint32_t slot, const GfxBufferEx_Vertex& buffer)
+	{
+		GfxVertexBufferView bufferView(
+			buffer.GetBuffer(), buffer.GetSize(), buffer.GetStride(), buffer.GetOffset() );
+		SetVertexBuffers(slot, 1, &bufferView);
 	}
 
 	void GfxGraphicsContext::SetDynamicVB(
@@ -424,9 +462,35 @@ namespace SI
 			srcBufferSize);
 	}
 
+	int GfxGraphicsContext::UploadBuffer(
+		GfxDevice& device,
+		GfxBufferEx& targetBuffer,
+		const void* srcBuffer,
+		size_t srcBufferSize)
+	{
+		return m_base->UploadBuffer(
+			*device.GetBaseDevice(),
+			*targetBuffer.GetBaseBuffer(),
+			srcBuffer,
+			srcBufferSize);
+	}
+
 	int GfxGraphicsContext::UploadTexture(
 		GfxDevice& device,
 		GfxTexture& targetTexture,
+		const void* srcBuffer,
+		size_t srcBufferSize)
+	{
+		return m_base->UploadTexture(
+			*device.GetBaseDevice(),
+			*targetTexture.GetBaseTexture(),
+			srcBuffer,
+			srcBufferSize);
+	}
+
+	int GfxGraphicsContext::UploadTexture(
+		GfxDevice& device,
+		GfxTextureEx& targetTexture,
 		const void* srcBuffer,
 		size_t srcBufferSize)
 	{

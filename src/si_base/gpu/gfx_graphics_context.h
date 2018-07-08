@@ -25,6 +25,8 @@ namespace SI
 	class GfxVertexBufferView;
 	class GfxRootSignature;
 	class GfxDevice;
+	class GfxBufferEx_Index;
+	class GfxBufferEx_Vertex;
 
 	class GfxGraphicsContext : private NonCopyable
 	{
@@ -117,9 +119,12 @@ namespace SI
 		
 		void SetPrimitiveTopology(GfxPrimitiveTopology topology);
 		
-		void SetIndexBuffer(GfxIndexBufferView* indexBufferView);
-		void SetVertexBuffers(uint32_t slot, uint32_t viewCount, const GfxVertexBufferView* const* bufferViews);
+		void SetIndexBuffer(const GfxIndexBufferView* indexBufferView);
+		void SetIndexBuffer(const GfxBufferEx_Index& indexBuffer);
+		void SetVertexBuffers(uint32_t slot, uint32_t viewCount, const GfxVertexBufferView* bufferViews);
+		void SetVertexBuffers(uint32_t slot, uint32_t viewCount, const GfxBufferEx_Vertex* const* buffers);
 		void SetVertexBuffer (uint32_t slot, const GfxVertexBufferView& bufferViews);
+		void SetVertexBuffer (uint32_t slot, const GfxBufferEx_Vertex& buffer);
 		void SetDynamicVB    (uint32_t slot, size_t vertexCount, size_t stride, const void* data);
 		void SetDynamicIB16(size_t indexCount, const uint16_t* data);
 		void SetDynamicIB32(size_t indexCount, const uint32_t* data);
@@ -148,10 +153,20 @@ namespace SI
 			GfxBuffer& targetBuffer,
 			const void* srcBuffer,
 			size_t srcBufferSize);
+		int UploadBuffer(
+			GfxDevice& device,
+			GfxBufferEx& targetBuffer,
+			const void* srcBuffer,
+			size_t srcBufferSize);
 
 		int UploadTexture(
 			GfxDevice& device,
 			GfxTexture& targetTexture,
+			const void* srcBuffer,
+			size_t srcBufferSize);
+		int UploadTexture(
+			GfxDevice& device,
+			GfxTextureEx& targetTexture,
 			const void* srcBuffer,
 			size_t srcBufferSize);
 

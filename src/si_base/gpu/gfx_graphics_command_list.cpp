@@ -132,9 +132,9 @@ namespace SI
 	}
 		
 	void GfxGraphicsCommandList::SetVertexBuffers(
-		uint32_t              inputSlot,
-		uint32_t              viewCount,
-		GfxVertexBufferView** bufferViews)
+		uint32_t                    inputSlot,
+		uint32_t                    viewCount,
+		const GfxVertexBufferView*  bufferViews)
 	{
 		m_base->SetVertexBuffers(inputSlot, viewCount, bufferViews);
 	}

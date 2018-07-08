@@ -178,23 +178,17 @@ namespace APP002
 	{
 		// 四角形の頂点バッファのセットアップ.
 		{
-			GfxBufferDesc vertexBufferDesc;
-			vertexBufferDesc.m_heapType = GfxHeapType::Default;
-			vertexBufferDesc.m_bufferSizeInByte = sizeof(kVertexData);
-			m_quadVertexBuffer = m_device.CreateBuffer(vertexBufferDesc);
+			m_quadVertexBuffer.InitializeAsVertex(
+				"vertex", sizeof(kVertexData), sizeof(kVertexData[0]), 0);
 		}
 
 		// ボックスの頂点バッファのセットアップ.
 		{
-			GfxBufferDesc vertexBufferDesc;
-			vertexBufferDesc.m_heapType = GfxHeapType::Default;
-			vertexBufferDesc.m_bufferSizeInByte = sizeof(kBoxVertexData);
-			m_boxVertexBuffer = m_device.CreateBuffer(vertexBufferDesc);
+			m_boxVertexBuffer.InitializeAsVertex(
+				"boxVertex", sizeof(kBoxVertexData), sizeof(kBoxVertexData[0]), 0);
 			
-			GfxBufferDesc indexBufferDesc;
-			indexBufferDesc.m_heapType = GfxHeapType::Default;
-			indexBufferDesc.m_bufferSizeInByte = sizeof(kBoxIndexData);
-			m_boxIndexBuffer = m_device.CreateBuffer(indexBufferDesc);
+			m_boxIndexBuffer.InitializeAsIndex(
+				"boxIndex", sizeof(kBoxIndexData), sizeof(kBoxIndexData[0])==2);
 		}
 
 		// textureシェーダのセットアップ.
@@ -334,8 +328,7 @@ namespace APP002
 			context.UploadBuffer(m_device, m_boxIndexBuffer, kBoxIndexData, sizeof(kBoxIndexData));
 			
 			std::vector<uint8_t> texData = GenerateTextureData(m_texture.GetWidth(), m_texture.GetHeight());
-			GfxTexture texEx = m_texture.GetTexture();
-			context.UploadTexture(m_device, texEx, &texData[0], texData.size());
+			context.UploadTexture(m_device, m_texture, &texData[0], texData.size());
 		}
 		EndRender();
 
@@ -367,8 +360,8 @@ namespace APP002
 		m_rt.TerminateRt();
 		m_texture.TerminateStatic();
 
-		m_constantBuffers[1].TerminateConstant();
-		m_constantBuffers[0].TerminateConstant();
+		m_constantBuffers[1].TerminateAsConstant();
+		m_constantBuffers[0].TerminateAsConstant();
 
 		m_lambertPS.Release();
 		m_lambertVS.Release();
@@ -376,10 +369,10 @@ namespace APP002
 		m_texturePS.Release();
 		m_textureVS.Release();
 
-		m_device.ReleaseBuffer(m_boxIndexBuffer);
-		m_device.ReleaseBuffer(m_boxVertexBuffer);
+		m_boxIndexBuffer.TerminateAsIndex();
+		m_boxVertexBuffer.TerminateAsVertex();
 
-		m_device.ReleaseBuffer(m_quadVertexBuffer);
+		m_quadVertexBuffer.TerminateAsVertex();
 
 		PipelineBase::OnTerminate();
 
@@ -430,12 +423,8 @@ namespace APP002
 
 			context.SetPrimitiveTopology(GfxPrimitiveTopology::TriangleList);
 
-			GfxVertexBufferView vertexBufferView(m_boxVertexBuffer, m_boxVertexBuffer.GetSize(), sizeof(PosNormalUvVertex));
-			GfxVertexBufferView* vertexBufferViews[] = { &vertexBufferView };
-			context.SetVertexBuffers(0, 1, vertexBufferViews);
-
-			GfxIndexBufferView indexBufferView(m_boxIndexBuffer, GfxFormat::R16_Uint, m_boxIndexBuffer.GetSize());
-			context.SetIndexBuffer(&indexBufferView);
+			context.SetVertexBuffer(0, m_boxVertexBuffer);
+			context.SetIndexBuffer(m_boxIndexBuffer);
 			
 			context.DrawIndexedInstanced((uint32_t)ArraySize(kBoxIndexData), 8);
 		}
@@ -464,9 +453,7 @@ namespace APP002
 
 			context.SetPrimitiveTopology(GfxPrimitiveTopology::TriangleList);
 
-			GfxVertexBufferView vertexBufferView(m_quadVertexBuffer, m_quadVertexBuffer.GetSize(), sizeof(PosUvVertex));
-			GfxVertexBufferView* vertexBufferViews[] = {&vertexBufferView};
-			context.SetVertexBuffers(0, 1, vertexBufferViews);
+			context.SetVertexBuffer(0, m_quadVertexBuffer);
 			
 			context.DrawInstanced(6, 1, 0, 0);
 		}

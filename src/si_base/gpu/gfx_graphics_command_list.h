@@ -71,7 +71,7 @@ namespace SI
 		
 		void SetIndexBuffer(GfxIndexBufferView* indexBufferView);
 
-		void SetVertexBuffers(uint32_t inputSlot, uint32_t viewCount, GfxVertexBufferView** bufferViews);
+		void SetVertexBuffers(uint32_t inputSlot, uint32_t viewCount, const GfxVertexBufferView* bufferViews);
 		
 		void DrawIndexedInstanced(
 			uint32_t indexCountPerInstance,
