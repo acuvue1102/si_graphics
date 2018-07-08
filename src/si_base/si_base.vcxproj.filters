@@ -256,6 +256,9 @@
     <ClInclude Include="platform\windows_proxy.h">
       <Filter>platform</Filter>
     </ClInclude>
+    <ClInclude Include="gpu\gfx_device_std_allocator.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">

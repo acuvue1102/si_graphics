@@ -27,7 +27,7 @@ namespace SI
 		m_poolMemorySize = poolMemorySize;
 
 		SI_ASSERT(m_mspace == nullptr);
-		m_mspace = create_mspace_with_base(poolMemory , poolMemorySize , 1);
+		m_mspace = create_mspace_with_base(poolMemory , poolMemorySize , 1); // thread safeのためlockedにしておく.
 	}
 	
 	void PoolAllocator::Terminate()

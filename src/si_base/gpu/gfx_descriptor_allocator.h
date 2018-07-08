@@ -4,6 +4,7 @@
 #include "si_base/gpu/gfx_config.h"
 #include "si_base/memory/handle_allocator.h"
 #include "si_base/gpu/gfx_descriptor_heap.h"
+#include "si_base/concurency/mutex.h"
 
 namespace SI
 {
@@ -27,6 +28,7 @@ namespace SI
 		GfxDescriptor         m_currentDescriptor;
 		GfxDescriptor         m_endDescriptor;
 		size_t                m_typeSize;
+		Mutex                 m_mutex;
 	};
 
 } // namespace SI

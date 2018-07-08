@@ -47,6 +47,8 @@ namespace SI
 	
 	GfxDescriptor GfxDescriptorAllocator::Allocate(uint32_t count)
 	{
+		MutexLocker locker(m_mutex);
+
 		if(m_maxDescriptorCount <= m_allocatedDescriptorCount+count)
 		{
 			SI_ASSERT(0);
@@ -61,6 +63,7 @@ namespace SI
 
 	void GfxDescriptorAllocator::Deallocate(GfxDescriptor descriptor)
 	{
+		MutexLocker locker(m_mutex);
 		// TODO: きちんと開放する...
 	}
 
