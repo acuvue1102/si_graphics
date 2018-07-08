@@ -29,7 +29,7 @@
 
 namespace SI
 {
-	size_t BaseDevice::s_descriptorSize[(int)GfxDescriptorHeapType::kMax] = {};
+	size_t BaseDevice::s_descriptorSize[(int)GfxDescriptorHeapType::Max] = {};
 
 	BaseDevice::BaseDevice()
 		: Singleton(this)
@@ -74,7 +74,7 @@ namespace SI
 		}
 
 		// descriptor heap sizeをあらかじめ保持しておく.
-		for(int i=0; i<(int)GfxDescriptorHeapType::kMax; ++i)
+		for(int i=0; i<(int)GfxDescriptorHeapType::Max; ++i)
 		{
 			D3D12_DESCRIPTOR_HEAP_TYPE type = GetDx12DescriptorHeapType((GfxDescriptorHeapType)i);
 			s_descriptorSize[i] = m_device->GetDescriptorHandleIncrementSize(type);
@@ -466,31 +466,31 @@ namespace SI
 		srvDesc.ViewDimension           = GetDx12SrvDimension(desc.m_srvDimension);
 		switch(desc.m_srvDimension)
 		{
-		case GfxDimension::kBuffer:
-		case GfxDimension::kTexture1D:
+		case GfxDimension::Buffer:
+		case GfxDimension::Texture1D:
 			srvDesc.Texture1D.MipLevels = desc.m_miplevels;
 			break;
-		case GfxDimension::kTexture1DArray:
+		case GfxDimension::Texture1DArray:
 			srvDesc.Texture1DArray.MipLevels = desc.m_miplevels;
 			srvDesc.Texture1DArray.ArraySize = desc.m_arraySize;
 			break;
-		case GfxDimension::kTexture2D:
+		case GfxDimension::Texture2D:
 			srvDesc.Texture2D.MipLevels = desc.m_miplevels;
 			break;
-		case GfxDimension::kTexture2DArray:
+		case GfxDimension::Texture2DArray:
 			srvDesc.Texture2DArray.MipLevels = desc.m_miplevels;
 			srvDesc.Texture2DArray.ArraySize = desc.m_arraySize;
 			break;
-		case GfxDimension::kTexture2DMS:
-		case GfxDimension::kTexture2DMSArray:
+		case GfxDimension::Texture2DMS:
+		case GfxDimension::Texture2DMSArray:
 			break;
-		case GfxDimension::kTexture3D:
+		case GfxDimension::Texture3D:
 			srvDesc.Texture3D.MipLevels = desc.m_miplevels;
 			break;
-		case GfxDimension::kTextureCube:
+		case GfxDimension::TextureCube:
 			srvDesc.TextureCube.MipLevels = desc.m_miplevels;
 			break;
-		case GfxDimension::kTextureCubeArray:
+		case GfxDimension::TextureCubeArray:
 			srvDesc.TextureCubeArray.MipLevels = desc.m_miplevels;
 			srvDesc.TextureCubeArray.NumCubes  = desc.m_arraySize;
 			break;
@@ -533,7 +533,7 @@ namespace SI
 		samplerDesc.MinLOD         = desc.m_minLOD;
 		samplerDesc.MaxLOD         = desc.m_maxLOD;
 
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::kSampler);
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::Sampler);
 		
 		D3D12_CPU_DESCRIPTOR_HANDLE dxDescriptor = {descriptor.GetCpuDescriptor().m_ptr};
 		m_device->CreateSampler(&samplerDesc, dxDescriptor);
@@ -560,7 +560,7 @@ namespace SI
 		constantDesc.BufferLocation = baseBuffer->GetLocation();
 		constantDesc.SizeInBytes    = (UINT)baseBuffer->GetSize();
 
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::kCbvSrvUav);
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::CbvSrvUav);
 		D3D12_CPU_DESCRIPTOR_HANDLE dxDescriptor = {descriptor.GetCpuDescriptor().m_ptr};
 		m_device->CreateConstantBufferView(&constantDesc, dxDescriptor);
 	}

@@ -39,15 +39,15 @@ namespace SI
 		desc.m_bufferSizeInByte = pageSizeInByte;
 		if(cpuAccess)
 		{
-			desc.m_heapType       = GfxHeapType::kUpload;
-			desc.m_resourceFlags  = GfxResourceFlag::kNone;
-			desc.m_resourceStates = GfxResourceState::kGenericRead;
+			desc.m_heapType       = GfxHeapType::Upload;
+			desc.m_resourceFlags  = GfxResourceFlag::None;
+			desc.m_resourceStates = GfxResourceState::GenericRead;
 		}
 		else
 		{
-			desc.m_heapType       = GfxHeapType::kDefault;
-			desc.m_resourceFlags  = GfxResourceFlag::kAllowUnorderedAccess;
-			desc.m_resourceStates = GfxResourceState::kUnorderedAccess;
+			desc.m_heapType       = GfxHeapType::Default;
+			desc.m_resourceFlags  = GfxResourceFlag::AllowUnorderedAccess;
+			desc.m_resourceStates = GfxResourceState::UnorderedAccess;
 		}
 		m_buffer = device.CreateBuffer(desc);
 				

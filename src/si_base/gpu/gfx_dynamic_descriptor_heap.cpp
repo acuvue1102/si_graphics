@@ -63,7 +63,7 @@ namespace SI
 	void GfxDescriptorHandleCache::ParseRootSignature(
 		GfxDescriptorHeapType type, const GfxRootSignatureEx& rootSig)
 	{
-		m_rootTableBits = (type==GfxDescriptorHeapType::kSampler)?
+		m_rootTableBits = (type==GfxDescriptorHeapType::Sampler)?
 			rootSig.GetSamplerTableBits() : rootSig.GetViewsTableBits();
 		
 		uint16_t currentOffset = 0;
@@ -210,7 +210,7 @@ namespace SI
 	/////////////////////////////////////////////////////////
 
 	GfxDynamicDescriptorHeap::GfxDynamicDescriptorHeap()
-		: m_descriptorType(GfxDescriptorHeapType::kMax)
+		: m_descriptorType(GfxDescriptorHeapType::Max)
 		, m_currentDescriptorHeap(nullptr)
 		, m_currentOffset(0)
 	{
@@ -222,7 +222,7 @@ namespace SI
 	
 	void GfxDynamicDescriptorHeap::Initialize(GfxDescriptorHeapType descriptorType)
 	{
-		SI_ASSERT(descriptorType==GfxDescriptorHeapType::kCbvSrvUav || descriptorType==GfxDescriptorHeapType::kSampler);
+		SI_ASSERT(descriptorType==GfxDescriptorHeapType::CbvSrvUav || descriptorType==GfxDescriptorHeapType::Sampler);
 		m_descriptorType = descriptorType;
 		m_graphicsDescriptorCache.SetIsGraphicsCache(true);
 		m_computeDescriptorCache.SetIsGraphicsCache(false);
@@ -231,7 +231,7 @@ namespace SI
 	void GfxDynamicDescriptorHeap::Terminate()
 	{
 		RetireCurrentHeap();
-		m_descriptorType = GfxDescriptorHeapType::kMax;
+		m_descriptorType = GfxDescriptorHeapType::Max;
 	}
 	
 	void GfxDynamicDescriptorHeap::Reset()
@@ -244,14 +244,14 @@ namespace SI
 
 	void GfxDynamicDescriptorHeap::ParseGraphicsRootSignature(const GfxRootSignatureEx& rootSig)
 	{
-		SI_ASSERT(m_descriptorType != GfxDescriptorHeapType::kMax);
+		SI_ASSERT(m_descriptorType != GfxDescriptorHeapType::Max);
 		m_graphicsDescriptorCache.ParseRootSignature(m_descriptorType, rootSig);
 	}
 
 	void GfxDynamicDescriptorHeap::ParseComputeRootSignature(const GfxRootSignatureEx& rootSig)
 	{
 		SI_ASSERT(0);
-		//SI_ASSERT(m_descriptorType != GfxDescriptorHeapType::kMax);
+		//SI_ASSERT(m_descriptorType != GfxDescriptorHeapType::Max);
 		//m_computeDescriptorCache.ParseRootSignature(m_descriptorType, rootSig);
 	}
 
@@ -288,7 +288,7 @@ namespace SI
 		uint32_t descriptorCount = descriptorCache.ComputeDescriptorCount();
 		GfxDescriptor newDescriptor = Allocate(descriptorCount, descriptorCache);
 		
-		if(m_descriptorType == GfxDescriptorHeapType::kSampler)
+		if(m_descriptorType == GfxDescriptorHeapType::Sampler)
 		{
 			context.SetSamplerDescriptorHeap(m_currentDescriptorHeap);
 		}
@@ -304,7 +304,7 @@ namespace SI
 	{
 		if (m_currentDescriptorHeap == nullptr) return;
 		
-		if(m_descriptorType == GfxDescriptorHeapType::kSampler)
+		if(m_descriptorType == GfxDescriptorHeapType::Sampler)
 		{
 			SI_SAMPLER_DESCRIPTOR_HEAP_POOL().Deallocate(m_currentDescriptorHeap);
 		}
@@ -322,7 +322,7 @@ namespace SI
 	{
 		RetireCurrentHeap();
 
-		if(m_descriptorType == GfxDescriptorHeapType::kSampler)
+		if(m_descriptorType == GfxDescriptorHeapType::Sampler)
 		{
 			m_currentDescriptorHeap = SI_SAMPLER_DESCRIPTOR_HEAP_POOL().Allocate();
 		}

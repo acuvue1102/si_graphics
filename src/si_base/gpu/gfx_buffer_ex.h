@@ -32,7 +32,7 @@ namespace SI
 		virtual GfxDescriptor GetSrvDescriptor() const{ return GfxDescriptor(); }
 		virtual GfxDescriptor GetUavDescriptor() const{ return GfxDescriptor(); }
 		
-		virtual GfxResourceStates GetResourceStates() const{ return GfxResourceState::kCommon; }
+		virtual GfxResourceStates GetResourceStates() const{ return GfxResourceState::Common; }
 		virtual void SetResourceStates(GfxResourceStates) {}
 		
 		virtual GfxBufferExType GetType() const

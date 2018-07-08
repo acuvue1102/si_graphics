@@ -99,7 +99,7 @@ namespace SI
 			{
 				GfxResourceStates pendding = context.GetPenddingResourceState(st);
 
-				if(pendding == GfxResourceState::kPendding) continue; // このcontext内で変更してない
+				if(pendding == GfxResourceState::Pendding) continue; // このcontext内で変更してない
 			
 				GfxResourceStates prev = resourceStatePool.GetResourceStates(st);
 				GfxResourceStates next = context.GetCurrentResourceState(st);

@@ -29,8 +29,8 @@ namespace SI
 
 		m_resourceStatePool.Initialize(desc.m_maxResourceStates);
 		
-		m_viewDescriptorHeapPool.Initialize(GfxDescriptorHeapType::kCbvSrvUav, desc.m_maxViewDescriptorHeapCount);
-		m_samplerDescriptorHeapPool.Initialize(GfxDescriptorHeapType::kSampler, desc.m_maxSamplerDescriptorHeapCount);
+		m_viewDescriptorHeapPool.Initialize(GfxDescriptorHeapType::CbvSrvUav, desc.m_maxViewDescriptorHeapCount);
+		m_samplerDescriptorHeapPool.Initialize(GfxDescriptorHeapType::Sampler, desc.m_maxSamplerDescriptorHeapCount);
 		
 		m_cpuLinearAllocatorPageManager.Initialize(desc.m_queueBufferCount, true);
 		m_gpuLinearAllocatorPageManager.Initialize(desc.m_queueBufferCount, false);

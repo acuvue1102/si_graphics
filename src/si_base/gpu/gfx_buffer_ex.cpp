@@ -28,10 +28,10 @@ namespace SI
 		
 		GfxBufferDesc desc;
 		desc.m_name = "textureConstant";
-		desc.m_heapType = GfxHeapType::kDefault;
+		desc.m_heapType = GfxHeapType::Default;
 		desc.m_bufferSizeInByte = size;
-		desc.m_resourceStates   = GfxResourceState::kCopyDest;
-		desc.m_resourceFlags    = GfxResourceFlag::kNone;
+		desc.m_resourceStates   = GfxResourceState::CopyDest;
+		desc.m_resourceFlags    = GfxResourceFlag::None;
 		m_buffer = device.CreateBuffer(desc);
 
 		m_ref.Create();
@@ -80,9 +80,9 @@ namespace SI
 		
 		GfxBufferDesc desc;
 		desc.m_name = "textureConstant";
-		desc.m_heapType = GfxHeapType::kUpload;
+		desc.m_heapType = GfxHeapType::Upload;
 		desc.m_bufferSizeInByte = AlignUp(size, (size_t)256); // 256byteの倍数じゃないとダメ.
-		desc.m_resourceStates = GfxResourceState::kGenericRead;
+		desc.m_resourceStates = GfxResourceState::GenericRead;
 		m_buffer = device.CreateBuffer(desc);
 		m_mapPtr = m_buffer->Map(0);
 		
@@ -90,7 +90,7 @@ namespace SI
 
 		GfxConstantBufferViewDesc cbvDesc;
 		cbvDesc.m_buffer = &gfxBuffer;
-		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kCbvSrvUav).Allocate(1);
+		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Allocate(1);
 		device.CreateConstantBufferView(m_srvDescriptor, cbvDesc);
 
 		m_ref.Create();
@@ -107,7 +107,7 @@ namespace SI
 				m_buffer->Unmap(0);
 				m_mapPtr = nullptr;
 				SI_BASE_DEVICE().ReleaseBuffer(m_buffer);
-				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kCbvSrvUav).Deallocate(m_srvDescriptor);
+				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Deallocate(m_srvDescriptor);
 			}
 			
 			m_buffer = nullptr;

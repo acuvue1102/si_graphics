@@ -71,7 +71,7 @@ namespace SI
 			if(rangeCount<=0) continue;
 
 			const GfxDescriptorRange* ranges = (desc.m_tables[i].m_ranges);
-			if(ranges[0].m_rangeType == GfxDescriptorRangeType::kSampler)
+			if(ranges[0].m_rangeType == GfxDescriptorRangeType::Sampler)
 			{
 				m_samplerTableBits |= ((uint64_t)1 << (uint64_t)i);
 			}

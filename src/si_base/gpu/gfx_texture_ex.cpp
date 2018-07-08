@@ -14,7 +14,7 @@ namespace SI
 		: m_texture(nullptr)
 		, m_srvDescriptor()
 		, m_ref()
-		, m_dimension(GfxDimension::kMax)
+		, m_dimension(GfxDimension::Max)
 	{
 	}
 
@@ -34,19 +34,19 @@ namespace SI
 		desc.m_width          = width;
 		desc.m_height         = height;
 		desc.m_format         = format;
-		desc.m_dimension      = GfxDimension::kTexture2D;
-		desc.m_resourceStates = GfxResourceState::kCopyDest;
-		desc.m_resourceFlags  = GfxResourceFlag::kNone;
-		desc.m_heapType       = GfxHeapType::kDefault;
+		desc.m_dimension      = GfxDimension::Texture2D;
+		desc.m_resourceStates = GfxResourceState::CopyDest;
+		desc.m_resourceFlags  = GfxResourceFlag::None;
+		desc.m_heapType       = GfxHeapType::Default;
 
 		m_texture = device.CreateTexture(desc);
 		
 		GfxShaderResourceViewDesc srvDesc;
-		srvDesc.m_srvDimension = GfxDimension::kTexture2D;
+		srvDesc.m_srvDimension = GfxDimension::Texture2D;
 		srvDesc.m_format = format;
 		srvDesc.m_miplevels = 1;
 		srvDesc.m_arraySize = 1;
-		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kCbvSrvUav).Allocate(1);
+		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Allocate(1);
 		device.CreateShaderResourceView(m_srvDescriptor, *m_texture, srvDesc);
 
 		m_ref.Create();
@@ -61,7 +61,7 @@ namespace SI
 			if(m_ref.ReleaseRef()==0)
 			{
 				SI_BASE_DEVICE().ReleaseTexture(m_texture);
-				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kCbvSrvUav).Deallocate(m_srvDescriptor);
+				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Deallocate(m_srvDescriptor);
 			}
 			
 			m_texture = nullptr;
@@ -94,7 +94,7 @@ namespace SI
 	GfxTestureEx_Rt::GfxTestureEx_Rt()
 		: _GfxTextureEx_Writable()
 		, m_rtvDescriptor()
-		, m_resourceStates(GfxResourceState::kCommon)
+		, m_resourceStates(GfxResourceState::Common)
 		, m_clearColor(0.0f)
 	{
 	}
@@ -115,10 +115,10 @@ namespace SI
 		desc.m_width          = width;
 		desc.m_height         = height;
 		desc.m_format         = format;
-		desc.m_dimension      = GfxDimension::kTexture2D;
-		desc.m_resourceStates = GfxResourceState::kRenderTarget;
-		desc.m_resourceFlags  = GfxResourceFlag::kAllowRenderTarget;
-		desc.m_heapType       = GfxHeapType::kDefault;
+		desc.m_dimension      = GfxDimension::Texture2D;
+		desc.m_resourceStates = GfxResourceState::RenderTarget;
+		desc.m_resourceFlags  = GfxResourceFlag::AllowRenderTarget;
+		desc.m_heapType       = GfxHeapType::Default;
 		desc.m_clearColor[0] = clearColor[0];
 		desc.m_clearColor[1] = clearColor[1];
 		desc.m_clearColor[2] = clearColor[2];
@@ -130,15 +130,15 @@ namespace SI
 		m_texture = device.CreateTexture(desc);
 		
 		GfxShaderResourceViewDesc srvDesc;
-		srvDesc.m_srvDimension = GfxDimension::kTexture2D;
+		srvDesc.m_srvDimension = GfxDimension::Texture2D;
 		srvDesc.m_format = format;
 		srvDesc.m_miplevels = 1;
 		srvDesc.m_arraySize = 1;
-		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kCbvSrvUav).Allocate(1);
+		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Allocate(1);
 		device.CreateShaderResourceView(m_srvDescriptor, *m_texture, srvDesc);
 		
 		GfxRenderTargetViewDesc rtvDesc;
-		m_rtvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kRtv).Allocate(1);
+		m_rtvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::Rtv).Allocate(1);
 		device.CreateRenderTargetView(m_rtvDescriptor, *m_texture, rtvDesc);
 		
 		SI_RESOURCE_STATES_POOL().AllocateHandle(this);
@@ -157,8 +157,8 @@ namespace SI
 				SI_RESOURCE_STATES_POOL().DeallocateHandle(this);
 
 				SI_BASE_DEVICE().ReleaseTexture(m_texture);
-				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kCbvSrvUav).Deallocate(m_srvDescriptor);
-				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kRtv).Deallocate(m_rtvDescriptor);
+				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Deallocate(m_srvDescriptor);
+				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::Rtv).Deallocate(m_rtvDescriptor);
 			}
 			else
 			{
@@ -192,11 +192,11 @@ namespace SI
 		desc.m_width          = width;
 		desc.m_height         = height;
 		desc.m_mipLevels      = 1;
-		desc.m_format         = GfxFormat::kR32_Typeless;
-		desc.m_dimension      = GfxDimension::kTexture2D;
-		desc.m_resourceStates = GfxResourceState::kGenericRead;
-		desc.m_resourceFlags  = GfxResourceFlag::kAllowDepthStencil;
-		desc.m_heapType       = GfxHeapType::kDefault;
+		desc.m_format         = GfxFormat::R32_Typeless;
+		desc.m_dimension      = GfxDimension::Texture2D;
+		desc.m_resourceStates = GfxResourceState::GenericRead;
+		desc.m_resourceFlags  = GfxResourceFlag::AllowDepthStencil;
+		desc.m_heapType       = GfxHeapType::Default;
 		desc.m_name           = "Depth";
 		desc.m_clearDepth     = rtClearDepth;
 		m_texture = device.CreateTexture(desc);
@@ -204,15 +204,15 @@ namespace SI
 		SetInitialResourceStates(desc.m_resourceStates);
 		
 		GfxShaderResourceViewDesc srvDesc;
-		srvDesc.m_srvDimension = GfxDimension::kTexture2D;
-		srvDesc.m_format = GfxFormat::kR32_Float;
+		srvDesc.m_srvDimension = GfxDimension::Texture2D;
+		srvDesc.m_format = GfxFormat::R32_Float;
 		srvDesc.m_miplevels = 1;
 		srvDesc.m_arraySize = 1;
-		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kCbvSrvUav).Allocate(1);
+		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Allocate(1);
 		device.CreateShaderResourceView(m_srvDescriptor, *m_texture, srvDesc);
 		
 		GfxDepthStencilViewDesc dsvDesc;
-		m_dsvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kDsv).Allocate(1);
+		m_dsvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::Dsv).Allocate(1);
 		device.CreateDepthStencilView(m_dsvDescriptor, *m_texture, dsvDesc);
 
 		SI_RESOURCE_STATES_POOL().AllocateHandle(this);
@@ -238,8 +238,8 @@ namespace SI
 				SI_RESOURCE_STATES_POOL().DeallocateHandle(this);
 
 				SI_BASE_DEVICE().ReleaseTexture(m_texture);
-				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kCbvSrvUav).Deallocate(m_srvDescriptor);
-				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kDsv).Deallocate(m_dsvDescriptor);
+				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Deallocate(m_srvDescriptor);
+				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::Dsv).Deallocate(m_dsvDescriptor);
 			}
 			else
 			{
@@ -269,13 +269,13 @@ namespace SI
 	{
 		BaseDevice& device = SI_BASE_DEVICE();
 
-		SetInitialResourceStates(GfxResourceState::kCommon);
+		SetInitialResourceStates(GfxResourceState::Common);
 
 		m_texture = SI_NEW(BaseTexture);
 		m_texture->InitializeAsSwapChainTexture(width, height, nativeSwapChain, swapChainIndex);
 		
 		GfxRenderTargetViewDesc rtvDesc;
-		m_rtvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kRtv).Allocate(1);
+		m_rtvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::Rtv).Allocate(1);
 		device.CreateRenderTargetView(m_rtvDescriptor, *m_texture, rtvDesc);
 				
 		SI_RESOURCE_STATES_POOL().AllocateHandle(this);
@@ -296,7 +296,7 @@ namespace SI
 				SI_RESOURCE_STATES_POOL().DeallocateHandle(this);
 
 				SI_DELETE(m_texture);
-				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kRtv).Deallocate(m_rtvDescriptor);
+				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::Rtv).Deallocate(m_rtvDescriptor);
 			}
 			else
 			{

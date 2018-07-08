@@ -12,7 +12,7 @@ namespace SI
 	{
 	public:
 		GfxDescriptorRange()
-			: m_rangeType          (GfxDescriptorRangeType::kSrv)
+			: m_rangeType          (GfxDescriptorRangeType::Srv)
 			, m_descriptorCount    (0)
 			, m_shaderRegisterIndex(0)
 			, m_rangeFlags         (GfxDescriptorRangeFlag::None)

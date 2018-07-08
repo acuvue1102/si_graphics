@@ -59,7 +59,7 @@ namespace SI
 		}
 
 	private:
-		GfxDescriptorAllocator          m_descriptorAllocators[(uint32_t)GfxDescriptorHeapType::kMax];
+		GfxDescriptorAllocator          m_descriptorAllocators[(uint32_t)GfxDescriptorHeapType::Max];
 		GfxResourceStatesPool           m_resourceStatePool;
 		GfxDescriptorHeapPool           m_viewDescriptorHeapPool;
 		GfxDescriptorHeapPool           m_samplerDescriptorHeapPool;

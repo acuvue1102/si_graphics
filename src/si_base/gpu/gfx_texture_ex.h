@@ -38,7 +38,7 @@ namespace SI
 		virtual GfxDescriptor GetDsvDescriptor() const{ return GfxDescriptor(); }
 		virtual GfxDescriptor GetUavDescriptor() const{ return GfxDescriptor(); }
 		
-		virtual GfxResourceStates GetResourceStates() const{ return GfxResourceState::kCommon; }
+		virtual GfxResourceStates GetResourceStates() const{ return GfxResourceState::Common; }
 		virtual void SetResourceStates(GfxResourceStates) {}
 		
 		virtual GfxTextureExType GetType() const
@@ -82,7 +82,7 @@ namespace SI
 	{
 	protected:
 		_GfxTextureEx_Writable()
-			: m_initialStates(GfxResourceState::kMax)
+			: m_initialStates(GfxResourceState::Max)
 			, m_stateHandle(kInvalidHandle)
 		{
 		}

@@ -151,7 +151,7 @@ namespace SI
 		PoolAllocatorEx*                  m_tempAllocator;
 		bool                              m_initialized;
 
-		static size_t                     s_descriptorSize[(int)GfxDescriptorHeapType::kMax];
+		static size_t                     s_descriptorSize[(int)GfxDescriptorHeapType::Max];
 	};
 
 } // namespace SI

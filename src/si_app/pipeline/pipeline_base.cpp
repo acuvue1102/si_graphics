@@ -90,7 +90,7 @@ namespace SI
 		GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
 		context.ResourceBarrier(
 			m_swapChain.GetTexture(),
-			GfxResourceState::kRenderTarget);
+			GfxResourceState::RenderTarget);
 	}
 
 	void PipelineBase::EndRender()
@@ -98,7 +98,7 @@ namespace SI
 		GfxGraphicsContext& context = m_contextManager.GetLastGraphicsContext();
 		context.ResourceBarrier(
 			m_swapChain.GetTexture(),
-			GfxResourceState::kCommon);
+			GfxResourceState::Common);
 		
 		m_contextManager.CloseContexts();
 

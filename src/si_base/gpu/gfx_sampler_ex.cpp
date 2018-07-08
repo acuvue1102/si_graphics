@@ -20,7 +20,7 @@ namespace SI
 		SI_ASSERT(m_descriptor.GetCpuDescriptor().m_ptr == 0);
 
 		BaseDevice& device = SI_BASE_DEVICE();
-		m_descriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kSampler).Allocate(1);
+		m_descriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::Sampler).Allocate(1);
 
 		device.CreateSampler(m_descriptor, samplerDesc);
 	}
@@ -29,7 +29,7 @@ namespace SI
 	{
 		if(m_descriptor.GetCpuDescriptor().m_ptr == 0) return;
 
-		SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::kSampler).Deallocate(m_descriptor);
+		SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::Sampler).Deallocate(m_descriptor);
 		m_descriptor = GfxDescriptor();
 	}
 

@@ -10,9 +10,9 @@ namespace SI
 	{
 		const char*        m_name              = nullptr;
 		size_t             m_bufferSizeInByte  = 0;
-		GfxHeapType        m_heapType          = GfxHeapType::kDefault;
-		GfxResourceStates  m_resourceStates    = GfxResourceState::kCopyDest;
-		GfxResourceFlags   m_resourceFlags     = GfxResourceFlag::kNone;
+		GfxHeapType        m_heapType          = GfxHeapType::Default;
+		GfxResourceStates  m_resourceStates    = GfxResourceState::CopyDest;
+		GfxResourceFlags   m_resourceFlags     = GfxResourceFlag::None;
 	};
 
 	class GfxBuffer
@@ -44,7 +44,7 @@ namespace SI
 	public:
 		GfxIndexBufferView()
 			: m_buffer()
-			, m_format(GfxFormat::kR32_Uint)
+			, m_format(GfxFormat::R32_Uint)
 			, m_sizeInByte(0)
 			, m_offsetInByte(0)
 		{}

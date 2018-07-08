@@ -83,7 +83,7 @@ namespace SI
 	void GfxResourceStatesPool::SetResourceStates(uint32_t resourceStateHanlde, GfxResourceStates states)
 	{
 		SI_ASSERT(resourceStateHanlde != kInvalidHandle);
-		SI_ASSERT(m_stateItemArray[resourceStateHanlde].m_states != GfxResourceState::kMax);
+		SI_ASSERT(m_stateItemArray[resourceStateHanlde].m_states != GfxResourceState::Max);
 		m_stateItemArray[resourceStateHanlde].m_states = states;
 	}
 
@@ -95,7 +95,7 @@ namespace SI
 	GfxResourceStates GfxResourceStatesPool::GetResourceStates(uint32_t resourceStateHanlde)
 	{
 		SI_ASSERT(resourceStateHanlde != kInvalidHandle);
-		SI_ASSERT(m_stateItemArray[resourceStateHanlde].m_states != GfxResourceState::kMax);
+		SI_ASSERT(m_stateItemArray[resourceStateHanlde].m_states != GfxResourceState::Max);
 		return m_stateItemArray[resourceStateHanlde].m_states;
 	}
 
@@ -107,7 +107,7 @@ namespace SI
 	GfxGpuResource* GfxResourceStatesPool::GetGpuResource(uint32_t resourceStateHanlde)
 	{
 		SI_ASSERT(resourceStateHanlde != kInvalidHandle);
-		SI_ASSERT(m_stateItemArray[resourceStateHanlde].m_states != GfxResourceState::kMax);
+		SI_ASSERT(m_stateItemArray[resourceStateHanlde].m_states != GfxResourceState::Max);
 		return m_stateItemArray[resourceStateHanlde].m_gpuResource;
 	}
 

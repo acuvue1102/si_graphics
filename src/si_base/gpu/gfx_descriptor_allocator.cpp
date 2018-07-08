@@ -26,7 +26,7 @@ namespace SI
 		GfxDescriptorHeapDesc desc;
 		desc.m_descriptorCount = maxDescriptorCount;
 		desc.m_type = type;
-		desc.m_flag = GfxDescriptorHeapFlag::kNone;
+		desc.m_flag = GfxDescriptorHeapFlag::None;
 		m_heap = SI_DEVICE().CreateDescriptorHeap(desc);
 		m_baseDescriptor = GfxDescriptor(m_heap.GetCpuDescriptor(0), m_heap.GetGpuDescriptor(0));
 		m_endDescriptor = m_baseDescriptor + m_typeSize * m_maxDescriptorCount;

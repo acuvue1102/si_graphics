@@ -47,7 +47,7 @@ namespace SI
 		void ResourceBarrier(
 			GfxGpuResource& resource,
 			GfxResourceStates after,
-			GfxResourceBarrierFlag flag = GfxResourceBarrierFlag::kNone);
+			GfxResourceBarrierFlag flag = GfxResourceBarrierFlag::None);
 
 		void SetGraphicsRootSignature(GfxRootSignatureEx& rootSignature);
 

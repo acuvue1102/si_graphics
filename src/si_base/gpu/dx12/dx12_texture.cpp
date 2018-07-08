@@ -34,7 +34,7 @@ namespace SI
 		const D3D12_CLEAR_VALUE* clearValue = nullptr;
 		D3D12_CLEAR_VALUE cv = {};
 		
-		if( desc.m_resourceFlags & GfxResourceFlag::kAllowDepthStencil )
+		if( desc.m_resourceFlags & GfxResourceFlag::AllowDepthStencil )
 		{
 			SI_ASSERT(format == DXGI_FORMAT_R32_TYPELESS || format == DXGI_FORMAT_R32G8X24_TYPELESS);
 			cv.Format = (format == DXGI_FORMAT_R32_TYPELESS)? DXGI_FORMAT_D32_FLOAT : DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
@@ -43,7 +43,7 @@ namespace SI
 			cv.DepthStencil.Stencil = desc.m_clearStencil;
 			clearValue = &cv;
 		}
-		else if(desc.m_resourceStates & GfxResourceStates(GfxResourceState::kRenderTarget))
+		else if(desc.m_resourceStates & GfxResourceStates(GfxResourceState::RenderTarget))
 		{
 			cv.Format = format;
 			

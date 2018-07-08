@@ -35,7 +35,7 @@ namespace SI
 			D3D12_DEPTH_WRITE_MASK_ZERO,
 			D3D12_DEPTH_WRITE_MASK_ALL
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxDepthWriteMask::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxDepthWriteMask::Max, "tableError");
 
 		return kTable[(int)mask];		
 	}
@@ -47,7 +47,7 @@ namespace SI
 			D3D12_FILL_MODE_WIREFRAME,
 			D3D12_FILL_MODE_SOLID,
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxFillMode::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxFillMode::Max, "tableError");
 
 		return kTable[(int)mode];
 	}
@@ -61,7 +61,7 @@ namespace SI
 			D3D12_CULL_MODE_FRONT,
 			D3D12_CULL_MODE_BACK,
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxCullMode::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxCullMode::Max, "tableError");
 
 		return kTable[(int)mode];
 	}
@@ -76,7 +76,7 @@ namespace SI
 			D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
 			D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxPrimitiveTopologyType::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxPrimitiveTopologyType::Max, "tableError");
 
 		return kTable[(int)topologyType];
 	}
@@ -84,10 +84,10 @@ namespace SI
 	inline uint8_t GetDx12RenderTargetWriteMask(GfxColorWriteFlags writeFlags)
 	{
 		uint8_t mask = 0;
-		if(writeFlags&GfxColorWriteFlag::kRed)   mask |= D3D12_COLOR_WRITE_ENABLE_RED;
-		if(writeFlags&GfxColorWriteFlag::kGreen) mask |= D3D12_COLOR_WRITE_ENABLE_GREEN;
-		if(writeFlags&GfxColorWriteFlag::kBlue)  mask |= D3D12_COLOR_WRITE_ENABLE_BLUE;
-		if(writeFlags&GfxColorWriteFlag::kAlpha) mask |= D3D12_COLOR_WRITE_ENABLE_ALPHA;
+		if(writeFlags&GfxColorWriteFlag::Red)   mask |= D3D12_COLOR_WRITE_ENABLE_RED;
+		if(writeFlags&GfxColorWriteFlag::Green) mask |= D3D12_COLOR_WRITE_ENABLE_GREEN;
+		if(writeFlags&GfxColorWriteFlag::Blue)  mask |= D3D12_COLOR_WRITE_ENABLE_BLUE;
+		if(writeFlags&GfxColorWriteFlag::Alpha) mask |= D3D12_COLOR_WRITE_ENABLE_ALPHA;
 
 		return mask;
 	}
@@ -113,7 +113,7 @@ namespace SI
 			D3D12_LOGIC_OP_OR_REVERSE,
 			D3D12_LOGIC_OP_OR_INVERTED,
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxLogicOp::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxLogicOp::Max, "tableError");
 
 		return kTable[(int)logicOp];
 	}
@@ -140,7 +140,7 @@ namespace SI
 			D3D12_BLEND_SRC1_ALPHA,
 			D3D12_BLEND_INV_SRC1_ALPHA,
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxBlend::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxBlend::Max, "tableError");
 
 		return kTable[(int)blend];
 	}
@@ -155,7 +155,7 @@ namespace SI
 			D3D12_BLEND_OP_MIN,
 			D3D12_BLEND_OP_MAX,
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxBlendOp::kEnumMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxBlendOp::EnumMax, "tableError");
 
 		return kTable[(int)blendOp];
 	}
@@ -172,7 +172,7 @@ namespace SI
 			D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS,
 			D3D12_RESOURCE_FLAG_VIDEO_DECODE_REFERENCE_ONLY
 		};
-		static_assert(((size_t)1<<(ArraySize(kTable))) == ((size_t)GfxResourceFlag::kMax), "tableError");
+		static_assert(((size_t)1<<(ArraySize(kTable))) == ((size_t)GfxResourceFlag::Max), "tableError");
 
 		D3D12_RESOURCE_FLAGS dxFlags = D3D12_RESOURCE_FLAG_NONE;
 		uint32_t mask = flags.GetMask();
@@ -215,7 +215,7 @@ namespace SI
 			D3D12_RESOURCE_STATE_VIDEO_PROCESS_READ,
 			D3D12_RESOURCE_STATE_VIDEO_PROCESS_WRITE,
 		};
-		static_assert(((size_t)1<<(ArraySize(kTable))) == ((size_t)GfxResourceState::kMax), "tableError");
+		static_assert(((size_t)1<<(ArraySize(kTable))) == ((size_t)GfxResourceState::Max), "tableError");
 
 		D3D12_RESOURCE_STATES state = (D3D12_RESOURCE_STATES)0;
 		uint32_t mask = states.GetMask();
@@ -240,7 +240,7 @@ namespace SI
 			D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY,
 			D3D12_RESOURCE_BARRIER_FLAG_END_ONLY
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxResourceBarrierFlag::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxResourceBarrierFlag::Max, "tableError");
 
 		return kTable[(int)f];
 	}
@@ -258,7 +258,7 @@ namespace SI
 			D3D12_COMPARISON_FUNC_GREATER_EQUAL,
 			D3D12_COMPARISON_FUNC_ALWAYS
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxComparisonFunc::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxComparisonFunc::Max, "tableError");
 
 		return kTable[(int)f];
 	}
@@ -273,7 +273,7 @@ namespace SI
 			D3D12_TEXTURE_ADDRESS_MODE_BORDER,
 			D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxTextureAddress::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxTextureAddress::Max, "tableError");
 
 		return kTable[(int)a];
 	}
@@ -319,7 +319,7 @@ namespace SI
 			D3D12_FILTER_MAXIMUM_MIN_MAG_MIP_LINEAR,
 			D3D12_FILTER_MAXIMUM_ANISOTROPIC,
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxFilter::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxFilter::Max, "tableError");
 
 		return kTable[(int)f];
 	}
@@ -328,18 +328,18 @@ namespace SI
 	{
 		static const D3D12_RESOURCE_DIMENSION kTable[] =
 		{
-			D3D12_RESOURCE_DIMENSION_BUFFER,    // GfxDimension::kBuffer,
-			D3D12_RESOURCE_DIMENSION_TEXTURE1D, // GfxDimension::kTexture1D,
-			D3D12_RESOURCE_DIMENSION_TEXTURE1D, // GfxDimension::kTexture1DArray,
-			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::kTexture2D,
-			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::kTexture2DArray,
-			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::kTexture2DMS,
-			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::kTexture2DMSArray,
-			D3D12_RESOURCE_DIMENSION_TEXTURE3D, // GfxDimension::kTexture3D,
-			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::kTextureCube,
-			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::kTextureCubeArray,
+			D3D12_RESOURCE_DIMENSION_BUFFER,    // GfxDimension::Buffer,
+			D3D12_RESOURCE_DIMENSION_TEXTURE1D, // GfxDimension::Texture1D,
+			D3D12_RESOURCE_DIMENSION_TEXTURE1D, // GfxDimension::Texture1DArray,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::Texture2D,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::Texture2DArray,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::Texture2DMS,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::Texture2DMSArray,
+			D3D12_RESOURCE_DIMENSION_TEXTURE3D, // GfxDimension::Texture3D,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::TextureCube,
+			D3D12_RESOURCE_DIMENSION_TEXTURE2D, // GfxDimension::TextureCubeArray,
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxDimension::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxDimension::Max, "tableError");
 
 		return kTable[(int)d];
 	};
@@ -359,7 +359,7 @@ namespace SI
 			D3D12_SRV_DIMENSION_TEXTURECUBE,
 			D3D12_SRV_DIMENSION_TEXTURECUBEARRAY
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxDimension::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxDimension::Max, "tableError");
 
 		return kTable[(int)d];
 	}
@@ -400,7 +400,7 @@ namespace SI
 			D3D12_DESCRIPTOR_RANGE_TYPE_CBV,
 			D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER,
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxDescriptorRangeType::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxDescriptorRangeType::Max, "tableError");
 
 		return kTable[(int)type];
 	}
@@ -414,7 +414,7 @@ namespace SI
 			D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
 			D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxDescriptorHeapType::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxDescriptorHeapType::Max, "tableError");
 
 		return kTable[(int)type];
 	}
@@ -426,7 +426,7 @@ namespace SI
 			D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxDescriptorHeapFlag::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxDescriptorHeapFlag::Max, "tableError");
 
 		return kTable[(int)flag];
 	}
@@ -478,7 +478,7 @@ namespace SI
 			D3D_PRIMITIVE_TOPOLOGY_31_CONTROL_POINT_PATCHLIST,
 			D3D_PRIMITIVE_TOPOLOGY_32_CONTROL_POINT_PATCHLIST,
 		};
-		static_assert(ArraySize(kTable)==(size_t)GfxPrimitiveTopology::kMax, "TableError");
+		static_assert(ArraySize(kTable)==(size_t)GfxPrimitiveTopology::Max, "TableError");
 
 		return kTable[(int)topology];
 	}
@@ -492,7 +492,7 @@ namespace SI
 			D3D12_HEAP_TYPE_READBACK,
 			D3D12_HEAP_TYPE_CUSTOM
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxHeapType::kMax, "tableError");
+		static_assert(ArraySize(kTable) == (size_t)GfxHeapType::Max, "tableError");
 
 		return kTable[(int)type];
 	}
@@ -621,7 +621,7 @@ namespace SI
 			//DXGI_FORMAT_V208                        ,
 			//DXGI_FORMAT_V408                        ,
 		};
-		static_assert(SI::ArraySize(kTable) == (size_t)GfxFormat::kMax, "tableError");
+		static_assert(SI::ArraySize(kTable) == (size_t)GfxFormat::Max, "tableError");
 
 		return kTable[(int)format];
 	}

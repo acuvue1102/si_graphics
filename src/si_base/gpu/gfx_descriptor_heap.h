@@ -12,8 +12,8 @@ namespace SI
 
 	struct GfxDescriptorHeapDesc
 	{
-		GfxDescriptorHeapType m_type            = GfxDescriptorHeapType::kCbvSrvUav;
-		GfxDescriptorHeapFlag m_flag            = GfxDescriptorHeapFlag::kNone;
+		GfxDescriptorHeapType m_type            = GfxDescriptorHeapType::CbvSrvUav;
+		GfxDescriptorHeapFlag m_flag            = GfxDescriptorHeapFlag::None;
 		uint32_t              m_descriptorCount = 0;
 	};
 
@@ -27,21 +27,21 @@ namespace SI
 
 	struct GfxShaderResourceViewDesc
 	{
-		GfxDimension    m_srvDimension = GfxDimension::kTexture2D;
-		GfxFormat       m_format       = GfxFormat::kR8G8B8A8_Unorm;
+		GfxDimension    m_srvDimension = GfxDimension::Texture2D;
+		GfxFormat       m_format       = GfxFormat::R8G8B8A8_Unorm;
 		uint32_t        m_miplevels    = 1;
 		uint32_t        m_arraySize    = 1;
 	};
 
 	struct GfxSamplerDesc
 	{
-		GfxFilter           m_filter         = GfxFilter::kMinMagMipPoint;
-		GfxTextureAddress   m_addressU       = GfxTextureAddress::kWrap;
-		GfxTextureAddress   m_addressV       = GfxTextureAddress::kWrap;
-		GfxTextureAddress   m_addressW       = GfxTextureAddress::kWrap;
+		GfxFilter           m_filter         = GfxFilter::MinMagMipPoint;
+		GfxTextureAddress   m_addressU       = GfxTextureAddress::Wrap;
+		GfxTextureAddress   m_addressV       = GfxTextureAddress::Wrap;
+		GfxTextureAddress   m_addressW       = GfxTextureAddress::Wrap;
 		float               m_mipLODBias     = 0.0f;
 		uint32_t            m_maxAnisotropy  = 1;
-		GfxComparisonFunc   m_comparisonFunc = GfxComparisonFunc::kLess;
+		GfxComparisonFunc   m_comparisonFunc = GfxComparisonFunc::Less;
 		float               m_borderColor[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 		float               m_minLOD         = 0.0f;
 		float               m_maxLOD         = kFltMax;

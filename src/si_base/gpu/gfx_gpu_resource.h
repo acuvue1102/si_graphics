@@ -18,7 +18,7 @@ namespace SI
 		virtual GfxResourceStates GetInitialResourceStates() const
 		{
 			SI_ASSERT(0);
-			return GfxResourceState::kMax;
+			return GfxResourceState::Max;
 		}
 		
 		virtual uint32_t GetResourceStateHandle() const

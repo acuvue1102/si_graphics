@@ -41,13 +41,13 @@ namespace SI
 			GfxTexture& texture,
 			GfxResourceStates before,
 			GfxResourceStates after,
-			GfxResourceBarrierFlag flag = GfxResourceBarrierFlag::kNone);
+			GfxResourceBarrierFlag flag = GfxResourceBarrierFlag::None);
 		
 		void ResourceBarrier(
 			GfxGpuResource& resource,
 			GfxResourceStates before,
 			GfxResourceStates after,
-			GfxResourceBarrierFlag flag = GfxResourceBarrierFlag::kNone);
+			GfxResourceBarrierFlag flag = GfxResourceBarrierFlag::None);
 
 		int Close();
 

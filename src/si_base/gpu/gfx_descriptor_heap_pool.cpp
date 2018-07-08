@@ -7,7 +7,7 @@
 namespace SI
 {	
 	GfxDescriptorHeapPool::GfxDescriptorHeapPool()
-		: m_heapType(GfxDescriptorHeapType::kMax)
+		: m_heapType(GfxDescriptorHeapType::Max)
 		, m_usingHeapIndex(0)
 	{
 	}
@@ -19,8 +19,8 @@ namespace SI
 
 	void GfxDescriptorHeapPool::Initialize(GfxDescriptorHeapType heapType, uint32_t maxHeapCount)
 	{
-		SI_ASSERT(heapType != GfxDescriptorHeapType::kMax);
-		SI_ASSERT(m_heapType == GfxDescriptorHeapType::kMax);
+		SI_ASSERT(heapType != GfxDescriptorHeapType::Max);
+		SI_ASSERT(m_heapType == GfxDescriptorHeapType::Max);
 
 		m_heapType = heapType;
 		m_heapPool.Initialize(maxHeapCount);
@@ -33,7 +33,7 @@ namespace SI
 
 	void GfxDescriptorHeapPool::Terminate()
 	{
-		if(m_heapType == GfxDescriptorHeapType::kMax) return;
+		if(m_heapType == GfxDescriptorHeapType::Max) return;
 
 		GfxDevice& device = SI_DEVICE();
 
@@ -57,12 +57,12 @@ namespace SI
 		}
 
 		m_heapPool.Terminate();
-		m_heapType = GfxDescriptorHeapType::kMax;
+		m_heapType = GfxDescriptorHeapType::Max;
 	}
 	
 	GfxDescriptorHeap* GfxDescriptorHeapPool::Allocate()
 	{
-		SI_ASSERT(m_heapType != GfxDescriptorHeapType::kMax);
+		SI_ASSERT(m_heapType != GfxDescriptorHeapType::Max);
 
 		MutexLocker locker(m_mutex);
 
@@ -73,7 +73,7 @@ namespace SI
 
 			GfxDescriptorHeapDesc desc;
 			desc.m_type = m_heapType;
-			desc.m_flag = GfxDescriptorHeapFlag::kShaderVisible;
+			desc.m_flag = GfxDescriptorHeapFlag::ShaderVisible;
 			desc.m_descriptorCount = kDescriptorCountPerHeap;
 
 			*heap = SI_DEVICE().CreateDescriptorHeap(desc);
@@ -84,7 +84,7 @@ namespace SI
 
 	void GfxDescriptorHeapPool::Deallocate(GfxDescriptorHeap* heap)
 	{
-		SI_ASSERT(m_heapType != GfxDescriptorHeapType::kMax);
+		SI_ASSERT(m_heapType != GfxDescriptorHeapType::Max);
 
 		MutexLocker locker(m_mutex);
 		

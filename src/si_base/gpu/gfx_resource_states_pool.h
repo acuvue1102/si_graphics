@@ -35,7 +35,7 @@ namespace SI
 		public:
 			StatesItem()
 				: m_gpuResource(nullptr)
-				, m_states(GfxResourceState::kMax)
+				, m_states(GfxResourceState::Max)
 			{
 			}
 

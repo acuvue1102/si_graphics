@@ -41,14 +41,14 @@ namespace SI
 		m_currentStates  = SI_NEW_ARRAY(GfxResourceStates, m_maxStateCount);
 		for(uint32_t i=0; i<m_maxStateCount; ++i)
 		{
-			m_penddingStates[i] = GfxResourceState::kPendding;
-			m_currentStates [i] = GfxResourceState::kPendding;
+			m_penddingStates[i] = GfxResourceState::Pendding;
+			m_currentStates [i] = GfxResourceState::Pendding;
 		}
 		m_cpuLinearAllocator.Initialize(true);
 		m_gpuLinearAllocator.Initialize(false);
 		
-		m_viewDynamicDescriptorHeap.Initialize(SI::GfxDescriptorHeapType::kCbvSrvUav);
-		m_samplerDynamicDescriptorHeap.Initialize(SI::GfxDescriptorHeapType::kSampler);
+		m_viewDynamicDescriptorHeap.Initialize(SI::GfxDescriptorHeapType::CbvSrvUav);
+		m_samplerDynamicDescriptorHeap.Initialize(SI::GfxDescriptorHeapType::Sampler);
 	}
 
 	void GfxGraphicsContext::Terminate()
@@ -77,8 +77,8 @@ namespace SI
 		uint32_t maxAllocatedStateCount = SI_RESOURCE_STATES_POOL().GetMaxAllocatedStateCount(); // 確保された最大ハンドル.
 		for(uint32_t i=0; i<maxAllocatedStateCount; ++i)
 		{
-			m_penddingStates[i] = GfxResourceState::kPendding;
-			m_currentStates [i] = GfxResourceState::kPendding;
+			m_penddingStates[i] = GfxResourceState::Pendding;
+			m_currentStates [i] = GfxResourceState::Pendding;
 		}
 		
 		m_cpuLinearAllocator.Reset();
@@ -138,7 +138,7 @@ namespace SI
 		uint32_t resourceStateHandle = resource.GetResourceStateHandle();
 		GfxResourceStates before = GetCurrentResourceState(resourceStateHandle);
 
-		if(before == GfxResourceState::kPendding)
+		if(before == GfxResourceState::Pendding)
 		{
 			// 前のコンテキストでの設定の影響を受けるので、後で解決する.
 			SetPenddingResourceState(resourceStateHandle, after);
@@ -339,7 +339,7 @@ namespace SI
 
 		GfxIndexBufferView view(
 			mem.GetBuffer(),
-			GfxFormat::kR16_Uint,
+			GfxFormat::R16_Uint,
 			mem.GetSize(),
 			mem.GetOffset());
 
@@ -355,7 +355,7 @@ namespace SI
 
 		GfxIndexBufferView view(
 			mem.GetBuffer(),
-			GfxFormat::kR32_Uint,
+			GfxFormat::R32_Uint,
 			mem.GetSize(),
 			mem.GetOffset());
 
@@ -446,7 +446,7 @@ namespace SI
 	void GfxGraphicsContext::SetPenddingResourceState(uint32_t resourceStateHandle, GfxResourceStates states)
 	{
 		SI_ASSERT(resourceStateHandle < m_maxStateCount);
-		SI_ASSERT(m_penddingStates[resourceStateHandle] == GfxResourceState::kPendding);
+		SI_ASSERT(m_penddingStates[resourceStateHandle] == GfxResourceState::Pendding);
 		m_penddingStates[resourceStateHandle] = states;
 	}
 	

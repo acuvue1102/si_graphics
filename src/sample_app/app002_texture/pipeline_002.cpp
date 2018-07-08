@@ -179,7 +179,7 @@ namespace APP002
 		// 四角形の頂点バッファのセットアップ.
 		{
 			GfxBufferDesc vertexBufferDesc;
-			vertexBufferDesc.m_heapType = GfxHeapType::kDefault;
+			vertexBufferDesc.m_heapType = GfxHeapType::Default;
 			vertexBufferDesc.m_bufferSizeInByte = sizeof(kVertexData);
 			m_quadVertexBuffer = m_device.CreateBuffer(vertexBufferDesc);
 		}
@@ -187,12 +187,12 @@ namespace APP002
 		// ボックスの頂点バッファのセットアップ.
 		{
 			GfxBufferDesc vertexBufferDesc;
-			vertexBufferDesc.m_heapType = GfxHeapType::kDefault;
+			vertexBufferDesc.m_heapType = GfxHeapType::Default;
 			vertexBufferDesc.m_bufferSizeInByte = sizeof(kBoxVertexData);
 			m_boxVertexBuffer = m_device.CreateBuffer(vertexBufferDesc);
 			
 			GfxBufferDesc indexBufferDesc;
-			indexBufferDesc.m_heapType = GfxHeapType::kDefault;
+			indexBufferDesc.m_heapType = GfxHeapType::Default;
 			indexBufferDesc.m_bufferSizeInByte = sizeof(kBoxIndexData);
 			m_boxIndexBuffer = m_device.CreateBuffer(indexBufferDesc);
 		}
@@ -245,12 +245,12 @@ namespace APP002
 
 		// static textureのセットアップ.
 		{
-			m_texture.InitializeAs2DStatic("whiteBlack2", 256, 256, GfxFormat::kR8G8B8A8_Unorm);
+			m_texture.InitializeAs2DStatic("whiteBlack2", 256, 256, GfxFormat::R8G8B8A8_Unorm);
 		}
 		
 		// render targetのセットアップ.
 		{
-			m_rt.InitializeAs2DRt("RT0", 1024, 1024, GfxFormat::kR8G8B8A8_Unorm, GfxColorRGBA(kRtCleaColor));
+			m_rt.InitializeAs2DRt("RT0", 1024, 1024, GfxFormat::R8G8B8A8_Unorm, GfxColorRGBA(kRtCleaColor));
 		}
 		
 		// depth render targetのセットアップ.
@@ -271,12 +271,12 @@ namespace APP002
 
 			GfxDescriptorHeapTableEx& table0 = rootSignatureDesc.GetTable(0);
 			table0.ReserveRanges(2);
-			table0.GetRange(0).Set(GfxDescriptorRangeType::kSrv, 1, 0, GfxDescriptorRangeFlag::Volatile);
-			table0.GetRange(1).Set(GfxDescriptorRangeType::kCbv, 1, 1, GfxDescriptorRangeFlag::Volatile);
+			table0.GetRange(0).Set(GfxDescriptorRangeType::Srv, 1, 0, GfxDescriptorRangeFlag::Volatile);
+			table0.GetRange(1).Set(GfxDescriptorRangeType::Cbv, 1, 1, GfxDescriptorRangeFlag::Volatile);
 
 			GfxDescriptorHeapTableEx& table1 = rootSignatureDesc.GetTable(1);
 			table1.ReserveRanges(1);
-			table1.GetRange(0).Set(GfxDescriptorRangeType::kSampler, 1, 0, GfxDescriptorRangeFlag::DescriptorsVolatile);
+			table1.GetRange(0).Set(GfxDescriptorRangeType::Sampler, 1, 0, GfxDescriptorRangeFlag::DescriptorsVolatile);
 
 			rootSignatureDesc.SetName("rootSig0");
 			m_rootSignatures[0].Initialize(rootSignatureDesc);
@@ -289,29 +289,29 @@ namespace APP002
 		{
 			static const GfxInputElement kPosNormalUvVertexElements[] =
 			{
-				{"POSITION",  0, GfxFormat::kR32G32B32_Float,  0, 0},
-				{"NORMAL",    0, GfxFormat::kR32G32B32_Float,  0, 12},
-				{"TEXCOORD",  0, GfxFormat::kR32G32_Float,     0, 24},
+				{"POSITION",  0, GfxFormat::R32G32B32_Float,  0, 0},
+				{"NORMAL",    0, GfxFormat::R32G32B32_Float,  0, 12},
+				{"TEXCOORD",  0, GfxFormat::R32G32_Float,     0, 24},
 			};
 
 			static const GfxInputElement kPosUvVertexElements[] =
 			{
-				{"POSITION",  0, GfxFormat::kR32G32B32_Float,  0, 0},
-				{"TEXCOORD",  0, GfxFormat::kR32G32_Float,     0, 12},
+				{"POSITION",  0, GfxFormat::R32G32B32_Float,  0, 0},
+				{"TEXCOORD",  0, GfxFormat::R32G32_Float,     0, 12},
 			};
 
 			GfxGraphicsStateDesc stateDesc;
-			stateDesc.m_cullMode           = GfxCullMode::kBack;
+			stateDesc.m_cullMode           = GfxCullMode::Back;
 			stateDesc.m_inputElements      = kPosNormalUvVertexElements;
 			stateDesc.m_inputElementCount  = (int)ArraySize(kPosNormalUvVertexElements);
 			stateDesc.m_rootSignature      = &m_rootSignatures[0].GetRootSignature();
 			stateDesc.m_vertexShader       = &m_lambertVS;
 			stateDesc.m_pixelShader        = &m_lambertPS;
-			stateDesc.m_rtvFormats[0]      = GfxFormat::kR8G8B8A8_Unorm;
-			stateDesc.m_dsvFormat          = GfxFormat::kD32_Float;
+			stateDesc.m_rtvFormats[0]      = GfxFormat::R8G8B8A8_Unorm;
+			stateDesc.m_dsvFormat          = GfxFormat::D32_Float;
 			stateDesc.m_depthEnable        = true;
-			stateDesc.m_depthFunc          = GfxComparisonFunc::kLessEqual;
-			stateDesc.m_depthWriteMask     = GfxDepthWriteMask::kAll;
+			stateDesc.m_depthFunc          = GfxComparisonFunc::LessEqual;
+			stateDesc.m_depthWriteMask     = GfxDepthWriteMask::All;
 			m_graphicsStates[0] = m_device.CreateGraphicsState(stateDesc);
 		
 			stateDesc.m_vertexShader       = &m_textureVS;
@@ -319,8 +319,8 @@ namespace APP002
 			stateDesc.m_inputElements      = kPosUvVertexElements;
 			stateDesc.m_inputElementCount  = (int)ArraySize(kPosUvVertexElements);
 			stateDesc.m_rootSignature      = &m_rootSignatures[1].GetRootSignature();
-			stateDesc.m_rtvFormats[0]      = GfxFormat::kR8G8B8A8_Unorm;
-			stateDesc.m_dsvFormat          = GfxFormat::kUnknown;
+			stateDesc.m_rtvFormats[0]      = GfxFormat::R8G8B8A8_Unorm;
+			stateDesc.m_dsvFormat          = GfxFormat::Unknown;
 			stateDesc.m_depthEnable        = false;
 			m_graphicsStates[1] = m_device.CreateGraphicsState(stateDesc);
 		}
@@ -403,11 +403,11 @@ namespace APP002
 		GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
 		context.ResourceBarrier(
 			m_depth,
-			GfxResourceState::kDepthWrite);
+			GfxResourceState::DepthWrite);
 
 		context.ResourceBarrier(
 			m_rt,
-			GfxResourceState::kRenderTarget);
+			GfxResourceState::RenderTarget);
 
 		// 箱をレンダーターゲットに対して描く
 		{
@@ -428,20 +428,20 @@ namespace APP002
 			context.ClearRenderTarget(m_rt);
 			context.ClearDepthStencilTarget(m_depth);
 
-			context.SetPrimitiveTopology(GfxPrimitiveTopology::kTriangleList);
+			context.SetPrimitiveTopology(GfxPrimitiveTopology::TriangleList);
 
 			GfxVertexBufferView vertexBufferView(m_boxVertexBuffer, m_boxVertexBuffer.GetSize(), sizeof(PosNormalUvVertex));
 			GfxVertexBufferView* vertexBufferViews[] = { &vertexBufferView };
 			context.SetVertexBuffers(0, 1, vertexBufferViews);
 
-			GfxIndexBufferView indexBufferView(m_boxIndexBuffer, GfxFormat::kR16_Uint, m_boxIndexBuffer.GetSize());
+			GfxIndexBufferView indexBufferView(m_boxIndexBuffer, GfxFormat::R16_Uint, m_boxIndexBuffer.GetSize());
 			context.SetIndexBuffer(&indexBufferView);
 			
 			context.DrawIndexedInstanced((uint32_t)ArraySize(kBoxIndexData), 8);
 		}
 		
-		context.ResourceBarrier(m_rt, GfxResourceState::kPixelShaderResource);		
-		context.ResourceBarrier(m_depth, GfxResourceState::kGenericRead);
+		context.ResourceBarrier(m_rt, GfxResourceState::PixelShaderResource);		
+		context.ResourceBarrier(m_depth, GfxResourceState::GenericRead);
 		
 		// 箱を描いたレンダーターゲットテクスチャをスワップチェインに描画する
 		{
@@ -462,7 +462,7 @@ namespace APP002
 			swapChainTexture.SetClearColor(GfxColorRGBA(0.0f, 0.2f, 0.4f, 1.0f));
 			context.ClearRenderTarget(swapChainTexture);
 
-			context.SetPrimitiveTopology(GfxPrimitiveTopology::kTriangleList);
+			context.SetPrimitiveTopology(GfxPrimitiveTopology::TriangleList);
 
 			GfxVertexBufferView vertexBufferView(m_quadVertexBuffer, m_quadVertexBuffer.GetSize(), sizeof(PosUvVertex));
 			GfxVertexBufferView* vertexBufferViews[] = {&vertexBufferView};
