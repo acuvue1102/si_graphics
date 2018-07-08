@@ -16,6 +16,7 @@ namespace SI
 
 		int Present(uint32_t syncInterval);
 		int Flip();
+		int Wait();
 
 	public:
 		GfxTexture GetSwapChainTexture();

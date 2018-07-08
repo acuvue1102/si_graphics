@@ -20,7 +20,7 @@ namespace APP001
 		int LoadAsset(const AppInitializeInfo& info);
 
 	protected:
-		GfxRootSignature         m_rootSignature;
+		GfxRootSignatureEx       m_rootSignature;
 		GfxGraphicsState         m_graphicsState;
 		
 		GfxVertexShader          m_vertexShader;

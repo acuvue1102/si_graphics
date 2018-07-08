@@ -38,6 +38,10 @@ namespace SI
 		return 0;
 	}
 	
+	void BaseCommandQueue::Terminate()
+	{
+	}
+	
 	void BaseCommandQueue::ExecuteCommandList(BaseCommandList& list)
 	{
 		ID3D12CommandList* commandLists[] = { list.GetCommandList() };
@@ -77,6 +81,18 @@ namespace SI
 	int BaseCommandQueue::Signal(BaseFence& fence, uint64_t fenceValue)
 	{
 		HRESULT hr = m_commandQueue->Signal(fence.GetComPtrFence().Get(), fenceValue);
+		if(FAILED(hr))
+		{
+			SI_ASSERT(0, "error CreateCommandQueue", _com_error(hr).ErrorMessage());
+			return -1;
+		}
+
+		return 0;
+	}
+
+	int BaseCommandQueue::Wait(BaseFence& fence, uint64_t fenceValue)
+	{
+		HRESULT hr = m_commandQueue->Wait(fence.GetComPtrFence().Get(), fenceValue);
 		if(FAILED(hr))
 		{
 			SI_ASSERT(0, "error CreateCommandQueue", _com_error(hr).ErrorMessage());

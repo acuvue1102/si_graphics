@@ -49,7 +49,8 @@ namespace SI
 	{		
 	public:
 		GfxRootSignatureDescEx()
-			: m_tables(nullptr)
+			: m_name(nullptr)
+			, m_tables(nullptr)
 			, m_tableCount(0)
 		{
 		}
@@ -59,6 +60,11 @@ namespace SI
 		~GfxRootSignatureDescEx()
 		{
 			Terminate();
+		}
+
+		void SetName(const char* name)
+		{
+			m_name = name;
 		}
 
 		// tableのメモリ開放.
@@ -72,16 +78,11 @@ namespace SI
 			SI_ASSERT(tableIndex < m_tableCount);
 			return m_tables[tableIndex];
 		}
-	
-		GfxDescriptorHeapTableEx& operator[] ( size_t tableIndex )
-		{
-			SI_ASSERT(tableIndex < (size_t)m_tableCount);
-			return m_tables[tableIndex];
-		}
 
 		GfxRootSignatureDesc GetDesc() const
 		{
 			return GfxRootSignatureDesc(
+				m_name,
 				reinterpret_cast<GfxDescriptorHeapTable*>(m_tables),
 				m_tableCount);
 		}
@@ -92,6 +93,7 @@ namespace SI
 		}
 
 	private:
+		const char*               m_name;
 		GfxDescriptorHeapTableEx* m_tables;
 		uint32_t                  m_tableCount;
 	};
@@ -115,7 +117,8 @@ namespace SI
 		void Terminate();
 
 	public:
-		GfxRootSignature GetRootSignature() const{ return m_sig; }
+		GfxRootSignature&       GetRootSignature(){ return m_sig; }
+		const GfxRootSignature& GetRootSignature() const{ return m_sig; }
 		operator GfxRootSignature() const{ return m_sig; }
 
 		uint64_t GetSamplerTableBits()             const{ return m_samplerTableBits; };

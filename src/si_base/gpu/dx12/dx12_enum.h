@@ -364,17 +364,31 @@ namespace SI
 		return kTable[(int)d];
 	}
 
-	inline D3D12_DESCRIPTOR_RANGE_FLAGS GetDx12DescriptorRangeFlags(GfxDescriptorRangeFlag flag)
+	inline D3D12_DESCRIPTOR_RANGE_FLAGS GetDx12DescriptorRangeFlags(GfxDescriptorRangeFlags flag)
 	{
-		// もっとフラグあるけど、使いそうなものだけにしておく.
-		static const D3D12_DESCRIPTOR_RANGE_FLAGS kTable[] =
+		static const D3D12_DESCRIPTOR_RANGE_FLAGS kTable[] = 
 		{
-			D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC,
+			D3D12_DESCRIPTOR_RANGE_FLAG_NONE,
+			D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE,
 			D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE,
+			D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE,
+			D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC,
 		};
-		static_assert(ArraySize(kTable) == (size_t)GfxDescriptorRangeFlag::kMax, "tableError");
+		static_assert(((size_t)1<<(ArraySize(kTable))) == ((size_t)GfxDescriptorRangeFlag::Max), "tableError");
 
-		return kTable[(int)flag];
+		D3D12_DESCRIPTOR_RANGE_FLAGS dxFlag = (D3D12_DESCRIPTOR_RANGE_FLAGS)0;
+		uint32_t mask = flag.GetMask();
+		while(mask != 0)
+		{
+			int msb = Bitwise::MSB32(mask);
+			if(msb<0) break;
+			if((int)ArraySize(kTable) <= msb) continue;
+
+			dxFlag |= kTable[msb];
+			mask &= ~((uint32_t)1<<(uint32_t)msb);
+		}
+
+		return dxFlag;
 	}
 
 	inline D3D12_DESCRIPTOR_RANGE_TYPE GetDx12DescriptorRangeType(GfxDescriptorRangeType type)

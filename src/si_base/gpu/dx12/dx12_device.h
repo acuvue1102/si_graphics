@@ -94,15 +94,23 @@ namespace SI
 			GfxDescriptor& descriptor,
 			BaseTexture& texture,
 			const GfxShaderResourceViewDesc& desc);
-
+		
 		void CreateSampler(
 			BaseDescriptorHeap& descriptorHeap,
 			uint32_t descriptorIndex,
 			const GfxSamplerDesc& desc);
 
+		void CreateSampler(
+			GfxDescriptor& descriptor,
+			const GfxSamplerDesc& desc);
+
 		void CreateConstantBufferView(
 			BaseDescriptorHeap& descriptorHeap,
 			uint32_t descriptorIndex,
+			const GfxConstantBufferViewDesc& desc);
+
+		void CreateConstantBufferView(
+			GfxDescriptor& descriptor,
 			const GfxConstantBufferViewDesc& desc);
 
 		void CopyDescriptors(

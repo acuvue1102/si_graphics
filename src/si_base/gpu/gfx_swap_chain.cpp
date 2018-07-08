@@ -24,6 +24,11 @@ namespace SI
 		return m_base->Flip();
 	}
 	
+	int GfxSwapChain::Wait()
+	{
+		return m_base->Wait();
+	}
+	
 	GfxTexture GfxSwapChain::GetSwapChainTexture()
 	{
 		GfxTexture tex(&m_base->GetSwapChainTexture());

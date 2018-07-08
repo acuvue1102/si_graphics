@@ -33,10 +33,10 @@ namespace SI
 		void InitializeAs2DStatic( const char* name, uint32_t width, uint32_t height, GfxFormat format);
 		void TerminateStatic();
 		
-		        const GfxDescriptor GetSrvDescriptor() const{ return m_srvDescriptor; }
-		virtual const GfxDescriptor GetRtvDescriptor() const{ return GfxDescriptor(); }
-		virtual const GfxDescriptor GetDsvDescriptor() const{ return GfxDescriptor(); }
-		virtual const GfxDescriptor GetUavDescriptor() const{ return GfxDescriptor(); }
+		        GfxDescriptor GetSrvDescriptor() const{ return m_srvDescriptor; }
+		virtual GfxDescriptor GetRtvDescriptor() const{ return GfxDescriptor(); }
+		virtual GfxDescriptor GetDsvDescriptor() const{ return GfxDescriptor(); }
+		virtual GfxDescriptor GetUavDescriptor() const{ return GfxDescriptor(); }
 		
 		virtual GfxResourceStates GetResourceStates() const{ return GfxResourceState::kCommon; }
 		virtual void SetResourceStates(GfxResourceStates) {}
@@ -150,7 +150,7 @@ namespace SI
 			return m_clearColor;
 		}
 
-		virtual const GfxDescriptor GetRtvDescriptor() const override
+		virtual GfxDescriptor GetRtvDescriptor() const override
 		{
 			return m_rtvDescriptor;
 		}
@@ -197,7 +197,7 @@ namespace SI
 			return m_clearDepthStencil;
 		}
 
-		virtual const GfxDescriptor GetDsvDescriptor() const override
+		virtual GfxDescriptor GetDsvDescriptor() const override
 		{
 			return m_dsvDescriptor;
 		}
@@ -235,7 +235,7 @@ namespace SI
 			return GfxTextureExType::SwapChain;
 		}
 
-		virtual const GfxDescriptor GetRtvDescriptor() const override
+		virtual GfxDescriptor GetRtvDescriptor() const override
 		{
 			return m_rtvDescriptor;
 		}

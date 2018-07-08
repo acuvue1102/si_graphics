@@ -10,7 +10,7 @@ namespace SI
 {
 	struct GfxCoreDesc
 	{
-		uint32_t m_maxDescriptorCount = 8096;
+		uint32_t m_maxDescriptorCount = 1024;
 		uint32_t m_maxResourceStates  = 512;
 		uint32_t m_queueBufferCount   = 3;
 		uint32_t m_maxViewDescriptorHeapCount    = 1024;

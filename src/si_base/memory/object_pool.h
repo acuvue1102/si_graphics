@@ -61,10 +61,11 @@ namespace SI
 			if(obj == nullptr) return;
 			SI_ASSERT(m_objects);
 			SI_ASSERT(0<m_allocatedObjectCount);
-
+			
 			uintptr_t diff = ((uintptr_t)obj) - ((uintptr_t)m_objects);
 			SI_ASSERT((diff % sizeof(T)) == 0);
-			uint32_t handle = (diff % sizeof(T));
+			uint32_t handle = (uint32_t)(diff / sizeof(T));
+
 			m_handleAllocator.Deallocate(handle);
 
 			--m_allocatedObjectCount;

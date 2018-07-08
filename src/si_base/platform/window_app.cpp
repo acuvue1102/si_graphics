@@ -1,9 +1,8 @@
 ﻿#include <locale.h>
-#include <Windows.h>
-#include <Windowsx.h>
 #include <stdio.h>
 #include <tchar.h>
 
+#include "si_base/platform/windows_proxy.h"
 #include "si_base/platform/window_app.h"
 
 namespace SI
@@ -212,8 +211,8 @@ namespace SI
 		// マウス関連の処理.
 		case WM_MOUSEMOVE:
 		{
-			m_mouse.SetX( GET_X_LPARAM(lParam) );
-			m_mouse.SetY( GET_Y_LPARAM(lParam) );
+			m_mouse.SetX( (int)(short)LOWORD(lParam) );
+			m_mouse.SetY( (int)(short)HIWORD(lParam) );
 			OnMouseMove(m_mouse.GetX(), m_mouse.GetY());
 			break;
 		}

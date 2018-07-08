@@ -21,11 +21,13 @@ namespace SI
 		~BaseCommandQueue();
 
 		int Initialize(ID3D12Device& device);
+		void Terminate();
 		
 		void ExecuteCommandList(BaseCommandList& list);
 		void ExecuteCommandLists(int count, GfxCommandList** lists);
 		
 		int Signal(BaseFence& fence, uint64_t fenceIndex);
+		int Wait(BaseFence& fence, uint64_t fenceIndex);
 
 	public:		
 		ComPtr<ID3D12CommandQueue>& GetComPtrCommandQueue()

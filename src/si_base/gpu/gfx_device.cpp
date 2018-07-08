@@ -239,6 +239,15 @@ namespace SI
 			desc);
 	}
 	
+	void GfxDevice::CreateSampler(
+		GfxDescriptor& descriptor,
+		const GfxSamplerDesc& desc)
+	{
+		m_base->CreateSampler(
+			descriptor,
+			desc);
+	}
+	
 	void GfxDevice::CreateConstantBufferView(
 		GfxDescriptorHeap& descriptorHeap,
 		uint32_t descriptorIndex,

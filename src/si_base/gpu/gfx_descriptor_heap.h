@@ -61,6 +61,7 @@ namespace SI
 		{
 		}
 	};
+
 	struct GfxGpuDescriptor
 	{
 		size_t m_ptr;

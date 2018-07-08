@@ -8,10 +8,13 @@
 #include "si_base/gpu/gfx_graphics_command_list.h"
 #include "si_base/core/non_copyable.h"
 #include "si_base/gpu/gfx_texture_ex.h"
+#include "si_base/gpu/gfx_dynamic_descriptor_heap.h"
 
 namespace SI
 {
 	class GfxTextureEx;
+	class GfxBufferEx;
+	class GfxSamplerEx;
 	class BaseCommandList;
 	class BaseGraphicsCommandList;
 	class GfxTexture;
@@ -46,11 +49,38 @@ namespace SI
 			GfxResourceStates after,
 			GfxResourceBarrierFlag flag = GfxResourceBarrierFlag::kNone);
 
-		void SetGraphicsRootSignature(GfxRootSignature& rootSignature);
+		void SetGraphicsRootSignature(GfxRootSignatureEx& rootSignature);
 
-		void SetDescriptorHeaps(uint32_t descriptorHeapCount, GfxDescriptorHeap* const* descriptorHeaps);
+		void SetDescriptorHeapsDirectly(uint32_t descriptorHeapCount, GfxDescriptorHeap* const* descriptorHeaps);
+		
+		void SetDescriptorHeaps(GfxDescriptorHeap* cbvSrvUavDescriptorHeap, GfxDescriptorHeap* samplerDescriptorHeap);
+		void SetCbvSrvUavDescriptorHeap(GfxDescriptorHeap* cbvSrvUavDescriptorHeap);
+		void SetSamplerDescriptorHeap(GfxDescriptorHeap* samplerDescriptorHeap);
 
 		void SetGraphicsDescriptorTable(uint32_t tableIndex, GfxGpuDescriptor descriptor);
+		
+		void SetDynamicViewDescriptor( 
+			uint32_t rootIndex, uint32_t offset,
+			const GfxTextureEx& texture);
+		void SetDynamicViewDescriptor( 
+			uint32_t rootIndex, uint32_t offset,
+			const GfxBufferEx& buffer);
+		void SetDynamicViewDescriptor( 
+			uint32_t rootIndex, uint32_t offset,
+			GfxCpuDescriptor descriptor);
+		void SetDynamicViewDescriptors(
+			uint32_t rootIndex, uint32_t offset,
+			uint32_t descriptorCount, const GfxCpuDescriptor* descriptors);
+		
+		void SetDynamicSamplerDescriptor(
+			uint32_t rootIndex, uint32_t offset,
+			const GfxSamplerEx& sampler);
+		void SetDynamicSamplerDescriptor(
+			uint32_t rootIndex, uint32_t offset,
+			GfxCpuDescriptor descriptor);
+		void SetDynamicSamplerDescriptors(
+			uint32_t rootIndex, uint32_t offset,
+			uint32_t descriptorCount, const GfxCpuDescriptor* descriptors);
 
 		void SetPipelineState(GfxGraphicsState& graphicsState);
 		
@@ -140,6 +170,9 @@ namespace SI
 		void SetCurrentResourceState(uint32_t resourceStateHandle, GfxResourceStates states);
 		
 	private:
+		void BindDescriptorHeaps();
+		
+	private:
 		GfxGraphicsCommandList   m_commandList;
 		BaseGraphicsCommandList* m_base;
 		GfxResourceStates*       m_penddingStates; // keep the first state for this context
@@ -147,6 +180,12 @@ namespace SI
 		uint32_t                 m_maxStateCount;
 		GfxLinearAllocator       m_cpuLinearAllocator;
 		GfxLinearAllocator       m_gpuLinearAllocator;
+		
+		GfxDynamicDescriptorHeap m_viewDynamicDescriptorHeap;
+		GfxDynamicDescriptorHeap m_samplerDynamicDescriptorHeap;
+
+		GfxDescriptorHeap*       m_cbvSrvUavDescriptorHeap; 
+		GfxDescriptorHeap*       m_samplerDescriptorHeap;
 	};
 
 } // namespace SI

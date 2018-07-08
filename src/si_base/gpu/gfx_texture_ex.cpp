@@ -20,8 +20,6 @@ namespace SI
 
 	GfxTextureEx::~GfxTextureEx()
 	{
-		TerminateStatic();
-		
 		SI_ASSERT(m_texture==nullptr);
 		SI_ASSERT(!m_ref.IsValid());
 	}

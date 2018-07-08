@@ -15,39 +15,39 @@ namespace SI
 			: m_rangeType          (GfxDescriptorRangeType::kSrv)
 			, m_descriptorCount    (0)
 			, m_shaderRegisterIndex(0)
-			, m_rangeFlag          (GfxDescriptorRangeFlag::kStatic)
+			, m_rangeFlags         (GfxDescriptorRangeFlag::None)
 		{
 		}
 
 		GfxDescriptorRange(
-			GfxDescriptorRangeType rangeType,
-			uint32_t               descriptorCount,
-			uint32_t               shaderRegisterIndex = 0,
-			GfxDescriptorRangeFlag rangeFlag           = GfxDescriptorRangeFlag::kStatic)
+			GfxDescriptorRangeType  rangeType,
+			uint32_t                descriptorCount,
+			uint32_t                shaderRegisterIndex = 0,
+			GfxDescriptorRangeFlags rangeFlags           = GfxDescriptorRangeFlag::None)
 			: m_rangeType          (rangeType)
 			, m_descriptorCount    (descriptorCount)
 			, m_shaderRegisterIndex(shaderRegisterIndex)
-			, m_rangeFlag          (rangeFlag)
+			, m_rangeFlags         (rangeFlags)
 		{
 		}
 		
 		void Set(
-			GfxDescriptorRangeType rangeType,
-			uint32_t               descriptorCount,
-			uint32_t               shaderRegisterIndex = 0,
-			GfxDescriptorRangeFlag rangeFlag           = GfxDescriptorRangeFlag::kStatic)
+			GfxDescriptorRangeType  rangeType,
+			uint32_t                descriptorCount,
+			uint32_t                shaderRegisterIndex = 0,
+			GfxDescriptorRangeFlags rangeFlags          = GfxDescriptorRangeFlag::None)
 		{
 			m_rangeType           = rangeType;
 			m_descriptorCount     = descriptorCount;
 			m_shaderRegisterIndex = shaderRegisterIndex;
-			m_rangeFlag           = rangeFlag;
+			m_rangeFlags          = rangeFlags;
 		}
 
 	public:
-		GfxDescriptorRangeType m_rangeType;
-		uint32_t               m_descriptorCount;
-		uint32_t               m_shaderRegisterIndex;
-		GfxDescriptorRangeFlag m_rangeFlag;
+		GfxDescriptorRangeType   m_rangeType;
+		uint32_t                 m_descriptorCount;
+		uint32_t                 m_shaderRegisterIndex;
+		GfxDescriptorRangeFlags  m_rangeFlags;
 	};
 	
 	struct GfxDescriptorHeapTable
@@ -59,19 +59,23 @@ namespace SI
 
 	struct GfxRootSignatureDesc
 	{
+		const char*             m_name;
 		GfxDescriptorHeapTable* m_tables;
 		uint32_t                m_tableCount;
 
 		GfxRootSignatureDesc()
-			: m_tables(nullptr)
+			: m_name(nullptr)
+			, m_tables(nullptr)
 			, m_tableCount(0)
 		{
 		}
 
 		GfxRootSignatureDesc(
+			const char*             name,
 			GfxDescriptorHeapTable* tables,
 			uint32_t                tableCount)
-			: m_tables(tables)
+			: m_name(name)
+			, m_tables(tables)
 			, m_tableCount(tableCount)
 		{
 		}

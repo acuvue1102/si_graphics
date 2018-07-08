@@ -35,6 +35,8 @@ namespace SI
 
 		int Flip();
 
+		int Wait();
+
 		UINT GetFrameIndex() const{ return m_frameIndex; }
 		BaseTexture& GetSwapChainTexture();
 		GfxCpuDescriptor GetSwapChainCpuDescriptor();

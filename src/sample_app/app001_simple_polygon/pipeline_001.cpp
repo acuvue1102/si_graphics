@@ -43,7 +43,7 @@ namespace APP001
 	int Pipeline::LoadAsset(const AppInitializeInfo& info)
 	{
 		GfxRootSignatureDesc rootSignatureDesc;
-		m_rootSignature = m_device.CreateRootSignature(rootSignatureDesc);
+		m_rootSignature.Initialize(rootSignatureDesc);
 
 		std::string shaderPath = SI_PATH_STORAGE().GetExeDirPath();
 		shaderPath += "shaders\\color.hlsl";
@@ -60,7 +60,7 @@ namespace APP001
 		GfxGraphicsStateDesc stateDesc;
 		stateDesc.m_inputElements      = kElements;
 		stateDesc.m_inputElementCount  = (int)ArraySize(kElements);
-		stateDesc.m_rootSignature      = &m_rootSignature;
+		stateDesc.m_rootSignature      = &m_rootSignature.GetRootSignature();
 		stateDesc.m_vertexShader       = &m_vertexShader;
 		stateDesc.m_pixelShader        = &m_pixelShader;
 		stateDesc.m_rtvFormats[0]      = GfxFormat::kR8G8B8A8_Unorm;
@@ -97,7 +97,8 @@ namespace APP001
 
 		m_device.ReleaseGraphicsState(m_graphicsState);
 
-		m_device.ReleaseRootSignature(m_rootSignature);
+		//m_device.ReleaseRootSignature(m_rootSignature);
+		m_rootSignature.Terminate();
 
 		PipelineBase::OnTerminate();
 
@@ -108,8 +109,6 @@ namespace APP001
 	{
 		BeginRender();
 		
-		//GfxCpuDescriptor swapChainDescriptor = m_swapChain.GetSwapChainCpuDescriptor();
-		//GfxTexture swapChainTexture = m_swapChain.GetSwapChainTexture();
 		GfxTestureEx_SwapChain& swapChainTexture = m_swapChain.GetTexture();
 		
 		GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
@@ -119,7 +118,6 @@ namespace APP001
 		context.SetGraphicsRootSignature(m_rootSignature);
 
 		context.SetRenderTarget(swapChainTexture);
-		//context.SetRenderTargets(1, &swapChainDescriptor);
 			
 		GfxViewport viewport(0.0f, 0.0f, (float)swapChainTexture.GetWidth(), (float)swapChainTexture.GetHeight());
 		GfxScissor  scissor(0, 0, swapChainTexture.GetWidth(), swapChainTexture.GetHeight());

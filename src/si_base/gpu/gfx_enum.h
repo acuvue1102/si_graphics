@@ -267,12 +267,18 @@ namespace SI
 	};
 
 	enum class GfxDescriptorRangeFlag
-	{
-		kStatic = 0,
-		kDynamic,
+	{		
+		None                                        = 1<<0,
+		DescriptorsVolatile                         = 1<<1,
+		DataVolatile                                = 1<<2,
+		DataStaticWhileSetAtExecute                 = 1<<3,
+		DataStatic                                  = 1<<4,
 
-		kMax,
+		Volatile                                    = DescriptorsVolatile | DataVolatile,
+
+		Max                                         = 1<<5,
 	};
+	SI_DECLARE_ENUM_FLAGS(GfxDescriptorRangeFlags, GfxDescriptorRangeFlag);
 
 	enum class GfxDescriptorRangeType
 	{

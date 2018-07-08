@@ -33,6 +33,11 @@ namespace SI
 		{
 			return m_resource;
 		}
+		
+		ID3D12Resource* GetNativeResource()
+		{
+			return m_resource.Get();
+		}
 
 	private:
 		ComPtr<ID3D12Resource>    m_resource;

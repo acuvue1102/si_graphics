@@ -3,13 +3,12 @@
 
 #if SI_USE_DX12
 
-#include <Windows.h>
-
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
 #include <comdef.h>
 
+#include "si_base/platform/windows_proxy.h"
 #include "si_base/core/core.h"
 #include "si_base/memory/pool_allocator.h"
 #include "si_base/gpu/gfx_buffer.h"
@@ -81,12 +80,27 @@ namespace SI
 			s_descriptorSize[i] = m_device->GetDescriptorHandleIncrementSize(type);
 		}
 
+		m_initialized = true;
+
 		return 0;
 	}
 
 	int BaseDevice::Terminate()
 	{
 		if(!m_initialized) return 0;
+		
+#if 0 // DX12のmemory leakがあるときにこのコメントアウトを外すと詳細がわかる.
+#if defined(_DEBUG)
+		{
+			ID3D12DebugDevice1* debugDevice;
+			if (SUCCEEDED(m_device->QueryInterface(&debugDevice)))
+			{
+				debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL|D3D12_RLDO_IGNORE_INTERNAL);
+				debugDevice->Release();
+			}
+		}
+#endif // (_DEBUG)
+#endif
 		
 		m_pipelineState.Reset();
 		m_device.Reset();
@@ -135,7 +149,6 @@ namespace SI
 
 		return 0;
 	}
-
 	
 	int BaseDevice::InitializeDevice(
 		ComPtr<IDXGIFactory4>& dxgiFactory,
@@ -201,6 +214,7 @@ namespace SI
 
 	void BaseDevice::ReleaseCommandQueue(BaseCommandQueue* cq)
 	{
+		cq->Terminate();
 		delete cq;
 	}
 	
@@ -494,10 +508,35 @@ namespace SI
 		uint32_t descriptorIndex,
 		const GfxSamplerDesc& desc)
 	{
-		descriptorHeap.CreateSampler(
-			*m_device.Get(),
-			descriptorIndex,
+		GfxDescriptor descriptor = descriptorHeap.GetDescriptor(descriptorIndex);
+		CreateSampler(
+			descriptor,
 			desc);
+	}
+
+	void BaseDevice::CreateSampler(
+		GfxDescriptor& descriptor,
+		const GfxSamplerDesc& desc)
+	{
+		D3D12_SAMPLER_DESC samplerDesc = {};		
+		samplerDesc.Filter        = GetDx12Filter(desc.m_filter);
+		samplerDesc.AddressU      = GetDx12TextureAddress(desc.m_addressU);
+		samplerDesc.AddressV      = GetDx12TextureAddress(desc.m_addressV);
+		samplerDesc.AddressW      = GetDx12TextureAddress(desc.m_addressW);
+		samplerDesc.MipLODBias    = desc.m_mipLODBias;
+		samplerDesc.MaxAnisotropy = desc.m_maxAnisotropy;
+		samplerDesc.ComparisonFunc= GetDx12ComparisonFunc(desc.m_comparisonFunc);
+		samplerDesc.BorderColor[0] = desc.m_borderColor[0];
+		samplerDesc.BorderColor[1] = desc.m_borderColor[1];
+		samplerDesc.BorderColor[2] = desc.m_borderColor[2];
+		samplerDesc.BorderColor[3] = desc.m_borderColor[3];
+		samplerDesc.MinLOD         = desc.m_minLOD;
+		samplerDesc.MaxLOD         = desc.m_maxLOD;
+
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::kSampler);
+		
+		D3D12_CPU_DESCRIPTOR_HANDLE dxDescriptor = {descriptor.GetCpuDescriptor().m_ptr};
+		m_device->CreateSampler(&samplerDesc, dxDescriptor);
 	}
 
 	void BaseDevice::CreateConstantBufferView(
@@ -509,6 +548,21 @@ namespace SI
 			*m_device.Get(),
 			descriptorIndex,
 			desc);
+	}
+
+	void BaseDevice::CreateConstantBufferView(
+		GfxDescriptor& descriptor,
+		const GfxConstantBufferViewDesc& desc)
+	{
+		BaseBuffer* baseBuffer = desc.m_buffer->GetBaseBuffer();
+
+		D3D12_CONSTANT_BUFFER_VIEW_DESC constantDesc = {};
+		constantDesc.BufferLocation = baseBuffer->GetLocation();
+		constantDesc.SizeInBytes    = (UINT)baseBuffer->GetSize();
+
+		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::kCbvSrvUav);
+		D3D12_CPU_DESCRIPTOR_HANDLE dxDescriptor = {descriptor.GetCpuDescriptor().m_ptr};
+		m_device->CreateConstantBufferView(&constantDesc, dxDescriptor);
 	}
 	
 	void BaseDevice::CopyDescriptors(

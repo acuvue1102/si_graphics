@@ -1,6 +1,6 @@
 // main.cpp       Written by Keiji Matsuda in 2017
 
-#include <Windows.h>
+#include "si_base/platform/windows_proxy.h"
 #include "si_base/core/core.h"
 #include "si_app/app/app.h"
 #include "app000_clear_color/pipeline_000.h"

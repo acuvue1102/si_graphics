@@ -39,6 +39,10 @@ namespace SI
 
 		for(size_t i=0; i<ArraySize(m_usingHeaps); ++i)
 		{
+			for(GfxDescriptorHeap* heap : m_usingHeaps[i])
+			{
+				m_heapPool.Deallocate(heap);
+			}
 			m_usingHeaps[i].clear();
 		}
 

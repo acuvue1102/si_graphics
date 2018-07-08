@@ -2,8 +2,8 @@
 #include "si_base/input/mouse.h"
 
 #include <stdarg.h>
-#include <Windows.h>
 #include <stdio.h>
+#include "si_base/platform/windows_proxy.h"
 
 namespace SI
 {

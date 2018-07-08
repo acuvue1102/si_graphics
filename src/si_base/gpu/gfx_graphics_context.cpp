@@ -3,8 +3,11 @@
 
 #include "si_base/gpu/dx12/dx12_graphics_command_list.h"
 #include "si_base/gpu/gfx_texture_ex.h"
+#include "si_base/gpu/gfx_buffer_ex.h"
+#include "si_base/gpu/gfx_sampler_ex.h"
 #include "si_base/gpu/gfx_graphics_state.h"
 #include "si_base/gpu/gfx_device.h"
+#include "si_base/gpu/gfx_root_signature_ex.h"
 #include "si_base/gpu/gfx_core.h"
 
 namespace SI
@@ -14,6 +17,8 @@ namespace SI
 		, m_penddingStates(nullptr)
 		, m_currentStates(nullptr)
 		, m_maxStateCount(0)
+		, m_cbvSrvUavDescriptorHeap(nullptr)
+		, m_samplerDescriptorHeap(nullptr)
 	{
 	}
 
@@ -41,12 +46,18 @@ namespace SI
 		}
 		m_cpuLinearAllocator.Initialize(true);
 		m_gpuLinearAllocator.Initialize(false);
+		
+		m_viewDynamicDescriptorHeap.Initialize(SI::GfxDescriptorHeapType::kCbvSrvUav);
+		m_samplerDynamicDescriptorHeap.Initialize(SI::GfxDescriptorHeapType::kSampler);
 	}
 
 	void GfxGraphicsContext::Terminate()
 	{
 		if(m_base)
 		{
+			m_samplerDynamicDescriptorHeap.Terminate();
+			m_viewDynamicDescriptorHeap.Terminate();
+
 			m_gpuLinearAllocator.Terminate();
 			m_cpuLinearAllocator.Terminate();
 
@@ -72,6 +83,12 @@ namespace SI
 		
 		m_cpuLinearAllocator.Reset();
 		m_gpuLinearAllocator.Reset();
+		
+		m_viewDynamicDescriptorHeap.Reset();
+		m_samplerDynamicDescriptorHeap.Reset();
+		
+		m_cbvSrvUavDescriptorHeap = nullptr;
+		m_samplerDescriptorHeap   = nullptr;
 	}
 	
 	void GfxGraphicsContext::Close()
@@ -146,16 +163,46 @@ namespace SI
 		m_base->SetGraphicsState(*graphicsState.GetBaseGraphicsState());
 	}
 
-	void GfxGraphicsContext::SetGraphicsRootSignature(GfxRootSignature& rootSignature)
+	void GfxGraphicsContext::SetGraphicsRootSignature(GfxRootSignatureEx& rootSignature)
 	{
-		m_base->SetGraphicsRootSignature(*rootSignature.GetBaseRootSignature());
+		if(!m_base->SetGraphicsRootSignature(*rootSignature.GetRootSignature().GetBaseRootSignature()))
+		{
+			return; // 前と同じなので何もしない.
+		}
+		
+		m_viewDynamicDescriptorHeap.ParseGraphicsRootSignature(rootSignature);
+		m_samplerDynamicDescriptorHeap.ParseGraphicsRootSignature(rootSignature);
 	}
 
-	void GfxGraphicsContext::SetDescriptorHeaps(
+	void GfxGraphicsContext::SetDescriptorHeapsDirectly(
 		uint32_t descriptorHeapCount,
 		GfxDescriptorHeap* const* descriptorHeaps)
 	{
 		m_base->SetDescriptorHeaps(descriptorHeapCount, descriptorHeaps);
+	}
+	
+	void GfxGraphicsContext::SetDescriptorHeaps(
+		GfxDescriptorHeap* cbvSrvUavDescriptorHeap,
+		GfxDescriptorHeap* samplerDescriptorHeap)
+	{
+		m_cbvSrvUavDescriptorHeap = cbvSrvUavDescriptorHeap;
+		m_samplerDescriptorHeap   = samplerDescriptorHeap;
+
+		BindDescriptorHeaps();
+	}
+
+	void GfxGraphicsContext::SetCbvSrvUavDescriptorHeap(GfxDescriptorHeap* cbvSrvUavDescriptorHeap)
+	{
+		m_cbvSrvUavDescriptorHeap = cbvSrvUavDescriptorHeap;
+		
+		BindDescriptorHeaps();
+	}
+
+	void GfxGraphicsContext::SetSamplerDescriptorHeap(GfxDescriptorHeap* samplerDescriptorHeap)
+	{
+		m_samplerDescriptorHeap = samplerDescriptorHeap;
+		
+		BindDescriptorHeaps();
 	}
 
 	void GfxGraphicsContext::SetGraphicsDescriptorTable(
@@ -163,6 +210,65 @@ namespace SI
 		GfxGpuDescriptor descriptor)
 	{
 		m_base->SetGraphicsDescriptorTable(tableIndex, descriptor);
+	}
+	
+	void GfxGraphicsContext::SetDynamicViewDescriptor( 
+		uint32_t rootIndex, uint32_t offset,
+		const GfxTextureEx& texture)
+	{
+		SetDynamicViewDescriptor(rootIndex, offset, texture.GetSrvDescriptor().GetCpuDescriptor());
+	}
+
+	void GfxGraphicsContext::SetDynamicViewDescriptor( 
+		uint32_t rootIndex, uint32_t offset,
+		const GfxBufferEx& buffer)
+	{
+		SetDynamicViewDescriptor(rootIndex, offset, buffer.GetSrvDescriptor().GetCpuDescriptor());
+	}
+	
+	void GfxGraphicsContext::SetDynamicViewDescriptor(
+		uint32_t rootIndex, uint32_t offset,
+		GfxCpuDescriptor descriptor)
+	{
+		m_viewDynamicDescriptorHeap.SetGraphicsDescriptorHandles(
+			rootIndex, offset,
+			1, &descriptor);
+	}
+	
+	void GfxGraphicsContext::SetDynamicViewDescriptors(
+		uint32_t rootIndex, uint32_t offset,
+		uint32_t descriptorCount, const GfxCpuDescriptor* descriptors)
+	{
+		m_viewDynamicDescriptorHeap.SetGraphicsDescriptorHandles(
+			rootIndex, offset,
+			descriptorCount, descriptors);
+	}
+
+	void GfxGraphicsContext::SetDynamicSamplerDescriptor(
+		uint32_t rootIndex, uint32_t offset,
+		const GfxSamplerEx& sampler)
+	{
+		SetDynamicSamplerDescriptor(
+			rootIndex, offset,
+			sampler.GetDescriptor().GetCpuDescriptor());
+	}
+	
+	void GfxGraphicsContext::SetDynamicSamplerDescriptor(
+		uint32_t rootIndex, uint32_t offset,
+		GfxCpuDescriptor descriptor)
+	{
+		m_samplerDynamicDescriptorHeap.SetGraphicsDescriptorHandles(
+			rootIndex, offset,
+			1, &descriptor);
+	}
+	
+	void GfxGraphicsContext::SetDynamicSamplerDescriptors(
+		uint32_t rootIndex, uint32_t offset,
+		uint32_t descriptorCount, const GfxCpuDescriptor* descriptors)
+	{
+		m_samplerDynamicDescriptorHeap.SetGraphicsDescriptorHandles(
+			rootIndex, offset,
+			descriptorCount, descriptors);
 	}
 		
 	void GfxGraphicsContext::SetViewports(uint32_t count, const GfxViewport* viewPorts)
@@ -277,6 +383,9 @@ namespace SI
 		uint32_t startVertexLocation,
 		uint32_t startInstanceLocation)
 	{
+		m_viewDynamicDescriptorHeap.CopyAndBindGraphicsTables(*this);
+		m_samplerDynamicDescriptorHeap.CopyAndBindGraphicsTables(*this);
+
 		m_base->DrawInstanced(
 			vertexCountPerInstance,
 			instanceCount,
@@ -291,6 +400,9 @@ namespace SI
 		uint32_t baseVertexLocation,
 		uint32_t startInstanceLocation)
 	{
+		m_viewDynamicDescriptorHeap.CopyAndBindGraphicsTables(*this);
+		m_samplerDynamicDescriptorHeap.CopyAndBindGraphicsTables(*this);
+
 		m_base->DrawIndexedInstanced(
 			indexCountPerInstance,
 			instanceCount,
@@ -348,6 +460,23 @@ namespace SI
 	{
 		SI_ASSERT(resourceStateHandle < m_maxStateCount);
 		m_currentStates[resourceStateHandle] = states;
+	}
+
+	void GfxGraphicsContext::BindDescriptorHeaps()
+	{
+		if(m_cbvSrvUavDescriptorHeap && m_samplerDescriptorHeap)
+		{
+			GfxDescriptorHeap* descriptorHeaps[] = {m_cbvSrvUavDescriptorHeap, m_samplerDescriptorHeap};
+			m_base->SetDescriptorHeaps(2, descriptorHeaps);
+		}
+		else if(m_cbvSrvUavDescriptorHeap)
+		{
+			m_base->SetDescriptorHeaps(1, &m_cbvSrvUavDescriptorHeap);
+		}
+		else if(m_samplerDescriptorHeap)
+		{
+			m_base->SetDescriptorHeaps(1, &m_samplerDescriptorHeap);
+		}
 	}
 
 } // namespace SI

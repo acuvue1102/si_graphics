@@ -15,10 +15,11 @@ namespace SI
 	class GfxCommandList;
 	class GfxGraphicsContext;
 	class GfxGraphicsCommandList;
+	class BaseCommandList;
 	
 	struct GfxDescriptorTableCache
 	{
-		uint64_t          m_assignedBits = 0;
+		uint64_t          m_assignedBits = 0; // 使われているDescriptorのIndexのBits
 		GfxCpuDescriptor* m_descriptorStart = nullptr;
 		uint16_t          m_descriptorCount  = 0;
 	};
@@ -36,17 +37,26 @@ namespace SI
 		void ParseRootSignature(GfxDescriptorHeapType type, const GfxRootSignatureEx& rootSig);
 				
 		void CopyAndBindTables(
+			GfxGraphicsContext& context,
 			GfxDescriptorHeapType type,
-			GfxDescriptor destStart, GfxCommandList* commandList, bool isGraphics);
+			GfxDescriptor destStart);
 
 		uint32_t ComputeDescriptorCount() const;
+		
+		uint64_t  GetRootTableBits()      const{ return m_rootTableBits;       }
+		uint64_t  GetStageRootParamBits() const{ return m_stageRootParamsBits; }
+		uint16_t  GetMaxDescriptorCount() const{ return m_maxDescriptorCount;  }
+
+		void SetIsGraphicsCache(bool isGraphics){ m_isGraphicsCache = isGraphics; }
+		bool GetIsGraphicsCache()          const{ return m_isGraphicsCache;       }
 
 	private:
-		uint64_t                 m_rootTableBits;
-		uint64_t                 m_stageRootParamsBits;
+		uint64_t                 m_rootTableBits;         // root signatureから得られるDescriptorTableのIndexを示すBit
+		uint64_t                 m_stageRootParamsBits;   // dynamic descriptorがセットされたIndexを示すのbit
 		uint16_t                 m_maxDescriptorCount;
 		GfxDescriptorTableCache  m_tableCache[kMaxNumDescriptorTables];
 		GfxCpuDescriptor         m_descriptorCache[kMaxNumDescriptors];
+		bool                     m_isGraphicsCache;
 	};
 
 	class GfxDynamicDescriptorHeap
@@ -57,24 +67,33 @@ namespace SI
 
 		void Initialize(GfxDescriptorHeapType descriptorType);
 		void Terminate();
+
+		void Reset();
 		
 		void ParseGraphicsRootSignature( const GfxRootSignatureEx& rootSig );
+		
+		void ParseComputeRootSignature( const GfxRootSignatureEx& rootSig );
 		
 		void SetGraphicsDescriptorHandles(
 			uint32_t rootIndex, uint32_t offset,
 			uint32_t descriptorCount, const GfxCpuDescriptor* descriptors);
 		
-		void CopyAndBindStaleTables(
-			GfxGraphicsContext& context,
-			GfxDescriptor destStart, GfxGraphicsCommandList* commandList);
+		void SetComputeDescriptorHandles(
+			uint32_t rootIndex, uint32_t offset,
+			uint32_t descriptorCount, const GfxCpuDescriptor* descriptors);
+				
+		void CopyAndBindGraphicsTables(GfxGraphicsContext& context);
+		void CopyAndBindComputeTables (GfxGraphicsContext& context);
+		void CopyAndBindTables(GfxGraphicsContext& context, GfxDescriptorHandleCache& descriptorCache);
 		
 		void RetireCurrentHeap();
 		void SetupNewHeap();
-		GfxDescriptor Allocate( uint32_t Count );
+		GfxDescriptor Allocate( uint32_t Count, GfxDescriptorHandleCache& descriptorCache );
 
 	private:
 		GfxDescriptorHeapType    m_descriptorType;
 		GfxDescriptorHandleCache m_graphicsDescriptorCache;
+		GfxDescriptorHandleCache m_computeDescriptorCache;
 		
 		GfxDescriptorHeap*       m_currentDescriptorHeap;
 		GfxDescriptor            m_firstDescriptor;

@@ -15,6 +15,7 @@ namespace SI
 {
 	BaseGraphicsCommandList::BaseGraphicsCommandList()
 		: m_uploadHeapArrayIndex(0)
+		, m_currentRootSignature(nullptr)
 	{
 	}
 

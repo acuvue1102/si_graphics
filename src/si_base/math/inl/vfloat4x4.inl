@@ -317,17 +317,17 @@ namespace SI
 				_mm_shuffle_ps(tmp1, tmp3, _MM_SHUFFLE(3,1,3,1)));
 		}
 		
-		inline Vfloat4x4 Perspective(float width, float height, float near, float far)
+		inline Vfloat4x4 Perspective(float width, float height, float nearPlane, float farPlane)
 		{
-			float near2 = near + near;
-			float farNear = (far - near);
+			float near2 = nearPlane + nearPlane;
+			float farNear = (farPlane - nearPlane);
 			
 			// near2/height, 0.0f,          0.0f,               0.0f
 			// 0.0f,         near2/height,  0.0f,               0.0f
 			// 0.0f,         0.0f,          far/farNear,        1.0f
 			// 0.0f,         0.0f,          -near*far/farNear,  0.0f
 			
-			__m128 values = _si_mm_set(near2/width, near2/height, far/farNear, -near*far/farNear);
+			__m128 values = _si_mm_set(near2/width, near2/height, farPlane/farNear, -nearPlane*farPlane/farNear);
 			__m128 r0 = _mm_mul_ps(values, kSiFloat128_1000);
 			__m128 r1 = _mm_mul_ps(values, kSiFloat128_0100);
 			__m128 r2 = _mm_mul_ps(values, kSiFloat128_0010);
@@ -338,17 +338,17 @@ namespace SI
 			return Vfloat4x4(r0, r1, r2, r3);
 		}		
 		
-		inline Vfloat4x4 Ortho(float width, float height, float near, float far)
+		inline Vfloat4x4 Ortho(float width, float height, float nearPlane, float farPlane)
 		{
-			float near2 = near + near;
-			float farNear = (far - near);
+			float near2 = nearPlane + nearPlane;
+			float farNear = (farPlane - nearPlane);
 			
 			// 2.0f/height,  0.0f,          0.0f,               0.0f
 			// 0.0f,         2.0f/height,   0.0f,               0.0f
 			// 0.0f,         0.0f,          1.0f/farNear,       1.0f
 			// 0.0f,         0.0f,          -near/farNear,      0.0f
 			
-			__m128 values = _si_mm_set(2.0f/width, 2.0f/height, 1.0f/farNear, -near/farNear);
+			__m128 values = _si_mm_set(2.0f/width, 2.0f/height, 1.0f/farNear, -nearPlane/farNear);
 			__m128 r0 = _mm_mul_ps(values, kSiFloat128_1000);
 			__m128 r1 = _mm_mul_ps(values, kSiFloat128_0100);
 			__m128 r2 = _mm_mul_ps(values, kSiFloat128_0010);

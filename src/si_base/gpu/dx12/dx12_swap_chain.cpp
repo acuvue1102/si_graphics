@@ -139,11 +139,16 @@ namespace SI
 			return -1;
 		}
 		++m_fenceValue;
-
-		if(fence->GetCompletedValue() < fenceValue)
+		
+		uint64_t waitingFenceValue = fenceValue;
+		//if(2<m_bufferCount && m_bufferCount < waitingFenceValue )
+		//{
+		//	waitingFenceValue -= (m_bufferCount - 2);
+		//}
+		if(fence->GetCompletedValue() < waitingFenceValue)
 		{
 			// GPU is still working for previous frame.
-			hr = fence->SetEventOnCompletion(fenceValue, m_fenceEvent.GetHandle());
+			hr = fence->SetEventOnCompletion(waitingFenceValue, m_fenceEvent.GetHandle());
 			if(FAILED(hr))
 			{
 				SI_ASSERT(0, "error fence->SetEventOnCompletion: %s", _com_error(hr).ErrorMessage());
@@ -155,6 +160,29 @@ namespace SI
 		}
 		
 		m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+
+		return 0;
+	}
+		
+	int BaseSwapChain::Wait()
+	{
+		ID3D12Fence* fence = m_fence.GetComPtrFence().Get();
+		volatile uint64_t fenceValue = m_fenceValue;
+		HRESULT hr = m_commandQueue->Signal(fence, fenceValue);
+		if(FAILED(hr))
+		{
+			SI_ASSERT(0, "error m_commandQueue->Signal: %s", _com_error(hr).ErrorMessage());
+			return -1;
+		}
+
+		hr = m_commandQueue->Wait(fence, fenceValue);
+		if(FAILED(hr))
+		{
+			SI_ASSERT(0, "error m_commandQueue->Signal: %s", _com_error(hr).ErrorMessage());
+			return -1;
+		}
+		
+		while(fence->GetCompletedValue() < fenceValue);
 
 		return 0;
 	}

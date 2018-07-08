@@ -1,7 +1,7 @@
 ﻿
 #include "si_app/file/path_storage.h"
 
-#include <Windows.h>
+#include "si_base/platform/windows_proxy.h"
 #include <si_base/core/core.h>
 
 namespace SI

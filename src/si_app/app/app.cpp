@@ -1,7 +1,7 @@
 ﻿
-#include <Windows.h>
 #include <stdio.h>
 #include <algorithm>
+#include "si_base/platform/windows_proxy.h"
 #include "si_base/core/core.h"
 #include "si_app/file/path_storage.h"
 #include "si_app/app/app_module.h"
@@ -17,12 +17,9 @@ namespace SI
 	}
 
 	App::~App()
-	{		
-		for(AppModule* m : m_modules)
-		{
-			SI_DELETE(m);
-		}
-		m_modules.clear();
+	{
+		SI_ASSERT(m_modules.size()==0);
+		SI_ASSERT(m_pathStorage==nullptr);
 	}
 
 	int App::Run(const AppDesc& desc)
@@ -92,6 +89,7 @@ namespace SI
 		for(AppModule* m : m_modules)
 		{
 			m->OnTerminate();
+			SI_DELETE(m);
 		}
 		m_modules.clear();
 

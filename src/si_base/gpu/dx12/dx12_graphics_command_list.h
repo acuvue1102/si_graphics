@@ -59,6 +59,8 @@ namespace SI
 				return -1;
 			}
 
+			m_currentRootSignature = nullptr;
+
 			return 0;
 		}
 
@@ -150,9 +152,17 @@ namespace SI
 			m_graphicsCommandList->ResourceBarrier(1, &barrier);
 		}
 		
-		inline void SetGraphicsRootSignature(BaseRootSignature& rootSignature)
+		inline bool SetGraphicsRootSignature(BaseRootSignature& rootSignature)
 		{
+			if(&rootSignature == m_currentRootSignature)
+			{
+				return false;
+			}
+
 			m_graphicsCommandList->SetGraphicsRootSignature(rootSignature.GetComPtrRootSignature().Get());
+
+			m_currentRootSignature = &rootSignature;
+			return true;
 		}
 
 		inline void SetDescriptorHeaps(
@@ -583,6 +593,7 @@ namespace SI
 		// upload用のResourceの生存期間を管理.
 		std::vector<ComPtr<ID3D12Resource>> m_uploadHeapArray[3];
 		uint32_t                            m_uploadHeapArrayIndex;
+		BaseRootSignature*                  m_currentRootSignature;
 	};
 } // namespace SI
 

@@ -76,9 +76,6 @@
     <ClInclude Include="gpu\gfx_root_signature.h">
       <Filter>gpu</Filter>
     </ClInclude>
-    <ClInclude Include="gpu\gfx_sampler.h">
-      <Filter>gpu</Filter>
-    </ClInclude>
     <ClInclude Include="gpu\gfx_shader.h">
       <Filter>gpu</Filter>
     </ClInclude>
@@ -250,6 +247,15 @@
     <ClInclude Include="gpu\gfx_context_manager.h">
       <Filter>gpu</Filter>
     </ClInclude>
+    <ClInclude Include="gpu\gfx_buffer_ex.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_sampler_ex.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="platform\windows_proxy.h">
+      <Filter>platform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -341,9 +347,6 @@
     <ClCompile Include="gpu\gfx_root_signature.cpp">
       <Filter>gpu</Filter>
     </ClCompile>
-    <ClCompile Include="gpu\gfx_sampler.cpp">
-      <Filter>gpu</Filter>
-    </ClCompile>
     <ClCompile Include="gpu\gfx_shader.cpp">
       <Filter>gpu</Filter>
     </ClCompile>
@@ -426,6 +429,12 @@
       <Filter>gpu</Filter>
     </ClCompile>
     <ClCompile Include="gpu\gfx_context_manager.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_buffer_ex.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_sampler_ex.cpp">
       <Filter>gpu</Filter>
     </ClCompile>
   </ItemGroup>

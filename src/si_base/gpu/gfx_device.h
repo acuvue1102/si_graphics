@@ -86,6 +86,10 @@ namespace SI
 			uint32_t descriptorIndex,
 			const GfxSamplerDesc& desc);
 
+		void CreateSampler(
+			GfxDescriptor& descriptor,
+			const GfxSamplerDesc& desc);
+
 		void CreateConstantBufferView(
 			GfxDescriptorHeap& descriptorHeap,
 			uint32_t descriptorIndex,

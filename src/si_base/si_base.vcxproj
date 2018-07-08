@@ -86,6 +86,7 @@
     <ClCompile Include="gpu\dx12\dx12_swap_chain.cpp" />
     <ClCompile Include="gpu\dx12\dx12_texture.cpp" />
     <ClCompile Include="gpu\gfx_buffer.cpp" />
+    <ClCompile Include="gpu\gfx_buffer_ex.cpp" />
     <ClCompile Include="gpu\gfx_command_queue.cpp" />
     <ClCompile Include="gpu\gfx_context_manager.cpp" />
     <ClCompile Include="gpu\gfx_core.cpp" />
@@ -103,7 +104,7 @@
     <ClCompile Include="gpu\gfx_resource_states_pool.cpp" />
     <ClCompile Include="gpu\gfx_root_signature.cpp" />
     <ClCompile Include="gpu\gfx_root_signature_ex.cpp" />
-    <ClCompile Include="gpu\gfx_sampler.cpp" />
+    <ClCompile Include="gpu\gfx_sampler_ex.cpp" />
     <ClCompile Include="gpu\gfx_shader.cpp" />
     <ClCompile Include="gpu\gfx_swap_chain.cpp" />
     <ClCompile Include="gpu\gfx_texture.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="gpu\dx12\dx12_utility.h" />
     <ClInclude Include="gpu\gfx.h" />
     <ClInclude Include="gpu\gfx_buffer.h" />
+    <ClInclude Include="gpu\gfx_buffer_ex.h" />
     <ClInclude Include="gpu\gfx_command_list.h" />
     <ClInclude Include="gpu\gfx_command_queue.h" />
     <ClInclude Include="gpu\gfx_config.h" />
@@ -172,7 +174,7 @@
     <ClInclude Include="gpu\gfx_resource_states_pool.h" />
     <ClInclude Include="gpu\gfx_root_signature.h" />
     <ClInclude Include="gpu\gfx_root_signature_ex.h" />
-    <ClInclude Include="gpu\gfx_sampler.h" />
+    <ClInclude Include="gpu\gfx_sampler_ex.h" />
     <ClInclude Include="gpu\gfx_shader.h" />
     <ClInclude Include="gpu\gfx_swap_chain.h" />
     <ClInclude Include="gpu\gfx_texture.h" />
@@ -200,6 +202,7 @@
     <ClInclude Include="misc\bitwise.h" />
     <ClInclude Include="misc\enum_flags.h" />
     <ClInclude Include="misc\reference_counter.h" />
+    <ClInclude Include="platform\windows_proxy.h" />
     <ClInclude Include="platform\window_app.h" />
   </ItemGroup>
   <ItemGroup>

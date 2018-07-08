@@ -29,11 +29,9 @@ namespace APP002
 		struct LambertShaderConstant;
 
 	protected:
-		GfxRootSignature         m_rootSignatures[2];
+		GfxRootSignatureEx       m_rootSignatures[2];
 		GfxGraphicsState         m_graphicsStates[2];
-		GfxDescriptorHeap        m_cbvSrvUavHeaps[2];
-		GfxDescriptorHeap        m_samplerHeaps[2];
-		GfxBuffer                m_constantBuffers[2];
+		GfxBufferEx_Constant     m_constantBuffers[2];
 		TextureShaderConstant*   m_textureConstant;
 		LambertShaderConstant*   m_lambertConstant;
 
@@ -47,16 +45,12 @@ namespace APP002
 		GfxBuffer                m_boxIndexBuffer;
 
 		GfxBuffer                m_quadVertexBuffer;
-		GfxTexture               m_texture;
+		GfxTextureEx             m_texture;
 
 		GfxTestureEx_Rt          m_rt;
-
-		//GfxTexture               m_rt;
-		//GfxDescriptorHeap        m_rtvHeap;
-
-		//GfxTexture               m_depth;
-		//GfxDescriptorHeap        m_dsvHeap;
 		GfxTestureEx_DepthRt     m_depth;
+
+		GfxSamplerEx             m_sampler;
 	};
 	
 } // namespace APP002

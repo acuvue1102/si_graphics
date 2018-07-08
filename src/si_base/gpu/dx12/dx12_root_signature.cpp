@@ -50,11 +50,11 @@ namespace SI
 
 				if(inRange.m_rangeType==GfxDescriptorRangeType::kSampler)
 				{
-					outRange.Flags           = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
+					outRange.Flags           = GetDx12DescriptorRangeFlags(inRange.m_rangeFlags);//D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
 				}
 				else
 				{
-					outRange.Flags           = GetDx12DescriptorRangeFlags(inRange.m_rangeFlag);
+					outRange.Flags           = GetDx12DescriptorRangeFlags(inRange.m_rangeFlags);
 				}
 				outRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 			}
@@ -103,6 +103,18 @@ namespace SI
 		{
 			SI_ASSERT(0, "error CreateRootSignature\n%s", _com_error(hr).ErrorMessage());
 			return -1;
+		}
+		
+		if(desc.m_name)
+		{
+			wchar_t wName[64];
+			wName[0] = 0;
+			size_t num = 0;
+			errno_t ret = mbstowcs_s(&num, wName, desc.m_name, ArraySize(wName));
+			if(ret == 0)
+			{
+				m_rootSignature->SetName(wName);
+			}
 		}
 
 		return 0;
