@@ -81,7 +81,7 @@ namespace SI
 	
 	void GfxGraphicsCommandList::SetGraphicsState(GfxGraphicsState& graphicsState)
 	{
-		m_base->SetGraphicsState(*graphicsState.GetBaseGraphicsState());
+		m_base->SetPipelineState(*graphicsState.GetBaseGraphicsState());
 	}
 
 	void GfxGraphicsCommandList::SetGraphicsRootSignature(GfxRootSignature& rootSignature)

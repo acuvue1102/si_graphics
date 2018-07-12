@@ -53,6 +53,9 @@ namespace SI
 		BaseGraphicsState* CreateGraphicsState(const GfxGraphicsStateDesc& desc);
 		void ReleaseGraphicsState(BaseGraphicsState* s);
 
+		BaseComputeState* CreateComputeState(const GfxComputeStateDesc& desc);
+		void ReleaseComputeState(BaseComputeState* s);
+
 		BaseBuffer* CreateBuffer(const GfxBufferDesc& desc);
 		void ReleaseBuffer(BaseBuffer* b);
 
@@ -94,6 +97,17 @@ namespace SI
 			GfxDescriptor& descriptor,
 			BaseTexture& texture,
 			const GfxShaderResourceViewDesc& desc);
+		
+		void CreateUnorderedAccessView(
+			BaseDescriptorHeap& descriptorHeap,
+			uint32_t descriptorIndex,
+			BaseTexture& texture,
+			const GfxUnorderedAccessViewDesc& desc);
+
+		void CreateUnorderedAccessView(
+			GfxDescriptor& descriptor,
+			BaseTexture& texture,
+			const GfxUnorderedAccessViewDesc& desc);
 		
 		void CreateSampler(
 			BaseDescriptorHeap& descriptorHeap,

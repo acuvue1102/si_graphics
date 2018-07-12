@@ -363,6 +363,27 @@ namespace SI
 
 		return kTable[(int)d];
 	}
+	
+	inline D3D12_UAV_DIMENSION GetDx12UavDimension(GfxDimension d)
+	{
+		static const D3D12_UAV_DIMENSION kTable[] =
+		{
+			D3D12_UAV_DIMENSION_BUFFER,
+			D3D12_UAV_DIMENSION_TEXTURE1D,
+			D3D12_UAV_DIMENSION_TEXTURE1DARRAY,
+			D3D12_UAV_DIMENSION_TEXTURE2D,
+			D3D12_UAV_DIMENSION_TEXTURE2DARRAY,
+			D3D12_UAV_DIMENSION_UNKNOWN, // TEXTURE2DMS,
+			D3D12_UAV_DIMENSION_UNKNOWN, // TEXTURE2DMSARRAY,
+			D3D12_UAV_DIMENSION_TEXTURE3D,
+			D3D12_UAV_DIMENSION_UNKNOWN, // TEXTURECUBE,
+			D3D12_UAV_DIMENSION_UNKNOWN, // TEXTURECUBEARRAY
+		};
+		static_assert(ArraySize(kTable) == (size_t)GfxDimension::Max, "tableError");
+		SI_ASSERT(kTable[(int)d] != D3D12_UAV_DIMENSION_UNKNOWN, "UAVで使えないDimension");
+
+		return kTable[(int)d];
+	}
 
 	inline D3D12_DESCRIPTOR_RANGE_FLAGS GetDx12DescriptorRangeFlags(GfxDescriptorRangeFlags flag)
 	{

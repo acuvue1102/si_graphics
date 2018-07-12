@@ -68,6 +68,7 @@ namespace SI
 		SetWidth(desc.m_width);
 		SetHeight(desc.m_height);
 		SetDepth(desc.m_depth);
+		SetFormat(desc.m_format);
 
 		HRESULT hr = device.CreateCommittedResource(
 			&heapProperties,

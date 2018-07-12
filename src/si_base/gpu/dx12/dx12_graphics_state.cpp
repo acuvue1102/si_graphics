@@ -117,6 +117,18 @@ namespace SI
 			SI_ASSERT(0);
 			return -1;
 		}
+		
+		if(desc.m_name)
+		{
+			wchar_t wName[64];
+			wName[0] = 0;
+			size_t num = 0;
+			errno_t ret = mbstowcs_s(&num, wName, desc.m_name, ArraySize(wName));
+			if(ret == 0)
+			{
+				m_pipelineState->SetName(wName);
+			}
+		}
 
 		return 0;
 	}

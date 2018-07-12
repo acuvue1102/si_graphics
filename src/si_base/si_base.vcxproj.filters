@@ -259,6 +259,12 @@
     <ClInclude Include="gpu\gfx_device_std_allocator.h">
       <Filter>gpu</Filter>
     </ClInclude>
+    <ClInclude Include="gpu\gfx_compute_state.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_compute_state.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -439,6 +445,12 @@
     </ClCompile>
     <ClCompile Include="gpu\gfx_sampler_ex.cpp">
       <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_compute_state.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_compute_state.cpp">
+      <Filter>gpu\dx12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

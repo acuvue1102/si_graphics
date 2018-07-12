@@ -52,6 +52,7 @@ namespace SI
 			GfxResourceBarrierFlag flag = GfxResourceBarrierFlag::None);
 
 		void SetGraphicsRootSignature(GfxRootSignatureEx& rootSignature);
+		void SetComputeRootSignature(GfxRootSignatureEx& rootSignature);
 
 		void SetDescriptorHeapsDirectly(uint32_t descriptorHeapCount, GfxDescriptorHeap* const* descriptorHeaps);
 		
@@ -83,8 +84,9 @@ namespace SI
 		void SetDynamicSamplerDescriptors(
 			uint32_t rootIndex, uint32_t offset,
 			uint32_t descriptorCount, const GfxCpuDescriptor* descriptors);
-
+		
 		void SetPipelineState(GfxGraphicsState& graphicsState);
+		void SetPipelineState(GfxComputeState& computeState);
 		
 		void SetViewports(uint32_t count, const GfxViewport* viewPorts);
 		void SetViewport(const GfxViewport& viewPort){ SetViewports(1, &viewPort); }
@@ -128,7 +130,11 @@ namespace SI
 		void SetDynamicVB    (uint32_t slot, size_t vertexCount, size_t stride, const void* data);
 		void SetDynamicIB16(size_t indexCount, const uint16_t* data);
 		void SetDynamicIB32(size_t indexCount, const uint32_t* data);
-
+		
+		void Dispatch(
+		uint32_t threadGroupCountX,
+		uint32_t threadGroupCountY=1,
+		uint32_t threadGroupCountZ=1);
 		void Draw(
 			uint32_t vertexCount,
 			uint32_t baseVertexLocation    = 0);

@@ -127,8 +127,6 @@ namespace APP002
 
 			return data;
 		}
-
-		static const float kRtCleaColor[4] = {0.15f, 0.15f, 0.15f, 1.0f};
 	}
 	
 	struct Pipeline::TextureShaderConstant
@@ -239,12 +237,12 @@ namespace APP002
 
 		// static textureのセットアップ.
 		{
-			m_texture.InitializeAs2DStatic("whiteBlack2", 256, 256, GfxFormat::R8G8B8A8_Unorm);
+			m_texture.InitializeAs2DStatic("whiteBlack", 256, 256, GfxFormat::R8G8B8A8_Unorm);
 		}
 		
 		// render targetのセットアップ.
 		{
-			m_rt.InitializeAs2DRt("RT0", 1024, 1024, GfxFormat::R8G8B8A8_Unorm, GfxColorRGBA(kRtCleaColor));
+			m_rt.InitializeAs2DRt("RT0", 1024, 1024, GfxFormat::R8G8B8A8_Unorm, GfxColorRGBA(0.15f,0.15f,0.15f,1.0f));
 		}
 		
 		// depth render targetのセットアップ.

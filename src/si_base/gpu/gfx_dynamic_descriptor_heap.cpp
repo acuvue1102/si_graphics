@@ -15,12 +15,18 @@ namespace SI
 	GfxDescriptorHandleCache::GfxDescriptorHandleCache()
 		: m_rootTableBits(0)
 		, m_maxDescriptorCount(0)
-		, m_isGraphicsCache(true)
 	{
 	}
 
 	GfxDescriptorHandleCache::~GfxDescriptorHandleCache()
 	{
+	}
+
+	void GfxDescriptorHandleCache::Reset()
+	{
+		m_rootTableBits = 0;
+		m_stageRootParamsBits = 0;
+		m_maxDescriptorCount = 0;
 	}
 	
 	void GfxDescriptorHandleCache::UnbindAllValid()
@@ -93,7 +99,8 @@ namespace SI
 	void GfxDescriptorHandleCache::CopyAndBindTables(
 		GfxGraphicsContext& context,
 		GfxDescriptorHeapType type,
-		GfxDescriptor destStart)
+		GfxDescriptor destStart,
+		bool isGraphicsMode)
 	{
 		uint32_t descriptorSize = (uint32_t)SI_BASE_DEVICE().GetDescriptorSize(type);
 
@@ -167,14 +174,15 @@ namespace SI
 				curDesc.m_ptr += descriptorCount * descriptorSize;
 			}
 			
-			if(m_isGraphicsCache)
+			if(isGraphicsMode)
 			{
 				context.GetBaseGraphicsCommandList()->SetGraphicsDescriptorTable(
 					rootIndex, destStart.GetGpuDescriptor());
 			}
 			else
 			{
-				SI_ASSERT(0);
+				context.GetBaseGraphicsCommandList()->SetComputeDescriptorTable(
+					rootIndex, destStart.GetGpuDescriptor());
 			}
 			
 			destStart += tableSize[i] * descriptorSize;
@@ -213,6 +221,7 @@ namespace SI
 		: m_descriptorType(GfxDescriptorHeapType::Max)
 		, m_currentDescriptorHeap(nullptr)
 		, m_currentOffset(0)
+		, m_isGraphicsMode(true)
 	{
 	}
 
@@ -224,8 +233,6 @@ namespace SI
 	{
 		SI_ASSERT(descriptorType==GfxDescriptorHeapType::CbvSrvUav || descriptorType==GfxDescriptorHeapType::Sampler);
 		m_descriptorType = descriptorType;
-		m_graphicsDescriptorCache.SetIsGraphicsCache(true);
-		m_computeDescriptorCache.SetIsGraphicsCache(false);
 	}
 
 	void GfxDynamicDescriptorHeap::Terminate()
@@ -236,8 +243,7 @@ namespace SI
 	
 	void GfxDynamicDescriptorHeap::Reset()
 	{
-		m_graphicsDescriptorCache.UnbindAllValid();
-		m_computeDescriptorCache.UnbindAllValid();
+		m_descriptorCache.Reset();
 		
 		RetireCurrentHeap();
 	}
@@ -245,48 +251,33 @@ namespace SI
 	void GfxDynamicDescriptorHeap::ParseGraphicsRootSignature(const GfxRootSignatureEx& rootSig)
 	{
 		SI_ASSERT(m_descriptorType != GfxDescriptorHeapType::Max);
-		m_graphicsDescriptorCache.ParseRootSignature(m_descriptorType, rootSig);
+		m_descriptorCache.ParseRootSignature(m_descriptorType, rootSig);
+		
+		m_isGraphicsMode = true;
 	}
 
 	void GfxDynamicDescriptorHeap::ParseComputeRootSignature(const GfxRootSignatureEx& rootSig)
 	{
-		SI_ASSERT(0);
-		//SI_ASSERT(m_descriptorType != GfxDescriptorHeapType::Max);
-		//m_computeDescriptorCache.ParseRootSignature(m_descriptorType, rootSig);
+		SI_ASSERT(m_descriptorType != GfxDescriptorHeapType::Max);
+		m_descriptorCache.ParseRootSignature(m_descriptorType, rootSig);
+		
+		m_isGraphicsMode = false;
 	}
 
-	void GfxDynamicDescriptorHeap::SetGraphicsDescriptorHandles(
+	void GfxDynamicDescriptorHeap::SetDescriptorHandles(
 		uint32_t rootIndex, uint32_t offset,
 		uint32_t descriptorCount, const GfxCpuDescriptor* descriptors)
 	{
-		m_graphicsDescriptorCache.StageDescriptorHandles(rootIndex, offset, descriptorCount, descriptors);
-	}
-		
-	void GfxDynamicDescriptorHeap::SetComputeDescriptorHandles(
-		uint32_t rootIndex, uint32_t offset,
-		uint32_t descriptorCount, const GfxCpuDescriptor* descriptors)
-	{
-		m_computeDescriptorCache.StageDescriptorHandles(rootIndex, offset, descriptorCount, descriptors);
-	}
-	
-	void GfxDynamicDescriptorHeap::CopyAndBindGraphicsTables(GfxGraphicsContext& context)
-	{
-		CopyAndBindTables(context, m_graphicsDescriptorCache);
-	}
-	
-	void GfxDynamicDescriptorHeap::CopyAndBindComputeTables(GfxGraphicsContext& context)
-	{
-		CopyAndBindTables(context, m_computeDescriptorCache);
+		m_descriptorCache.StageDescriptorHandles(rootIndex, offset, descriptorCount, descriptors);
 	}
 	
 	void GfxDynamicDescriptorHeap::CopyAndBindTables(
-		GfxGraphicsContext& context,
-		GfxDescriptorHandleCache& descriptorCache)
+		GfxGraphicsContext& context)
 	{
-		if (descriptorCache.GetStageRootParamBits() == 0) return;
+		if (m_descriptorCache.GetStageRootParamBits() == 0) return;
 
-		uint32_t descriptorCount = descriptorCache.ComputeDescriptorCount();
-		GfxDescriptor newDescriptor = Allocate(descriptorCount, descriptorCache);
+		uint32_t descriptorCount = m_descriptorCache.ComputeDescriptorCount();
+		GfxDescriptor newDescriptor = Allocate(descriptorCount, m_descriptorCache);
 		
 		if(m_descriptorType == GfxDescriptorHeapType::Sampler)
 		{
@@ -297,7 +288,7 @@ namespace SI
 			context.SetCbvSrvUavDescriptorHeap(m_currentDescriptorHeap);
 		}
 
-		descriptorCache.CopyAndBindTables(context, m_descriptorType, newDescriptor);
+		m_descriptorCache.CopyAndBindTables(context, m_descriptorType, newDescriptor, m_isGraphicsMode);
 	}
 	
 	void GfxDynamicDescriptorHeap::RetireCurrentHeap()
@@ -330,7 +321,6 @@ namespace SI
 		{
 			m_currentDescriptorHeap = SI_VIEW_DESCRIPTOR_HEAP_POOL().Allocate();
 		}
-		//SI_PRINT("Change Current Descriptor Heap\n");
 
 		m_firstDescriptor = GfxDescriptor(
 			m_currentDescriptorHeap->GetCpuDescriptor(0),

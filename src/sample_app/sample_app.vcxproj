@@ -80,6 +80,7 @@
     <ClCompile Include="app001_simple_polygon\pipeline_001.cpp" />
     <ClCompile Include="app002_texture\app_002.cpp" />
     <ClCompile Include="app002_texture\pipeline_002.cpp" />
+    <ClCompile Include="app003_compute\pipeline_003.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -96,6 +97,7 @@
     <ClInclude Include="app001_simple_polygon\pipeline_001.h" />
     <ClInclude Include="app002_texture\app_002.h" />
     <ClInclude Include="app002_texture\pipeline_002.h" />
+    <ClInclude Include="app003_compute\pipeline_003.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shaders\texture.hlsl">
@@ -113,6 +115,15 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)%(Identity) &gt; NUL</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shaders\copy_texture_cs.hlsl">
+      <FileType>Document</FileType>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)%(Identity) &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)%(Identity) &gt; NUL</Command>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

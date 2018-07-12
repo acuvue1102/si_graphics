@@ -18,6 +18,7 @@
 #include "si_base/gpu/dx12/dx12_fence.h"
 #include "si_base/gpu/dx12/dx12_root_signature.h"
 #include "si_base/gpu/dx12/dx12_graphics_state.h"
+#include "si_base/gpu/dx12/dx12_compute_state.h"
 #include "si_base/gpu/dx12/dx12_buffer.h"
 #include "si_base/gpu/dx12/dx12_descriptor_heap.h"
 
@@ -333,6 +334,25 @@ namespace SI
 		SI_DELETE(s);
 	}
 	
+	BaseComputeState* BaseDevice::CreateComputeState(const GfxComputeStateDesc& desc)
+	{
+		BaseComputeState* s = SI_NEW(BaseComputeState);
+		int ret = s->Initialize(*m_device.Get(), desc);
+		if(ret != 0)
+		{
+			SI_ASSERT(0, "error CreateComputeState");
+			SI_DELETE(s);
+			return nullptr;
+		}
+
+		return s;
+	}
+
+	void BaseDevice::ReleaseComputeState(BaseComputeState* s)
+	{
+		SI_DELETE(s);
+	}
+
 	BaseBuffer* BaseDevice::CreateBuffer(const GfxBufferDesc& desc)
 	{
 		BaseBuffer* b = SI_NEW(BaseBuffer);
@@ -501,6 +521,62 @@ namespace SI
 
 		D3D12_CPU_DESCRIPTOR_HANDLE dxDescriptor = {descriptor.GetCpuDescriptor().m_ptr};
 		m_device->CreateShaderResourceView(texture.GetComPtrResource().Get(), &srvDesc, dxDescriptor);
+	}
+	
+	void BaseDevice::CreateUnorderedAccessView(
+		BaseDescriptorHeap& descriptorHeap,
+		uint32_t descriptorIndex,
+		BaseTexture& texture,
+		const GfxUnorderedAccessViewDesc& desc)
+	{
+		GfxDescriptor descriptor = descriptorHeap.GetDescriptor(descriptorIndex);
+		CreateUnorderedAccessView(descriptor, texture, desc);
+	}
+
+	void BaseDevice::CreateUnorderedAccessView(
+		GfxDescriptor& descriptor,
+		BaseTexture& texture,
+		const GfxUnorderedAccessViewDesc& desc)
+	{
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+		uavDesc.Format                  = GetDx12Format(desc.m_format);
+		uavDesc.ViewDimension           = GetDx12UavDimension(desc.m_uavDimension);
+		switch(desc.m_uavDimension)
+		{
+		case GfxDimension::Buffer:
+		case GfxDimension::Texture1D:
+			uavDesc.Texture1D.MipSlice = desc.m_mipslice;
+			break;
+		case GfxDimension::Texture1DArray:
+			uavDesc.Texture1DArray.MipSlice        = desc.m_mipslice;
+			uavDesc.Texture1DArray.FirstArraySlice = desc.m_firstArraySlice;
+			uavDesc.Texture1DArray.ArraySize       = desc.m_arraySize;
+			break;
+		case GfxDimension::Texture2D:
+			uavDesc.Texture2D.MipSlice   = desc.m_mipslice;
+			uavDesc.Texture2D.PlaneSlice = desc.m_planeSlice;
+			break;
+		case GfxDimension::Texture2DArray:
+			uavDesc.Texture2DArray.ArraySize       = desc.m_arraySize;
+			uavDesc.Texture2DArray.FirstArraySlice = desc.m_firstArraySlice;
+			uavDesc.Texture2DArray.MipSlice        = desc.m_mipslice;
+			uavDesc.Texture2DArray.PlaneSlice      = desc.m_planeSlice;
+			break;
+		case GfxDimension::Texture2DMS:
+		case GfxDimension::Texture2DMSArray:
+			break;
+		case GfxDimension::Texture3D:
+			uavDesc.Texture3D.FirstWSlice = desc.m_firstArraySlice;
+			uavDesc.Texture3D.MipSlice    = desc.m_mipslice;
+			uavDesc.Texture3D.WSize       = desc.m_wSize;
+			break;
+		default:
+			SI_ASSERT(0);
+			break;
+		}
+
+		D3D12_CPU_DESCRIPTOR_HANDLE dxDescriptor = {descriptor.GetCpuDescriptor().m_ptr};
+		m_device->CreateUnorderedAccessView(texture.GetComPtrResource().Get(), nullptr, &uavDesc, dxDescriptor);
 	}
 
 	void BaseDevice::CreateSampler(

@@ -16,6 +16,7 @@
 #include "si_base/gpu/dx12/dx12_texture.h"
 #include "si_base/gpu/dx12/dx12_buffer.h"
 #include "si_base/gpu/dx12/dx12_graphics_state.h"
+#include "si_base/gpu/dx12/dx12_compute_state.h"
 #include "si_base/gpu/dx12/dx12_device.h"
 #include "si_base/gpu/dx12/dx12_utility.h"
 #include "si_base/gpu/gfx_texture.h"
@@ -77,9 +78,14 @@ namespace SI
 			return 0;
 		}
 		
-		void SetGraphicsState(BaseGraphicsState& graphicsState)
+		void SetPipelineState(BaseGraphicsState& graphicsState)
 		{
 			m_graphicsCommandList->SetPipelineState(graphicsState.GetComPtrGraphicsState().Get());
+		}
+		
+		void SetPipelineState(BaseComputeState& computeState)
+		{
+			m_graphicsCommandList->SetPipelineState(computeState.GetComPtrComputeState().Get());
 		}
 
 		inline void ClearRenderTarget(const GfxCpuDescriptor& tex, const float* clearColor)
@@ -165,6 +171,19 @@ namespace SI
 			m_currentRootSignature = &rootSignature;
 			return true;
 		}
+		
+		inline bool SetComputeRootSignature(BaseRootSignature& rootSignature)
+		{
+			if(&rootSignature == m_currentRootSignature)
+			{
+				return false;
+			}
+
+			m_graphicsCommandList->SetComputeRootSignature(rootSignature.GetComPtrRootSignature().Get());
+
+			m_currentRootSignature = &rootSignature;
+			return true;
+		}
 
 		inline void SetDescriptorHeaps(
 			uint32_t descriptorHeapCount,
@@ -188,6 +207,15 @@ namespace SI
 			D3D12_GPU_DESCRIPTOR_HANDLE handle;
 			handle.ptr = descriptor.m_ptr;
 			m_graphicsCommandList->SetGraphicsRootDescriptorTable(tableIndex, handle);
+		}
+
+		inline void SetComputeDescriptorTable(
+			uint32_t tableIndex,
+			GfxGpuDescriptor descriptor)
+		{
+			D3D12_GPU_DESCRIPTOR_HANDLE handle;
+			handle.ptr = descriptor.m_ptr;
+			m_graphicsCommandList->SetComputeRootDescriptorTable(tableIndex, handle);
 		}
 		
 		inline void SetViewports(uint32_t count, const GfxViewport* viewPorts)
@@ -307,6 +335,14 @@ namespace SI
 			}
 
 			m_graphicsCommandList->IASetVertexBuffers(inputSlot, d3dViewCount, d3Views);
+		}
+
+		inline void Dispatch(
+			uint32_t threadGroupCountX,
+			uint32_t threadGroupCountY,
+			uint32_t threadGroupCountZ)
+		{
+			m_graphicsCommandList->Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 		}
 
 		inline void DrawIndexedInstanced(

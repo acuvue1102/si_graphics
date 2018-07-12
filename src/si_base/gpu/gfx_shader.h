@@ -63,4 +63,19 @@ namespace SI
 		int Release() override;
 	};
 
+	///////////////////////////////////////////////////////
+
+	class GfxComputeShader : public GfxShader
+	{
+	public:
+		GfxComputeShader();
+		~GfxComputeShader() override;
+
+		int LoadAndCompile(
+			const char* file,
+			const char* entryPoint = "CSMain",
+			const GfxShaderCompileDesc& desc = GfxShaderCompileDesc()) override;
+		int Release() override;
+	};
+
 } // namespace SI

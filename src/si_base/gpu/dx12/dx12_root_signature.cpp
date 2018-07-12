@@ -26,7 +26,7 @@ namespace SI
 		ID3D12Device& d3dDevice = *device.GetComPtrDevice().Get();
 		
 		PoolAllocatorEx* tempAllocator = device.GetTempAllocator();
-		D3D12_ROOT_PARAMETER1* parameters = tempAllocator->NewArray<D3D12_ROOT_PARAMETER1>((size_t)desc.m_tableCount);
+		D3D12_ROOT_PARAMETER1* parameters = (0<desc.m_tableCount)? tempAllocator->NewArray<D3D12_ROOT_PARAMETER1>((size_t)desc.m_tableCount) : nullptr;
 		for(uint32_t t=0; t<desc.m_tableCount; ++t)
 		{
 			D3D12_ROOT_PARAMETER1& outParameter = parameters[t];
@@ -36,7 +36,7 @@ namespace SI
 			outParameter.ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 			outParameter.ShaderVisibility = GetDx12ShaderVisibility(inTable.m_visibility);
 			
-			D3D12_DESCRIPTOR_RANGE1* ranges = tempAllocator->NewArray<D3D12_DESCRIPTOR_RANGE1>((size_t)desc.m_tableCount);
+			D3D12_DESCRIPTOR_RANGE1* ranges = (0<inTable.m_rangeCount)? tempAllocator->NewArray<D3D12_DESCRIPTOR_RANGE1>((size_t)inTable.m_rangeCount) : nullptr;
 
 			for(uint32_t r=0; r<inTable.m_rangeCount; ++r)
 			{

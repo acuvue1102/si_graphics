@@ -6,6 +6,7 @@ namespace SI
 	class BaseSwapChain;
 	class BaseGraphicsCommandList;
 	class BaseGraphicsState;
+	class BaseComputeState;
 	class BaseFence;
 	class BaseFenceEvent;
 	class BaseRootSignature;
@@ -16,6 +17,7 @@ namespace SI
 
 	struct GfxDeviceConfig;
 	struct GfxGraphicsStateDesc;
+	struct GfxComputeStateDesc;
 	struct GfxBufferDesc;
 	struct GfxTextureDesc;
 	struct GfxDescriptorHeapDesc;
@@ -25,4 +27,5 @@ namespace SI
 	struct GfxRootSignatureDesc;
 	struct GfxSamplerDesc;
 	struct GfxConstantBufferViewDesc;
+	struct GfxUnorderedAccessViewDesc;
 } // namespace SI

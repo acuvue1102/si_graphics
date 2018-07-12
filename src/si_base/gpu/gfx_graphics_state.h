@@ -27,6 +27,7 @@ namespace SI
 
 	struct GfxGraphicsStateDesc
 	{
+		const char*              m_name                   = nullptr;
 		GfxRootSignature*        m_rootSignature          = nullptr;
 		GfxVertexShader*         m_vertexShader           = nullptr;
 		GfxPixelShader*          m_pixelShader            = nullptr;

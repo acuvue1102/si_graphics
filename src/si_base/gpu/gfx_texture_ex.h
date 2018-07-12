@@ -64,6 +64,7 @@ namespace SI
 		uint32_t GetWidth() const;
 		uint32_t GetHeight() const;
 		uint32_t GetDepth() const;
+		GfxFormat GetFormat() const;
 		
 		virtual void* GetNativeResource() override;
 		
@@ -255,6 +256,42 @@ namespace SI
 		GfxDescriptor           m_rtvDescriptor;
 		GfxResourceStates       m_resourceStates;
 		GfxColorRGBA            m_clearColor;
+	};
+	
+	class GfxTestureEx_Uav : public _GfxTextureEx_Writable
+	{
+	public:
+		GfxTestureEx_Uav();
+		virtual ~GfxTestureEx_Uav();
+		
+		void InitializeAs2DUav(
+			const char* name, uint32_t width, uint32_t height,
+			GfxFormat format);
+		void TerminateUav();
+		
+		virtual GfxResourceStates GetResourceStates() const override
+		{
+			return m_resourceStates;
+		}
+
+		virtual void SetResourceStates(GfxResourceStates state) override
+		{
+			m_resourceStates = state;
+		}
+		
+		virtual GfxTextureExType GetType() const override
+		{
+			return GfxTextureExType::Uav;
+		}
+
+		virtual GfxDescriptor GetUavDescriptor() const override
+		{
+			return m_uavDescriptor;
+		}
+
+	private:
+		GfxDescriptor           m_uavDescriptor;
+		GfxResourceStates       m_resourceStates;
 	};
 
 } // namespace SI

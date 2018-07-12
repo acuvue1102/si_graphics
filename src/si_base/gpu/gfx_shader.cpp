@@ -68,5 +68,37 @@ namespace SI
 
 		return 0;
 	}
+		
+	///////////////////////////////////////////////////////
 
+	GfxComputeShader::GfxComputeShader()
+	{
+	}
+
+	GfxComputeShader::~GfxComputeShader()
+	{
+		Release();
+	}
+	
+	int GfxComputeShader::LoadAndCompile(
+		const char* file,
+		const char* entryPoint,
+		const GfxShaderCompileDesc& desc)
+	{
+		if(m_base) return -1;
+
+		m_base = SI_NEW(BaseComputeShader);
+		return m_base->LoadAndCompile(file, entryPoint, desc);
+	}
+
+	int GfxComputeShader::Release()
+	{
+		if(m_base)
+		{
+			m_base->Release();
+			SI_DELETE(m_base);
+		}
+
+		return 0;
+	}
 } // namespace SI

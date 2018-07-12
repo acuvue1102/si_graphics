@@ -56,6 +56,8 @@ namespace SI
 			const GfxShaderCompileDesc& desc) override;
 	};
 
+	/////////////////////////////////////////////////////////////////////
+
 	class BasePixelShader : public BaseShader
 	{
 		template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -69,6 +71,23 @@ namespace SI
 			const char* entryPoint,
 			const GfxShaderCompileDesc& desc) override;
 	};
+	
+	/////////////////////////////////////////////////////////////////////
+
+	class BaseComputeShader : public BaseShader
+	{
+		template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
+
+	public:
+		BaseComputeShader(){}
+		~BaseComputeShader(){}
+
+		int LoadAndCompile(
+			const char* file,
+			const char* entryPoint,
+			const GfxShaderCompileDesc& desc) override;
+	};
+
 
 } // namespace SI
 

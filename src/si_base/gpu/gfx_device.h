@@ -35,6 +35,9 @@ namespace SI
 		GfxGraphicsState CreateGraphicsState(const GfxGraphicsStateDesc& desc);
 		void ReleaseGraphicsState(GfxGraphicsState& state);
 
+		GfxComputeState CreateComputeState(const GfxComputeStateDesc& desc);
+		void ReleaseComputeState(GfxComputeState& state);
+
 		GfxFence CreateFence();
 		void ReleaseFence(GfxFence& fence);
 

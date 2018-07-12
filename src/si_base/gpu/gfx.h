@@ -14,6 +14,7 @@
 #include "si_base/gpu/gfx_input_layout.h"
 #include "si_base/gpu/gfx_viewport.h"
 #include "si_base/gpu/gfx_graphics_state.h"
+#include "si_base/gpu/gfx_compute_state.h"
 #include "si_base/gpu/gfx_descriptor_heap.h"
 #include "si_base/gpu/gfx_root_signature_ex.h"
 #include "si_base/gpu/gfx_core.h"

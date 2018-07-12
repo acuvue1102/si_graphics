@@ -6,11 +6,12 @@
 #include "app000_clear_color/pipeline_000.h"
 #include "app001_simple_polygon/pipeline_001.h"
 #include "app002_texture/app_002.h"
+#include "app003_compute/pipeline_003.h"
 
 /* main function */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
-	int mode = 2;
+	int mode = 3;
 	
 	SI::AppDesc appDesc;
 	appDesc.m_nCmdShow = nCmdShow;
@@ -32,6 +33,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	case 2:
 	{
 		SI::APP002::App002 app;
+		return app.Run(appDesc);
+	}
+	case 3:
+	{
+		SI::App app;
+		app.Register<SI::APP003::Pipeline>(0);
 		return app.Run(appDesc);
 	}
 	default:

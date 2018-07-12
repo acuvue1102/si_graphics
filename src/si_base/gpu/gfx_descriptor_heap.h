@@ -33,6 +33,17 @@ namespace SI
 		uint32_t        m_arraySize    = 1;
 	};
 
+	struct GfxUnorderedAccessViewDesc
+	{
+		GfxDimension    m_uavDimension = GfxDimension::Texture2D;
+		GfxFormat       m_format       = GfxFormat::R8G8B8A8_Unorm;
+		uint32_t        m_mipslice        = 0;
+		uint32_t        m_firstArraySlice = 0;
+		uint32_t        m_arraySize       = 1;
+		uint32_t        m_planeSlice      = 0;
+		uint32_t        m_wSize           = 1;
+	};
+
 	struct GfxSamplerDesc
 	{
 		GfxFilter           m_filter         = GfxFilter::MinMagMipPoint;

@@ -6,6 +6,7 @@
 #include "si_base/gpu/gfx_buffer_ex.h"
 #include "si_base/gpu/gfx_sampler_ex.h"
 #include "si_base/gpu/gfx_graphics_state.h"
+#include "si_base/gpu/gfx_compute_state.h"
 #include "si_base/gpu/gfx_device.h"
 #include "si_base/gpu/gfx_root_signature_ex.h"
 #include "si_base/gpu/gfx_core.h"
@@ -160,7 +161,12 @@ namespace SI
 	
 	void GfxGraphicsContext::SetPipelineState(GfxGraphicsState& graphicsState)
 	{
-		m_base->SetGraphicsState(*graphicsState.GetBaseGraphicsState());
+		m_base->SetPipelineState(*graphicsState.GetBaseGraphicsState());
+	}
+	
+	void GfxGraphicsContext::SetPipelineState(GfxComputeState& computeState)
+	{
+		m_base->SetPipelineState(*computeState.GetBaseComputeState());
 	}
 
 	void GfxGraphicsContext::SetGraphicsRootSignature(GfxRootSignatureEx& rootSignature)
@@ -172,6 +178,17 @@ namespace SI
 		
 		m_viewDynamicDescriptorHeap.ParseGraphicsRootSignature(rootSignature);
 		m_samplerDynamicDescriptorHeap.ParseGraphicsRootSignature(rootSignature);
+	}
+
+	void GfxGraphicsContext::SetComputeRootSignature(GfxRootSignatureEx& rootSignature)
+	{
+		if(!m_base->SetComputeRootSignature(*rootSignature.GetRootSignature().GetBaseRootSignature()))
+		{
+			return; // 前と同じなので何もしない.
+		}
+		
+		m_viewDynamicDescriptorHeap.ParseComputeRootSignature(rootSignature);
+		m_samplerDynamicDescriptorHeap.ParseComputeRootSignature(rootSignature);
 	}
 
 	void GfxGraphicsContext::SetDescriptorHeapsDirectly(
@@ -230,7 +247,7 @@ namespace SI
 		uint32_t rootIndex, uint32_t offset,
 		GfxCpuDescriptor descriptor)
 	{
-		m_viewDynamicDescriptorHeap.SetGraphicsDescriptorHandles(
+		m_viewDynamicDescriptorHeap.SetDescriptorHandles(
 			rootIndex, offset,
 			1, &descriptor);
 	}
@@ -239,7 +256,7 @@ namespace SI
 		uint32_t rootIndex, uint32_t offset,
 		uint32_t descriptorCount, const GfxCpuDescriptor* descriptors)
 	{
-		m_viewDynamicDescriptorHeap.SetGraphicsDescriptorHandles(
+		m_viewDynamicDescriptorHeap.SetDescriptorHandles(
 			rootIndex, offset,
 			descriptorCount, descriptors);
 	}
@@ -257,7 +274,7 @@ namespace SI
 		uint32_t rootIndex, uint32_t offset,
 		GfxCpuDescriptor descriptor)
 	{
-		m_samplerDynamicDescriptorHeap.SetGraphicsDescriptorHandles(
+		m_samplerDynamicDescriptorHeap.SetDescriptorHandles(
 			rootIndex, offset,
 			1, &descriptor);
 	}
@@ -266,7 +283,7 @@ namespace SI
 		uint32_t rootIndex, uint32_t offset,
 		uint32_t descriptorCount, const GfxCpuDescriptor* descriptors)
 	{
-		m_samplerDynamicDescriptorHeap.SetGraphicsDescriptorHandles(
+		m_samplerDynamicDescriptorHeap.SetDescriptorHandles(
 			rootIndex, offset,
 			descriptorCount, descriptors);
 	}
@@ -400,6 +417,17 @@ namespace SI
 		SetIndexBuffer(&view);
 	}
 
+	void GfxGraphicsContext::Dispatch(
+		uint32_t threadGroupCountX,
+		uint32_t threadGroupCountY,
+		uint32_t threadGroupCountZ)
+	{
+		m_viewDynamicDescriptorHeap.CopyAndBindTables(*this);
+		m_samplerDynamicDescriptorHeap.CopyAndBindTables(*this);
+
+		m_base->Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
+	}
+
 	void GfxGraphicsContext::Draw(
 		uint32_t vertexCount,
 		uint32_t baseVertexLocation)
@@ -421,8 +449,8 @@ namespace SI
 		uint32_t startVertexLocation,
 		uint32_t startInstanceLocation)
 	{
-		m_viewDynamicDescriptorHeap.CopyAndBindGraphicsTables(*this);
-		m_samplerDynamicDescriptorHeap.CopyAndBindGraphicsTables(*this);
+		m_viewDynamicDescriptorHeap.CopyAndBindTables(*this);
+		m_samplerDynamicDescriptorHeap.CopyAndBindTables(*this);
 
 		m_base->DrawInstanced(
 			vertexCountPerInstance,
@@ -438,8 +466,8 @@ namespace SI
 		uint32_t baseVertexLocation,
 		uint32_t startInstanceLocation)
 	{
-		m_viewDynamicDescriptorHeap.CopyAndBindGraphicsTables(*this);
-		m_samplerDynamicDescriptorHeap.CopyAndBindGraphicsTables(*this);
+		m_viewDynamicDescriptorHeap.CopyAndBindTables(*this);
+		m_samplerDynamicDescriptorHeap.CopyAndBindTables(*this);
 
 		m_base->DrawIndexedInstanced(
 			indexCountPerInstance,

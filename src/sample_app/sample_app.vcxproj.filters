@@ -13,6 +13,9 @@
     <Filter Include="app002_texture">
       <UniqueIdentifier>{300cd5fb-c511-447a-8283-308546cbac81}</UniqueIdentifier>
     </Filter>
+    <Filter Include="app003_compute">
+      <UniqueIdentifier>{0fa102a4-637b-4268-9536-7c6a44e3a5bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -28,6 +31,9 @@
     <ClCompile Include="app002_texture\app_002.cpp">
       <Filter>app002_texture</Filter>
     </ClCompile>
+    <ClCompile Include="app003_compute\pipeline_003.cpp">
+      <Filter>app003_compute</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app000_clear_color\pipeline_000.h">
@@ -42,6 +48,9 @@
     <ClInclude Include="app002_texture\app_002.h">
       <Filter>app002_texture</Filter>
     </ClInclude>
+    <ClInclude Include="app003_compute\pipeline_003.h">
+      <Filter>app003_compute</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shaders\color.hlsl">
@@ -51,6 +60,9 @@
       <Filter>shaders</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\lambert.hlsl">
+      <Filter>shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\copy_texture_cs.hlsl">
       <Filter>shaders</Filter>
     </CustomBuild>
   </ItemGroup>

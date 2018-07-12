@@ -5,6 +5,7 @@
 #if SI_USE_DX12
 #include <d3d12.h>
 #include <wrl/client.h>
+#include "si_base/gpu/gfx_enum.h"
 
 struct IDXGISwapChain3;
 
@@ -44,6 +45,11 @@ namespace SI
 		{
 			return m_depth;
 		}
+
+		GfxFormat GetFormat() const
+		{
+			return m_format;
+		}
 		
 		void SetWidth(uint32_t w)
 		{
@@ -58,6 +64,11 @@ namespace SI
 		void SetDepth(uint32_t d)
 		{
 			m_depth = d;
+		}
+		
+		void SetFormat(GfxFormat f)
+		{
+			m_format = f;
 		}
 
 	public:
@@ -76,6 +87,7 @@ namespace SI
 		uint32_t                          m_width  = 0;
 		uint32_t                          m_height = 0;
 		uint32_t                          m_depth  = 0;
+		GfxFormat                         m_format = GfxFormat::Unknown;
 	};
 
 } // namespace SI

@@ -8,6 +8,7 @@
 #include "si_base/gpu/gfx_texture.h"
 #include "si_base/gpu/gfx_swap_chain.h"
 #include "si_base/gpu/gfx_graphics_state.h"
+#include "si_base/gpu/gfx_compute_state.h"
 #include "si_base/gpu/gfx_fence.h"
 #include "si_base/gpu/gfx_root_signature.h"
 #include "si_base/gpu/gfx_buffer.h"
@@ -92,6 +93,18 @@ namespace SI
 	{
 		m_base->ReleaseGraphicsState(state.GetBaseGraphicsState());
 		state = GfxGraphicsState();
+	}
+	
+	GfxComputeState GfxDevice::CreateComputeState(const GfxComputeStateDesc& desc)
+	{
+		GfxComputeState s(m_base->CreateComputeState(desc));
+		return s;
+	}
+
+	void GfxDevice::ReleaseComputeState(GfxComputeState& state)
+	{
+		m_base->ReleaseComputeState(state.GetBaseComputeState());
+		state = GfxComputeState();
 	}
 	
 	GfxFence GfxDevice::CreateFence()
