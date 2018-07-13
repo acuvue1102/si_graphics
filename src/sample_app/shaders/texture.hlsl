@@ -4,8 +4,8 @@ SamplerState      sampler0 : register(s0);
 
 cbuffer ConstantBuffer : register(b1)
 {
-	float m_vertexScale : packoffset(c0.x);
-	float m_uvScale     : packoffset(c0.y);
+	float2 m_vertexScale : packoffset(c0.x);
+	float2 m_uvScale     : packoffset(c0.z);
 };
 
 struct VSInput
@@ -29,7 +29,7 @@ PSInput VSMain(VSInput input)
 {
 	PSInput result;
 
-	result.position = float4(m_vertexScale * input.position.xyz, 1);
+	result.position = float4(float3(m_vertexScale, 1) * input.position.xyz, 1);
 	result.uv       = m_uvScale * input.uv;
 
 	return result;

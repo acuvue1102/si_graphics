@@ -131,8 +131,8 @@ namespace APP002
 	
 	struct Pipeline::TextureShaderConstant
 	{
-		float m_vertexScale;
-		float m_uvScale;
+		float m_vertexScale[2];
+		float m_uvScale[2];
 	};
 
 	struct PointLightInfo
@@ -231,8 +231,10 @@ namespace APP002
 			
 			m_constantBuffers[1].InitializeAsConstant("textureConstant", sizeof(TextureShaderConstant));
 			m_textureConstant = static_cast<TextureShaderConstant*>(m_constantBuffers[1].GetMapPtr());
-			m_textureConstant->m_vertexScale = 0.8f;
-			m_textureConstant->m_uvScale     = 1.0f;
+			m_textureConstant->m_vertexScale[0] = 0.8f;
+			m_textureConstant->m_vertexScale[1] = 0.8f;
+			m_textureConstant->m_uvScale[0]     = 1.0f;
+			m_textureConstant->m_uvScale[1]     = 1.0f;
 		}
 
 		// static textureのセットアップ.

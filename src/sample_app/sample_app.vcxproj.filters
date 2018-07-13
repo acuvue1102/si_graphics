@@ -65,5 +65,8 @@
     <CustomBuild Include="shaders\copy_texture_cs.hlsl">
       <Filter>shaders</Filter>
     </CustomBuild>
+    <CustomBuild Include="shaders\ibl_lut_cs.hlsl">
+      <Filter>shaders</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

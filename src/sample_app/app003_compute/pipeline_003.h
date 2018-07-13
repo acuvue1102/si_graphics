@@ -23,7 +23,7 @@ namespace APP003
 		int LoadAsset(const AppInitializeInfo& info);
 
 	protected:
-		struct CopyTextureShaderConstant;
+		struct IblLutShaderConstant;
 		struct TextureShaderConstant;
 
 	protected:
@@ -31,20 +31,18 @@ namespace APP003
 		GfxRootSignatureEx       m_rootSignatures;
 		GfxComputeState          m_computeStates;
 		GfxGraphicsState         m_graphicsStates;
-		GfxBufferEx_Constant     m_copyConstantBuffers;
+		GfxBufferEx_Constant     m_iblLutConstantBuffers;
 		GfxBufferEx_Constant     m_constantBuffers;
-		CopyTextureShaderConstant*   m_copyTextureConstant;
+		IblLutShaderConstant*    m_iblLutConstant;
 		TextureShaderConstant*   m_textureConstant;
 		
-		GfxComputeShader         m_copyTextureCS;
+		GfxComputeShader         m_iblLutCS;
 
 		GfxVertexShader          m_textureVS;
 		GfxPixelShader           m_texturePS;
 
-		GfxBufferEx_Vertex       m_quadVertexBuffer;
-		GfxTextureEx             m_texture;
-		
-		GfxTestureEx_Uav         m_copyedTexture;
+		GfxBufferEx_Vertex       m_quadVertexBuffer;		
+		GfxTestureEx_Uav         m_iblLutTexture;
 
 		GfxSamplerEx             m_sampler;
 	};
