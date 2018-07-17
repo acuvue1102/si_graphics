@@ -72,6 +72,7 @@
     <ClCompile Include="concurency\mutex.cpp" />
     <ClCompile Include="core\assert.cpp" />
     <ClCompile Include="core\print.cpp" />
+    <ClCompile Include="file\file.cpp" />
     <ClCompile Include="gpu\dx12\dx12_buffer.cpp" />
     <ClCompile Include="gpu\dx12\dx12_command_queue.cpp" />
     <ClCompile Include="gpu\dx12\dx12_compute_state.cpp" />
@@ -92,6 +93,7 @@
     <ClCompile Include="gpu\gfx_compute_state.cpp" />
     <ClCompile Include="gpu\gfx_context_manager.cpp" />
     <ClCompile Include="gpu\gfx_core.cpp" />
+    <ClCompile Include="gpu\gfx_dds.cpp" />
     <ClCompile Include="gpu\gfx_descriptor_allocator.cpp" />
     <ClCompile Include="gpu\gfx_descriptor_heap.cpp" />
     <ClCompile Include="gpu\gfx_descriptor_heap_pool.cpp" />
@@ -133,6 +135,8 @@
     <ClInclude Include="core\print.h" />
     <ClInclude Include="core\scope_exit.h" />
     <ClInclude Include="core\singleton.h" />
+    <ClInclude Include="file\file.h" />
+    <ClInclude Include="file\file_win.h" />
     <ClInclude Include="gpu\dx12\dx12_buffer.h" />
     <ClInclude Include="gpu\dx12\dx12_command_list.h" />
     <ClInclude Include="gpu\dx12\dx12_command_queue.h" />
@@ -159,6 +163,7 @@
     <ClInclude Include="gpu\gfx_config.h" />
     <ClInclude Include="gpu\gfx_context_manager.h" />
     <ClInclude Include="gpu\gfx_core.h" />
+    <ClInclude Include="gpu\gfx_dds.h" />
     <ClInclude Include="gpu\gfx_declare.h" />
     <ClInclude Include="gpu\gfx_desc.h" />
     <ClInclude Include="gpu\gfx_descriptor_allocator.h" />

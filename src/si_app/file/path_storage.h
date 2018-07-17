@@ -19,15 +19,17 @@ namespace SI
 		void Initialize();
 		void Terminate();
 		
-		const char* GetExePath()    const{ return m_exePath; }
-		const char* GetExeDirPath() const{ return m_exeDirPath; }
+		const char* GetExePath()      const{ return m_exePath; }
+		const char* GetExeDirPath()   const{ return m_exeDirPath; }
+		const char* GetAssetDirPath() const{ return m_assetDirPath; }
 
 
 		static const size_t kPathMax = 260;
 
 	private:
-		char m_exePath   [kPathMax];  // exeのパス.
-		char m_exeDirPath[kPathMax];  // exeが置かれているパス.
+		char m_exePath   [kPathMax];    // exeのパス.
+		char m_exeDirPath[kPathMax];    // exeが置かれているパス.
+		char m_assetDirPath[kPathMax];  // assetのパス.
 	};
 } // namespace SI
 

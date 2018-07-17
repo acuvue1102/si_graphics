@@ -5,4 +5,4 @@
 #define FOOTERS 1
 #define USE_LOCKS 1
 
-#include "../dlmalloc/malloc.c"
+#include "dlmalloc/malloc.c"

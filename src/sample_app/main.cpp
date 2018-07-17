@@ -11,7 +11,7 @@
 /* main function */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
-	int mode = 3;
+	int mode = 2;
 	
 	SI::AppDesc appDesc;
 	appDesc.m_nCmdShow = nCmdShow;

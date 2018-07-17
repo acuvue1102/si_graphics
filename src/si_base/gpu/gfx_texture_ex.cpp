@@ -8,6 +8,8 @@
 #include "si_base/gpu/dx12/dx12_device.h"
 #include "si_base/gpu/dx12/dx12_texture.h"
 
+#include "si_base/gpu/gfx_dds.h"
+
 namespace SI
 {
 	GfxTextureEx::GfxTextureEx()
@@ -25,7 +27,7 @@ namespace SI
 	}
 
 	void GfxTextureEx::InitializeAs2DStatic(
-		const char* name, uint32_t width, uint32_t height, GfxFormat format)
+		const char* name, uint32_t width, uint32_t height, GfxFormat format, uint32_t mipLevel)
 	{
 		BaseDevice& device = SI_BASE_DEVICE();
 
@@ -34,22 +36,67 @@ namespace SI
 		desc.m_width          = width;
 		desc.m_height         = height;
 		desc.m_format         = format;
+		desc.m_mipLevels      = mipLevel;
 		desc.m_dimension      = GfxDimension::Texture2D;
 		desc.m_resourceStates = GfxResourceState::CopyDest;
 		desc.m_resourceFlags  = GfxResourceFlag::None;
 		desc.m_heapType       = GfxHeapType::Default;
-
 		m_texture = device.CreateTexture(desc);
+
+		m_dimension = desc.m_dimension;
 		
 		GfxShaderResourceViewDesc srvDesc;
 		srvDesc.m_srvDimension = GfxDimension::Texture2D;
-		srvDesc.m_format = format;
-		srvDesc.m_miplevels = 1;
+		srvDesc.m_format = desc.m_format;
+		srvDesc.m_miplevels = mipLevel;
 		srvDesc.m_arraySize = 1;
 		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Allocate(1);
 		device.CreateShaderResourceView(m_srvDescriptor, *m_texture, srvDesc);
 
 		m_ref.Create();
+	}
+	
+	int GfxTextureEx::InitializeDDS( const char* name, const void* ddsBuffer, size_t ddsBufferSize, GfxDdsMetaData& outDdsMetaData)
+	{
+		GfxDdsMetaData& ddsMetaData = outDdsMetaData;
+
+		int ret =LoadDdsFromMemory(ddsMetaData, ddsBuffer, ddsBufferSize);
+		if(ret != 0)
+		{
+			return ret;
+		}
+
+
+		BaseDevice& device = SI_BASE_DEVICE();
+
+		GfxTextureDesc desc;
+		desc.m_name           = name;
+		desc.m_width          = ddsMetaData.m_width;
+		desc.m_height         = ddsMetaData.m_height;
+		desc.m_depth          = ddsMetaData.m_depth;
+		desc.m_arraySize      = ddsMetaData.m_arraySize;
+		desc.m_mipLevels      = ddsMetaData.m_mipLevel;
+		desc.m_format         = ddsMetaData.m_format;
+		desc.m_dimension      = ddsMetaData.m_dimension;
+		desc.m_resourceStates = GfxResourceState::CopyDest;
+		desc.m_resourceFlags  = GfxResourceFlag::None;
+		desc.m_heapType       = GfxHeapType::Default;
+		m_texture = device.CreateTexture(desc);
+		
+		m_dimension = desc.m_dimension;
+		
+		GfxShaderResourceViewDesc srvDesc;
+		srvDesc.m_srvDimension = GfxDimension::Texture2D;
+		srvDesc.m_format = desc.m_format;
+		srvDesc.m_miplevels = desc.m_mipLevels;
+		srvDesc.m_arraySize = desc.m_arraySize;
+		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Allocate(1);
+		device.CreateShaderResourceView(m_srvDescriptor, *m_texture, srvDesc);
+
+
+		m_ref.Create();
+
+		return 0;
 	}
 
 	void GfxTextureEx::TerminateStatic()

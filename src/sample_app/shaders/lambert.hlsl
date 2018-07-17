@@ -60,7 +60,7 @@ PsOutput PSMain(PSInput input)
 
 	float3 pos = input.posInView.xyz/input.posInView.w;
 	float3 N = normalize(input.normal);
-	float3 albedo = texture0.Sample(sampler0, input.uv).xyz;
+	float3 albedo = pow(texture0.Sample(sampler0, input.uv).xyz, 1/2.2);
 
 	float3 color = 0.0.xxx;
 	for(int i=0; i<4; ++i)

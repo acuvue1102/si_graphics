@@ -6,10 +6,12 @@
 #include <dxgi1_4.h>
 #include <comdef.h>
 #include "si_base/core/core.h"
+#include "si_base/core/basic_function.h"
 #include "si_base/gpu/gfx_enum.h"
 #include "si_base/gpu/dx12/dx12_texture.h"
 #include "si_base/gpu/dx12/dx12_graphics_state.h"
 #include "si_base/gpu/dx12/dx12_graphics_command_list.h"
+#include "si_base/gpu/gfx_utility.h"
 
 namespace SI
 {
@@ -184,11 +186,6 @@ namespace SI
 			0, subresourceNum, 0,
 			&layouts[0], &numRows[0], &rowSizeInBytes[0], &totalBytes);
 
-		if(srcBufferSize < totalBytes)
-		{
-			SI_ASSERT(0);
-			return -1;
-		}
 
 		// アップロード用のバッファを用意する.
 		D3D12_HEAP_PROPERTIES heapProperties = {};
@@ -222,14 +219,31 @@ namespace SI
 
 		GfxTempVector<D3D12_SUBRESOURCE_DATA> sourcesData(subresourceNum);
 		size_t bpp = GetDx12FormatBits(resourceDesc.Format);
-		const uint8_t* tmpSrc = (const uint8_t*)srcBuffer;
-		for(UINT i=0; i<subresourceNum; ++i)
-		{
-			sourcesData[i].pData      = tmpSrc;
-			sourcesData[i].RowPitch   = (layouts[i].Footprint.Width * bpp) / 8;
-			sourcesData[i].SlicePitch = layouts[i].Footprint.Height * layouts[i].Footprint.Depth;
+		
+		bool isBlock = IsBlockCompression(targetTexture.GetFormat());
 
-			tmpSrc += sourcesData[i].RowPitch * sourcesData[i].SlicePitch;
+		const uint8_t* tmpSrc = (const uint8_t*)srcBuffer;
+		if(isBlock)
+		{
+			for(UINT i=0; i<subresourceNum; ++i)
+			{
+				uint32_t w = Max(1u, ((layouts[i].Footprint.Width  + 3u)/4u ));
+				uint32_t h = Max(1u, ((layouts[i].Footprint.Height + 3u)/4u ));
+				sourcesData[i].pData      = tmpSrc;
+				sourcesData[i].RowPitch   = (w * 4 * 4 * bpp) / 8;
+				sourcesData[i].SlicePitch = h * layouts[i].Footprint.Depth;
+				tmpSrc += sourcesData[i].RowPitch * sourcesData[i].SlicePitch;
+			}
+		}
+		else
+		{
+			for(UINT i=0; i<subresourceNum; ++i)
+			{
+				sourcesData[i].pData      = tmpSrc;
+				sourcesData[i].RowPitch   = (layouts[i].Footprint.Width * bpp) / 8;
+				sourcesData[i].SlicePitch = layouts[i].Footprint.Height * layouts[i].Footprint.Depth;
+				tmpSrc += sourcesData[i].RowPitch * sourcesData[i].SlicePitch;
+			}
 		}
 		SI_ASSERT((uintptr_t)tmpSrc <= (uintptr_t)srcBuffer + srcBufferSize);
 
@@ -249,7 +263,7 @@ namespace SI
 				return -1;
 			}
 
-			D3D12_MEMCPY_DEST DestData =
+			D3D12_MEMCPY_DEST destData =
 			{
 				pData + layouts[i].Offset,
 				layouts[i].Footprint.RowPitch,
@@ -257,7 +271,7 @@ namespace SI
 			};
 
 			MemcpySubresource(
-				&DestData,
+				&destData,
 				&sourcesData[i],
 				(SIZE_T)rowSizeInBytes[i],
 				numRows[i],
@@ -295,7 +309,7 @@ namespace SI
 
 		return 0;
 	}
-
+	
 } // namespace SI
 
 #endif // SI_USE_DX12

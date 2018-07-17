@@ -22,3 +22,4 @@
 #include "si_base/gpu/gfx_buffer_ex.h"
 #include "si_base/gpu/gfx_sampler_ex.h"
 #include "si_base/gpu/gfx_context_manager.h"
+#include "si_base/gpu/gfx_dds.h"

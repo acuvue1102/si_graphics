@@ -30,6 +30,9 @@
     <ClInclude Include="app\app_module.h">
       <Filter>app</Filter>
     </ClInclude>
+    <ClInclude Include="file\file_utility.h">
+      <Filter>file</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="file\path_storage.cpp">

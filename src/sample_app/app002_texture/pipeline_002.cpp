@@ -238,8 +238,19 @@ namespace APP002
 		}
 
 		// static textureのセットアップ.
+		//std::vector<uint8_t> texData = GenerateTextureData(m_texture.GetWidth(), m_texture.GetHeight());
+		//{
+		//	m_texture.InitializeAs2DStatic("whiteBlack", 256, 256, GfxFormat::R8G8B8A8_Unorm);
+		//}
+		std::vector<uint8_t> texData;
+		GfxDdsMetaData texMetaData;
 		{
-			m_texture.InitializeAs2DStatic("whiteBlack", 256, 256, GfxFormat::R8G8B8A8_Unorm);
+			char ddsFilePath[260];
+			sprintf_s(ddsFilePath, "%stest_texture.dds", SI_PATH_STORAGE().GetAssetDirPath());
+			int ret = FileUtility::Load(texData, ddsFilePath);
+			SI_ASSERT(ret==0);
+
+			m_texture.InitializeDDS("test_texture", &texData[0], texData.size(), texMetaData);
 		}
 		
 		// render targetのセットアップ.
@@ -327,8 +338,8 @@ namespace APP002
 			context.UploadBuffer(m_device, m_boxVertexBuffer, kBoxVertexData, sizeof(kBoxVertexData));
 			context.UploadBuffer(m_device, m_boxIndexBuffer, kBoxIndexData, sizeof(kBoxIndexData));
 			
-			std::vector<uint8_t> texData = GenerateTextureData(m_texture.GetWidth(), m_texture.GetHeight());
-			context.UploadTexture(m_device, m_texture, &texData[0], texData.size());
+			context.UploadTexture(m_device, m_texture, texMetaData.m_image, texMetaData.m_imageSise);
+			//context.UploadTexture(m_device, m_texture, &texData[0], texData.size());
 		}
 		EndRender();
 

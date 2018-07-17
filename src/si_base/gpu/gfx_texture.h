@@ -14,6 +14,7 @@ namespace SI
 		uint32_t           m_width          = 1;
 		uint32_t           m_height         = 1;
 		uint32_t           m_depth          = 1;
+		uint32_t           m_arraySize      = 1;
 		uint32_t           m_mipLevels      = 1;
 		GfxFormat          m_format         = GfxFormat::R8G8B8A8_Unorm;
 		GfxDimension       m_dimension      = GfxDimension::Texture2D;

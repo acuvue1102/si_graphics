@@ -8,6 +8,7 @@
 #include "si_base/core/core.h"
 #include "si_base/gpu/dx12/dx12_enum.h"
 #include "si_base/gpu/gfx_texture.h"
+#include "si_base/gpu/gfx_utility.h"
 
 namespace SI
 {
@@ -54,13 +55,16 @@ namespace SI
 			clearValue = &cv;
 		}
 
+		uint32_t depthOrArraySize = (desc.m_dimension == GfxDimension::Texture3D)? desc.m_depth :
+			(IsArrayDimension(desc.m_dimension)? desc.m_arraySize : 1) * (IsCubeDimension(desc.m_dimension)? 6 : 1);
+
 		D3D12_RESOURCE_DESC textureDesc = {};
 		textureDesc.MipLevels          = desc.m_mipLevels;
 		textureDesc.Format             = format;
 		textureDesc.Width              = desc.m_width;
 		textureDesc.Height             = desc.m_height;
 		textureDesc.Flags              = GetDx12ResourceFlags(desc.m_resourceFlags);
-		textureDesc.DepthOrArraySize   = desc.m_depth;
+		textureDesc.DepthOrArraySize   = depthOrArraySize;
 		textureDesc.SampleDesc.Count   = 1;
 		textureDesc.SampleDesc.Quality = 0;
 		textureDesc.Dimension          = GetDx12ResourceDimension(desc.m_dimension);

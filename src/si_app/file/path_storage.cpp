@@ -46,6 +46,8 @@ namespace SI
 				*lastSlash = 0;
 			}
 		}
+
+		sprintf_s(m_assetDirPath, "%s..\\..\\..\\asset\\", m_exeDirPath);
 	}
 
 	void PathStorage::Terminate()

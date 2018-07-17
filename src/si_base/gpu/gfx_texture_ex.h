@@ -13,6 +13,7 @@
 namespace SI
 {
 	class BaseTexture;
+	struct GfxDdsMetaData;
 
 	enum class GfxTextureExType
 	{
@@ -30,7 +31,8 @@ namespace SI
 		GfxTextureEx();
 		virtual ~GfxTextureEx();
 		
-		void InitializeAs2DStatic( const char* name, uint32_t width, uint32_t height, GfxFormat format);
+		void InitializeAs2DStatic( const char* name, uint32_t width, uint32_t height, GfxFormat format, uint32_t mipLevel=1);
+		int  InitializeDDS( const char* name, const void* ddsBuffer, size_t ddsBufferSize, GfxDdsMetaData& outDdsMetaData);
 		void TerminateStatic();
 		
 		        GfxDescriptor GetSrvDescriptor() const{ return m_srvDescriptor; }

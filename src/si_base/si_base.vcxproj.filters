@@ -265,6 +265,15 @@
     <ClInclude Include="gpu\dx12\dx12_compute_state.h">
       <Filter>gpu\dx12</Filter>
     </ClInclude>
+    <ClInclude Include="gpu\gfx_dds.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="file\file.h">
+      <Filter>file</Filter>
+    </ClInclude>
+    <ClInclude Include="file\file_win.h">
+      <Filter>file</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -296,6 +305,9 @@
     </Filter>
     <Filter Include="concurency">
       <UniqueIdentifier>{81e79199-0c87-4c04-933d-3df66f4fbfdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="file">
+      <UniqueIdentifier>{59ee036d-cfbe-4f4c-b9a2-eed5d6219660}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -451,6 +463,12 @@
     </ClCompile>
     <ClCompile Include="gpu\dx12\dx12_compute_state.cpp">
       <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_dds.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="file\file.cpp">
+      <Filter>file</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
