@@ -95,7 +95,7 @@ namespace SI
 			: m_buffer(buffer)
 			, m_sizeInByte(sizeInByte)
 			, m_strideInByte(strideInByte)
-			, m_offsetInByte(0)
+			, m_offsetInByte(offsetInByte)
 		{}
 		
 		inline void             SetBuffer(GfxBuffer  buffer) { m_buffer = buffer;             }

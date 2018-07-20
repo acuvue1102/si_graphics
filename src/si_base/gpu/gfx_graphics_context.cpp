@@ -376,11 +376,11 @@ namespace SI
 		
 		memcpy(mem.GetCpuAddr(), data, size);
 
-		GfxVertexBufferView view;
-		view.SetBuffer(mem.GetBuffer());
-		view.SetSize(mem.GetSize());
-		view.SetStride(size);
-		view.SetOffset(mem.GetOffset());
+		GfxVertexBufferView view(
+			mem.GetBuffer(),
+			mem.GetSize(),
+			stride,
+			mem.GetOffset());
 
 		SetVertexBuffer(slot, view);
 	}

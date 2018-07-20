@@ -6,6 +6,7 @@
 #include <si_base/core/core.h>
 #include <si_app/file/path_storage.h>
 #include <si_base/math/math.h>
+#include <si_app/file/file_utility.h>
 
 namespace SI
 {
@@ -174,21 +175,6 @@ namespace APP002
 
 	int Pipeline::LoadAsset(const AppInitializeInfo& info)
 	{
-		// 四角形の頂点バッファのセットアップ.
-		{
-			m_quadVertexBuffer.InitializeAsVertex(
-				"vertex", sizeof(kVertexData), sizeof(kVertexData[0]), 0);
-		}
-
-		// ボックスの頂点バッファのセットアップ.
-		{
-			m_boxVertexBuffer.InitializeAsVertex(
-				"boxVertex", sizeof(kBoxVertexData), sizeof(kBoxVertexData[0]), 0);
-			
-			m_boxIndexBuffer.InitializeAsIndex(
-				"boxIndex", sizeof(kBoxIndexData), sizeof(kBoxIndexData[0])==2);
-		}
-
 		// textureシェーダのセットアップ.
 		{
 			std::string shaderPath = SI_PATH_STORAGE().GetExeDirPath();
@@ -237,11 +223,6 @@ namespace APP002
 			m_textureConstant->m_uvScale[1]     = 1.0f;
 		}
 
-		// static textureのセットアップ.
-		//std::vector<uint8_t> texData = GenerateTextureData(m_texture.GetWidth(), m_texture.GetHeight());
-		//{
-		//	m_texture.InitializeAs2DStatic("whiteBlack", 256, 256, GfxFormat::R8G8B8A8_Unorm);
-		//}
 		std::vector<uint8_t> texData;
 		GfxDdsMetaData texMetaData;
 		{
@@ -334,12 +315,8 @@ namespace APP002
 		BeginRender();
 		{
 			GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
-			context.UploadBuffer(m_device, m_quadVertexBuffer, kVertexData, sizeof(kVertexData));
-			context.UploadBuffer(m_device, m_boxVertexBuffer, kBoxVertexData, sizeof(kBoxVertexData));
-			context.UploadBuffer(m_device, m_boxIndexBuffer, kBoxIndexData, sizeof(kBoxIndexData));
 			
 			context.UploadTexture(m_device, m_texture, texMetaData.m_image, texMetaData.m_imageSise);
-			//context.UploadTexture(m_device, m_texture, &texData[0], texData.size());
 		}
 		EndRender();
 
@@ -379,11 +356,6 @@ namespace APP002
 
 		m_texturePS.Release();
 		m_textureVS.Release();
-
-		m_boxIndexBuffer.TerminateAsIndex();
-		m_boxVertexBuffer.TerminateAsVertex();
-
-		m_quadVertexBuffer.TerminateAsVertex();
 
 		PipelineBase::OnTerminate();
 
@@ -433,9 +405,9 @@ namespace APP002
 			context.ClearDepthStencilTarget(m_depth);
 
 			context.SetPrimitiveTopology(GfxPrimitiveTopology::TriangleList);
-
-			context.SetVertexBuffer(0, m_boxVertexBuffer);
-			context.SetIndexBuffer(m_boxIndexBuffer);
+			
+			context.SetDynamicVB(0, ArraySize(kBoxVertexData), sizeof(kBoxVertexData[0]), kBoxVertexData);
+			context.SetDynamicIB16(ArraySize(kBoxIndexData), kBoxIndexData);
 			
 			context.DrawIndexedInstanced((uint32_t)ArraySize(kBoxIndexData), 8);
 		}
@@ -464,8 +436,8 @@ namespace APP002
 
 			context.SetPrimitiveTopology(GfxPrimitiveTopology::TriangleList);
 
-			context.SetVertexBuffer(0, m_quadVertexBuffer);
-			
+			context.SetDynamicVB(0, ArraySize(kVertexData), sizeof(kVertexData[0]), kVertexData);
+
 			context.DrawInstanced(6, 1, 0, 0);
 		}
 
