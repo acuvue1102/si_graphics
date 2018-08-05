@@ -119,6 +119,11 @@ namespace SI
 			return Vfloat(_mm_max_ss(a.Get128(), b.Get128()));
 		}
 
+		inline Vfloat Abs(const Vfloat& a)
+		{
+			return Vfloat(_mm_and_ps(a.Get128(), kSiUint128_AbsMask));
+		}
+
 		inline Vfloat Sqrt(const Vfloat& a)
 		{
 			return Vfloat(_mm_sqrt_ss(a.Get128()));

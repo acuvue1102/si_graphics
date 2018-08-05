@@ -42,6 +42,8 @@ namespace SI
 	SI_GLOBAL_CONST _SiFloat128 kSiFloat128_0100 = {{{ 0.0f, 1.0f, 0.0f, 0.0f }}};
 	SI_GLOBAL_CONST _SiFloat128 kSiFloat128_0010 = {{{ 0.0f, 0.0f, 1.0f, 0.0f }}};
 	SI_GLOBAL_CONST _SiFloat128 kSiFloat128_0001 = {{{ 0.0f, 0.0f, 0.0f, 1.0f }}};
+	
+	SI_GLOBAL_CONST _SiUint128  kSiUint128_AbsMask = {{{ 0x8fffffff, 0x8fffffff, 0x8fffffff, 0x8fffffff }}};
 
 	inline __m128 _si_mm_get_mask(int ctrl)
 	{

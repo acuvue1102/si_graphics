@@ -364,6 +364,11 @@ namespace SI
 			return Vfloat3(_mm_max_ps(a.Get128(), b.Get128()));
 		}
 
+		inline Vfloat3 Abs(Vfloat3_arg a)
+		{
+			return Vfloat3(_mm_and_ps(a.Get128(), kSiUint128_AbsMask));
+		}
+
 		inline Vfloat3 Sqrt(Vfloat3_arg a)
 		{
 			return Vfloat3(_mm_sqrt_ps(a.Get128()));

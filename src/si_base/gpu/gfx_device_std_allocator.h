@@ -41,4 +41,39 @@ namespace SI
 	
 	template <typename T> using GfxTempVector = std::vector<T, SI::GfxStdDeviceTempAllocator<T>>;
 
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	
+	template<class T>
+	class GfxStdDeviceObjAllocator : public std::allocator<T> {
+	public:
+		GfxStdDeviceObjAllocator() { }
+		GfxStdDeviceObjAllocator(const GfxStdDeviceObjAllocator& x) { }
+	
+		template<class U>
+		GfxStdDeviceObjAllocator(const GfxStdDeviceObjAllocator<U>& x) { }
+	
+		std::allocator<T>::pointer allocate(
+			std::allocator<T>::size_type n,
+			std::allocator<T>::const_pointer hint=0)
+		{ 
+			return (std::allocator<T>::pointer) SI_DEVICE_OBJ_ALLOCATOR().Allocate(n * sizeof(T), alignof(T));
+		}
+	
+		void deallocate(
+			std::allocator<T>::pointer ptr,
+			std::allocator<T>::size_type n)
+		{
+			SI_DEVICE_OBJ_ALLOCATOR().Deallocate(ptr);
+		}
+	
+		template<class U>
+		struct rebind
+		{
+			typedef GfxStdDeviceObjAllocator<U> other;
+		};
+	};
+	
+	template <typename T> using GfxObjVector = std::vector<T, SI::GfxStdDeviceObjAllocator<T>>;
+
 } // namespace SI

@@ -101,6 +101,7 @@ namespace SI
 	{
 		Vfloat3 Min       (Vfloat3_arg a, Vfloat3_arg b);
 		Vfloat3 Max       (Vfloat3_arg a, Vfloat3_arg b);
+		Vfloat3 Abs       (Vfloat3_arg a);
 		Vfloat3 Sqrt      (Vfloat3_arg a);
 		Vfloat3 Rsqrt     (Vfloat3_arg a);
 		Vfloat3 Rcp       (Vfloat3_arg a);

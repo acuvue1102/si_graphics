@@ -274,6 +274,42 @@
     <ClInclude Include="file\file_win.h">
       <Filter>file</Filter>
     </ClInclude>
+    <ClInclude Include="container\array.h">
+      <Filter>container</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\model.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\material.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\mesh.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\node.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\allocator_base.h">
+      <Filter>memory</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer_common.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\sub_mesh.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\geometry.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\node_iterator.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\model_instance.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="math\aabb.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -308,6 +344,12 @@
     </Filter>
     <Filter Include="file">
       <UniqueIdentifier>{59ee036d-cfbe-4f4c-b9a2-eed5d6219660}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer">
+      <UniqueIdentifier>{6050ff78-a9f6-41af-b627-12cdbf3d2d83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="container">
+      <UniqueIdentifier>{f24f9fb4-290c-4451-8c9f-bd74a7d178f6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -470,6 +512,24 @@
     <ClCompile Include="file\file.cpp">
       <Filter>file</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\model.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\material.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\mesh.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\node.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\sub_mesh.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\model_instance.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="math\inl\vfloat.inl">
@@ -493,5 +553,13 @@
     <None Include="math\inl\vquat.inl">
       <Filter>math\inl</Filter>
     </None>
+    <None Include="renderer\node_iterator.inl">
+      <Filter>renderer</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="container\container.natvis">
+      <Filter>container</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>

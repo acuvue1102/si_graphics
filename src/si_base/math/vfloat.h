@@ -45,6 +45,7 @@ namespace SI
 	{
 		Vfloat Min  (const Vfloat& a, const Vfloat& b);
 		Vfloat Max  (const Vfloat& a, const Vfloat& b);
+		Vfloat Abs  (const Vfloat& a);
 		Vfloat Sqrt (const Vfloat& a);
 		Vfloat Rsqrt(const Vfloat& a);
 		Vfloat Rcp  (const Vfloat& a);
