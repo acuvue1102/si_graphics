@@ -4,3 +4,6 @@
 [submodule "src/tools/DirectXTex"]
 	path = src/tools/DirectXTex
 	url = https://github.com/Microsoft/DirectXTex.git
+[submodule "src/external/picojson"]
+	path = src/external/picojson
+	url = https://github.com/kazuho/picojson.git

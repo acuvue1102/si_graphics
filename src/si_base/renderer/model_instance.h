@@ -24,32 +24,31 @@ namespace SI
 		Model*                 GetModel()           { return m_model.get(); }
 		const Model*           GetModel()      const{ return m_model.get(); }
 		
-		Node&                  GetRootNode()        { return m_model->GetRootNode(); }
 		const Node&            GetRootNode()   const{ return m_model->GetRootNode(); }
 		
-		Array<Node*>           GetNodes()           { return m_model->GetNodes();    }
-		ConstArray<Node*>      GetNodes()      const{ return m_model->GetNodes();    }
+		Array<Node>            GetNodes()           { return m_model->GetNodes();    }
+		ConstArray<Node>       GetNodes()      const{ return m_model->GetNodes();    }
 		
-		Array<NodeCore*>       GetNodeCores()       { return m_nodeCores.IsValid()? m_nodeCores : m_model->GetNodeCores(); }
-		ConstArray<NodeCore*>  GetNodeCores()  const{ return m_nodeCores.IsValid()? m_nodeCores : m_model->GetNodeCores(); }
+		Array<NodeCore>        GetNodeCores()       { return m_nodeCores.IsValid()? m_nodeCores : m_model->GetNodeCores(); }
+		ConstArray<NodeCore>   GetNodeCores()  const{ return m_nodeCores.IsValid()? m_nodeCores : m_model->GetNodeCores(); }
 		 
-		Array<Mesh*>           GetMeshes()          { return m_model->GetMeshes();    }
-		ConstArray<Mesh*>      GetMeshes()     const{ return m_model->GetMeshes();    }
+		Array<Mesh>            GetMeshes()          { return m_model->GetMeshes();    }
+		ConstArray<Mesh>       GetMeshes()     const{ return m_model->GetMeshes();    }
 
-		Array<SubMesh*>        GetSubMeshes()       { return m_model->GetSubMeshes();    }
-		ConstArray<SubMesh*>   GetSubMeshes()  const{ return m_model->GetSubMeshes();    }
+		Array<SubMesh>         GetSubMeshes()       { return m_model->GetSubMeshes();    }
+		ConstArray<SubMesh>    GetSubMeshes()  const{ return m_model->GetSubMeshes();    }
 
-		Array<Material**>      GetMaterials()       { return m_materials.IsValid()? m_materials : m_model->GetMaterials();    }
-		ConstArray<Material**> GetMaterials()  const{ return m_materials.IsValid()? m_materials : m_model->GetMaterials();    }
+		Array<Material*>       GetMaterials()       { return m_materials.IsValid()? m_materials : m_model->GetMaterials();    }
+		ConstArray<Material*>  GetMaterials()  const{ return m_materials.IsValid()? m_materials : m_model->GetMaterials();    }
 
-		Array<Geometry**>      GetGeometries()      { return m_geometries.IsValid()? m_geometries : m_model->GetGeometries();    }
-		ConstArray<Geometry**> GetGeometries() const{ return m_geometries.IsValid()? m_geometries : m_model->GetGeometries();    }
+		Array<Geometry*>       GetGeometries()      { return m_geometries.IsValid()? m_geometries : m_model->GetGeometries();    }
+		ConstArray<Geometry*>  GetGeometries() const{ return m_geometries.IsValid()? m_geometries : m_model->GetGeometries();    }
 
 	private:
 		ModelPtr           m_model;
-		Array<NodeCore*>   m_nodeCores;
-		Array<Material**>  m_materials;
-		Array<Geometry**>  m_geometries;
+		Array<NodeCore>    m_nodeCores;
+		Array<Material*>   m_materials;
+		Array<Geometry*>   m_geometries;
 	};
 
 } // namespace SI

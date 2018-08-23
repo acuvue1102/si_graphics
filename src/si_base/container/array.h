@@ -29,8 +29,6 @@ namespace SI
 
 		~Array()
 		{
-			SI_ASSERT(m_items==nullptr);
-			SI_ASSERT(m_itemCount==0);
 		}
 
 		void Reset()
@@ -75,18 +73,34 @@ namespace SI
 			return m_itemCount;
 		}
 
+		void CopyFromArray(const T* items, uint32_t itemCount)
+		{
+			for(uint32_t i=0; i<itemCount; ++i)
+			{
+				m_items[i] = items[i];
+			}
+		}
+
+		void CopyToArray(T* items, uint32_t itemCount) const
+		{
+			for(uint32_t i=0; i<itemCount; ++i)
+			{
+				items[i] = m_items[i];
+			}
+		}
+
 		bool IsValid() const
 		{
 			return m_items != nullptr;
 		}
 		
 	public:
-		const T& operator[](int index) const
+		const T& operator[](size_t index) const
 		{
 			return m_items[index];
 		}
 		
-		T& operator[](int index)
+		T& operator[](size_t index)
 		{
 			return m_items[index];
 		}
@@ -139,8 +153,6 @@ namespace SI
 
 		~ConstArray()
 		{
-			SI_ASSERT(m_items==nullptr);
-			SI_ASSERT(m_itemCount==0);
 		}
 
 		void Reset()
@@ -169,6 +181,19 @@ namespace SI
 		{
 			return m_itemCount;
 		}
+
+		void CopyToArray(T* items, uint32_t itemCount) const
+		{
+			for(uint32_t i=0; i<itemCount; ++i)
+			{
+				items[i] = m_items[i];
+			}
+		}
+
+		bool IsValid() const
+		{
+			return m_items != nullptr;
+		}
 		
 	public:
 		const T& operator[](int index) const
@@ -196,7 +221,5 @@ namespace SI
 		const T*  m_items;
 		uint32_t  m_itemCount;
 	};
-
-
-
+	
 } // namespace SI

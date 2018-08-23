@@ -61,7 +61,7 @@ namespace SI
 
 	public:
 		Vfloat4 operator-() const;
-		Vfloat operator[](size_t i) const &&; // [] operatorは代入を許可しないようにしておく.
+		Vfloat operator[](size_t i) const; // [] operatorは代入を許可しないようにしておく.
 		Vfloat4 operator+(Vfloat4_arg v) const;
 		Vfloat4 operator-(Vfloat4_arg v) const;
 		Vfloat4 operator*(Vfloat4_arg v) const;

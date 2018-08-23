@@ -28,6 +28,8 @@ namespace SI
 			if(access & FileAccessType::Write)
 			{
 				dwAccess |= GENERIC_WRITE;
+				dwShareMode = 0;
+				dwCreationDisposition |= CREATE_ALWAYS;
 			}
 
 			char canonnicalizedFilePath[MAX_PATH];
@@ -56,7 +58,6 @@ namespace SI
 			
 			return (ret!=FALSE)? fileSize.QuadPart : -1;
 		}
-
 		
 		inline static int Read(
 			void*    handle,
@@ -85,6 +86,38 @@ namespace SI
 			if(readSize)
 			{
 				*readSize = dwReadSize;
+			}
+
+			return 0;
+		}
+
+		inline static int Write(
+			void*    handle,
+			const void* buffer,
+			int64_t  size,
+			int64_t* writtenSize = nullptr)
+		{
+			SI_ASSERT(buffer);
+			SI_ASSERT(0<size && size < 0xffffffff);
+
+			DWORD dwWriteSize = 0;
+
+			HANDLE h = (HANDLE)handle;
+			BOOL ret = WriteFile(
+				h,
+				buffer,
+				(DWORD)size,
+				&dwWriteSize,
+				NULL);
+
+			if((ret==FALSE))
+			{
+				return -1;
+			}
+
+			if(writtenSize)
+			{
+				*writtenSize = dwWriteSize;
 			}
 
 			return 0;
@@ -122,6 +155,17 @@ namespace SI
 			BOOL ret = CloseHandle(h);
 
 			return (ret!=FALSE)? 0 : -1;
+		}
+		
+		inline static bool FileExists(const char* filePath)
+		{
+			return (PathFileExistsA(filePath) == TRUE) && (PathIsDirectoryA(filePath) == FALSE);
+		}
+		
+		inline static bool DirectoryExists(const char* filePath)
+		{
+			// PathIsDirectoryAはディレクトリだった場合、(BOOL)FILE_ATTRIBUTE_DIRECTORYを返すので注意.
+			return (PathFileExistsA(filePath) == TRUE) && !(PathIsDirectoryA(filePath) == FALSE);
 		}
 	};
 }

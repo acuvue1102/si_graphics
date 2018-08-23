@@ -252,7 +252,7 @@ namespace SI
 		return Vfloat4( _mm_sub_ps( kSiFloat128_0000, Get128() ) );
 	}
 
-	inline Vfloat Vfloat4::operator[](size_t i) const && // [] operatorは代入を許可しないようにしておく.
+	inline Vfloat Vfloat4::operator[](size_t i) const // [] operatorは代入を許可しないようにしておく.
 	{
 		return GetElement((uint32_t)i);
 	}

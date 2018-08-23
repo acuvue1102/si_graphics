@@ -39,7 +39,16 @@ namespace SI
 		
 		return FileBase::Read(m_handle, buffer, size, readSize);
 	}
-
+	
+	int File::Write(
+		const void* buffer,
+		int64_t  size,
+		int64_t* writtenSize)
+	{
+		if(!m_handle) return -1;
+		
+		return FileBase::Write(m_handle, buffer, size, writtenSize);
+	}
 
 	int File::Seek(int64_t move, FilePosition position)
 	{
@@ -56,5 +65,10 @@ namespace SI
 		m_handle = nullptr;
 				
 		return FileBase::Close(handle);
+	}
+		
+	bool File::Exists(const char* filePath)
+	{
+		return FileBase::FileExists(filePath);
 	}
 }

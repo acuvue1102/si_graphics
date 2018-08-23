@@ -21,6 +21,11 @@ namespace SI
 		NodeCore(){}
 		~NodeCore(){}
 
+		Vfloat4x4 GetLocalMatrix() const{ return m_localMatrix; }
+
+	private:
+		friend class FbxParser;
+
 	private:
 		Vfloat4x4   m_localMatrix; // このノードのローカルマトリックス.
 		Vfloat4x4   m_worldMatrix; // 親のノードの影響を受けたワールドマトリックス.
@@ -34,7 +39,9 @@ namespace SI
 	{
 	public:
 		Node()
-			: m_children()
+			//: m_name(nullptr)
+			: m_name(kInvalidLongObjectIndex)
+			, m_children()
 			, m_current(kInvalidObjectIndex)
 			, m_parent(kInvalidObjectIndex)
 			, m_nodeComponentType(NodeType::Transform)
@@ -43,7 +50,10 @@ namespace SI
 		}
 
 		~Node(){}
-
+		
+		LongObjectIndex GetNameIndex() const{ return m_name; }
+		
+		ObjectIndexRange GetChildren() const{ return m_children; }
 		uint16_t      GetChildrenCount()                    const{ return m_children.m_count;        }
 		ObjectIndex   GetChildNodeIndex(uint16_t index)     const
 		{
@@ -58,6 +68,11 @@ namespace SI
 		ObjectIndex   GetNodeComponentIndex()               const{ return m_nodeComponent;           }
 
 	private:
+		friend class FbxParser;
+
+	private:
+		//const char*           m_name;
+		LongObjectIndex       m_name;
 		ObjectIndexRange      m_children;          // 子のノード. Model::m_nodesやm_nodeCoresのインデックス.
 		ObjectIndex           m_current;           // 今のノード. Model::m_nodesやm_nodeCoresのインデックス.
 		ObjectIndex           m_parent;            // 親のノード. Model::m_nodesやm_nodeCoresのインデックス.

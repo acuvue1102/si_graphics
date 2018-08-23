@@ -176,7 +176,7 @@ namespace SI
 		return Math::Transpose(*this);
 	}
 	
-	inline Vfloat4 Vfloat4x4::operator[](size_t i) const &&
+	inline Vfloat4 Vfloat4x4::operator[](size_t i) const
 	{
 		SI_ASSERT(i<4);
 		return Vfloat4(m_row[i]);

@@ -119,12 +119,15 @@
     <ClCompile Include="memory\dlmalloc.c" />
     <ClCompile Include="memory\handle_allocator.cpp" />
     <ClCompile Include="memory\pool_allocator.cpp" />
+    <ClCompile Include="misc\argument_parser.cpp" />
     <ClCompile Include="misc\bitwise.cpp" />
     <ClCompile Include="platform\window_app.cpp" />
+    <ClCompile Include="renderer\geometry.cpp" />
     <ClCompile Include="renderer\material.cpp" />
     <ClCompile Include="renderer\mesh.cpp" />
     <ClCompile Include="renderer\model.cpp" />
     <ClCompile Include="renderer\model_instance.cpp" />
+    <ClCompile Include="renderer\model_writer.cpp" />
     <ClCompile Include="renderer\node.cpp" />
     <ClCompile Include="renderer\sub_mesh.cpp" />
   </ItemGroup>
@@ -218,9 +221,13 @@
     <ClInclude Include="memory\handle_allocator.h" />
     <ClInclude Include="memory\pool_allocator.h" />
     <ClInclude Include="memory\object_pool.h" />
+    <ClInclude Include="misc\argument_parser.h" />
     <ClInclude Include="misc\bitwise.h" />
     <ClInclude Include="misc\enum_flags.h" />
+    <ClInclude Include="misc\hash.h" />
+    <ClInclude Include="misc\hash_internal.h" />
     <ClInclude Include="misc\reference_counter.h" />
+    <ClInclude Include="misc\string_util.h" />
     <ClInclude Include="platform\windows_proxy.h" />
     <ClInclude Include="platform\window_app.h" />
     <ClInclude Include="renderer\geometry.h" />
@@ -228,9 +235,11 @@
     <ClInclude Include="renderer\mesh.h" />
     <ClInclude Include="renderer\model.h" />
     <ClInclude Include="renderer\model_instance.h" />
+    <ClInclude Include="renderer\model_writer.h" />
     <ClInclude Include="renderer\node.h" />
     <ClInclude Include="renderer\node_iterator.h" />
     <ClInclude Include="renderer\renderer_common.h" />
+    <ClInclude Include="renderer\renderer_enum.h" />
     <ClInclude Include="renderer\sub_mesh.h" />
   </ItemGroup>
   <ItemGroup>

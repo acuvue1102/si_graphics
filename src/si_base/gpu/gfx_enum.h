@@ -4,6 +4,37 @@
 
 namespace SI
 {
+	enum class GfxSemanticsType : uint8_t
+	{
+		Invalid = 0,
+		Position,
+		Normal,
+		UV,
+		Tangent,
+		Color,
+
+		Max,
+	};
+	static_assert((int)GfxSemanticsType::Max < (1<<4), "4bitだけ使ってる.");
+	struct GfxSemantics
+	{
+		GfxSemanticsType m_semanticsType  : 4;
+		uint8_t          m_semanticsIndex : 4;
+		
+		GfxSemantics()
+			: m_semanticsType(GfxSemanticsType::Invalid)
+			, m_semanticsIndex(0)
+		{
+		}
+
+		GfxSemantics(GfxSemanticsType type, uint8_t index)
+			: m_semanticsType(type)
+			, m_semanticsIndex(index)
+		{
+		}
+	};
+	static_assert(sizeof(GfxSemantics)==sizeof(uint8_t), "semantics size error");
+
 	enum class GfxShaderVisibility
 	{
 		All	= 0,
@@ -366,7 +397,7 @@ namespace SI
 		Max,
 	};
 
-	enum class GfxFormat
+	enum class GfxFormat : uint8_t
 	{
 		Unknown = 0,
 		R32G32B32A32_Typeless,

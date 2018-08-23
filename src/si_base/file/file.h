@@ -34,9 +34,18 @@ namespace SI
 			int64_t  size,
 			int64_t* readSize = nullptr);
 
+		int Write(
+			const void* buffer,
+			int64_t  size,
+			int64_t* readSize = nullptr);
+
 		int Seek(int64_t move, FilePosition position = FilePosition::Current);
 		
 		int Close();
+
+		
+	public:
+		static bool Exists(const char* filePath);
 
 	private:
 		void* m_handle;

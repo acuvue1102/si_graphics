@@ -10,8 +10,18 @@ namespace SI
 	class SubMesh
 	{
 	public:
-		SubMesh(){}
-		~SubMesh(){}
+		SubMesh()
+			: m_materialIndex(kInvalidObjectIndex)
+			, m_geometryIndex(kInvalidObjectIndex)
+		{
+		}
+
+		~SubMesh()
+		{
+		}
+
+	private:
+		friend class FbxParser;
 
 	private:
 		ObjectIndex   m_materialIndex; // Model(Instance)::m_materialsのIndex

@@ -11,6 +11,9 @@ namespace SI
 		~Mesh(){}
 		
 	private:
+		friend class FbxParser;
+
+	private:
 		ObjectIndexRange m_submeshIndeces; // Model::m_submeshのindex
 	};
 

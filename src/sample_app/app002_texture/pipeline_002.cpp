@@ -7,6 +7,7 @@
 #include <si_app/file/path_storage.h>
 #include <si_base/math/math.h>
 #include <si_app/file/file_utility.h>
+#include <si_base/container/array.h>
 
 namespace SI
 {

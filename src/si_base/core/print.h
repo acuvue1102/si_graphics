@@ -5,4 +5,4 @@ namespace SI
 	void PrintInternal(const char* fmt, ...);
 }
 
-#define SI_PRINT(...) PrintInternal(__VA_ARGS__)
+#define SI_PRINT(...) SI::PrintInternal(__VA_ARGS__)
