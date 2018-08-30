@@ -19,6 +19,8 @@
 #include "si_base/renderer/sub_mesh.h"
 #include "si_base/renderer/material.h"
 
+#include "si_base/serialization/reflection.h"
+
 using namespace fbxsdk;
 
 namespace
@@ -262,6 +264,68 @@ namespace std
 	};
 }
 
+
+namespace AAA
+{
+	struct Test
+	{
+		int    intHoge;
+		int*   intPtrHoge;
+		double doubleHoge;
+		
+		SI_REFLECTION(
+			AAA::Test,
+			SI_REFLECTION_MEMBER(intHoge),
+			SI_REFLECTION_MEMBER(intPtrHoge),
+			SI_REFLECTION_MEMBER(doubleHoge))
+	};
+	
+	struct Test2
+	{
+		Test  testHoge;
+		Test*  testPtrHoge;
+		float floatHoge;
+				
+		SI_REFLECTION(
+			AAA::Test2,
+			SI_REFLECTION_MEMBER(testHoge),
+			SI_REFLECTION_MEMBER(testPtrHoge),
+			SI_REFLECTION_MEMBER(floatHoge))
+	};
+}
+
+namespace BBB
+{
+	struct Test
+	{
+		int    intHoge;
+		int*   intPtrHoge;
+		double doubleHoge;
+	};
+	
+	struct Test2
+	{
+		Test  testHoge;
+		Test*  testPtrHoge;
+		float floatHoge;
+		AAA::Test2 interTest2;
+	};
+}
+		
+SI_REFLECTION_EXTERNAL(
+	BBB::Test,
+	SI_REFLECTION_MEMBER(intHoge),
+	SI_REFLECTION_MEMBER(intPtrHoge),
+	SI_REFLECTION_MEMBER(doubleHoge))
+				
+SI_REFLECTION_EXTERNAL(
+	BBB::Test2,
+	SI_REFLECTION_MEMBER(testHoge),
+	SI_REFLECTION_MEMBER(testPtrHoge),
+	SI_REFLECTION_MEMBER(floatHoge),
+	SI_REFLECTION_MEMBER(interTest2))
+
+
 namespace SI
 {
 	ModelMetaBuffer::ModelMetaBuffer()
@@ -323,6 +387,55 @@ namespace SI
 	void FbxParser::Initialize()
 	{
 		if(m_fbxManager) return;
+		
+		// GetReflectionType関数で型の情報を取得する.
+		const SI::ReflectionType& type = AAA::Test2::GetReflectionType();
+		//const SI::ReflectionType& type = SI::ReflectionExternal<BBB::Test2>::GetReflectionType();
+		const char* typeName = type.GetName();
+		SI_PRINT("%s\n", typeName);
+		
+		uint32_t memberCount = type.GetMemberCount();
+		for(uint32_t i=0; i<memberCount; ++i)
+		{
+			const SI::ReflectionMember* member = type.GetMember(i);
+
+			const char* memberName = member->GetName();
+			uint32_t offset = member->GetOffset();
+			const SI::ReflectionType& memberType = member->GetType();
+			const char* memberTypeName = memberType.GetName();
+			uint32_t typeSize = memberType.GetSize();
+			SI_PRINT("\t%s%s, %s, offset=%d, size=%d\n", memberTypeName, member->IsPointer()? "*" : "", memberName, offset, typeSize);
+			
+			// メンバーの型の中のメンバーの型も調べられる.
+			uint32_t memberCount2 = memberType.GetMemberCount();
+			for(uint32_t j=0; j<memberCount2; ++j)
+			{
+				const SI::ReflectionMember* member2 = memberType.GetMember(j);
+
+				const char* memberName2 = member2->GetName();
+				uint32_t offset2 = member2->GetOffset();
+				const SI::ReflectionType& memberType2 = member2->GetType();
+				const char* memberTypeName2 = memberType2.GetName();
+				uint32_t typeSize2 = memberType2.GetSize();
+				SI_PRINT("\t\t%s%s, %s, offset=%d, size=%d\n", memberTypeName2, member2->IsPointer()? "*" : "", memberName2, offset2, typeSize2);
+
+				
+				uint32_t memberCount3 = memberType2.GetMemberCount();
+				for(uint32_t k=0; k<memberCount3; ++k)
+				{
+					const SI::ReflectionMember* member3 = memberType2.GetMember(k);
+
+					const char* memberName3 = member3->GetName();
+					uint32_t offset3 = member3->GetOffset();
+					const SI::ReflectionType& memberType3 = member3->GetType();
+					const char* memberTypeName3 = memberType3.GetName();
+					uint32_t typeSize3 = memberType3.GetSize();
+					SI_PRINT("\t\t\t%s%s, %s, offset=%d, size=%d\n", memberTypeName3, member3->IsPointer()? "*" : "", memberName3, offset3, typeSize3);
+				}
+			}
+		}
+		SI_PRINT("end\n");
+
 		
 #if 0
 		{

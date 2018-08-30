@@ -328,6 +328,12 @@
     <ClInclude Include="renderer\model_writer.h">
       <Filter>renderer</Filter>
     </ClInclude>
+    <ClInclude Include="serialization\serializer.h">
+      <Filter>serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="serialization\reflection.h">
+      <Filter>serialization</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -368,6 +374,9 @@
     </Filter>
     <Filter Include="container">
       <UniqueIdentifier>{f24f9fb4-290c-4451-8c9f-bd74a7d178f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="serialization">
+      <UniqueIdentifier>{4ea472a5-cca8-4a91-b2b4-7628e982f2a6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -556,6 +565,12 @@
     </ClCompile>
     <ClCompile Include="renderer\model_writer.cpp">
       <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="serialization\serializer.cpp">
+      <Filter>serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="serialization\reflection.cpp">
+      <Filter>serialization</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
