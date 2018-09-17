@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include "si_base/core/assert.h"
+#include "si_base/serialization/reflection.h"
 
 namespace SI
 {
@@ -117,6 +118,10 @@ namespace SI
 	private:
 		T*        m_items;
 		uint32_t  m_itemCount;
+
+		SI_TEMPLATE1_REFLECTION(SI::Array, T,
+			SI_REFLECTION_MEMBER(m_items),
+			SI_REFLECTION_MEMBER(m_itemCount))
 	};
 
 

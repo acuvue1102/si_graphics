@@ -20,6 +20,7 @@
 #include "si_base/renderer/material.h"
 
 #include "si_base/serialization/reflection.h"
+#include "si_base/serialization/serializer.h"
 
 using namespace fbxsdk;
 
@@ -299,7 +300,7 @@ namespace BBB
 	struct Test
 	{
 		int    intHoge;
-		int*   intPtrHoge;
+		//int*   intPtrHoge;
 		double doubleHoge;
 	};
 	
@@ -310,12 +311,23 @@ namespace BBB
 		float floatHoge;
 		AAA::Test2 interTest2;
 	};
+
+	struct Test3
+	{
+		SI::Array<AAA::Test> arrayHoge;
+	};
+
+	struct Test4
+	{
+		int       intFuga;
+		BBB::Test testFuga;
+	};
 }
 		
 SI_REFLECTION_EXTERNAL(
 	BBB::Test,
 	SI_REFLECTION_MEMBER(intHoge),
-	SI_REFLECTION_MEMBER(intPtrHoge),
+	//SI_REFLECTION_MEMBER(intPtrHoge),
 	SI_REFLECTION_MEMBER(doubleHoge))
 				
 SI_REFLECTION_EXTERNAL(
@@ -324,6 +336,25 @@ SI_REFLECTION_EXTERNAL(
 	SI_REFLECTION_MEMBER(testPtrHoge),
 	SI_REFLECTION_MEMBER(floatHoge),
 	SI_REFLECTION_MEMBER(interTest2))
+
+//SI_REFLECTION_EXTERNAL(
+//	SI::Array<BBB::Test>,
+//	SI_REFLECTION_MEMBER(m_items),
+//	SI_REFLECTION_MEMBER(m_itemCount))
+//
+//SI_REFLECTION_EXTERNAL(
+//	SI::Array<BBB::Test>,
+//	SI_REFLECTION_MEMBER(m_items),
+//	SI_REFLECTION_MEMBER(m_itemCount))
+
+SI_REFLECTION_EXTERNAL(
+	BBB::Test3,
+	SI_REFLECTION_MEMBER(arrayHoge))
+
+SI_REFLECTION_EXTERNAL(
+	BBB::Test4,
+	SI_REFLECTION_MEMBER(intFuga),
+	SI_REFLECTION_MEMBER(testFuga))
 
 
 namespace SI
@@ -387,10 +418,40 @@ namespace SI
 	void FbxParser::Initialize()
 	{
 		if(m_fbxManager) return;
+
+		SI::Serializer serializer;
+		serializer.Initialize();
+
+		AAA::Test aaaTest[4];
+		for(size_t i=0; i<ArraySize(aaaTest); ++i)
+		{
+			aaaTest[i].intHoge = (int)i;
+			aaaTest[i].intPtrHoge = &aaaTest[i].intHoge;
+			aaaTest[i].doubleHoge = (double)i + 0.5;
+		}
+
+		BBB::Test3 serializeTarget;
+		serializeTarget.arrayHoge.Setup(aaaTest, (uint32_t)ArraySize(aaaTest));
 		
+		//BBB::Test4 serializeTarget;
+		//serializeTarget.intFuga = 3;
+		//serializeTarget.testFuga.intHoge = -1;
+		//serializeTarget.testFuga.doubleHoge = 0.5;
+
+		//SI::Array<int> serializeTarget;
+		//int hoge[] = {0,1,2,3};
+		//serializeTarget.Setup(hoge, 4);
+
+		serializer.Serialize("serialize_test.json", serializeTarget);
+
+		SI_PRINT("end");
+
+		
+#if 0
 		// GetReflectionType関数で型の情報を取得する.
-		const SI::ReflectionType& type = AAA::Test2::GetReflectionType();
+		//const SI::ReflectionType& type = AAA::Test2::GetReflectionType();
 		//const SI::ReflectionType& type = SI::ReflectionExternal<BBB::Test2>::GetReflectionType();
+		const SI::ReflectionType& type = SI::ReflectionExternal<BBB::Test3>::GetReflectionType();
 		const char* typeName = type.GetName();
 		SI_PRINT("%s\n", typeName);
 		
@@ -435,9 +496,7 @@ namespace SI
 			}
 		}
 		SI_PRINT("end\n");
-
 		
-#if 0
 		{
 			constexpr Hash64 hashS = GetHash64S("12wedfghjuertyuikjhgfde45");
 			SI_PRINT("hashS = 0x%llx\n", hashS);

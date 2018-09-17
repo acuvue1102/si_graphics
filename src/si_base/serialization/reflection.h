@@ -104,40 +104,6 @@ AAA::Test2
 namespace SI
 {
 	class ReflectionMember;
-	
-	// 基本型の名前の解決を行う.
-	template<typename T> struct NameIdentifer{};
-
-	#define SI_NAME_IDENTIFER(type)\
-		template<> struct SI::NameIdentifer<type>{ static const char* TYPE_NAME; };\
-		const char* SI::NameIdentifer<type>::TYPE_NAME = #type;\
-		template<> struct SI::NameIdentifer<type*>{ static const char* TYPE_NAME; };\
-		const char* SI::NameIdentifer<type*>::TYPE_NAME = #type;
-	
-	SI_NAME_IDENTIFER(int8_t)
-	SI_NAME_IDENTIFER(int16_t)
-	SI_NAME_IDENTIFER(int32_t)
-	SI_NAME_IDENTIFER(int64_t)
-	SI_NAME_IDENTIFER(uint8_t)
-	SI_NAME_IDENTIFER(uint16_t)
-	SI_NAME_IDENTIFER(uint32_t)
-	SI_NAME_IDENTIFER(uint64_t)
-	SI_NAME_IDENTIFER(float)
-	SI_NAME_IDENTIFER(double)		
-
-	template<typename T>
-	const char* IdentifyTypeName(typename T::SfinaeType)
-	{
-		// Reflectionマクロが使われた型の場合.
-		return T::GetTypeName();
-	}
-
-	template<typename T>
-	const char* IdentifyTypeName(T)
-	{
-		// Reflectionマクロがない一般的な型の場合
-		return SI::NameIdentifer<T>::TYPE_NAME;
-	}
 
 	////////////////////////////////////////////////////////////////
 
@@ -152,6 +118,7 @@ namespace SI
 			const char* typeName,
 			uint32_t size )
 			: m_typeName(typeName)
+			, m_typeNameHash(GetHash64(typeName))
 			, m_size(size)
 		{
 		}
@@ -159,6 +126,11 @@ namespace SI
 		const char* GetName() const
 		{
 			return m_typeName;
+		}
+
+		Hash64 GetNameHash() const
+		{
+			return m_typeNameHash;
 		}
 
 		virtual uint32_t GetMemberCount() const
@@ -176,10 +148,78 @@ namespace SI
 			return m_size;
 		}
 
+		virtual const char* GetTemplateName() const
+		{
+			return nullptr;
+		}
+
+		virtual Hash64 GetTemplateNameHash() const
+		{
+			return 0;
+		}
+
+		virtual const ReflectionType* GetTemplateArgType() const
+		{
+			return nullptr;
+		}
+
 	protected:
 		const char*           m_typeName;
+		Hash64                m_typeNameHash;
 		uint32_t              m_size;
 	};
+	
+	// ユーザ定義の型だが、型内部にReflectionがない場合の対応.
+	template<typename T>
+	struct ReflectionExternal{};
+
+	////////////////////////////////////////////////////////////////
+	
+	// 基本型の名前の解決を行う.
+	template<typename T> struct NameIdentifer{ /*static const char* GetTypeName(){ return "unknown"; }*/ };
+
+	#define SI_NAME_IDENTIFER(type)\
+		template<> struct SI::NameIdentifer<type>{ static const char* GetTypeName(){ return #type; } };\
+		template<> struct SI::NameIdentifer<type*>{ static const char* GetTypeName(){ return #type; } };
+	
+	SI_NAME_IDENTIFER(int8_t)
+	SI_NAME_IDENTIFER(int16_t)
+	SI_NAME_IDENTIFER(int32_t)
+	SI_NAME_IDENTIFER(int64_t)
+	SI_NAME_IDENTIFER(uint8_t)
+	SI_NAME_IDENTIFER(uint16_t)
+	SI_NAME_IDENTIFER(uint32_t)
+	SI_NAME_IDENTIFER(uint64_t)
+	SI_NAME_IDENTIFER(float)
+	SI_NAME_IDENTIFER(double)
+
+	template<typename T>
+	const char* IdentifyTypeName(typename T::SfinaeType)
+	{
+		// Reflectionマクロが使われた型の場合.
+		return T::GetTypeName();
+	}
+
+	template<typename T>
+	const char* IdentifyTypeName(typename SI::ReflectionExternal<T>::SfinaeType)
+	{
+		// External Reflectionマクロが使われた型の場合.
+		return SI::ReflectionExternal<T>::GetTypeName();
+	}
+	
+	template<typename T>
+	const char* IdentifyTypeName(typename std::enable_if< std::is_pointer<T>::value, typename int>::type input)
+	{
+		// ポインタの場合、ポインタを外した型で再評価.
+		return IdentifyTypeName<std::remove_pointer<T>::type>(input);
+	}
+
+	template<typename T>
+	const char* IdentifyTypeName(...)
+	{
+		// Reflectionマクロがない一般的な型の場合
+		return SI::NameIdentifer<T>::GetTypeName();
+	}
 	
 	// intなどの基本型用のリフレクション
 	template<typename T>
@@ -198,6 +238,24 @@ namespace SI
 	template<typename T>
 	const ReflectionGenericType<T> ReflectionGenericType<T>::s_reflection( IdentifyTypeName<T>(0) );
 
+	//////////////////////////////////////////////////////////////////////////
+	
+	template<typename T>
+	uint32_t GetPointerCount(typename std::enable_if<std::is_pointer<T>::value, typename uint32_t>::type input)
+	{
+		// ポインタの場合、ポインタを外した型で再評価.
+		return GetPointerCount<std::remove_pointer<T>::type>(input+1);
+	}
+
+	template<typename T>
+	uint32_t GetPointerCount(typename std::enable_if<!std::is_pointer<T>::value, typename uint32_t>::type input)
+	{
+		// ポインタではない場合
+		return input;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+
 
 	// struct/classのメンバー変数情報
 	class ReflectionMember
@@ -205,10 +263,11 @@ namespace SI
 		ReflectionMember() = delete;
 
 	public:
-		ReflectionMember(const char* name, uint32_t offset, bool isPointer, const ReflectionType& type)
+		ReflectionMember(const char* name, uint32_t offset, uint32_t pointerCount, const ReflectionType& type)
 			: m_name(name)
+			, m_nameHash(GetHash64(name))
 			, m_offset(offset)
-			, m_isPointer(isPointer)
+			, m_pointerCount(pointerCount)
 			, m_type(type)
 		{
 		}
@@ -216,6 +275,11 @@ namespace SI
 		const char* GetName() const
 		{
 			return m_name;
+		}
+
+		Hash64 GetNameHash() const
+		{
+			return m_nameHash;
 		}
 
 		uint32_t GetOffset() const
@@ -228,12 +292,14 @@ namespace SI
 			return m_type;
 		}
 
-		bool IsPointer() const{ return m_isPointer; }
+		bool IsPointer() const{ return m_pointerCount!=0; }
+		uint32_t GetPointerCount() const{ return m_pointerCount; }
 
 	private:
 		const char*            m_name;
+		Hash64                 m_nameHash;
 		uint32_t               m_offset;
-		bool                   m_isPointer;
+		uint32_t               m_pointerCount;
 		const ReflectionType&  m_type;
 	};
 	
@@ -261,15 +327,55 @@ namespace SI
 
 		virtual const ReflectionMember* GetMember(uint32_t i) const override
 		{
+			SI_ASSERT(i<MEMBER_COUNT);
 			return &m_members[i];
 		}
 
+	private:
 		std::array<const ReflectionMember, MEMBER_COUNT> m_members;
-	};	
+	};
 	
-	// ユーザ定義の型だが、型内部にReflectionがない場合の対応.
-	template<typename T>
-	struct ReflectionExternal{};
+	// ユーザー定義のtemplate型リフレクションのためのクラス.
+	template<size_t MEMBER_COUNT>
+	class ReflectionTemplate1UserType : public ReflectionUserType<MEMBER_COUNT>
+	{
+		ReflectionTemplate1UserType() = delete;
+
+	public:
+		ReflectionTemplate1UserType(
+			const char* typeName,
+			uint32_t size,
+			const char* templateTypeName,
+			const ReflectionType&  templateArgType,
+			std::array<const ReflectionMember, MEMBER_COUNT> members)
+			: ReflectionUserType(typeName, size, members)
+			, m_templateTypeName(templateTypeName)
+			, m_templateTypeNameHash(GetHash64(templateTypeName))
+			, m_templateArgType(templateArgType)
+		{
+		}
+
+		virtual const char* GetTemplateName() const override
+		{
+			return m_templateTypeName;
+		}
+		
+		virtual Hash64 GetTemplateNameHash() const
+		{
+			return m_templateTypeNameHash;
+		}
+
+		virtual const ReflectionType* GetTemplateArgType() const override
+		{
+			return &m_templateArgType;
+		}
+
+	private:
+		const char*            m_templateTypeName;
+		Hash64                 m_templateTypeNameHash;
+		const ReflectionType&  m_templateArgType;
+	};
+
 
 	
 	template<typename T>
@@ -278,26 +384,19 @@ namespace SI
 		// Reflectionマクロが使われた型の場合.
 		return T::GetReflectionType();
 	}
-	
-	template<typename T>
-	const SI::ReflectionType& GetReflectionType(typename std::enable_if< std::is_pointer<T>::value, typename std::remove_pointer<T>::type::SfinaeType >::type)
-	{
-		// Reflectionマクロを持つ型のポインタが使われた型の場合.
-		return std::remove_pointer<T>::type::GetReflectionType();
-	}
-		
+
 	template<typename T>
 	const SI::ReflectionType& GetReflectionType(typename ReflectionExternal<T>::SfinaeType)
 	{
 		// External Reflectionマクロが使われた型の場合.
 		return ReflectionExternal<T>::GetReflectionType();
 	}
-		
+
 	template<typename T>
-	const SI::ReflectionType& GetReflectionType(typename std::enable_if< std::is_pointer<T>::value, typename ReflectionExternal<typename std::remove_pointer<T>::type>::SfinaeType >::type)
+	const SI::ReflectionType& GetReflectionType(typename std::enable_if< std::is_pointer<T>::value, typename int>::type input)
 	{
-		// External Reflectionマクロを持つ型のポインタが使われた型の場合.
-		return ReflectionExternal<std::remove_pointer<T>::type>::GetReflectionType();
+		// ポインタの場合、ポインタを外した型で再評価.
+		return GetReflectionType<std::remove_pointer<T>::type>(input);
 	}
 
 	template<typename T>
@@ -307,6 +406,21 @@ namespace SI
 		return SI::ReflectionGenericType<T>::s_reflection;
 	}
 
+	struct TemplateName
+	{
+		TemplateName(const char* templateName, const char* argName, uint32_t argPointerCount)
+		{
+			sprintf_s(m_name, "%s<%s%s%s%s>",
+				templateName,
+				argName,
+				(0<argPointerCount)? "*" : "",
+				(1<argPointerCount)? "*" : "",
+				(2<argPointerCount)? "*" : "");
+			SI_ASSERT(argPointerCount<=3);
+		}
+		char m_name[256];
+	};
+
 } // namespace SI
 
 // class/structのメンバー変数を定義するためのマクロ.
@@ -314,7 +428,8 @@ namespace SI
 	SI::ReflectionMember(\
 		#name,\
 		(uint32_t)(uintptr_t)(&(((const TargetType*)0)->name)),\
-		 std::is_pointer<decltype(((const TargetType*)0)->name)>::value, SI::GetReflectionType<decltype(((const TargetType*)0)->name)>(0))
+		SI::GetPointerCount<decltype(((const TargetType*)0)->name)>(0u),\
+		SI::GetReflectionType<decltype(((const TargetType*)0)->name)>(0))
 
 // class/structを定義するためのマクロ.
 #define SI_REFLECTION(type, ...)\
@@ -330,7 +445,7 @@ namespace SI
 		using UserType = SI::ReflectionUserType< SI_ARGS_COUNT(__VA_ARGS__) >;\
 		static const UserType s_reflection =\
 			UserType(\
-				#type,\
+				GetTypeName(),\
 				sizeof(type),\
 				{\
 					__VA_ARGS__\
@@ -338,14 +453,36 @@ namespace SI
 		return s_reflection;\
 	}
 
+// template class/structを定義するためのマクロ. template引数1つ版.
+#define SI_TEMPLATE1_REFLECTION(templateType, templateArgType, ...)\
+	public:\
+	using SfinaeType = int;\
+	using TargetType = templateType<templateArgType>;\
+	static const char* GetTypeName()\
+	{\
+		/*templateなので何の型かマクロでは取れない. 型情報から型名を取る必要がある*/\
+		static const SI::TemplateName s_templateName(\
+			#templateType,\
+			SI::IdentifyTypeName<templateArgType>(0),\
+			SI::GetPointerCount<templateArgType>(0u));\
+		return s_templateName.m_name;\
+	}\
+	static const SI::ReflectionType& GetReflectionType()\
+	{\
+		using UserType = SI::ReflectionTemplate1UserType< SI_ARGS_COUNT(__VA_ARGS__) >;\
+		static const UserType s_reflection =\
+			UserType(\
+				GetTypeName(),\
+				sizeof(templateType<templateArgType>),\
+				#templateType,\
+				SI::GetReflectionType<templateArgType>(0),\
+				{\
+					__VA_ARGS__\
+				} );\
+		return s_reflection;\
+	}
 
-#define SI_REFLECTION_EXTERNAL_MEMBER(type, name)\
-	SI::ReflectionMember(\
-		#name,\
-		(uint32_t)(uintptr_t)(&(((const type*)0)->name)),\
-		 std::is_pointer<decltype(name)>::value, SI::GetReflectionType<decltype(name)>(0))
-
-
+// クラスの外部でReflection定義をするためのマクロ
 #define SI_REFLECTION_EXTERNAL(type, ...)\
 	namespace SI\
 	{\
@@ -362,7 +499,7 @@ namespace SI
 				using UserType = SI::ReflectionUserType< SI_ARGS_COUNT(__VA_ARGS__) >;\
 				static const UserType s_reflection =\
 					UserType(\
-						#type,\
+						GetTypeName(),\
 						sizeof(type),\
 						{\
 							__VA_ARGS__\
@@ -371,3 +508,8 @@ namespace SI
 			}\
 		};\
 	}
+
+// Externalでもメンバがprivateだとアクセスできないので、
+// 必要なstructをfriendにしてアクセスできるようにするためのマクロ
+#define SI_REFLECTION_EXTERNAL_FRIEND(type)\
+	friend struct SI::ReflectionExternal<type>
