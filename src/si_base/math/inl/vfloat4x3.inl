@@ -149,7 +149,7 @@ namespace SI
 		return Math::Multiply(*this, m);
 	}
 	
-	inline Vfloat3 Vfloat4x3::operator[](size_t i) const &&
+	inline Vfloat3 Vfloat4x3::operator[](size_t i) const
 	{
 		return Vfloat3(m_row[i]);
 	}

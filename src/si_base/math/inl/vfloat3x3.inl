@@ -196,7 +196,7 @@ namespace SI
 		return Math::Transpose(*this);
 	}
 	
-	inline Vfloat3 Vfloat3x3::operator[](size_t i) const &&
+	inline Vfloat3 Vfloat3x3::operator[](size_t i) const
 	{
 		SI_ASSERT(i<3);
 		return Vfloat3(m_row[i]);

@@ -98,8 +98,10 @@ AAA::Test2
 
 #include <cstdint>
 #include <array>
+#include "si_base/core/basic_function.h"
 #include "si_base/core/basic_macro.h"
 #include "si_base/misc/hash.h"
+#include "si_base/math/math.h"
 
 namespace SI
 {
@@ -192,6 +194,13 @@ namespace SI
 	SI_NAME_IDENTIFER(uint64_t)
 	SI_NAME_IDENTIFER(float)
 	SI_NAME_IDENTIFER(double)
+	SI_NAME_IDENTIFER(bool)
+	SI_NAME_IDENTIFER(SI::Vfloat)
+	SI_NAME_IDENTIFER(SI::Vquat)
+	SI_NAME_IDENTIFER(SI::Vfloat3)
+	SI_NAME_IDENTIFER(SI::Vfloat4)
+	SI_NAME_IDENTIFER(SI::Vfloat4x3)
+	SI_NAME_IDENTIFER(SI::Vfloat4x4)
 
 	template<typename T>
 	const char* IdentifyTypeName(typename T::SfinaeType)
@@ -263,11 +272,12 @@ namespace SI
 		ReflectionMember() = delete;
 
 	public:
-		ReflectionMember(const char* name, uint32_t offset, uint32_t pointerCount, const ReflectionType& type)
+		ReflectionMember(const char* name, uint32_t offset, uint32_t pointerCount, uint32_t arrayCount, const ReflectionType& type)
 			: m_name(name)
 			, m_nameHash(GetHash64(name))
 			, m_offset(offset)
 			, m_pointerCount(pointerCount)
+			, m_arrayCount(arrayCount)
 			, m_type(type)
 		{
 		}
@@ -295,11 +305,15 @@ namespace SI
 		bool IsPointer() const{ return m_pointerCount!=0; }
 		uint32_t GetPointerCount() const{ return m_pointerCount; }
 
+		bool IsArray() const{ return m_arrayCount!=0; }
+		uint32_t GetArrayCount() const{ return m_arrayCount; }
+
 	private:
 		const char*            m_name;
 		Hash64                 m_nameHash;
 		uint32_t               m_offset;
 		uint32_t               m_pointerCount;
+		uint32_t               m_arrayCount;
 		const ReflectionType&  m_type;
 	};
 	
@@ -400,7 +414,7 @@ namespace SI
 	}
 
 	template<typename T>
-	const SI::ReflectionType& GetReflectionType(T)
+	const SI::ReflectionType& GetReflectionType(...)
 	{
 		// Reflectionマクロがない一般的な型の場合
 		return SI::ReflectionGenericType<T>::s_reflection;
@@ -420,6 +434,12 @@ namespace SI
 		}
 		char m_name[256];
 	};
+	
+	inline int CheckSameSizeTypeAndReturn0(bool b)
+	{
+		SI_ASSERT(b, "SI_REFLECTION_MEMBER_AS_TYPEで宣言したメンバの型のサイズが違う");
+		return 0;
+	}
 
 } // namespace SI
 
@@ -429,7 +449,26 @@ namespace SI
 		#name,\
 		(uint32_t)(uintptr_t)(&(((const TargetType*)0)->name)),\
 		SI::GetPointerCount<decltype(((const TargetType*)0)->name)>(0u),\
+		0u,\
 		SI::GetReflectionType<decltype(((const TargetType*)0)->name)>(0))
+
+// class/structの配列のメンバー変数を定義するためのマクロ.
+#define SI_REFLECTION_MEMBER_ARRAY(name)\
+	SI::ReflectionMember(\
+		#name,\
+		(uint32_t)(uintptr_t)(&(((const TargetType*)0)->name[0])),\
+		SI::GetPointerCount< std::decay<decltype(((const TargetType*)0)->name[0])>::type >(0u),\
+		(uint32_t)SI::ArraySize(((const TargetType*)0)->name),\
+		SI::GetReflectionType< std::decay<decltype(((const TargetType*)0)->name[0])>::type >(0))
+
+// class/structのメンバー変数を定義するためのマクロ. 明示的にタイプを指定する版(念のため型のサイズは同じかチェックしておく).
+#define SI_REFLECTION_MEMBER_AS_TYPE(name, type)\
+	SI::ReflectionMember(\
+		#name,\
+		(uint32_t)(uintptr_t)(&(((const TargetType*)0)->name)),\
+		SI::GetPointerCount<type>(0u),\
+		0u,\
+		SI::GetReflectionType<type>(SI::CheckSameSizeTypeAndReturn0(sizeof(decltype(((const TargetType*)0)->name)) == sizeof(type))))
 
 // class/structを定義するためのマクロ.
 #define SI_REFLECTION(type, ...)\

@@ -47,7 +47,7 @@ namespace SI
 		Vfloat3x3 Transpose() const;
 
 	public:
-		Vfloat3   operator[](size_t i) const &&; // [] operatorは代入を許可しないようにしておく.
+		Vfloat3   operator[](size_t i) const; // [] operatorは代入を許可しないようにしておく.
 		Vfloat3x3 operator*(Vfloat3x3_arg m) const;
 				
 	public:

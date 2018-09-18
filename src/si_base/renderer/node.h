@@ -3,6 +3,7 @@
 #include "si_base/container/array.h"
 #include "si_base/math/vquat.h"
 #include "si_base/renderer/renderer_common.h"
+#include "si_base/serialization/reflection.h"
 
 namespace SI
 {
@@ -31,6 +32,12 @@ namespace SI
 		Vfloat4x4   m_worldMatrix; // 親のノードの影響を受けたワールドマトリックス.
 
 		bool        m_isMatrixChanged; // worldMatrixの更新が必要か.
+		
+		//SI_REFLECTION(
+		//	SI::NodeCore,
+		//	SI_REFLECTION_MEMBER(m_localMatrix),
+		//	SI_REFLECTION_MEMBER(m_worldMatrix),
+		//	SI_REFLECTION_MEMBER(m_isMatrixChanged))
 	};
 
 	// Nodeクラス.
@@ -78,6 +85,15 @@ namespace SI
 		ObjectIndex           m_parent;            // 親のノード. Model::m_nodesやm_nodeCoresのインデックス.
 		NodeType              m_nodeComponentType; // ノードのタイプ.
 		ObjectIndex           m_nodeComponent;     // ノードのタイプごとのインデックス.
+		
+		SI_REFLECTION(
+			SI::Node,
+			SI_REFLECTION_MEMBER(m_name),
+			SI_REFLECTION_MEMBER(m_children),
+			SI_REFLECTION_MEMBER(m_current),
+			SI_REFLECTION_MEMBER(m_parent),
+			SI_REFLECTION_MEMBER_AS_TYPE(m_nodeComponentType, uint16_t),
+			SI_REFLECTION_MEMBER(m_nodeComponent))
 	};
 
 } // namespace SI

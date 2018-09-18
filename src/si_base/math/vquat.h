@@ -35,7 +35,11 @@ namespace SI
 		Vfloat X() const;
 		Vfloat Y() const;
 		Vfloat Z() const;
-		Vfloat W() const;		
+		Vfloat W() const;
+		float  Xf() const;
+		float  Yf() const;
+		float  Zf() const;
+		float  Wf() const;
 		Vfloat GetElement(uint32_t elementIndex) const;
 		
 	public:

@@ -265,7 +265,7 @@ namespace std
 	};
 }
 
-
+#if 1
 namespace AAA
 {
 	struct Test
@@ -322,6 +322,26 @@ namespace BBB
 		int       intFuga;
 		BBB::Test testFuga;
 	};
+
+	struct Test5
+	{
+		int         intFugaArray[4];
+		AAA::Test   aaaTest;
+
+		SI_REFLECTION(
+			BBB::Test5,
+			SI_REFLECTION_MEMBER_ARRAY(intFugaArray),
+			SI_REFLECTION_MEMBER(aaaTest))
+	};
+
+	struct Test6
+	{
+		Test5       test5Array[2];
+
+		SI_REFLECTION(
+			BBB::Test6,
+			SI_REFLECTION_MEMBER_ARRAY(test5Array))
+	};
 }
 		
 SI_REFLECTION_EXTERNAL(
@@ -356,6 +376,7 @@ SI_REFLECTION_EXTERNAL(
 	SI_REFLECTION_MEMBER(intFuga),
 	SI_REFLECTION_MEMBER(testFuga))
 
+#endif
 
 namespace SI
 {
@@ -419,6 +440,44 @@ namespace SI
 	{
 		if(m_fbxManager) return;
 
+		int intOrg = 12;
+		
+		SI::Serializer serializer;
+		serializer.Initialize();
+		const SI::ReflectionType& type = BBB::Test6::GetReflectionType();
+		//BBB::Test6 serializeTarget;
+		//serializeTarget.test5Array[0].intFugaArray[0]=0;
+		//serializeTarget.test5Array[0].intFugaArray[1]=1;
+		//serializeTarget.test5Array[0].intFugaArray[2]=2;
+		//serializeTarget.test5Array[0].intFugaArray[3]=3;
+		//serializeTarget.test5Array[0].aaaTest.intHoge = 3;
+		//serializeTarget.test5Array[0].aaaTest.intPtrHoge = &intOrg;
+		//serializeTarget.test5Array[0].aaaTest.doubleHoge = 6.0;
+		//serializeTarget.test5Array[1].intFugaArray[0]=10;
+		//serializeTarget.test5Array[1].intFugaArray[1]=11;
+		//serializeTarget.test5Array[1].intFugaArray[2]=12;
+		//serializeTarget.test5Array[1].intFugaArray[3]=13;
+		//serializeTarget.test5Array[1].aaaTest.intHoge = 13;
+		//serializeTarget.test5Array[1].aaaTest.intPtrHoge = &intOrg;
+		//serializeTarget.test5Array[1].aaaTest.doubleHoge = 16.0;
+		struct AAAAA
+		{
+			Vfloat4x4       testArray[2];
+
+			SI_REFLECTION(
+				AAAAA,
+				SI_REFLECTION_MEMBER_ARRAY(testArray))
+		};
+		AAAAA serializeTarget;
+		serializeTarget.testArray[0];
+		serializeTarget.testArray[1] = serializeTarget.testArray[1] * Vfloat4x4::Scale(Vfloat3(0.1f, 0.2f, 0.3f));
+
+		serializer.Serialize("serialize_test.json", serializeTarget);
+
+		SI_PRINT("end");
+
+
+#if 0
 		SI::Serializer serializer;
 		serializer.Initialize();
 
@@ -447,7 +506,6 @@ namespace SI
 		SI_PRINT("end");
 
 		
-#if 0
 		// GetReflectionType関数で型の情報を取得する.
 		//const SI::ReflectionType& type = AAA::Test2::GetReflectionType();
 		//const SI::ReflectionType& type = SI::ReflectionExternal<BBB::Test2>::GetReflectionType();

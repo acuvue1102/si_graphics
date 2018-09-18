@@ -48,6 +48,80 @@ namespace SI
 		{
 			 return picojson::value(i);
 		}
+		
+		picojson::value ToPicojsonValue(SI::Vfloat i)
+		{
+			 return picojson::value(double(i.Get()));
+		}
+		
+		picojson::value ToPicojsonValue(SI::Vfloat3 i)
+		{
+			picojson::array a;
+			a.push_back(picojson::value(double(i.Xf())));
+			a.push_back(picojson::value(double(i.Yf())));
+			a.push_back(picojson::value(double(i.Zf())));
+			return picojson::value(a);
+		}
+
+		picojson::value ToPicojsonValue(SI::Vquat i)
+		{
+			picojson::array a;
+			a.push_back(picojson::value(double(i.Xf())));
+			a.push_back(picojson::value(double(i.Yf())));
+			a.push_back(picojson::value(double(i.Zf())));
+			a.push_back(picojson::value(double(i.Wf())));
+			return picojson::value(a);
+		}
+
+		picojson::value ToPicojsonValue(SI::Vfloat4 i)
+		{
+			picojson::array a;
+			a.push_back(picojson::value(double(i.Xf())));
+			a.push_back(picojson::value(double(i.Yf())));
+			a.push_back(picojson::value(double(i.Zf())));
+			a.push_back(picojson::value(double(i.Wf())));
+			return picojson::value(a);
+		}
+
+		picojson::value ToPicojsonValue(SI::Vfloat3x3 i)
+		{
+			picojson::array a;
+			for(uint32_t id=0; id<3; ++id)
+			{
+				Vfloat3 v = i[id];
+				a.push_back(picojson::value(double(v.Xf())));
+				a.push_back(picojson::value(double(v.Yf())));
+				a.push_back(picojson::value(double(v.Zf())));
+			}
+			return picojson::value(a);
+		}
+
+		picojson::value ToPicojsonValue(SI::Vfloat4x3 i)
+		{
+			picojson::array a;
+			for(uint32_t id=0; id<4; ++id)
+			{
+				Vfloat3 v = i[id];
+				a.push_back(picojson::value(double(v.Xf())));
+				a.push_back(picojson::value(double(v.Yf())));
+				a.push_back(picojson::value(double(v.Zf())));
+			}
+			return picojson::value(a);
+		}
+
+		picojson::value ToPicojsonValue(SI::Vfloat4x4 i)
+		{
+			picojson::array a;
+			for(uint32_t id=0; id<4; ++id)
+			{
+				Vfloat4 v = i[id];
+				a.push_back(picojson::value(double(v.Xf())));
+				a.push_back(picojson::value(double(v.Yf())));
+				a.push_back(picojson::value(double(v.Zf())));
+				a.push_back(picojson::value(double(v.Wf())));
+			}
+			return picojson::value(a);
+		}
 
 		std::string MakeJsonReadable(const std::string& json)
 		{
@@ -125,16 +199,23 @@ namespace SI
 		SerializerImpl()
 		{
 			// 基本型をあらかじめ登録しておいて、出力されないようにする.
-			m_typeTable.insert( std::make_pair("int8_t",   nullptr) );
-			m_typeTable.insert( std::make_pair("int16_t",  nullptr) );
-			m_typeTable.insert( std::make_pair("int32_t",  nullptr) );
-			m_typeTable.insert( std::make_pair("int64_t",  nullptr) );
-			m_typeTable.insert( std::make_pair("uint8_t",  nullptr) );
-			m_typeTable.insert( std::make_pair("uint16_t", nullptr) );
-			m_typeTable.insert( std::make_pair("uint32_t", nullptr) );
-			m_typeTable.insert( std::make_pair("uint64_t", nullptr) );
-			m_typeTable.insert( std::make_pair("float",    nullptr) );
-			m_typeTable.insert( std::make_pair("double",   nullptr) );
+			m_typeTable.insert( std::make_pair("int8_t",        nullptr) );
+			m_typeTable.insert( std::make_pair("int16_t",       nullptr) );
+			m_typeTable.insert( std::make_pair("int32_t",       nullptr) );
+			m_typeTable.insert( std::make_pair("int64_t",       nullptr) );
+			m_typeTable.insert( std::make_pair("uint8_t",       nullptr) );
+			m_typeTable.insert( std::make_pair("uint16_t",      nullptr) );
+			m_typeTable.insert( std::make_pair("uint32_t",      nullptr) );
+			m_typeTable.insert( std::make_pair("uint64_t",      nullptr) );
+			m_typeTable.insert( std::make_pair("float",         nullptr) );
+			m_typeTable.insert( std::make_pair("double",        nullptr) );
+			m_typeTable.insert( std::make_pair("bool",          nullptr) );
+			m_typeTable.insert( std::make_pair("SI::Vfloat",    nullptr) );
+			m_typeTable.insert( std::make_pair("SI::Vquat",     nullptr) );
+			m_typeTable.insert( std::make_pair("SI::Vfloat3",   nullptr) );
+			m_typeTable.insert( std::make_pair("SI::Vfloat4",   nullptr) );
+			m_typeTable.insert( std::make_pair("SI::Vfloat4x3", nullptr) );
+			m_typeTable.insert( std::make_pair("SI::Vfloat4x4", nullptr) );
 		}
 
 		~SerializerImpl()
@@ -213,6 +294,7 @@ namespace SI
 				PicojsonInsert(picoMember, "name",         picojson::value(member->GetName()));
 				PicojsonInsert(picoMember, "type",         picojson::value(memberReflection.GetName()));
 				PicojsonInsert(picoMember, "pointerCount", ToPicojsonValue(member->GetPointerCount()));
+				PicojsonInsert(picoMember, "arrayCount",   ToPicojsonValue(member->GetArrayCount()));
 
 				picoType.push_back(picojson::value(picoMember));
 
@@ -303,6 +385,48 @@ namespace SI
 				double memberData = *(const double*)offsetedBuffer;
 				picoData.push_back(ToPicojsonValue(memberData));
 			}
+			else if(typeNameHash == GetHash64S("bool"))
+			{
+				SI_ASSERT(strcmp(reflection.GetName(), "bool") == 0);
+				bool memberData = *(const bool*)offsetedBuffer;
+				picoData.push_back(ToPicojsonValue(memberData));
+			}
+			else if(typeNameHash == GetHash64S("SI::Vfloat"))
+			{
+				SI_ASSERT(strcmp(reflection.GetName(), "SI::Vfloat") == 0);
+				SI::Vfloat memberData = *(const SI::Vfloat*)offsetedBuffer;
+				picoData.push_back(ToPicojsonValue(memberData));
+			}
+			else if(typeNameHash == GetHash64S("SI::Vquat"))
+			{
+				SI_ASSERT(strcmp(reflection.GetName(), "SI::Vquat") == 0);
+				SI::Vquat memberData = *(const SI::Vquat*)offsetedBuffer;
+				picoData.push_back(ToPicojsonValue(memberData));
+			}
+			else if(typeNameHash == GetHash64S("SI::Vfloat3"))
+			{
+				SI_ASSERT(strcmp(reflection.GetName(), "SI::Vfloat3") == 0);
+				SI::Vfloat3 memberData = *(const SI::Vfloat3*)offsetedBuffer;
+				picoData.push_back(ToPicojsonValue(memberData));
+			}
+			else if(typeNameHash == GetHash64S("SI::Vfloat4"))
+			{
+				SI_ASSERT(strcmp(reflection.GetName(), "SI::Vfloat4") == 0);
+				SI::Vfloat4 memberData = *(const SI::Vfloat4*)offsetedBuffer;
+				picoData.push_back(ToPicojsonValue(memberData));
+			}
+			else if(typeNameHash == GetHash64S("SI::Vfloat4x3"))
+			{
+				SI_ASSERT(strcmp(reflection.GetName(), "SI::Vfloat4x3") == 0);
+				SI::Vfloat4x3 memberData = *(const SI::Vfloat4x3*)offsetedBuffer;
+				picoData.push_back(ToPicojsonValue(memberData));
+			}
+			else if(typeNameHash == GetHash64S("SI::Vfloat4x4"))
+			{
+				SI_ASSERT(strcmp(reflection.GetName(), "SI::Vfloat4x4") == 0);
+				SI::Vfloat4x4 memberData = *(const SI::Vfloat4x4*)offsetedBuffer;
+				picoData.push_back(ToPicojsonValue(memberData));
+			}
 			else
 			{
 				picojson::array picoMemberArray;
@@ -379,10 +503,26 @@ namespace SI
 								
 				uint32_t offset = member->GetOffset();
 				const void* memberBuffer = ((const uint8_t*)buffer) + offset;
-
+				
 				uint32_t pointerCount = member->GetPointerCount();
-			
-				SerializeDataByType(picoData, memberBuffer, memberReflection, pointerCount);
+				uint32_t arrayCount = member->GetArrayCount();
+				
+				if(0<arrayCount)
+				{
+					picojson::array picoMemberArray;
+					size_t typeSize = memberReflection.GetSize();
+
+					for(uint32_t a=0; a<arrayCount; ++a)
+					{
+						const void* arrayOffsetedBuffer = (const int8_t*)memberBuffer + a * typeSize;
+						SerializeDataByType(picoMemberArray, arrayOffsetedBuffer, memberReflection, pointerCount);
+					}
+					picoData.push_back(picojson::value(picoMemberArray));
+				}
+				else
+				{
+					SerializeDataByType(picoData, memberBuffer, memberReflection, pointerCount);
+				}
 			}
 
 			return true;

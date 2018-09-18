@@ -6,6 +6,7 @@
 #include "si_base/renderer/node.h"
 #include "si_base/misc/reference_counter.h"
 #include "si_base/core/new_delete.h"
+#include "si_base/serialization/reflection.h"
 
 namespace SI
 {
@@ -86,6 +87,18 @@ namespace SI
 		Array<Geometry*>       m_geometries; // geometry配列.   Submesh::m_geometriesでアクセスする.
 		Array<LongObjectIndex> m_strings;    // string配列.     Node::m_nameやMaterial::m_nameでアクセスする.
 		Array<char>            m_stringPool; // string配列の実体.
+		
+		//SI_REFLECTION(
+		//	SI::Model,
+		//	SI_REFLECTION_MEMBER(m_rootNode),
+		//	SI_REFLECTION_MEMBER(m_nodes),
+		//	SI_REFLECTION_MEMBER(m_nodeCores),
+		//	SI_REFLECTION_MEMBER(m_meshes),
+		//	SI_REFLECTION_MEMBER(m_subMeshes),
+		//	SI_REFLECTION_MEMBER(m_materials),
+		//	SI_REFLECTION_MEMBER(m_geometries),
+		//	SI_REFLECTION_MEMBER(m_strings),
+		//	SI_REFLECTION_MEMBER(m_stringPool))
 	};
 
 	using ModelPtr = std::shared_ptr<Model>;

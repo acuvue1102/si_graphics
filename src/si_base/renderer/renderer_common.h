@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <cstdint>
+#include "si_base/serialization/reflection.h"
 
 namespace SI
 {
@@ -13,6 +14,11 @@ namespace SI
 	{
 		ObjectIndex m_first = kInvalidObjectIndex;
 		uint16_t    m_count = 0;
+
+		SI_REFLECTION(
+			SI::ObjectIndexRange,
+			SI_REFLECTION_MEMBER(m_first),
+			SI_REFLECTION_MEMBER(m_count))
 	};
 
 } // namespace SI

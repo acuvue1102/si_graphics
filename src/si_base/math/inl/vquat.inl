@@ -134,6 +134,26 @@ namespace SI
 	{
 		return Vfloat( _mm_shuffle_ps(m_v, m_v, _MM_SHUFFLE(3,3,3,3)) );
 	}
+
+	inline float Vquat::Xf() const
+	{
+		return X().AsFloat();
+	}
+
+	inline float Vquat::Yf() const
+	{
+		return Y().AsFloat();
+	}
+
+	inline float Vquat::Zf() const
+	{
+		return Z().AsFloat();
+	}
+
+	inline float Vquat::Wf() const
+	{
+		return W().AsFloat();
+	}
 		
 	inline Vfloat Vquat::GetElement(uint32_t elementIndex) const
 	{		
