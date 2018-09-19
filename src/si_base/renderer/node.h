@@ -33,11 +33,11 @@ namespace SI
 
 		bool        m_isMatrixChanged; // worldMatrixの更新が必要か.
 		
-		//SI_REFLECTION(
-		//	SI::NodeCore,
-		//	SI_REFLECTION_MEMBER(m_localMatrix),
-		//	SI_REFLECTION_MEMBER(m_worldMatrix),
-		//	SI_REFLECTION_MEMBER(m_isMatrixChanged))
+		SI_REFLECTION(
+			SI::NodeCore,
+			SI_REFLECTION_MEMBER(m_localMatrix),
+			SI_REFLECTION_MEMBER(m_worldMatrix),
+			SI_REFLECTION_MEMBER(m_isMatrixChanged))
 	};
 
 	// Nodeクラス.
@@ -88,12 +88,12 @@ namespace SI
 		
 		SI_REFLECTION(
 			SI::Node,
-			SI_REFLECTION_MEMBER(m_name),
+			SI_REFLECTION_MEMBER_AS_TYPE(m_name, uint32_t),
 			SI_REFLECTION_MEMBER(m_children),
-			SI_REFLECTION_MEMBER(m_current),
-			SI_REFLECTION_MEMBER(m_parent),
+			SI_REFLECTION_MEMBER_AS_TYPE(m_current, uint16_t),
+			SI_REFLECTION_MEMBER_AS_TYPE(m_parent, uint16_t),
 			SI_REFLECTION_MEMBER_AS_TYPE(m_nodeComponentType, uint16_t),
-			SI_REFLECTION_MEMBER(m_nodeComponent))
+			SI_REFLECTION_MEMBER_AS_TYPE(m_nodeComponent, uint16_t))
 	};
 
 } // namespace SI

@@ -23,5 +23,5 @@ namespace SI
 		delete material;
 		material = nullptr;
 	}
-
+	
 } // namespace SI

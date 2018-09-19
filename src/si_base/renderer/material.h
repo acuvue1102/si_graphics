@@ -20,6 +20,10 @@ namespace SI
 
 	private:
 		ObjectIndex m_name;
+
+		SI_REFLECTION(
+			SI::Material,
+			SI_REFLECTION_MEMBER_AS_TYPE(m_name, uint16_t))
 	};
 
 } // namespace SI

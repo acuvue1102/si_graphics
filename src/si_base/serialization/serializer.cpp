@@ -48,6 +48,11 @@ namespace SI
 		{
 			 return picojson::value(i);
 		}
+
+		picojson::value ToPicojsonValue(bool i)
+		{
+			 return picojson::value(i);
+		}
 		
 		picojson::value ToPicojsonValue(SI::Vfloat i)
 		{
@@ -199,6 +204,7 @@ namespace SI
 		SerializerImpl()
 		{
 			// 基本型をあらかじめ登録しておいて、出力されないようにする.
+			m_typeTable.insert( std::make_pair("char",          nullptr) );
 			m_typeTable.insert( std::make_pair("int8_t",        nullptr) );
 			m_typeTable.insert( std::make_pair("int16_t",       nullptr) );
 			m_typeTable.insert( std::make_pair("int32_t",       nullptr) );
@@ -329,6 +335,12 @@ namespace SI
 			{
 				SI_ASSERT(strcmp(reflection.GetName(), "int8_t") == 0);
 				int8_t memberData = *(const int8_t*)offsetedBuffer;
+				picoData.push_back(ToPicojsonValue(memberData));
+			}
+			else if(typeNameHash == GetHash64S("char"))
+			{
+				SI_ASSERT(strcmp(reflection.GetName(), "char") == 0);
+				char memberData = *(const char*)offsetedBuffer;
 				picoData.push_back(ToPicojsonValue(memberData));
 			}
 			else if(typeNameHash == GetHash64S("uint8_t"))

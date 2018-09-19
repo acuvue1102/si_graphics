@@ -98,6 +98,8 @@ AAA::Test2
 
 #include <cstdint>
 #include <array>
+#include <type_traits>
+
 #include "si_base/core/basic_function.h"
 #include "si_base/core/basic_macro.h"
 #include "si_base/misc/hash.h"
@@ -184,6 +186,7 @@ namespace SI
 		template<> struct SI::NameIdentifer<type>{ static const char* GetTypeName(){ return #type; } };\
 		template<> struct SI::NameIdentifer<type*>{ static const char* GetTypeName(){ return #type; } };
 	
+	SI_NAME_IDENTIFER(char)
 	SI_NAME_IDENTIFER(int8_t)
 	SI_NAME_IDENTIFER(int16_t)
 	SI_NAME_IDENTIFER(int32_t)
@@ -250,14 +253,21 @@ namespace SI
 	//////////////////////////////////////////////////////////////////////////
 	
 	template<typename T>
-	uint32_t GetPointerCount(typename std::enable_if<std::is_pointer<T>::value, typename uint32_t>::type input)
+	uint32_t GetPointerCountProxy(uint32_t input)
 	{
-		// ポインタの場合、ポインタを外した型で再評価.
-		return GetPointerCount<std::remove_pointer<T>::type>(input+1);
+		// GetPointerCountを再帰で呼び出したいが、何故かコンパイルエラーになるのでこのプロキシクラス経由で呼び出す.
+		return GetPointerCount<T>(input);
 	}
 
 	template<typename T>
-	uint32_t GetPointerCount(typename std::enable_if<!std::is_pointer<T>::value, typename uint32_t>::type input)
+	uint32_t GetPointerCount(typename std::enable_if<std::is_pointer<T>::value, uint32_t>::type input)
+	{
+		// ポインタの場合、ポインタを外した型で再評価.
+		return GetPointerCountProxy<typename std::remove_pointer<T>::type>(input+1u);
+	}
+
+	template<typename T>
+	uint32_t GetPointerCount(typename std::enable_if<!std::is_pointer<T>::value, uint32_t>::type input)
 	{
 		// ポインタではない場合
 		return input;
@@ -308,7 +318,7 @@ namespace SI
 		bool IsArray() const{ return m_arrayCount!=0; }
 		uint32_t GetArrayCount() const{ return m_arrayCount; }
 
-	private:
+	protected:
 		const char*            m_name;
 		Hash64                 m_nameHash;
 		uint32_t               m_offset;
@@ -345,7 +355,7 @@ namespace SI
 			return &m_members[i];
 		}
 
-	private:
+	protected:
 		std::array<const ReflectionMember, MEMBER_COUNT> m_members;
 	};
 	
@@ -362,7 +372,7 @@ namespace SI
 			const char* templateTypeName,
 			const ReflectionType&  templateArgType,
 			std::array<const ReflectionMember, MEMBER_COUNT> members)
-			: ReflectionUserType(typeName, size, members)
+			: ReflectionUserType<MEMBER_COUNT>(typeName, size, members)
 			, m_templateTypeName(templateTypeName)
 			, m_templateTypeNameHash(GetHash64(templateTypeName))
 			, m_templateArgType(templateArgType)
@@ -384,13 +394,18 @@ namespace SI
 			return &m_templateArgType;
 		}
 
-	private:
+	protected:
 		const char*            m_templateTypeName;
 		Hash64                 m_templateTypeNameHash;
 		const ReflectionType&  m_templateArgType;
 	};
-
-
+	
+	template<typename T>
+	const SI::ReflectionType& GetReflectionTypeProxy(int input)
+	{
+		// 再帰で呼び出したいが、何故かエラーになるのでプロキシクラス経由で呼び出す.
+		return GetReflectionType<T>(input);
+	}
 	
 	template<typename T>
 	const SI::ReflectionType& GetReflectionType(typename T::SfinaeType)
@@ -410,7 +425,7 @@ namespace SI
 	const SI::ReflectionType& GetReflectionType(typename std::enable_if< std::is_pointer<T>::value, typename int>::type input)
 	{
 		// ポインタの場合、ポインタを外した型で再評価.
-		return GetReflectionType<std::remove_pointer<T>::type>(input);
+		return GetReflectionTypeProxy<std::remove_pointer<T>::type>(input);
 	}
 
 	template<typename T>
@@ -473,15 +488,15 @@ namespace SI
 // class/structを定義するためのマクロ.
 #define SI_REFLECTION(type, ...)\
 	public:\
-	using SfinaeType = int;\
-	using TargetType = type;\
+	using SfinaeType = typename int;\
+	using TargetType = typename type;\
 	static const char* GetTypeName()\
 	{\
 		return #type;\
 	}\
 	static const SI::ReflectionType& GetReflectionType()\
 	{\
-		using UserType = SI::ReflectionUserType< SI_ARGS_COUNT(__VA_ARGS__) >;\
+		using UserType = typename SI::ReflectionUserType< SI_ARGS_COUNT(__VA_ARGS__) >;\
 		static const UserType s_reflection =\
 			UserType(\
 				GetTypeName(),\
@@ -495,8 +510,8 @@ namespace SI
 // template class/structを定義するためのマクロ. template引数1つ版.
 #define SI_TEMPLATE1_REFLECTION(templateType, templateArgType, ...)\
 	public:\
-	using SfinaeType = int;\
-	using TargetType = templateType<templateArgType>;\
+	using SfinaeType = typename int;\
+	using TargetType = typename templateType<templateArgType>;\
 	static const char* GetTypeName()\
 	{\
 		/*templateなので何の型かマクロでは取れない. 型情報から型名を取る必要がある*/\
@@ -508,7 +523,7 @@ namespace SI
 	}\
 	static const SI::ReflectionType& GetReflectionType()\
 	{\
-		using UserType = SI::ReflectionTemplate1UserType< SI_ARGS_COUNT(__VA_ARGS__) >;\
+		using UserType = typename SI::ReflectionTemplate1UserType< SI_ARGS_COUNT(__VA_ARGS__) >;\
 		static const UserType s_reflection =\
 			UserType(\
 				GetTypeName(),\
@@ -527,15 +542,15 @@ namespace SI
 	{\
 		template<> struct SI::ReflectionExternal<type>\
 		{\
-			using SfinaeType = int;\
-			using TargetType = type;\
+			using SfinaeType = typename int;\
+			using TargetType = typename type;\
 			static const char* GetTypeName()\
 			{\
 				return #type;\
 			}\
 			static const SI::ReflectionType& GetReflectionType()\
 			{\
-				using UserType = SI::ReflectionUserType< SI_ARGS_COUNT(__VA_ARGS__) >;\
+				using UserType = typename SI::ReflectionUserType< SI_ARGS_COUNT(__VA_ARGS__) >;\
 				static const UserType s_reflection =\
 					UserType(\
 						GetTypeName(),\

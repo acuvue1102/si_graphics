@@ -26,6 +26,11 @@ namespace SI
 	private:
 		ObjectIndex   m_materialIndex; // Model(Instance)::m_materialsのIndex
 		ObjectIndex   m_geometryIndex; // Model(Instance)::m_geometriesのIndex
+		
+		SI_REFLECTION(
+			SI::SubMesh,
+			SI_REFLECTION_MEMBER_AS_TYPE(m_materialIndex, uint16_t),
+			SI_REFLECTION_MEMBER_AS_TYPE(m_geometryIndex, uint16_t))
 	};
-
+	
 } // namespace SI

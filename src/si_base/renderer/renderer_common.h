@@ -12,13 +12,19 @@ namespace SI
 
 	struct ObjectIndexRange
 	{
-		ObjectIndex m_first = kInvalidObjectIndex;
-		uint16_t    m_count = 0;
+		ObjectIndexRange()
+			: m_first(kInvalidObjectIndex)
+			, m_count(0)
+		{
+		}
+
+		ObjectIndex m_first;
+		uint16_t    m_count;
 
 		SI_REFLECTION(
 			SI::ObjectIndexRange,
-			SI_REFLECTION_MEMBER(m_first),
+			SI_REFLECTION_MEMBER_AS_TYPE(m_first, uint16_t),
 			SI_REFLECTION_MEMBER(m_count))
 	};
-
+	
 } // namespace SI

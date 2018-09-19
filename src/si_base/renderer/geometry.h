@@ -92,6 +92,11 @@ namespace SI
 	private:
 		Array<uint8_t>   m_rawVertexBuffer;
 		Array<uint8_t>   m_rawIndexBuffer;
+
+		SI_REFLECTION(
+			SI::VerboseGeometry,
+			SI_REFLECTION_MEMBER(m_rawVertexBuffer),
+			SI_REFLECTION_MEMBER(m_rawIndexBuffer))
 	};
 
 } // namespace SI

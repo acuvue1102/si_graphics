@@ -15,6 +15,10 @@ namespace SI
 
 	private:
 		ObjectIndexRange m_submeshIndeces; // Model::m_submeshのindex
+
+		SI_REFLECTION(
+			SI::Mesh,
+			SI_REFLECTION_MEMBER(m_submeshIndeces))
 	};
 
 } // namespace SI
