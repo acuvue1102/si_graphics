@@ -16,19 +16,50 @@ namespace SI
 			, m_format(GfxFormat::Unknown)
 		{
 		}
+
+		SI_REFLECTION(
+			SI::VertexSemanticsAndFormat,
+			SI_REFLECTION_MEMBER_AS_TYPE(m_semantics, uint8_t),
+			SI_REFLECTION_MEMBER_AS_TYPE(m_format, uint8_t))
 	};
 
 	struct VertexLayout
 	{
 		uint16_t                   m_stride;
-		VertexSemanticsAndFormat   m_attributes[15];
 		uint8_t                    m_attributeCount;
+		VertexSemanticsAndFormat   m_attributes[15];
 
 		VertexLayout()
 			: m_stride(0)
 			, m_attributeCount(0)
 		{
 		}
+
+		SI_REFLECTION(
+			SI::VertexLayout,
+			SI_REFLECTION_MEMBER(m_stride),
+			SI_REFLECTION_MEMBER(m_attributeCount),
+			SI_REFLECTION_MEMBER_ARRAY(m_attributes))
+	};
+
+	struct GeometrySerializeData
+	{
+		VertexLayout     m_vertexLayout;
+		bool             m_is16bitIndex;
+		Array<uint8_t>   m_rawVertexBuffer;
+		Array<uint8_t>   m_rawIndexBuffer;
+
+		GeometrySerializeData()
+			: m_is16bitIndex(false)
+		{
+		}
+
+		SI_REFLECTION(
+			SI::GeometrySerializeData,
+			SI_REFLECTION_MEMBER(m_vertexLayout),
+			SI_REFLECTION_MEMBER(m_is16bitIndex),
+			SI_REFLECTION_MEMBER(m_rawVertexBuffer),
+			SI_REFLECTION_MEMBER(m_rawIndexBuffer))
 	};
 
 	class Geometry
@@ -51,6 +82,12 @@ namespace SI
 			return 'Geom';
 		}
 
+		virtual GeometrySerializeData ConvertSerializeData() const
+		{
+			SI_ASSERT(0);
+			return GeometrySerializeData();
+		}
+
 	public:
 		static Geometry* Create();
 		static void Release(Geometry*& geometry);
@@ -58,7 +95,7 @@ namespace SI
 	private:
 		friend class FbxParser;
 
-	private:
+	protected:
 		VertexLayout m_vertexLayout;
 		uint8_t      m_is16bitIndex;
 		GfxBufferEx  m_vertexBuffer;
@@ -83,20 +120,26 @@ namespace SI
 			return 'Verb';
 		}
 
+		virtual GeometrySerializeData ConvertSerializeData() const override
+		{
+			GeometrySerializeData serializeData;
+			serializeData.m_vertexLayout    = m_vertexLayout;
+			serializeData.m_is16bitIndex    = m_is16bitIndex;
+			serializeData.m_rawVertexBuffer = m_rawVertexBuffer;
+			serializeData.m_rawIndexBuffer  = m_rawIndexBuffer;
+
+			return serializeData;
+		}
+
 	private:
 		static VerboseGeometry* Create();
 
 	private:
 		friend class FbxParser;
 
-	private:
+	protected:
 		Array<uint8_t>   m_rawVertexBuffer;
 		Array<uint8_t>   m_rawIndexBuffer;
-
-		SI_REFLECTION(
-			SI::VerboseGeometry,
-			SI_REFLECTION_MEMBER(m_rawVertexBuffer),
-			SI_REFLECTION_MEMBER(m_rawIndexBuffer))
 	};
 
 } // namespace SI

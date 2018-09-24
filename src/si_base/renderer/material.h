@@ -5,11 +5,33 @@
 
 namespace SI
 {
+	struct MaterialSerializeData
+	{
+		LongObjectIndex m_name;
+
+		MaterialSerializeData()
+			: m_name(kInvalidLongObjectIndex)
+		{
+		}
+
+		SI_REFLECTION(
+			SI::MaterialSerializeData,
+			SI_REFLECTION_MEMBER_AS_TYPE(m_name, uint32_t))
+	};
+
 	class Material
 	{
 	public:
 		Material();
 		~Material();
+		
+		MaterialSerializeData ConvertSerializeData() const
+		{
+			MaterialSerializeData serializeData;
+			serializeData.m_name = m_name;
+
+			return serializeData;
+		}
 
 	public:
 		static Material* Create();
@@ -19,11 +41,7 @@ namespace SI
 		friend class FbxParser;
 
 	private:
-		ObjectIndex m_name;
-
-		SI_REFLECTION(
-			SI::Material,
-			SI_REFLECTION_MEMBER_AS_TYPE(m_name, uint16_t))
+		LongObjectIndex m_name;
 	};
 
 } // namespace SI

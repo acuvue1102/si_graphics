@@ -56,7 +56,7 @@ namespace SI
 		void Initialize();
 		void Terminate();
 
-		int Parse(Model& outModel, const char* fbxPath);
+		int Parse(Model& outModel, const char* fbxPath, ModelMetaBuffer& meta);
 
 	private:
 

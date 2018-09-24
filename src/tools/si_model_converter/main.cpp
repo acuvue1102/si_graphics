@@ -85,13 +85,15 @@ int main(int argc, char* argv[])
 	SI::FbxParser parser;
 	parser.Initialize();
 
+	SI::ModelMetaBuffer meta;
 	SI::Model model;
-	parser.Parse(model, input.c_str());
+	parser.Parse(model, input.c_str(), meta);
 
 	SI::ModelWriter writer;
 	writer.Write(output.c_str(), model);
 
 	model = SI::Model();
+	meta = SI::ModelMetaBuffer();
 
 	parser.Terminate();
 

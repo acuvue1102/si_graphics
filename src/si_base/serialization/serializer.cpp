@@ -132,10 +132,14 @@ namespace SI
 		{
 			std::string o;
 
+			std::string tmpArray;
 			int tab = 0;
-			int arrayNest = 0;
-			for(char c : json)
+			size_t jsonLength = json.size();
+			bool isPureArray = false;
+			for(size_t stringId=0; stringId<jsonLength; ++stringId)
 			{
+				char c = json[stringId];
+
 				bool newLine = false;
 				if(c=='{')
 				{
@@ -145,7 +149,6 @@ namespace SI
 				else if(c=='}')
 				{
 					--tab;
-					//newLine = true;
 					o.push_back('\n');
 					for(int i=0; i<tab; ++i)
 					{
@@ -153,27 +156,54 @@ namespace SI
 					}
 				}
 				else if(c=='[')
-				{
-					//if(arrayNest==1)
-					//{
-					//	o.push_back('\n');
-					//	for(int i=0; i<tab; ++i)
-					//	{
-					//		o.push_back('\t');
-					//	}
-					//}
-
-					++tab;
-					++arrayNest;
+				{					
+					// 基本要素だけの単純な配列か調べる.
+					// (単純な配列なら改行しない)
+					isPureArray = true;
+					for(size_t stringId2=stringId+1; stringId2<jsonLength; ++stringId2)
+					{
+						char c2 = json[stringId2];
+						if(c2==']')
+						{
+							break;
+						}
+						else if(c2=='{')
+						{
+							isPureArray = false;
+							break;
+						}
+						else if(c2=='[')
+						{
+							isPureArray = false;
+							break;
+						}
+					}
+					
+					if(!isPureArray)
+					{
+						++tab;
+						newLine = true;
+					}
 				}
 				else if(c==']')
 				{
-					--tab;
-					--arrayNest;
+					if(isPureArray)
+					{
+						isPureArray = false;
+					}
+					else
+					{
+						--tab;
+						o.push_back('\n');
+						for(int i=0; i<tab; ++i)
+						{
+							o.push_back('\t');
+						}
+					}
 				}
 				else if(c==',')
 				{
-					if(arrayNest==0)
+					if(!isPureArray)
 					{
 						newLine = true;
 					}
@@ -323,13 +353,23 @@ namespace SI
 
 			if(0<pointerCount)
 			{
-				// ポインタ外し.
-				const void* ptr = *(const void**)(((const uint8_t*)offsetedBuffer));
-				return SerializeDataByType(
-					picoData,
-					ptr,
-					reflection,
-					pointerCount-1);
+				// 文字列の時だけは特別扱い.
+				if(pointerCount==1 && typeNameHash == GetHash64S("char"))
+				{
+					SI_ASSERT(strcmp(reflection.GetName(), "char") == 0);
+					const char* str = (const char*)offsetedBuffer;
+					picoData.push_back(picojson::value(str));
+				}
+				else
+				{
+					// ポインタ外し.
+					const void* ptr = *(const void**)(((const uint8_t*)offsetedBuffer));
+					return SerializeDataByType(
+						picoData,
+						ptr,
+						reflection,
+						pointerCount-1);
+				}
 			}
 			else if(typeNameHash == GetHash64S("int8_t"))
 			{
@@ -495,6 +535,15 @@ namespace SI
 				const ReflectionType& arrayItemReflection = arrayPointerMember->GetType();
 				uint32_t arrayItemOffset = arrayItemReflection.GetSize();
 				uint32_t arrayItemPointerCount = arrayPointerMember->GetPointerCount() - 1; // 元の型のポインタの数.
+
+				// 文字列の時は特別扱い.
+				if(arrayItemPointerCount==0 && arrayPointerMember->GetType().GetNameHash() == GetHash64S("char"))
+				{
+					SI_ASSERT(strcmp(arrayPointerMember->GetType().GetName(), "char") == 0);
+					const char* str = (const char*)arrayPtr;
+					picoData.push_back(picojson::value(str, (size_t)arrayCount));
+					return true;
+				}
 
 				picojson::array picoMemberArray;
 				for(uint32_t a=0; a<arrayCount; ++a)

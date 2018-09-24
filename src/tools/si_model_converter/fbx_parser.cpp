@@ -439,7 +439,8 @@ namespace SI
 	void FbxParser::Initialize()
 	{
 		if(m_fbxManager) return;
-
+		
+#if 0
 		int intOrg = 12;
 		
 		SI::Serializer serializer;
@@ -477,7 +478,6 @@ namespace SI
 		SI_PRINT("end");
 
 
-#if 0
 		SI::Serializer serializer;
 		serializer.Initialize();
 
@@ -630,7 +630,7 @@ namespace SI
 		m_fbxManager = nullptr;
 	}
 
-	int FbxParser::Parse(Model& outModel, const char* fbxPath)
+	int FbxParser::Parse(Model& outModel, const char* fbxPath, ModelMetaBuffer& meta)
 	{
 		FbxImporter* fbxImporter = FbxImporter::Create(m_fbxManager, "fbxImporter");
 		SI_SCOPE_EXIT( fbxImporter->Destroy(); );
@@ -661,7 +661,6 @@ namespace SI
 		}
 
 		// parseしてmetaBuffer内に必要なデータを集める.
-		ModelMetaBuffer meta;
 		meta.Reserve(fbxScene->GetNodeCount());
 		Node rootNode;
 		ParseNode(rootNode, meta, *fbxRootNode);

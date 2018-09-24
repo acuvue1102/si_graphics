@@ -11,6 +11,7 @@
 #include "si_base/math/math.h"
 #include "si_base/core/print.h"
 #include "si_base/file/file.h"
+#include "si_base/serialization/serializer.h"
 
 namespace SI
 {
@@ -176,6 +177,13 @@ namespace SI
 
 		static bool SerializeModel(picojson::object& picoModel, const char* modelName, const Model& model)
 		{
+			ModelSerializeData serializeData = model.ConvertSerializeData();
+
+			Serializer serializer;
+			serializer.Initialize();
+			
+			serializer.Serialize("model_serialize_test.json", serializeData);
+#if 0
 			picoModel.insert( std::make_pair("version",  "0.01") );
 			picoModel.insert( std::make_pair("modelName", modelName) );
 
@@ -226,7 +234,7 @@ namespace SI
 				}
 				
 				picoModel.insert( std::make_pair("modelData", picoModelData) );
-			}
+#endif
 
 			return true;
 		}

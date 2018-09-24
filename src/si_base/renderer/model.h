@@ -4,6 +4,10 @@
 #include <vector>
 #include "si_base/container/array.h"
 #include "si_base/renderer/node.h"
+#include "si_base/renderer/mesh.h"
+#include "si_base/renderer/sub_mesh.h"
+#include "si_base/renderer/geometry.h"
+#include "si_base/renderer/material.h"
 #include "si_base/misc/reference_counter.h"
 #include "si_base/core/new_delete.h"
 #include "si_base/serialization/reflection.h"
@@ -16,6 +20,49 @@ namespace SI
 	class SubMesh;
 	class Material;
 	class Geometry;
+	class Model;
+
+	struct ModelSerializeData
+	{
+		NodeSerializeData                  m_rootNode;   // root. m_children以外はダミー.
+		Array<NodeSerializeData>           m_nodes;      // nodeの階層配列. Node内のindexでアクセスする.
+		Array<NodeCoreSerializeData>       m_nodeCores;  // nodeの中身情報. m_nodesと同様にNode内のindexでアクセスする.
+		Array<MeshSerializeData>           m_meshes;     // mesh配列.       Mesh用のNode::m_nodeComponentでアクセスする.
+		Array<SubMeshSerializeData>        m_subMeshes;  // submesh配列.    Mesh::m_submeshIndecesでアクセスする.
+		Array<MaterialSerializeData>       m_materials;  // material配列.   Submesh::m_materialsでアクセスする.
+		Array<GeometrySerializeData>       m_geometries; // geometry配列.   Submesh::m_geometriesでアクセスする.
+		Array<uint32_t>                    m_strings;    // string配列.     Node::m_nameやMaterial::m_nameでアクセスする.
+		Array<char>                        m_stringPool; // string配列の実体.
+
+		ModelSerializeData()
+		{
+		}
+
+		~ModelSerializeData()
+		{
+			Terminate();
+		}
+
+		ModelSerializeData(ModelSerializeData&& src); // ムーブコンストラクタ.
+
+		void Initialize(const Model& model);
+		void Terminate();
+
+		SI_REFLECTION(
+			SI::ModelSerializeData,
+			SI_REFLECTION_MEMBER(m_rootNode),
+			SI_REFLECTION_MEMBER(m_nodes),
+			SI_REFLECTION_MEMBER(m_nodeCores),
+			SI_REFLECTION_MEMBER(m_meshes),
+			SI_REFLECTION_MEMBER(m_subMeshes),
+			SI_REFLECTION_MEMBER(m_materials),
+			SI_REFLECTION_MEMBER(m_geometries),
+			SI_REFLECTION_MEMBER(m_strings),
+			SI_REFLECTION_MEMBER(m_stringPool))
+
+	private:
+		ModelSerializeData(const ModelSerializeData&) = delete; // コピーコンストラクタの禁止.
+	};
 
 	class Model
 	{
@@ -74,6 +121,14 @@ namespace SI
 		Array<char>&          GetStringPool()         { return m_stringPool; }
 		ConstArray<char>      GetStringPool()    const{ return m_stringPool; }
 		
+		ModelSerializeData ConvertSerializeData() const
+		{
+			ModelSerializeData serializeData;
+			serializeData.Initialize(*this);
+
+			return std::move(serializeData);
+		}
+
 	private:
 		friend class FbxParser;
 
@@ -86,19 +141,7 @@ namespace SI
 		Array<Material*>       m_materials;  // material配列.   Submesh::m_materialsでアクセスする.
 		Array<Geometry*>       m_geometries; // geometry配列.   Submesh::m_geometriesでアクセスする.
 		Array<LongObjectIndex> m_strings;    // string配列.     Node::m_nameやMaterial::m_nameでアクセスする.
-		Array<char>            m_stringPool; // string配列の実体.
-		
-		//SI_REFLECTION(
-		//	SI::Model,
-		//	SI_REFLECTION_MEMBER(m_rootNode),
-		//	SI_REFLECTION_MEMBER(m_nodes),
-		//	SI_REFLECTION_MEMBER(m_nodeCores),
-		//	SI_REFLECTION_MEMBER(m_meshes),
-		//	SI_REFLECTION_MEMBER(m_subMeshes),
-		//	SI_REFLECTION_MEMBER(m_materials),
-		//	SI_REFLECTION_MEMBER(m_geometries),
-		//	SI_REFLECTION_MEMBER(m_strings),
-		//	SI_REFLECTION_MEMBER(m_stringPool))
+		Array<char>            m_stringPool; // string配列の実体.		
 	};
 
 	using ModelPtr = std::shared_ptr<Model>;
