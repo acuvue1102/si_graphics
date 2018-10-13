@@ -9,6 +9,59 @@
 
 namespace SI
 {
+#if 1
+	template<class T>
+	class GfxStdDeviceTempAllocator {
+	public:
+		using value_type = T;
+		
+		GfxStdDeviceTempAllocator() { }
+		GfxStdDeviceTempAllocator(const GfxStdDeviceTempAllocator& x) { }
+	
+		template<class U>
+		GfxStdDeviceTempAllocator(const GfxStdDeviceTempAllocator<U>& x) { }
+	
+		// メモリ確保
+		T* allocate(std::size_t n)
+		{
+			return reinterpret_cast<T*>( SI_DEVICE_TEMP_ALLOCATOR().Allocate(n * sizeof(T), alignof(T) ) );
+		}
+
+		// メモリ解放
+		void deallocate(T* p, std::size_t n)
+		{
+			SI_DEVICE_TEMP_ALLOCATOR().Deallocate(p);
+		}
+	};
+	
+
+
+	///////////////////////////////////////////////////////////////////////////////////////////////
+	
+	template<class T>
+	class GfxStdDeviceObjAllocator {
+	public:
+		using value_type = T;
+
+		GfxStdDeviceObjAllocator() { }
+		GfxStdDeviceObjAllocator(const GfxStdDeviceObjAllocator& x) { }
+	
+		template<class U>
+		GfxStdDeviceObjAllocator(const GfxStdDeviceObjAllocator<U>& x) { }
+		
+		// メモリ確保
+		T* allocate(std::size_t n)
+		{
+			return reinterpret_cast<T*>( SI_DEVICE_OBJ_ALLOCATOR().Allocate(n * sizeof(T), alignof(T) ) );
+		}
+
+		// メモリ解放
+		void deallocate(T* p, std::size_t n)
+		{
+			SI_DEVICE_OBJ_ALLOCATOR().Deallocate(p);
+		}
+	};
+#else
 	template<class T>
 	class GfxStdDeviceTempAllocator : public std::allocator<T> {
 	public:
@@ -39,7 +92,6 @@ namespace SI
 		};
 	};
 	
-	template <typename T> using GfxTempVector = std::vector<T, SI::GfxStdDeviceTempAllocator<T>>;
 
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +125,9 @@ namespace SI
 			typedef GfxStdDeviceObjAllocator<U> other;
 		};
 	};
+#endif
 	
+	template <typename T> using GfxTempVector = std::vector<T, SI::GfxStdDeviceTempAllocator<T>>;
 	template <typename T> using GfxObjVector = std::vector<T, SI::GfxStdDeviceObjAllocator<T>>;
 
 } // namespace SI

@@ -120,10 +120,12 @@ namespace SI
 	public:
 		ReflectionType(
 			const char* typeName,
-			uint32_t size )
+			uint32_t size,
+			uint32_t alignment)
 			: m_typeName(typeName)
 			, m_typeNameHash(GetHash64(typeName))
 			, m_size(size)
+			, m_alignment(alignment)
 		{
 		}
 
@@ -147,9 +149,16 @@ namespace SI
 			return nullptr;
 		}
 
+		const ReflectionMember* FindMember(const char* memberName, SI::Hash64 memberNameHash = 0) const;
+
 		uint32_t GetSize() const
 		{
 			return m_size;
+		}
+
+		uint32_t GetAlignment() const
+		{
+			return m_alignment;
 		}
 
 		virtual const char* GetTemplateName() const
@@ -167,10 +176,20 @@ namespace SI
 			return nullptr;
 		}
 
+		virtual void Constructor(void* addr) const
+		{
+			memset(addr, 0, m_size);
+		}
+
+		virtual void Destructor(void* addr) const
+		{
+		}
+
 	protected:
 		const char*           m_typeName;
 		Hash64                m_typeNameHash;
 		uint32_t              m_size;
+		uint32_t              m_alignment;
 	};
 	
 	// ユーザ定義の型だが、型内部にReflectionがない場合の対応.
@@ -186,6 +205,7 @@ namespace SI
 		template<> struct SI::NameIdentifer<type>{ static const char* GetTypeName(){ return #type; } };\
 		template<> struct SI::NameIdentifer<type*>{ static const char* GetTypeName(){ return #type; } };
 	
+	// charだけはsinged/unsigned未定義なので、int8_t/uint8_tとは異なる型.
 	SI_NAME_IDENTIFER(char)
 	SI_NAME_IDENTIFER(int8_t)
 	SI_NAME_IDENTIFER(int16_t)
@@ -240,8 +260,18 @@ namespace SI
 		ReflectionGenericType() = delete;
 	public:
 		ReflectionGenericType(const char* typeName)
-			: ReflectionType(typeName, (uint32_t)sizeof(T))
+			: ReflectionType(typeName, (uint32_t)sizeof(T), (uint32_t)alignof(T))
 		{
+		}
+		
+		virtual void Constructor(void* addr) const override
+		{
+			new(addr) T();
+		}
+
+		virtual void Destructor(void* addr) const override
+		{
+			((T*)addr)->~T();
 		}
 
 		static const ReflectionGenericType<T> s_reflection;
@@ -252,6 +282,11 @@ namespace SI
 
 	//////////////////////////////////////////////////////////////////////////
 	
+	template<typename T>
+	uint32_t GetPointerCount(typename std::enable_if<std::is_pointer<T>::value, uint32_t>::type input);
+	template<typename T>
+	uint32_t GetPointerCount(typename std::enable_if<!std::is_pointer<T>::value, uint32_t>::type input);
+
 	template<typename T>
 	uint32_t GetPointerCountProxy(uint32_t input)
 	{
@@ -329,7 +364,7 @@ namespace SI
 	
 	
 	// ユーザー定義の型リフレクションのためのクラス.
-	template<size_t MEMBER_COUNT>
+	template<typename T, size_t MEMBER_COUNT>
 	class ReflectionUserType : public ReflectionType
 	{
 		ReflectionUserType() = delete;
@@ -337,9 +372,8 @@ namespace SI
 	public:
 		ReflectionUserType(
 			const char* typeName,
-			uint32_t size,
 			std::array<const ReflectionMember, MEMBER_COUNT> members)
-			: ReflectionType(typeName, size)
+			: ReflectionType(typeName, (uint32_t)sizeof(T), (uint32_t)alignof(T))
 			, m_members(members)
 		{
 		}
@@ -354,25 +388,33 @@ namespace SI
 			SI_ASSERT(i<MEMBER_COUNT);
 			return &m_members[i];
 		}
+		
+		virtual void Constructor(void* addr) const override
+		{
+			new(addr) T();
+		}
 
+		virtual void Destructor(void* addr) const override
+		{
+			((T*)addr)->~T();
+		}
 	protected:
 		std::array<const ReflectionMember, MEMBER_COUNT> m_members;
 	};
 	
 	// ユーザー定義のtemplate型リフレクションのためのクラス.
-	template<size_t MEMBER_COUNT>
-	class ReflectionTemplate1UserType : public ReflectionUserType<MEMBER_COUNT>
+	template<typename T, size_t MEMBER_COUNT>
+	class ReflectionTemplate1UserType : public ReflectionUserType<T, MEMBER_COUNT>
 	{
 		ReflectionTemplate1UserType() = delete;
 
 	public:
 		ReflectionTemplate1UserType(
 			const char* typeName,
-			uint32_t size,
 			const char* templateTypeName,
 			const ReflectionType&  templateArgType,
 			std::array<const ReflectionMember, MEMBER_COUNT> members)
-			: ReflectionUserType<MEMBER_COUNT>(typeName, size, members)
+			: ReflectionUserType<T, MEMBER_COUNT>(typeName, members)
 			, m_templateTypeName(templateTypeName)
 			, m_templateTypeNameHash(GetHash64(templateTypeName))
 			, m_templateArgType(templateArgType)
@@ -399,6 +441,15 @@ namespace SI
 		Hash64                 m_templateTypeNameHash;
 		const ReflectionType&  m_templateArgType;
 	};
+	
+	template<typename T>
+	const SI::ReflectionType& GetReflectionType(typename T::SfinaeType);
+	template<typename T>
+	const SI::ReflectionType& GetReflectionType(typename ReflectionExternal<T>::SfinaeType);	
+	template<typename T>
+	const SI::ReflectionType& GetReflectionType(typename std::enable_if< std::is_pointer<T>::value, typename int>::type input);
+	template<typename T>
+	const SI::ReflectionType& GetReflectionType(...);
 	
 	template<typename T>
 	const SI::ReflectionType& GetReflectionTypeProxy(int input)
@@ -496,11 +547,10 @@ namespace SI
 	}\
 	static const SI::ReflectionType& GetReflectionType()\
 	{\
-		using UserType = typename SI::ReflectionUserType< SI_ARGS_COUNT(__VA_ARGS__) >;\
+		using UserType = typename SI::ReflectionUserType< TargetType, SI_ARGS_COUNT(__VA_ARGS__) >;\
 		static const UserType s_reflection =\
 			UserType(\
 				GetTypeName(),\
-				sizeof(type),\
 				{\
 					__VA_ARGS__\
 				} );\
@@ -523,11 +573,10 @@ namespace SI
 	}\
 	static const SI::ReflectionType& GetReflectionType()\
 	{\
-		using UserType = typename SI::ReflectionTemplate1UserType< SI_ARGS_COUNT(__VA_ARGS__) >;\
+		using UserType = typename SI::ReflectionTemplate1UserType< TargetType, SI_ARGS_COUNT(__VA_ARGS__) >;\
 		static const UserType s_reflection =\
 			UserType(\
 				GetTypeName(),\
-				sizeof(templateType<templateArgType>),\
 				#templateType,\
 				SI::GetReflectionType<templateArgType>(0),\
 				{\
@@ -550,11 +599,10 @@ namespace SI
 			}\
 			static const SI::ReflectionType& GetReflectionType()\
 			{\
-				using UserType = typename SI::ReflectionUserType< SI_ARGS_COUNT(__VA_ARGS__) >;\
+				using UserType = typename SI::ReflectionUserType< TargetType, SI_ARGS_COUNT(__VA_ARGS__) >;\
 				static const UserType s_reflection =\
 					UserType(\
 						GetTypeName(),\
-						sizeof(type),\
 						{\
 							__VA_ARGS__\
 						} );\

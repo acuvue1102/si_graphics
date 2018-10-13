@@ -21,6 +21,7 @@
 
 #include "si_base/serialization/reflection.h"
 #include "si_base/serialization/serializer.h"
+#include "si_base/serialization/deserializer.h"
 
 using namespace fbxsdk;
 
@@ -302,6 +303,37 @@ namespace BBB
 		int    intHoge;
 		//int*   intPtrHoge;
 		double doubleHoge;
+
+		Test()
+			: intHoge(2)
+			, doubleHoge(2.5)
+		{
+			SI_PRINT("Test()");
+		}
+
+		~Test()
+		{
+			SI_PRINT("~Test()");
+		}
+	};
+
+	struct Hoge
+	{
+		int    intHoge;
+		double doubleHoge;
+		Test   testHoge;
+
+		Hoge()
+			: intHoge(6)
+			, doubleHoge(6.5)
+		{
+			SI_PRINT("Hoge()");
+		}
+
+		~Hoge()
+		{
+			SI_PRINT("~Hoge()");
+		}
 	};
 	
 	struct Test2
@@ -440,6 +472,21 @@ namespace SI
 	{
 		if(m_fbxManager) return;
 		
+		BBB::Test test;
+		test.intHoge = 3;
+		test.doubleHoge = 3.5;
+
+		SI::Serializer serializer;
+		serializer.Initialize();
+		serializer.Serialize("serialize_test.json", test);
+
+
+		SI::Deserializer desrializer;
+		desrializer.Initialize();
+		BBB::Test* des = desrializer.Deserialize<BBB::Test>("serialize_test.json");
+
+		SI_PRINT("");
+
 #if 0
 		int intOrg = 12;
 		

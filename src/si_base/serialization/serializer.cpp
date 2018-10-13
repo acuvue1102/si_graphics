@@ -250,6 +250,7 @@ namespace SI
 			m_typeTable.insert( std::make_pair("SI::Vquat",     nullptr) );
 			m_typeTable.insert( std::make_pair("SI::Vfloat3",   nullptr) );
 			m_typeTable.insert( std::make_pair("SI::Vfloat4",   nullptr) );
+			m_typeTable.insert( std::make_pair("SI::Vfloat3x3", nullptr) );
 			m_typeTable.insert( std::make_pair("SI::Vfloat4x3", nullptr) );
 			m_typeTable.insert( std::make_pair("SI::Vfloat4x4", nullptr) );
 		}
@@ -272,11 +273,11 @@ namespace SI
 					{
 						picojson::array picoData;
 						if(!SerializeData(picoData, buffer, reflection)) return false;
-
-						PicojsonInsert(picoObject, "dataType", picojson::value(reflection.GetName()));
-						PicojsonInsert(picoObject, "data", picojson::value(picoData));
+						
+						PicojsonInsert(picoObject, reflection.GetName(), picojson::value(picoData));
 					}
 				
+					PicojsonInsert(picoRoot, "version", picojson::value("0.1"));
 					PicojsonInsert(picoRoot, "typeTable", picojson::value(picoTypes));
 					PicojsonInsert(picoRoot, "object", picojson::value(picoObject));
 				}
@@ -347,7 +348,8 @@ namespace SI
 			picojson::array& picoData,
 			const void* offsetedBuffer,
 			const ReflectionType& reflection,
-			uint32_t pointerCount)
+			uint32_t pointerCount,
+			bool inArray = false)
 		{
 			Hash64 typeNameHash = reflection.GetNameHash();
 
@@ -467,6 +469,12 @@ namespace SI
 				SI::Vfloat4 memberData = *(const SI::Vfloat4*)offsetedBuffer;
 				picoData.push_back(ToPicojsonValue(memberData));
 			}
+			else if(typeNameHash == GetHash64S("SI::Vfloat3x3"))
+			{
+				SI_ASSERT(strcmp(reflection.GetName(), "SI::Vfloat3x3") == 0);
+				SI::Vfloat3x3 memberData = *(const SI::Vfloat3x3*)offsetedBuffer;
+				picoData.push_back(ToPicojsonValue(memberData));
+			}
 			else if(typeNameHash == GetHash64S("SI::Vfloat4x3"))
 			{
 				SI_ASSERT(strcmp(reflection.GetName(), "SI::Vfloat4x3") == 0);
@@ -479,11 +487,20 @@ namespace SI
 				SI::Vfloat4x4 memberData = *(const SI::Vfloat4x4*)offsetedBuffer;
 				picoData.push_back(ToPicojsonValue(memberData));
 			}
-			else
+			else if(inArray)
 			{
+				// 配列の1要素の場合、型指定しない.
 				picojson::array picoMemberArray;
 				SerializeData(picoMemberArray, offsetedBuffer, reflection);
 				picoData.push_back(picojson::value(picoMemberArray));
+			}
+			else
+			{
+				picojson::object picoMember;
+				picojson::array picoMemberArray;
+				SerializeData(picoMemberArray, offsetedBuffer, reflection);
+				picoMember.insert( std::make_pair(reflection.GetName(), picoMemberArray) );
+				picoData.push_back(picojson::value(picoMember));
 			}
 
 			return true;
@@ -549,7 +566,7 @@ namespace SI
 				for(uint32_t a=0; a<arrayCount; ++a)
 				{
 					const void* arrayItemPtr = (const void*)(((const uint8_t*)arrayPtr) + a*arrayItemOffset);
-					SerializeDataByType(picoMemberArray, arrayItemPtr, arrayItemReflection, arrayItemPointerCount);
+					SerializeDataByType(picoMemberArray, arrayItemPtr, arrayItemReflection, arrayItemPointerCount, true);
 				}
 				picoData.push_back(picojson::value(picoMemberArray));
 
@@ -570,15 +587,17 @@ namespace SI
 				
 				if(0<arrayCount)
 				{
+					picojson::object picoMemberObject;
 					picojson::array picoMemberArray;
 					size_t typeSize = memberReflection.GetSize();
 
 					for(uint32_t a=0; a<arrayCount; ++a)
 					{
 						const void* arrayOffsetedBuffer = (const int8_t*)memberBuffer + a * typeSize;
-						SerializeDataByType(picoMemberArray, arrayOffsetedBuffer, memberReflection, pointerCount);
+						SerializeDataByType(picoMemberArray, arrayOffsetedBuffer, memberReflection, pointerCount, true);
 					}
-					picoData.push_back(picojson::value(picoMemberArray));
+					picoMemberObject.insert( std::make_pair(std::string("@")+memberReflection.GetName(), picojson::value(picoMemberArray)) );
+					picoData.push_back(picojson::value(picoMemberObject));
 				}
 				else
 				{

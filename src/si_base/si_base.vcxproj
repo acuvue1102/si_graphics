@@ -130,6 +130,7 @@
     <ClCompile Include="renderer\model_writer.cpp" />
     <ClCompile Include="renderer\node.cpp" />
     <ClCompile Include="renderer\sub_mesh.cpp" />
+    <ClCompile Include="serialization\deserializer.cpp" />
     <ClCompile Include="serialization\reflection.cpp" />
     <ClCompile Include="serialization\serializer.cpp" />
   </ItemGroup>
@@ -243,6 +244,7 @@
     <ClInclude Include="renderer\renderer_common.h" />
     <ClInclude Include="renderer\renderer_enum.h" />
     <ClInclude Include="renderer\sub_mesh.h" />
+    <ClInclude Include="serialization\deserializer.h" />
     <ClInclude Include="serialization\reflection.h" />
     <ClInclude Include="serialization\serializer.h" />
   </ItemGroup>

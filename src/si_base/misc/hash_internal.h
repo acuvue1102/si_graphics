@@ -287,7 +287,7 @@ namespace SI
 	}
 
 	// c++17じゃないとビルド通らないと思われる.
-	inline constexpr Hash32 StaticMurmur2AHash32(const void* buffer, size_t bufferSizeInByte, uint32_t seed = kDefaultHashSeed32)
+	inline constexpr Hash32 StaticMurmur2AHash32(const char* buffer, size_t bufferSizeInByte, uint32_t seed = kDefaultHashSeed32)
 	{
 		// const uint8_t*を使うとコンパイルが通らないので、const char*経由で処理している.
 		Hash32 hash = seed;
@@ -333,7 +333,7 @@ namespace SI
 	}
 	
 	// c++17じゃないとビルド通らないと思われる.
-	inline constexpr Hash64 StaticMurmur2AHash64(const void* buffer, size_t bufferSizeInByte, uint64_t seed = kDefaultHashSeed64)
+	inline constexpr Hash64 StaticMurmur2AHash64(const char* buffer, size_t bufferSizeInByte, uint64_t seed = kDefaultHashSeed64)
 	{
 		// const uint8_t*を使うとコンパイルが通らないので、const char*経由で処理している.
 		
@@ -609,12 +609,12 @@ namespace SI
 		return Murmur2AHash64(buffer, bufferSizeInByte, seed);
 	}
 
-	inline constexpr Hash32 StaticInternalHash32(const void* buffer, size_t bufferSizeInByte, uint32_t seed = kDefaultHashSeed32)
+	inline constexpr Hash32 StaticInternalHash32(const char* buffer, size_t bufferSizeInByte, uint32_t seed = kDefaultHashSeed32)
 	{
 		return StaticMurmur2AHash32(buffer, bufferSizeInByte, seed);
 	}
 	
-	inline constexpr Hash64 StaticInternalHash64(const void* buffer, size_t bufferSizeInByte, uint64_t seed = kDefaultHashSeed64)
+	inline constexpr Hash64 StaticInternalHash64(const char* buffer, size_t bufferSizeInByte, uint64_t seed = kDefaultHashSeed64)
 	{
 		return StaticMurmur2AHash64(buffer, bufferSizeInByte, seed);
 	}

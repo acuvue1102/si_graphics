@@ -23,7 +23,7 @@ namespace SI
 		}
 
 	private:
-		void SerializeRoot(const char* path, const void* buffer, const ReflectionType& reflection);
+		void  SerializeRoot(const char* path, const void* buffer, const ReflectionType& reflection);
 
 	private:
 		SerializerImpl* m_impl;

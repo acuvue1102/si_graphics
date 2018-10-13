@@ -17,7 +17,7 @@ namespace SI
 	}
 	
 	// 文字列のハッシュ.
-	inline Hash32 GetHash32(const char*& str, uint32_t seed = kDefaultHashSeed32)
+	inline Hash32 GetHash32(const char* const& str, uint32_t seed = kDefaultHashSeed32)
 	{
 		SI_ASSERT(str);
 		return InternalHash32(str, strlen(str), seed);
@@ -38,7 +38,7 @@ namespace SI
 	}
 	
 	// 文字列のハッシュ.
-	inline Hash64 GetHash64(const char*& str, uint64_t seed = kDefaultHashSeed64)
+	inline Hash64 GetHash64(const char* const& str, uint64_t seed = kDefaultHashSeed64)
 	{
 		SI_ASSERT(str);
 		return InternalHash64(str, strlen(str), seed);
@@ -52,13 +52,6 @@ namespace SI
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////
-
-	// 普通の型のハッシュ. コンパイル時解決.
-	template<typename T>
-	inline constexpr Hash32 GetHash32S(const T& value, uint32_t seed = kDefaultHashSeed32)
-	{
-		return StaticInternalHash32(&value, sizeof(T), seed);
-	}
 	
 	// 定数文字列のハッシュ. コンパイル時解決.
 	template<size_t SIZE>
@@ -71,7 +64,16 @@ namespace SI
 	template<size_t SIZE>
 	inline constexpr Hash64 GetHash64S(const char (&str)[SIZE], uint64_t seed = kDefaultHashSeed64)
 	{
-		return StaticInternalHash64(static_cast<const void*>(str), SIZE-1, seed);
+		return StaticInternalHash64(str, SIZE-1, seed);
+	}
+
+#if 0 // ポインタのキャストが出来ないのでconstexprで実装できない.
+
+	// 普通の型のハッシュ. コンパイル時解決.
+	template<typename T>
+	inline constexpr Hash32 GetHash32S(const T& value, uint32_t seed = kDefaultHashSeed32)
+	{
+		return StaticInternalHash32(&value, sizeof(T), seed);
 	}
 
 	// 普通の型のハッシュ. コンパイル時解決.
@@ -80,6 +82,7 @@ namespace SI
 	{
 		return StaticInternalHash64(&value, sizeof(T), seed);
 	}
+#endif
 
 	////////////////////////////////////////////////////////////////////////////////////
 
