@@ -359,7 +359,7 @@ namespace SI
 				if(pointerCount==1 && typeNameHash == GetHash64S("char"))
 				{
 					SI_ASSERT(strcmp(reflection.GetName(), "char") == 0);
-					const char* str = (const char*)offsetedBuffer;
+					const char* str = *(const char**)offsetedBuffer;
 					picoData.push_back(picojson::value(str));
 				}
 				else
@@ -562,13 +562,11 @@ namespace SI
 					return true;
 				}
 
-				picojson::array picoMemberArray;
 				for(uint32_t a=0; a<arrayCount; ++a)
 				{
 					const void* arrayItemPtr = (const void*)(((const uint8_t*)arrayPtr) + a*arrayItemOffset);
-					SerializeDataByType(picoMemberArray, arrayItemPtr, arrayItemReflection, arrayItemPointerCount, true);
+					SerializeDataByType(picoData, arrayItemPtr, arrayItemReflection, arrayItemPointerCount, true);
 				}
-				picoData.push_back(picojson::value(picoMemberArray));
 
 				return true;
 			}

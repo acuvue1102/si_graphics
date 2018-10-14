@@ -176,6 +176,11 @@ namespace SI
 			return nullptr;
 		}
 
+		virtual uint32_t GetTemplateArgPointerCount() const
+		{
+			return 0;
+		}
+
 		virtual void Constructor(void* addr) const
 		{
 			memset(addr, 0, m_size);
@@ -202,8 +207,10 @@ namespace SI
 	template<typename T> struct NameIdentifer{ /*static const char* GetTypeName(){ return "unknown"; }*/ };
 
 	#define SI_NAME_IDENTIFER(type)\
-		template<> struct SI::NameIdentifer<type>{ static const char* GetTypeName(){ return #type; } };\
-		template<> struct SI::NameIdentifer<type*>{ static const char* GetTypeName(){ return #type; } };
+		template<> struct SI::NameIdentifer<type>       { static const char* GetTypeName(){ return #type; } };\
+		template<> struct SI::NameIdentifer<const type> { static const char* GetTypeName(){ return #type; } };\
+		template<> struct SI::NameIdentifer<type*>      { static const char* GetTypeName(){ return #type; } };\
+		template<> struct SI::NameIdentifer<const type*>{ static const char* GetTypeName(){ return #type; } };
 	
 	// charだけはsinged/unsigned未定義なので、int8_t/uint8_tとは異なる型.
 	SI_NAME_IDENTIFER(char)
@@ -413,11 +420,13 @@ namespace SI
 			const char* typeName,
 			const char* templateTypeName,
 			const ReflectionType&  templateArgType,
+			uint32_t templateArgPointerCount,
 			std::array<const ReflectionMember, MEMBER_COUNT> members)
 			: ReflectionUserType<T, MEMBER_COUNT>(typeName, members)
 			, m_templateTypeName(templateTypeName)
 			, m_templateTypeNameHash(GetHash64(templateTypeName))
 			, m_templateArgType(templateArgType)
+			, m_templateArgPointerCount(templateArgPointerCount)
 		{
 		}
 
@@ -436,10 +445,16 @@ namespace SI
 			return &m_templateArgType;
 		}
 
+		virtual uint32_t GetTemplateArgPointerCount() const override
+		{
+			return m_templateArgPointerCount;
+		}
+
 	protected:
 		const char*            m_templateTypeName;
 		Hash64                 m_templateTypeNameHash;
 		const ReflectionType&  m_templateArgType;
+		uint32_t               m_templateArgPointerCount;
 	};
 	
 	template<typename T>
@@ -579,6 +594,7 @@ namespace SI
 				GetTypeName(),\
 				#templateType,\
 				SI::GetReflectionType<templateArgType>(0),\
+				SI::GetPointerCount<templateArgType>(0u),\
 				{\
 					__VA_ARGS__\
 				} );\
