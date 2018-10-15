@@ -1,0 +1,22 @@
+﻿{
+	"object":{
+		"SerializationTest::Test0":[3,4]
+	},
+	"typeTable":{
+		"SerializationTest::Test0":[
+			{
+				"arrayCount":0,
+				"name":"intHoge",
+				"pointerCount":0,
+				"type":"int32_t"
+			},
+			{
+				"arrayCount":0,
+				"name":"doubleHoge",
+				"pointerCount":0,
+				"type":"double"
+			}
+		]
+	},
+	"version":"0.1"
+}

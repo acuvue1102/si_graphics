@@ -14,6 +14,10 @@
 #define ENABLE_SERIALIZATION_TEST2 1
 #define ENABLE_SERIALIZATION_TEST3 1
 #define ENABLE_SERIALIZATION_TEST4 1
+#define ENABLE_SERIALIZATION_TEST5 1
+	// 変更前の状態.
+	#define BEFORE_SERIALIZATION_TEST5  0
+
 #endif
 
 namespace SerializationTest
@@ -26,6 +30,8 @@ namespace SerializationTest
 		double doubleHoge;
 
 		Test0()
+			: intHoge(44)
+			, doubleHoge(45.0)
 		{
 			++s_count;
 		}
@@ -161,12 +167,13 @@ namespace SerializationTest
 			SI_REFLECTION_MEMBER(charArrayHoge),
 			SI_REFLECTION_MEMBER(test0ArrayHoge))
 	};
-
 	
 	struct Test4
 	{
 		const char*      strHoge;
 		int              intArrayHoge[4];
+		Test0            test0Array[4];
+		char             charArray[8];
 
 		Test4()
 			: strHoge(nullptr)
@@ -176,9 +183,17 @@ namespace SerializationTest
 		bool operator==(const Test4& b) const
 		{
 			if(strcmp(strHoge, b.strHoge) != 0) return false;
-			for(int i=0; i<4; ++i)
+			for(size_t i=0; i<SI::ArraySize(intArrayHoge); ++i)
 			{
 				if(intArrayHoge[i] != b.intArrayHoge[i]) return false;
+			}
+			for(size_t i=0; i<SI::ArraySize(test0Array); ++i)
+			{
+				if(test0Array[i] != b.test0Array[i]) return false;
+			}
+			for(size_t i=0; i<SI::ArraySize(charArray); ++i)
+			{
+				if(charArray[i] != b.charArray[i]) return false;
 			}
 
 			return true;
@@ -192,7 +207,151 @@ namespace SerializationTest
 		SI_REFLECTION(
 			SerializationTest::Test4,
 			SI_REFLECTION_MEMBER(strHoge),
-			SI_REFLECTION_MEMBER_ARRAY(intArrayHoge))
+			SI_REFLECTION_MEMBER_ARRAY(intArrayHoge),
+			SI_REFLECTION_MEMBER_ARRAY(test0Array),
+			SI_REFLECTION_MEMBER_ARRAY(charArray))
+	};
+	
+	
+	struct Test5Child
+	{
+		int    intHoge;
+#if BEFORE_SERIALIZATION_TEST5
+		Test0  test0Hoge;
+#endif
+		double doubleHoge;
+#if !BEFORE_SERIALIZATION_TEST5
+		uint64_t uint64Hoge;
+#endif
+
+		Test5Child()
+		{
+			intHoge = 1;
+			doubleHoge = 1.1;
+#if !BEFORE_SERIALIZATION_TEST5
+			uint64Hoge = 2;
+#endif
+		}
+
+		~Test5Child()
+		{
+		}
+
+		bool operator==(const Test5Child& b) const
+		{
+			if(intHoge != b.intHoge) return false;
+#if BEFORE_SERIALIZATION_TEST5
+			if(test0Hoge != b.test0Hoge) return false;
+#endif
+			if(doubleHoge != b.doubleHoge) return false;
+#if !BEFORE_SERIALIZATION_TEST5
+			if(uint64Hoge != b.uint64Hoge) return false;
+#endif
+
+			return true;
+		}
+
+		bool operator!=(const Test5Child& b) const
+		{
+			return !((*this) == b);
+		}
+
+#if BEFORE_SERIALIZATION_TEST5
+		SI_REFLECTION(
+			SerializationTest::Test5Child,
+			SI_REFLECTION_MEMBER(intHoge),
+			SI_REFLECTION_MEMBER(test0Hoge),
+			SI_REFLECTION_MEMBER(doubleHoge))
+#else
+		SI_REFLECTION(
+			SerializationTest::Test5Child,
+			SI_REFLECTION_MEMBER(intHoge),
+			SI_REFLECTION_MEMBER(doubleHoge),
+			SI_REFLECTION_MEMBER(uint64Hoge))
+#endif
+	};
+
+	struct Test5
+	{
+#if BEFORE_SERIALIZATION_TEST5
+		const char*      strHoge;
+		int              intArrayHoge[4];
+		Test5Child       test5ChildArray[4];
+		uint64_t         uint64Hoge;
+		char             charArray[8];
+#else
+		const char*      strHoge;
+		uint16_t         uint16Hoge;
+		int              intArrayHoge[8];
+		Test5Child       test5ChildArray[5];
+		char             charArray[2];
+#endif
+
+		Test5()
+			: strHoge(nullptr)
+		{
+			for(size_t i=0; i<SI::ArraySize(intArrayHoge); ++i)
+			{
+				intArrayHoge[i] = 0;
+			}
+			for(size_t i=0; i<SI::ArraySize(charArray); ++i)
+			{
+				charArray[i] = 0;
+			}
+			
+#if BEFORE_SERIALIZATION_TEST5
+			uint64Hoge = 8;
+#else
+			uint16Hoge = 33;
+#endif
+		}
+		
+		bool operator==(const Test5& b) const
+		{
+			if(strcmp(strHoge, b.strHoge) != 0) return false;
+			for(size_t i=0; i<SI::ArraySize(intArrayHoge); ++i)
+			{
+				if(intArrayHoge[i] != b.intArrayHoge[i]) return false;
+			}
+			for(size_t i=0; i<SI::ArraySize(test5ChildArray); ++i)
+			{
+				if(test5ChildArray[i] != b.test5ChildArray[i]) return false;
+			}
+			for(size_t i=0; i<SI::ArraySize(charArray); ++i)
+			{
+				if(charArray[i] != b.charArray[i]) return false;
+			}
+			
+#if BEFORE_SERIALIZATION_TEST5
+			if(uint64Hoge != b.uint64Hoge) return false;
+#else
+			if(uint16Hoge != b.uint16Hoge) return false;
+#endif
+			return true;
+		}
+
+		bool operator!=(const Test5& b) const
+		{
+			return !((*this) == b);
+		}
+		
+#if BEFORE_SERIALIZATION_TEST5
+		SI_REFLECTION(
+			SerializationTest::Test5,
+			SI_REFLECTION_MEMBER(strHoge),
+			SI_REFLECTION_MEMBER_ARRAY(intArrayHoge),
+			SI_REFLECTION_MEMBER_ARRAY(test5ChildArray),
+			SI_REFLECTION_MEMBER(uint64Hoge),
+			SI_REFLECTION_MEMBER_ARRAY(charArray))
+#else
+		SI_REFLECTION(
+			SerializationTest::Test5,
+			SI_REFLECTION_MEMBER(strHoge),
+			SI_REFLECTION_MEMBER(uint16Hoge),
+			SI_REFLECTION_MEMBER_ARRAY(intArrayHoge),
+			SI_REFLECTION_MEMBER_ARRAY(test5ChildArray),
+			SI_REFLECTION_MEMBER_ARRAY(charArray))
+#endif
 	};
 }
 
@@ -205,14 +364,14 @@ TEST(Serialization, Serialization0)
 	
 	SI::Serializer serializer;
 	serializer.Initialize();
-	serializer.Serialize("test0.json", src);
+	serializer.Serialize("asset\\test0.json", src);
 	serializer.Terminate();
 
 	SI::Deserializer deserializer;
 	deserializer.Initialize();
 
 	SI::DeserializedObject obj;
-	bool ret = deserializer.Deserialize<SerializationTest::Test0>(obj, "test0.json");
+	bool ret = deserializer.Deserialize<SerializationTest::Test0>(obj, "asset\\test0.json");
 	EXPECT_EQ(ret, true);
 
 	const SerializationTest::Test0& dst = *obj.Get<SerializationTest::Test0>();
@@ -233,14 +392,14 @@ TEST(Serialization, Serialization1)
 	
 	SI::Serializer serializer;
 	serializer.Initialize();
-	serializer.Serialize("test1.json", src);
+	serializer.Serialize("asset\\test1.json", src);
 	serializer.Terminate();
 
 	SI::Deserializer deserializer;
 	deserializer.Initialize();
 
 	SI::DeserializedObject obj;
-	bool ret = deserializer.Deserialize<SerializationTest::Test1>(obj, "test1.json");
+	bool ret = deserializer.Deserialize<SerializationTest::Test1>(obj, "asset\\test1.json");
 	EXPECT_EQ(ret, true);
 
 	const SerializationTest::Test1& dst = *obj.Get<SerializationTest::Test1>();
@@ -265,14 +424,14 @@ TEST(Serialization, Serialization2)
 	
 	SI::Serializer serializer;
 	serializer.Initialize();
-	serializer.Serialize("test2.json", src);
+	serializer.Serialize("asset\\test2.json", src);
 	serializer.Terminate();
 
 	SI::Deserializer deserializer;
 	deserializer.Initialize();
 
 	SI::DeserializedObject obj;
-	bool ret = deserializer.Deserialize<SerializationTest::Test2>(obj, "test2.json");
+	bool ret = deserializer.Deserialize<SerializationTest::Test2>(obj, "asset\\test2.json");
 	EXPECT_EQ(ret, true);
 
 	const SerializationTest::Test2& dst = *obj.Get<SerializationTest::Test2>();
@@ -303,7 +462,7 @@ TEST(Serialization, Serialization3)
 		
 	SI::Serializer serializer;
 	serializer.Initialize();
-	serializer.Serialize("test3.json", src);
+	serializer.Serialize("asset\\test3.json", src);
 	serializer.Terminate();
 	
 	// 現時点でのconstructorとdestructorの数を調べる.
@@ -313,7 +472,7 @@ TEST(Serialization, Serialization3)
 	deserializer.Initialize();
 
 	SI::DeserializedObject obj;
-	bool ret = deserializer.Deserialize<SerializationTest::Test3>(obj, "test3.json");
+	bool ret = deserializer.Deserialize<SerializationTest::Test3>(obj, "asset\\test3.json");
 	EXPECT_EQ(ret, true);
 
 	const SerializationTest::Test3& dst = *obj.Get<SerializationTest::Test3>();
@@ -338,17 +497,26 @@ TEST(Serialization, Serialization4)
 	{
 		src.intArrayHoge[i] = (int)(i*i);
 	}
+	for(size_t i=0; i<SI::ArraySize(src.test0Array); ++i)
+	{
+		src.test0Array[i].intHoge    = (int)(i*i*i);
+		src.test0Array[i].doubleHoge = - (double)(i*i*i) * 0.1;
+	}
+	for(size_t i=0; i<SI::ArraySize(src.charArray); ++i)
+	{
+		src.charArray[i] = '0' + (char)i;
+	}
 		
 	SI::Serializer serializer;
 	serializer.Initialize();
-	serializer.Serialize("test4.json", src);
+	serializer.Serialize("asset\\test4.json", src);
 	serializer.Terminate();
 
 	SI::Deserializer deserializer;
 	deserializer.Initialize();
 
 	SI::DeserializedObject obj;
-	bool ret = deserializer.Deserialize<SerializationTest::Test4>(obj, "test4.json");
+	bool ret = deserializer.Deserialize<SerializationTest::Test4>(obj, "asset\\test4.json");
 	EXPECT_EQ(ret, true);
 
 	const SerializationTest::Test4& dst = *obj.Get<SerializationTest::Test4>();
@@ -357,3 +525,61 @@ TEST(Serialization, Serialization4)
 	EXPECT_EQ(src, dst);
 }
 #endif
+
+
+
+#if ENABLE_SERIALIZATION_TEST5
+// パラメータが途中で変わっても、互換性を保てるかテスト.
+TEST(Serialization, Serialization5)
+{
+#if BEFORE_SERIALIZATION_TEST5
+	SerializationTest::Test5 src;
+	src.strHoge = "fugafuga";
+	for(size_t i=0; i<SI::ArraySize(src.intArrayHoge); ++i)
+	{
+		src.intArrayHoge[i] = (int)(i*i);
+	}
+	for(size_t i=0; i<SI::ArraySize(src.test5ChildArray); ++i)
+	{
+		src.test5ChildArray[i].intHoge              = (int)(i*i*i);
+		src.test5ChildArray[i].test0Hoge.intHoge    = 2*(int)(i*i*i);
+		src.test5ChildArray[i].test0Hoge.doubleHoge = - (double)(i*i*i) * 0.01;
+		src.test5ChildArray[i].doubleHoge           = - (double)(i*i*i) * 0.1;
+	}
+	for(size_t i=0; i<SI::ArraySize(src.charArray); ++i)
+	{
+		src.charArray[i] = '0' + (char)i;
+	}
+		
+	SI::Serializer serializer;
+	serializer.Initialize();
+	serializer.Serialize("asset\\test5.json", src);
+	serializer.Terminate();
+
+#else
+
+	SI::Deserializer deserializer;
+	deserializer.Initialize();
+
+	SI::DeserializedObject obj;
+	bool ret = deserializer.Deserialize<SerializationTest::Test5>(obj, "asset\\test5.json");
+	EXPECT_EQ(ret, true);
+
+	const SerializationTest::Test5& dst = *obj.Get<SerializationTest::Test5>();
+	deserializer.Terminate();
+	
+	EXPECT_EQ(dst.uint16Hoge, 33);
+	for(size_t i=0; i<4; ++i)
+	{
+		EXPECT_EQ( dst.test5ChildArray[i].intHoge              , (int)(i*i*i));
+		EXPECT_EQ( dst.test5ChildArray[i].doubleHoge           , - (double)(i*i*i) * 0.1);
+		EXPECT_EQ( dst.test5ChildArray[i].uint64Hoge, 2);
+	}
+	EXPECT_EQ( dst.test5ChildArray[4].intHoge, 1);
+	EXPECT_EQ( dst.test5ChildArray[4].doubleHoge, 1.1);
+	EXPECT_EQ( dst.test5ChildArray[4].uint64Hoge, 2);
+	
+#endif
+}
+#endif
+

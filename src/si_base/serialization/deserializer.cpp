@@ -288,7 +288,8 @@ namespace SI
 			void* buffer,
 			const picojson::value& picoValue,
 			const ReflectionType& reflection,
-			uint32_t pointerCount)
+			uint32_t pointerCount,
+			bool inArray)
 		{
 			Hash64 typeNameHash = reflection.GetNameHash();
 			
@@ -324,7 +325,8 @@ namespace SI
 						pointerBuffer,
 						picoValue,
 						reflection,
-						pointerCount-1);
+						pointerCount-1,
+						inArray);
 				}
 				else
 				{
@@ -338,7 +340,8 @@ namespace SI
 						pointerBuffer,
 						picoValue,
 						reflection,
-						pointerCount-1);
+						pointerCount-1,
+						inArray);
 				}
 			}
 			if(typeNameHash == GetHash64S("int8_t"))
@@ -512,6 +515,11 @@ namespace SI
 					}
 				}
 			}
+			else if(inArray)
+			{
+				const picojson::array& picoMemberArray = picoValue.get<picojson::array>();
+				DeserializeObject(outDeserializedObject, buffer, picoMemberArray, reflection);
+			}
 			else
 			{
 				const picojson::object picoObject = picoValue.get<picojson::object>();
@@ -609,7 +617,8 @@ namespace SI
 							arrayItemBuffer,
 							picoArray[a],
 							member->GetType(),
-							member->GetPointerCount());
+							member->GetPointerCount(),
+							true);
 					}
 				}
 				else
@@ -619,7 +628,8 @@ namespace SI
 						memberBuffer,
 						picoValue,
 						member->GetType(),
-						member->GetPointerCount());
+						member->GetPointerCount(),
+						false);
 				}
 			}
 
