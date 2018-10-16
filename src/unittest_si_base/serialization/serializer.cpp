@@ -17,6 +17,7 @@
 #define ENABLE_SERIALIZATION_TEST5 1
 	// 変更前の状態.
 	#define BEFORE_SERIALIZATION_TEST5  0
+#define ENABLE_SERIALIZATION_TEST6 1
 
 #endif
 
@@ -210,8 +211,7 @@ namespace SerializationTest
 			SI_REFLECTION_MEMBER_ARRAY(intArrayHoge),
 			SI_REFLECTION_MEMBER_ARRAY(test0Array),
 			SI_REFLECTION_MEMBER_ARRAY(charArray))
-	};
-	
+	};	
 	
 	struct Test5Child
 	{
@@ -352,6 +352,113 @@ namespace SerializationTest
 			SI_REFLECTION_MEMBER_ARRAY(test5ChildArray),
 			SI_REFLECTION_MEMBER_ARRAY(charArray))
 #endif
+	};
+
+
+	
+	struct Test6Child0
+	{
+		int intHoge;
+		SI::Array<uint8_t>     m_uint8Array;
+		SI::Array<SI::Vfloat3> m_vfloat3Array;
+
+		bool operator==(const Test6Child0& b) const
+		{
+			if(intHoge != b.intHoge)
+			{
+				return false;
+			}
+			if(m_uint8Array.GetItemCount() != b.m_uint8Array.GetItemCount()) return false;
+			for(uint32_t i=0; i<m_uint8Array.GetItemCount(); ++i)
+			{
+				if(m_uint8Array[i] != b.m_uint8Array[i])
+				{
+					return false;
+				}
+			}
+			
+			if(m_vfloat3Array.GetItemCount() != b.m_vfloat3Array.GetItemCount()) return false;
+			for(uint32_t i=0; i<m_vfloat3Array.GetItemCount(); ++i)
+			{
+				if(m_vfloat3Array[i] != b.m_vfloat3Array[i])
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		bool operator!=(const Test6Child0& b) const
+		{
+			return !((*this) == b);
+		}
+		
+		SI_REFLECTION(
+			SerializationTest::Test6Child0,
+			SI_REFLECTION_MEMBER(intHoge),
+			SI_REFLECTION_MEMBER(m_uint8Array),
+			SI_REFLECTION_MEMBER(m_vfloat3Array))
+	};
+	
+	struct Test6Child1
+	{
+		SI::Array<Test6Child0> m_child0Array;
+		
+		bool operator==(const Test6Child1& b) const
+		{
+			if(m_child0Array.GetItemCount() != b.m_child0Array.GetItemCount()) return false;
+			for(uint32_t i=0; i<m_child0Array.GetItemCount(); ++i)
+			{
+				if(m_child0Array[i] != b.m_child0Array[i])
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		bool operator!=(const Test6Child1& b) const
+		{
+			return !((*this) == b);
+		}
+
+		SI_REFLECTION(
+			SerializationTest::Test6Child1,
+			SI_REFLECTION_MEMBER(m_child0Array))
+	};
+	
+	struct Test6
+	{
+		SI::Array<Test6Child1> m_child1Array;
+
+		Test6()
+		{
+		}
+		
+		bool operator==(const Test6& b) const
+		{
+			if(m_child1Array.GetItemCount() != b.m_child1Array.GetItemCount()) return false;
+			for(uint32_t i=0; i<m_child1Array.GetItemCount(); ++i)
+			{
+				if(m_child1Array[i] != b.m_child1Array[i])
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		bool operator!=(const Test6& b) const
+		{
+			return !((*this) == b);
+		}
+
+		SI_REFLECTION(
+			SerializationTest::Test6,
+			SI_REFLECTION_MEMBER(m_child1Array))
 	};
 }
 
@@ -526,8 +633,6 @@ TEST(Serialization, Serialization4)
 }
 #endif
 
-
-
 #if ENABLE_SERIALIZATION_TEST5
 // パラメータが途中で変わっても、互換性を保てるかテスト.
 TEST(Serialization, Serialization5)
@@ -583,3 +688,64 @@ TEST(Serialization, Serialization5)
 }
 #endif
 
+
+#if ENABLE_SERIALIZATION_TEST6
+TEST(Serialization, Serialization6)
+{
+	SerializationTest::Test6 src;
+	src.m_child1Array.Setup(new SerializationTest::Test6Child1[2], 2);
+	for(uint32_t i=0; i<src.m_child1Array.GetItemCount(); ++i)
+	{
+		src.m_child1Array.GetItem(i).m_child0Array.Setup( new SerializationTest::Test6Child0[2], 2);
+
+		for(uint32_t j=0; j<src.m_child1Array.GetItem(i).m_child0Array.GetItemCount(); ++j)
+		{
+			src.m_child1Array.GetItem(i).m_child0Array.GetItem(j).intHoge = 100 * i + j;
+			src.m_child1Array.GetItem(i).m_child0Array.GetItem(j).m_uint8Array.Setup( new uint8_t[4], 4);
+			for(uint32_t k=0; k<src.m_child1Array.GetItem(i).m_child0Array.GetItem(j).m_uint8Array.GetItemCount(); ++k)
+			{
+				src.m_child1Array.GetItem(i).m_child0Array.GetItem(j).m_uint8Array.GetItem(k) = k;
+			}
+			
+			src.m_child1Array.GetItem(i).m_child0Array.GetItem(j).m_vfloat3Array.Setup( new SI::Vfloat3[3], 3);
+			for(uint32_t k=0; k<src.m_child1Array.GetItem(i).m_child0Array.GetItem(j).m_vfloat3Array.GetItemCount(); ++k)
+			{
+				src.m_child1Array.GetItem(i).m_child0Array.GetItem(j).m_vfloat3Array.GetItem(k) = SI::Vfloat3((float)k, (float)k+0.1f, (float)k+0.2f);
+			}
+		}
+	}
+
+	SI::Serializer serializer;
+	serializer.Initialize();
+	serializer.Serialize("asset\\test6.json", src);
+	serializer.Terminate();
+
+	SI::Deserializer deserializer;
+	deserializer.Initialize();
+
+	SI::DeserializedObject obj;
+	bool ret = deserializer.Deserialize<SerializationTest::Test6>(obj, "asset\\test6.json");
+	EXPECT_EQ(ret, true);
+
+	const SerializationTest::Test6& dst = *obj.Get<SerializationTest::Test6>();
+	deserializer.Terminate();
+
+	EXPECT_EQ(src, dst);
+	
+	for(uint32_t i=0; i<src.m_child1Array.GetItemCount(); ++i)
+	{
+		for(uint32_t j=0; j<src.m_child1Array.GetItem(i).m_child0Array.GetItemCount(); ++j)
+		{
+			delete[] src.m_child1Array.GetItem(i).m_child0Array.GetItem(j).m_uint8Array.GetItemsAddr();
+			src.m_child1Array.GetItem(i).m_child0Array.GetItem(j).m_uint8Array.Reset();
+
+			delete[] src.m_child1Array.GetItem(i).m_child0Array.GetItem(j).m_vfloat3Array.GetItemsAddr();
+			src.m_child1Array.GetItem(i).m_child0Array.GetItem(j).m_vfloat3Array.Reset();
+		}
+		delete[] src.m_child1Array.GetItem(i).m_child0Array.GetItemsAddr();
+		src.m_child1Array.GetItem(i).m_child0Array.Reset();
+	}
+	delete[] src.m_child1Array.GetItemsAddr();
+	src.m_child1Array.Reset();
+}
+#endif

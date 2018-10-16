@@ -338,6 +338,11 @@ namespace SI
 				SerializeType(picoTypes, memberReflection);
 			}
 			
+			if(reflection.GetTemplateName() && reflection.GetTemplateNameHash() == SI::GetHash64S("SI::Array"))
+			{
+				return true; // Arrayタイプは登録しない.
+			}
+
 			picoTypes.insert( std::make_pair(name, picoType) );
 			m_typeTable.insert( std::make_pair(name, &reflection) );
 
@@ -509,7 +514,6 @@ namespace SI
 		bool SerializeData(picojson::array& picoData, const void* buffer, const ReflectionType& reflection)
 		{
 			const char* name = reflection.GetName();
-			SI_ASSERT(m_typeTable.find(std::string(name)) != m_typeTable.end(), "type登録されていない.");
 
 			uint32_t memberCount = reflection.GetMemberCount();
 
@@ -570,6 +574,8 @@ namespace SI
 
 				return true;
 			}
+
+			SI_ASSERT(m_typeTable.find(std::string(name)) != m_typeTable.end(), "type登録されていない.");
 
 			for(uint32_t m=0; m<memberCount; ++m)
 			{

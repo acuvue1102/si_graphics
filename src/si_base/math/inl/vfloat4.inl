@@ -318,6 +318,18 @@ namespace SI
 		*this = *this - v;
 		return (*this);
 	}
+	
+	inline bool Vfloat4::operator==(const Vfloat4& v) const
+	{
+		__m128 cmp = _mm_cmpeq_ps(m_v, v.m_v);
+		uint16_t mask = (uint16_t)_mm_movemask_epi8(_mm_castps_si128(cmp));
+		return (mask == 0xffff);
+	}
+
+	inline bool Vfloat4::operator!=(const Vfloat4& v) const
+	{
+		return !((*this)==v);
+	}
 		
 	inline Vfloat4 Vfloat4::Zero()
 	{

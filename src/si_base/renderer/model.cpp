@@ -369,5 +369,108 @@ namespace SI
 		SI_DELETE_ARRAY(stringPool);
 		m_stringPool.Reset();
 	}
+
+	void Model::ImportFromSerializeData(const ModelSerializeData& modelSerializeData)
+	{
+		m_rootNode.ImportFromSerializeData(modelSerializeData.m_rootNode);
+
+#if 0
+		ConstArray<Node> srcNodes = model.GetNodes();
+		uint32_t nodeCount = srcNodes.GetItemCount();
+		if(0 < nodeCount)
+		{
+			SI_ASSERT(!m_nodes.IsValid());
+			m_nodes.Setup(SI_NEW_ARRAY(NodeSerializeData, nodeCount), nodeCount);
+			for(uint32_t i=0; i<nodeCount; ++i)
+			{
+				m_nodes[i] = srcNodes.GetItem(i).ConvertSerializeData();
+			}
+		}
+
+		ConstArray<NodeCore> srcNodeCores = model.GetNodeCores();
+		uint32_t nodeCoreCount = srcNodeCores.GetItemCount();
+		if(0 < nodeCoreCount)
+		{
+			SI_ASSERT(!m_nodeCores.IsValid());
+			m_nodeCores.Setup(SI_NEW_ARRAY(NodeCoreSerializeData, nodeCoreCount), nodeCoreCount);
+			for(uint32_t i=0; i<nodeCoreCount; ++i)
+			{
+				m_nodeCores[i] = srcNodeCores.GetItem(i).ConvertSerializeData();
+			}
+		}
+		
+		ConstArray<Mesh> srcMeshes = model.GetMeshes();
+		uint32_t meshCount = srcMeshes.GetItemCount();
+		if(0 < meshCount)
+		{
+			SI_ASSERT(!m_meshes.IsValid());
+			m_meshes.Setup(SI_NEW_ARRAY(MeshSerializeData, meshCount), meshCount);
+			for(uint32_t i=0; i<meshCount; ++i)
+			{
+				m_meshes[i] = srcMeshes.GetItem(i).ConvertSerializeData();
+			}
+		}
+		
+		ConstArray<SubMesh> srcSubMeshes = model.GetSubMeshes();
+		uint32_t subMeshCount = srcSubMeshes.GetItemCount();
+		if(0 < subMeshCount)
+		{
+			SI_ASSERT(!m_subMeshes.IsValid());
+			m_subMeshes.Setup(SI_NEW_ARRAY(SubMeshSerializeData, subMeshCount), subMeshCount);
+			for(uint32_t i=0; i<subMeshCount; ++i)
+			{
+				m_subMeshes[i] = srcSubMeshes.GetItem(i).ConvertSerializeData();
+			}
+		}
+		
+		ConstArray<const Material*> srcMaterials = model.GetMaterials();
+		uint32_t materialCount = srcMaterials.GetItemCount();
+		if(0 < materialCount)
+		{
+			SI_ASSERT(!m_materials.IsValid());
+			m_materials.Setup(SI_NEW_ARRAY(MaterialSerializeData, materialCount), materialCount);
+			for(uint32_t i=0; i<materialCount; ++i)
+			{
+				m_materials[i] = srcMaterials.GetItem(i)->ConvertSerializeData();
+			}
+		}
+		
+		ConstArray<const Geometry*> srcGeometies = model.GetGeometries();
+		uint32_t geometryCount = srcGeometies.GetItemCount();
+		if(0 < geometryCount)
+		{
+			SI_ASSERT(!m_geometries.IsValid());
+			m_geometries.Setup(SI_NEW_ARRAY(GeometrySerializeData, geometryCount), geometryCount);
+			for(uint32_t i=0; i<geometryCount; ++i)
+			{
+				m_geometries[i] = srcGeometies.GetItem(i)->ConvertSerializeData();
+			}
+		}
+		
+		ConstArray<SI::LongObjectIndex> srcStrings = model.GetStrings();
+		uint32_t stringCount = srcStrings.GetItemCount();
+		if(0 < stringCount)
+		{
+			SI_ASSERT(!m_strings.IsValid());
+			m_strings.Setup(SI_NEW_ARRAY(SI::LongObjectIndex, stringCount), stringCount);
+			for(uint32_t i=0; i<stringCount; ++i)
+			{
+				m_strings[i] = srcStrings[i];
+			}
+		}
+		
+		ConstArray<char> srcStringPool = model.GetStringPool();
+		uint32_t stringPoolCount = srcStringPool.GetItemCount();
+		if(0 < stringPoolCount)
+		{
+			SI_ASSERT(!m_stringPool.IsValid());
+			m_stringPool.Setup(SI_NEW_ARRAY(char, stringPoolCount), stringPoolCount);
+			for(uint32_t i=0; i<stringPoolCount; ++i)
+			{
+				m_stringPool[i] = srcStringPool[i];
+			}
+		}
+#endif
+	}
 	
 } // namespace SI

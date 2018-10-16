@@ -337,6 +337,9 @@
     <ClInclude Include="serialization\deserializer.h">
       <Filter>serialization</Filter>
     </ClInclude>
+    <ClInclude Include="renderer\model_reader.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -577,6 +580,9 @@
     </ClCompile>
     <ClCompile Include="serialization\deserializer.cpp">
       <Filter>serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\model_reader.cpp">
+      <Filter>renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

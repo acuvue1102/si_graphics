@@ -138,6 +138,16 @@ namespace SI
 			return serializeData;
 		}
 
+		void ImportFromSerializeData(const NodeSerializeData& serializeData)
+		{
+			m_name               = serializeData.m_name;
+			m_children           = serializeData.m_children;         
+			m_current            = serializeData.m_current;          
+			m_parent             = serializeData.m_parent;           
+			m_nodeComponentType  = serializeData.m_nodeComponentType;
+			m_nodeComponent      = serializeData.m_nodeComponent;    
+		}
+
 	private:
 		friend class FbxParser;
 

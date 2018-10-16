@@ -16,34 +16,6 @@
 		]
 	},
 	"typeTable":{
-		"SI::Array<SerializationTest::Test0>":[
-			{
-				"arrayCount":0,
-				"name":"m_items",
-				"pointerCount":1,
-				"type":"SerializationTest::Test0"
-			},
-			{
-				"arrayCount":0,
-				"name":"m_itemCount",
-				"pointerCount":0,
-				"type":"uint32_t"
-			}
-		],
-		"SI::Array<char>":[
-			{
-				"arrayCount":0,
-				"name":"m_items",
-				"pointerCount":1,
-				"type":"char"
-			},
-			{
-				"arrayCount":0,
-				"name":"m_itemCount",
-				"pointerCount":0,
-				"type":"uint32_t"
-			}
-		],
 		"SerializationTest::Test0":[
 			{
 				"arrayCount":0,

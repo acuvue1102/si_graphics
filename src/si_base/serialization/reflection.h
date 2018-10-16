@@ -190,6 +190,11 @@ namespace SI
 		{
 		}
 
+		virtual bool IsUserType() const
+		{
+			return false;
+		}
+
 	protected:
 		const char*           m_typeName;
 		Hash64                m_typeNameHash;
@@ -405,6 +410,12 @@ namespace SI
 		{
 			((T*)addr)->~T();
 		}
+		
+		virtual bool IsUserType() const override
+		{
+			return true;
+		}
+
 	protected:
 		std::array<const ReflectionMember, MEMBER_COUNT> m_members;
 	};

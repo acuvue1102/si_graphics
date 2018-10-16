@@ -129,6 +129,8 @@ namespace SI
 			return std::move(serializeData);
 		}
 
+		void ImportFromSerializeData(const ModelSerializeData& modelSerializeData);
+
 	private:
 		friend class FbxParser;
 

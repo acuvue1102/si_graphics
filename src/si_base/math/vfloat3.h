@@ -77,6 +77,8 @@ namespace SI
 		Vfloat3  operator*(Vquat_arg q) const;
 		Vfloat3& operator+=(Vfloat3_arg v);
 		Vfloat3& operator-=(Vfloat3_arg v);
+		bool     operator==(const Vfloat3& v) const;
+		bool     operator!=(const Vfloat3& v) const;
 
 	public:
 		static Vfloat3 Zero();

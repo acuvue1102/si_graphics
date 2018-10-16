@@ -344,6 +344,7 @@ namespace SI
 						inArray);
 				}
 			}
+
 			if(typeNameHash == GetHash64S("int8_t"))
 			{
 				SI_ASSERT(strcmp(reflection.GetName(), "int8_t") == 0);
@@ -535,15 +536,10 @@ namespace SI
 			const picojson::array& picoMemberArray,
 			const ReflectionType& reflection)
 		{
-			auto dynamicTypeItr = m_dynamicTypeTable.find(reflection.GetName());
-			if(dynamicTypeItr == m_dynamicTypeTable.end()){ SI_ASSERT(0); return false; }
-			const DynamicReflectionType& dynamicType = *(dynamicTypeItr->second);
-
 			if( reflection.GetTemplateNameHash() == SI::GetHash64S("SI::Array") )
 			{
 				 SI_ASSERT(strcmp(reflection.GetTemplateName(), "SI::Array") == 0 );
 				 SI_ASSERT(reflection.GetMemberCount() == 2);
-				 SI_ASSERT(dynamicType.GetMemberCount() == 2);
 				 
 				 const ReflectionType* argType = reflection.GetTemplateArgType();
 				 uint32_t argPointerCount      = reflection.GetTemplateArgPointerCount();
@@ -572,21 +568,28 @@ namespace SI
 				 void* pointerBuffer = SI_ALIGNED_MALLOC(argType->GetSize()*arraySize, argType->GetAlignment());
 				 outDeserializedObject.AddAllocatedBuffer(pointerBuffer, argType, (uint32_t)arraySize);
 
-				 for(size_t i=0; i<arraySize; ++i)
-				 {
-					 void* arrayItemBuffer = ((uint8_t*)pointerBuffer) + i * argType->GetSize();
-					 argType->Constructor(arrayItemBuffer);
+				for(size_t i=0; i<arraySize; ++i)
+				{
+					void* arrayItemBuffer = ((uint8_t*)pointerBuffer) + i * argType->GetSize();
+					argType->Constructor(arrayItemBuffer);
 					 
-					 DeserializeObject(
-						 outDeserializedObject,
-						 arrayItemBuffer,
-						 picoMemberArray[i].get<picojson::array>(),
-						 *argType);
-				 }
+					DeserializeType(
+						outDeserializedObject,
+						arrayItemBuffer,
+						picoMemberArray[i],
+						*argType,
+						argPointerCount,
+						true);
+				}
+
 				 arrayProxy.Setup((uint8_t*)pointerBuffer, (uint32_t)arraySize);
 
 				 return true;
 			}
+			
+			auto dynamicTypeItr = m_dynamicTypeTable.find(reflection.GetName());
+			if(dynamicTypeItr == m_dynamicTypeTable.end()){ SI_ASSERT(0); return false; }
+			const DynamicReflectionType& dynamicType = *(dynamicTypeItr->second);
 			
 			size_t memberCount = SI::Min(dynamicType.GetMemberCount(), picoMemberArray.size());
 			for(size_t i=0; i<memberCount; ++i)

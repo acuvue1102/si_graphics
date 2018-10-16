@@ -74,6 +74,8 @@ namespace SI
 		Vfloat4 operator*(Vfloat4x3_arg m) const;
 		Vfloat4& operator+=(Vfloat4_arg v);
 		Vfloat4& operator-=(Vfloat4_arg v);
+		bool     operator==(const Vfloat4& v) const;
+		bool     operator!=(const Vfloat4& v) const;
 
 	public:
 		static Vfloat4 Zero();

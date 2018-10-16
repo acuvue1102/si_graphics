@@ -299,6 +299,18 @@ namespace SI
 		*this = *this - v;
 		return (*this);
 	}
+
+	inline bool Vfloat3::operator==(const Vfloat3& v) const
+	{
+		__m128 cmp = _mm_cmpeq_ps(m_v, v.m_v);
+		uint16_t mask = (uint16_t)_mm_movemask_epi8(_mm_castps_si128(cmp));
+		return ((mask&0x0fff) == 0x0fff);
+	}
+
+	inline bool Vfloat3::operator!=(const Vfloat3& v) const
+	{
+		return !((*this)==v);
+	}
 	
 	inline Vfloat3 Vfloat3::Zero()
 	{

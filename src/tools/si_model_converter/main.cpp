@@ -8,6 +8,7 @@
 #include "si_base/core/assert.h"
 #include "si_base/renderer/model.h"
 #include "si_base/renderer/model_writer.h"
+#include "si_base/renderer/model_reader.h"
 #include "fbx_parser.h"
 
 #pragma comment(lib, "libfbxsdk-md.lib")
@@ -81,6 +82,18 @@ int main(int argc, char* argv[])
 		SI_WARNING(0, "File %s does not exist.", input.c_str());
 		return -1;
 	}
+
+
+
+	{
+		SI::ModelReader reader;
+		SI::Model model;
+		reader.Read(model, output.c_str());
+
+	}
+
+
+
 
 	SI::FbxParser parser;
 	parser.Initialize();

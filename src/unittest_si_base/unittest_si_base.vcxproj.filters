@@ -11,6 +11,9 @@
     <ClCompile Include="serialization\reflection.cpp">
       <Filter>serialization</Filter>
     </ClCompile>
+    <ClCompile Include="math\math.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -21,6 +24,9 @@
     </Filter>
     <Filter Include="serialization">
       <UniqueIdentifier>{c0ff5bc2-c5a6-4cd3-86dc-f5a47f4a5849}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{2b382c27-abb7-45f7-8980-dd8496125dc9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
