@@ -83,32 +83,22 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-
-
-	{
-		SI::ModelReader reader;
-		SI::Model model;
-		reader.Read(model, output.c_str());
-
-	}
-
-
-
-
 	SI::FbxParser parser;
 	parser.Initialize();
 
-	SI::ModelMetaBuffer meta;
-	SI::Model model;
-	parser.Parse(model, input.c_str(), meta);
+	SI::ModelParsedData parsedData;
+	parser.Parse(parsedData, input.c_str());
 
 	SI::ModelWriter writer;
-	writer.Write(output.c_str(), model);
-
-	model = SI::Model();
-	meta = SI::ModelMetaBuffer();
-
+	writer.Write(output.c_str(), parsedData.m_serializeData);
 	parser.Terminate();
+
+#if 0
+	// 読み込みテスト.
+	SI::ModelReader reader;
+	SI::Model model;
+	reader.Read(model, output.c_str());
+#endif
 
 	return 0;
 }

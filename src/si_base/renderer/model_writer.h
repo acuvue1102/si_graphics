@@ -2,8 +2,7 @@
 
 namespace SI
 {
-	class Model;
-	class ModelWriterImpl;
+	struct ModelSerializeData;
 
 	class ModelWriter
 	{
@@ -11,10 +10,7 @@ namespace SI
 		ModelWriter();
 		~ModelWriter();
 
-		bool Write(const char* path, const Model& model);
-
-	private:
-		ModelWriterImpl* m_impl;
+		bool Write(const char* path, const ModelSerializeData& serializeData);
 	};
 
 } // namespace SI

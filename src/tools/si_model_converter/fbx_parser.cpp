@@ -268,26 +268,9 @@ namespace std
 
 namespace SI
 {
-	ModelMetaBuffer::ModelMetaBuffer()
+	void ModelParsedData::Clear()
 	{
-	}
-
-	ModelMetaBuffer::~ModelMetaBuffer()
-	{
-		Clear();
-	}
-
-	void ModelMetaBuffer::Clear()
-	{
-		for(Material* mate: m_materials)
-		{
-			Material::Release(mate);
-		}
-		for(Geometry* geo: m_geometries)
-		{
-			Geometry::Release(geo);
-		}
-
+		m_serializeData = ModelSerializeData();
 		m_nodes.clear();
 		m_nodeCores.clear();
 		m_meshes.clear();
@@ -299,7 +282,7 @@ namespace SI
 		m_strings.clear();
 	}
 
-	void ModelMetaBuffer::Reserve(size_t count)
+	void ModelParsedData::Reserve(size_t count)
 	{
 		m_nodes.reserve(count);
 		m_nodeCores.reserve(count);
@@ -311,7 +294,18 @@ namespace SI
 		m_indexBuffers.reserve(count);
 		m_strings.reserve(count * 2 * 32);
 	}
-
+	
+	void ModelParsedData::UpdateSerializeData()
+	{
+		m_serializeData.m_nodes.Setup(&m_nodes[0], (uint32_t)m_nodes.size());
+		m_serializeData.m_nodeCores.Setup(&m_nodeCores[0], (uint32_t)m_nodeCores.size());
+		m_serializeData.m_meshes.Setup(&m_meshes[0], (uint32_t)m_meshes.size());
+		m_serializeData.m_subMeshes.Setup(&m_subMeshes[0], (uint32_t)m_subMeshes.size());
+		m_serializeData.m_materials.Setup(&m_materials[0], (uint32_t)m_materials.size());
+		m_serializeData.m_geometries.Setup(&m_geometries[0], (uint32_t)m_geometries.size());
+		m_serializeData.m_strings.Setup(&m_strings[0], (uint32_t)m_strings.size());
+		m_serializeData.m_stringPool.Setup(&m_stringPool[0], (uint32_t)m_stringPool.size());
+	}
 
 	/////////////////////////////////////////////////////////////////////
 
@@ -322,6 +316,7 @@ namespace SI
 
 	FbxParser::~FbxParser()
 	{
+		Terminate();
 	}
 
 	void FbxParser::Initialize()
@@ -345,8 +340,8 @@ namespace SI
 		m_fbxManager->Destroy();
 		m_fbxManager = nullptr;
 	}
-
-	int FbxParser::Parse(Model& outModel, const char* fbxPath, ModelMetaBuffer& meta)
+	
+	int FbxParser::Parse(ModelParsedData& outParsedData, const char* fbxPath)
 	{
 		FbxImporter* fbxImporter = FbxImporter::Create(m_fbxManager, "fbxImporter");
 		SI_SCOPE_EXIT( fbxImporter->Destroy(); );
@@ -377,83 +372,33 @@ namespace SI
 		}
 
 		// parseしてmetaBuffer内に必要なデータを集める.
-		meta.Reserve(fbxScene->GetNodeCount());
-		Node rootNode;
-		ParseNode(rootNode, meta, *fbxRootNode);
-
-		// コピー.
-		outModel.GetRootNode() = rootNode;
-		if(!meta.m_nodes.empty())
-		{
-			outModel.AllocateNodes     ((ObjectIndex)meta.m_nodes.size());
-			outModel.GetNodes().CopyFromArray(&meta.m_nodes[0], (uint32_t)meta.m_nodes.size());
-		}
-		
-		if(!meta.m_nodeCores.empty())
-		{
-			outModel.AllocateNodeCores ((ObjectIndex)meta.m_nodeCores.size());
-			outModel.GetNodeCores().CopyFromArray(&meta.m_nodeCores[0], (uint32_t)meta.m_nodeCores.size());
-		}
-		
-		if(!meta.m_meshes.empty())
-		{
-			outModel.AllocateMeshes    ((ObjectIndex)meta.m_meshes.size());
-			outModel.GetMeshes().CopyFromArray(&meta.m_meshes[0], (uint32_t)meta.m_meshes.size());
-		}
-		
-		if(!meta.m_subMeshes.empty())
-		{
-			outModel.AllocateSubMeshes ((ObjectIndex)meta.m_subMeshes.size());
-			outModel.GetSubMeshes().CopyFromArray(&meta.m_subMeshes[0], (uint32_t)meta.m_subMeshes.size());
-		}
-		
-		if(!meta.m_geometries.empty())
-		{
-			outModel.AllocateGeometries((ObjectIndex)meta.m_geometries.size());
-			outModel.GetGeometries().CopyFromArray(&meta.m_geometries[0], (uint32_t)meta.m_geometries.size());
-		}
-		
-		if(!meta.m_materials.empty())
-		{
-			outModel.AllocateMaterials ((ObjectIndex)meta.m_materials.size());
-			outModel.GetMaterials().CopyFromArray(&meta.m_materials[0], (uint32_t)meta.m_materials.size());
-		}
-
-		if(!meta.m_strings.empty())
-		{
-			outModel.AllocateStrings   ((ObjectIndex)meta.m_strings.size());
-			outModel.GetStrings().CopyFromArray(&meta.m_strings[0], (uint32_t)meta.m_strings.size());
-		}
-
-		if(!meta.m_stringPool.empty())
-		{
-			outModel.AllocateStringPool   ((ObjectIndex)meta.m_stringPool.size());
-			outModel.GetStringPool().CopyFromArray(&meta.m_stringPool[0], (uint32_t)meta.m_stringPool.size());
-		}
+		outParsedData.Reserve(fbxScene->GetNodeCount());
+		ParseNode(outParsedData.m_serializeData.m_rootNode, outParsedData, *fbxRootNode);
+		outParsedData.UpdateSerializeData();
 
 		return 0;
 	}
 	
 	void FbxParser::ParseNode(
-		Node& outNode,
-		ModelMetaBuffer& outMeta,
+		NodeSerializeData& outNode,
+		ModelParsedData& outParsedData,
 		FbxNode& node)
 	{
 		int childCount = node.GetChildCount();
 		if(childCount <= 0) return;
 
-		SI_ASSERT(outMeta.m_nodes.size() < 0xfffe);
-		SI::ObjectIndex firstIndex = (SI::ObjectIndex)outMeta.m_nodes.size();
+		SI_ASSERT(outParsedData.m_nodes.size() < 0xfffe);
+		SI::ObjectIndex firstIndex = (SI::ObjectIndex)outParsedData.m_nodes.size();
 
 		outNode.m_children.m_count = childCount;
 		outNode.m_children.m_first = firstIndex;
 		
-		outMeta.m_nodes.resize(firstIndex + childCount);
-		outMeta.m_nodeCores.resize(firstIndex + childCount);
+		outParsedData.m_nodes.resize(firstIndex + childCount);
+		outParsedData.m_nodeCores.resize(firstIndex + childCount);
 		for(int i=0; i<childCount; ++i)
 		{
-			Node& child = outMeta.m_nodes[firstIndex + i];
-			NodeCore& childCore = outMeta.m_nodeCores[firstIndex + i];
+			NodeSerializeData& child = outParsedData.m_nodes[firstIndex + i];
+			NodeCoreSerializeData& childCore = outParsedData.m_nodeCores[firstIndex + i];
 			child.m_current = firstIndex + (SI::ObjectIndex)i;
 			child.m_parent = outNode.m_current;
 
@@ -461,13 +406,13 @@ namespace SI
 			const char* name = fbxChildNode->GetName();
 			if(name)
 			{
-				child.m_name = (ObjectIndex)outMeta.m_strings.size();
+				child.m_name = (ObjectIndex)outParsedData.m_strings.size();
 
-				outMeta.m_strings.push_back((LongObjectIndex)outMeta.m_stringPool.size());
+				outParsedData.m_strings.push_back((LongObjectIndex)outParsedData.m_stringPool.size());
 
 				size_t len = strlen(name) + 1; // 終端もコピー
-				outMeta.m_stringPool.reserve(outMeta.m_stringPool.size() + len);
-				for(size_t j=0; j<len; ++j) outMeta.m_stringPool.push_back(name[j]);
+				outParsedData.m_stringPool.reserve(outParsedData.m_stringPool.size() + len);
+				for(size_t j=0; j<len; ++j) outParsedData.m_stringPool.push_back(name[j]);
 			}
 			else
 			{
@@ -477,20 +422,19 @@ namespace SI
 			FbxMesh* mesh = fbxChildNode->GetMesh();
 			if(mesh)
 			{
-				ParseMesh(child, outMeta, *mesh);
+				ParseMesh(child, outParsedData, *mesh);
 			}
 
 			FbxAMatrix m = fbxChildNode->EvaluateLocalTransform();
 			childCore.m_localMatrix = FxbMatrixToVfloat4x4(m);
-			childCore.m_isMatrixChanged = true;
 
-			ParseNode(child, outMeta, *fbxChildNode);
+			ParseNode(child, outParsedData, *fbxChildNode);
 		}
 	}
 	
 	void FbxParser::ParseMesh(
-		Node& outNode,
-		ModelMetaBuffer& outMeta,
+		NodeSerializeData& outNode,
+		ModelParsedData& outParsedData,
 		FbxMesh& fbxMesh)
 	{
 		m_fbxGeometryConverter->SplitMeshPerMaterial(&fbxMesh, true);
@@ -498,8 +442,8 @@ namespace SI
 		FbxNode* meshNode = fbxMesh.GetNode();
 		int nodeAttributeCount = meshNode->GetNodeAttributeCount();
 		int subMeshCount = 0;
-		Mesh mesh;
-		mesh.m_submeshIndeces.m_first = (SI::ObjectIndex)outMeta.m_subMeshes.size();
+		MeshSerializeData mesh;
+		mesh.m_submeshIndeces.m_first = (SI::ObjectIndex)outParsedData.m_subMeshes.size();
 
 		for(int i=0; i<nodeAttributeCount; ++i)
 		{
@@ -510,11 +454,11 @@ namespace SI
 
 			FbxMesh* fbxSubMesh = (FbxMesh*)nodeAttr;
 			
-			SubMesh subMesh;
-			bool ret = ParseSubMesh(subMesh, outMeta, *fbxSubMesh);
+			SubMeshSerializeData subMesh;
+			bool ret = ParseSubMesh(subMesh, outParsedData, *fbxSubMesh);
 			if(!ret) continue;
 
-			outMeta.m_subMeshes.push_back(subMesh);
+			outParsedData.m_subMeshes.push_back(subMesh);
 			
 			++subMeshCount;
 		}
@@ -524,18 +468,18 @@ namespace SI
 			mesh.m_submeshIndeces.m_count = (uint16_t)subMeshCount;
 
 			outNode.m_nodeComponentType = SI::NodeType::Mesh;
-			outNode.m_nodeComponent     = (SI::ObjectIndex)outMeta.m_meshes.size();
+			outNode.m_nodeComponent     = (SI::ObjectIndex)outParsedData.m_meshes.size();
 			
-			outMeta.m_meshes.push_back(mesh);
+			outParsedData.m_meshes.push_back(mesh);
 		}
 	}
 	
 	bool FbxParser::ParseSubMesh(
-		SubMesh& outSubMesh,
-		ModelMetaBuffer& outMeta,
+		SubMeshSerializeData& outSubMesh,
+		ModelParsedData& outParsedMeta,
 		FbxMesh& fbxSubMesh)
 	{
-		outSubMesh.m_geometryIndex = (uint16_t)outMeta.m_geometries.size();
+		outSubMesh.m_geometryIndex = (uint16_t)outParsedMeta.m_geometries.size();
 		
 		VertexLayout vertexLayout;
 
@@ -728,7 +672,7 @@ namespace SI
 				v.AppendToFloatArray(vertexBuffer);
 			}
 		
-			outMeta.m_vertexBuffers.push_back(std::move(vertexBuffer));
+			outParsedMeta.m_vertexBuffers.push_back(std::move(vertexBuffer));
 		}
 		
 		
@@ -737,18 +681,18 @@ namespace SI
 		uint32_t maxIndex = 0;
 		{
 			maxIndex = *std::max_element(newIndexArray.begin(), newIndexArray.end());			
-			outMeta.m_indexBuffers.push_back(std::move(newIndexArray));
+			outParsedMeta.m_indexBuffers.push_back(std::move(newIndexArray));
 		}
 		
-		std::vector<float>& resultVertexBuffer = outMeta.m_vertexBuffers.back();
-		std::vector<uint32_t>& resultIndexBuffer = outMeta.m_indexBuffers.back();
+		std::vector<float>& resultVertexBuffer = outParsedMeta.m_vertexBuffers.back();
+		std::vector<uint32_t>& resultIndexBuffer = outParsedMeta.m_indexBuffers.back();
 
-		VerboseGeometry* geometry = VerboseGeometry::Create();
-		geometry->m_rawVertexBuffer.Setup((uint8_t*)&resultVertexBuffer[0], uint32_t(resultVertexBuffer.size() * sizeof(float)));
-		geometry->m_rawIndexBuffer.Setup((uint8_t*)&resultIndexBuffer[0], uint32_t(resultIndexBuffer.size() * sizeof(uint32_t)));
-		geometry->m_vertexLayout = vertexLayout;
-		geometry->m_is16bitIndex = false;
-		outMeta.m_geometries.push_back(geometry); // 一個追加.
+		GeometrySerializeData geometry;
+		geometry.m_rawVertexBuffer.Setup((uint8_t*)&resultVertexBuffer[0], uint32_t(resultVertexBuffer.size() * sizeof(float)));
+		geometry.m_rawIndexBuffer.Setup((uint8_t*)&resultIndexBuffer[0], uint32_t(resultIndexBuffer.size() * sizeof(uint32_t)));
+		geometry.m_vertexLayout = vertexLayout;
+		geometry.m_is16bitIndex = false;
+		outParsedMeta.m_geometries.push_back(geometry); // 一個追加.
 
 
 		//////////////////////////////////////////////////////////////////////////////////////
@@ -760,14 +704,14 @@ namespace SI
 			std::string materialName = fbxMaterial->GetName();
 
 			ObjectIndex foundMaterialIndex = kInvalidObjectIndex;
-			size_t createdMaterialCount = outMeta.m_materials.size();
+			size_t createdMaterialCount = outParsedMeta.m_materials.size();
 			for(size_t i=0; i<createdMaterialCount; ++i)
 			{
-				Material* mate = outMeta.m_materials[i];
+				MaterialSerializeData& mate = outParsedMeta.m_materials[i];
 				//if(materialName == mate->m_name)
-				if( mate->m_name != kInvalidObjectIndex &&
-					outMeta.m_strings[mate->m_name] != kInvalidLongObjectIndex &&
-					materialName == &outMeta.m_stringPool[outMeta.m_strings[mate->m_name]])
+				if( mate.m_name != kInvalidObjectIndex &&
+					outParsedMeta.m_strings[mate.m_name] != kInvalidLongObjectIndex &&
+					materialName == &outParsedMeta.m_stringPool[outParsedMeta.m_strings[mate.m_name]])
 				{
 					foundMaterialIndex = (ObjectIndex)i;
 					break;
@@ -780,18 +724,18 @@ namespace SI
 			}
 			else
 			{
-				outSubMesh.m_materialIndex = (uint16_t)outMeta.m_materials.size();
+				outSubMesh.m_materialIndex = (uint16_t)outParsedMeta.m_materials.size();
 
-				Material* material = Material::Create();
-				material->m_name = (ObjectIndex)outMeta.m_strings.size();
+				MaterialSerializeData material;
+				material.m_name = (ObjectIndex)outParsedMeta.m_strings.size();
 
-				outMeta.m_strings.push_back((LongObjectIndex)outMeta.m_stringPool.size());
+				outParsedMeta.m_strings.push_back((LongObjectIndex)outParsedMeta.m_stringPool.size());
 
 				size_t len = materialName.size()+1;
-				outMeta.m_stringPool.reserve(outMeta.m_stringPool.size() + len);
-				for(size_t j=0; j<len; ++j) outMeta.m_stringPool.push_back(materialName[j]);
+				outParsedMeta.m_stringPool.reserve(outParsedMeta.m_stringPool.size() + len);
+				for(size_t j=0; j<len; ++j) outParsedMeta.m_stringPool.push_back(materialName[j]);
 
-				outMeta.m_materials.push_back(material);
+				outParsedMeta.m_materials.push_back(material);
 			}
 		}
 

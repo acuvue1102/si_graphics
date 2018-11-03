@@ -15,37 +15,22 @@
 
 namespace SI
 {
-	class ModelWriterImpl
-	{
-	public:		
-		bool Write(const char* path, const Model& model)
-		{
-			ModelSerializeData serializeData = model.ConvertSerializeData();
-
-			Serializer serializer;
-			serializer.Initialize();
-			serializer.Serialize(path, serializeData);
-			serializer.Terminate();
-
-			return true;
-		}
-	};
-
-	/////////////////////////////////////////////////////////////////////////////
-
 	ModelWriter::ModelWriter()
-		: m_impl(SI_NEW(ModelWriterImpl))
 	{
 	}
 	
 	ModelWriter::~ModelWriter()
 	{
-		SI_DELETE(m_impl);
 	}
 
-	bool ModelWriter::Write(const char* path, const Model& model)
+	bool ModelWriter::Write(const char* path, const ModelSerializeData& serializeData)
 	{
-		return m_impl->Write(path, model);
+		Serializer serializer;
+		serializer.Initialize();
+		bool ret = serializer.Serialize(path, serializeData);
+		serializer.Terminate();
+
+		return ret;
 	}
 
 } // namespace SI

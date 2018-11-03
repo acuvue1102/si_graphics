@@ -259,10 +259,10 @@ namespace SI
 		{
 		}
 		
-		bool SerializeRoot(const char* path, const void* buffer, const ReflectionType& reflection)
+		bool SerializeRoot(std::string& outString, const void* buffer, const ReflectionType& reflection)
 		{
 			// jsonにシリアライズ.
-			std::string json;
+			std::string& json = outString;
 			{
 				picojson::object picoRoot;
 				{
@@ -286,26 +286,6 @@ namespace SI
 
 				// 見にくいので整形する.
 				json = MakeJsonReadable(json);
-			}
-			
-			// ファイルに出力.
-			{
-				File f;
-				int ret = f.Open(path, SI::FileAccessType::Write);
-				if(ret!=0)
-				{
-					SI_WARNING("file(%s) can't be loaded.", path);
-					return false;
-				}
-
-
-				// utf-8 with BOM
-				uint8_t bom[3] = {0xEF, 0xBB, 0xBF};
-				f.Write(bom, sizeof(bom));
-
-				f.Write(json.c_str(), json.size());
-
-				f.Close();
 			}
 
 			return true;
@@ -641,8 +621,29 @@ namespace SI
 		SI_DELETE(m_impl);
 	}
 	
-	void Serializer::SerializeRoot(const char* path, const void* buffer, const ReflectionType& reflection)
+	bool Serializer::SerializeRoot(std::string& outString, const void* buffer, const ReflectionType& reflection)
 	{
-		m_impl->SerializeRoot(path, buffer, reflection);
+		return m_impl->SerializeRoot(outString, buffer, reflection);
+	}
+	
+	bool Serializer::Save(const char* path, const char* str, size_t strSize)
+	{
+		File f;
+		int ret = f.Open(path, SI::FileAccessType::Write);
+		if(ret!=0)
+		{
+			SI_WARNING("file(%s) can't be loaded.", path);
+			return false;
+		}
+
+		// utf-8 with BOM
+		uint8_t bom[3] = {0xEF, 0xBB, 0xBF};
+		f.Write(bom, sizeof(bom));
+
+		f.Write(str, strSize);
+
+		f.Close();
+
+		return true;
 	}
 }

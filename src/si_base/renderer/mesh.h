@@ -19,12 +19,14 @@ namespace SI
 		Mesh(){}
 		~Mesh(){}
 
-		MeshSerializeData ConvertSerializeData() const
+		void ExportSerializeData(MeshSerializeData& outData) const
 		{
-			MeshSerializeData serializeData;
-			serializeData.m_submeshIndeces = m_submeshIndeces;
+			outData.m_submeshIndeces = m_submeshIndeces;
+		}
 
-			return serializeData;
+		void ImportSerializeData(const MeshSerializeData& serializeData)
+		{
+			m_submeshIndeces  = serializeData.m_submeshIndeces;
 		}
 		
 	private:

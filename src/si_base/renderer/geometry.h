@@ -82,10 +82,17 @@ namespace SI
 			return 'Geom';
 		}
 
-		virtual GeometrySerializeData ConvertSerializeData() const
+		virtual void ExportSerializeData(GeometrySerializeData& outData) const
 		{
 			SI_ASSERT(0);
-			return GeometrySerializeData();
+		}
+
+		virtual void ImportSerializeData(const GeometrySerializeData& s)
+		{
+			m_vertexLayout = s.m_vertexLayout;
+			m_is16bitIndex = s.m_is16bitIndex;
+
+			// TODO : setup
 		}
 
 	public:
@@ -120,15 +127,18 @@ namespace SI
 			return 'Verb';
 		}
 
-		virtual GeometrySerializeData ConvertSerializeData() const override
+		virtual void ExportSerializeData(GeometrySerializeData& outData) const override
 		{
-			GeometrySerializeData serializeData;
-			serializeData.m_vertexLayout    = m_vertexLayout;
-			serializeData.m_is16bitIndex    = m_is16bitIndex;
-			serializeData.m_rawVertexBuffer = m_rawVertexBuffer;
-			serializeData.m_rawIndexBuffer  = m_rawIndexBuffer;
+			outData.m_vertexLayout    = m_vertexLayout;
+			outData.m_is16bitIndex    = m_is16bitIndex;
+			outData.m_rawVertexBuffer = m_rawVertexBuffer;
+			outData.m_rawIndexBuffer  = m_rawIndexBuffer;
+		}
 
-			return serializeData;
+		virtual void ImportSerializeData(const GeometrySerializeData& s) override
+		{
+			SI_ASSERT(0);
+			return;
 		}
 
 	private:

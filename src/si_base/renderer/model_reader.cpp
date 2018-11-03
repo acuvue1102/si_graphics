@@ -15,42 +15,29 @@
 
 namespace SI
 {
-	class ModelReaderImpl
-	{
-	public:		
-		bool Read(Model& model, const char* path)
-		{
-			DeserializedObject deserializedObject;
-			Deserializer deserializer;
-			deserializer.Initialize();
-			bool ret = deserializer.Deserialize<ModelSerializeData>(deserializedObject, path);
-			deserializer.Terminate();
-
-			if(!ret) return false;
-
-			const ModelSerializeData& serializeData = *deserializedObject.Get<ModelSerializeData>();
-
-			model.ImportFromSerializeData(serializeData);
-			
-			return true;
-		}
-	};
-
-	/////////////////////////////////////////////////////////////////////////////
-
 	ModelReader::ModelReader()
-		: m_impl(SI_NEW(ModelReaderImpl))
 	{
 	}
 	
 	ModelReader::~ModelReader()
 	{
-		SI_DELETE(m_impl);
 	}
 
 	bool ModelReader::Read(Model& model, const char* path)
 	{
-		return m_impl->Read(model, path);
+		DeserializedObject deserializedObject;
+		Deserializer deserializer;
+		deserializer.Initialize();
+		bool ret = deserializer.Deserialize<ModelSerializeData>(deserializedObject, path);
+		deserializer.Terminate();
+
+		if(!ret) return false;
+
+		const ModelSerializeData& serializeData = *deserializedObject.Get<ModelSerializeData>();
+
+		model.ImportSerializeData(serializeData);
+			
+		return true;
 	}
 
 } // namespace SI

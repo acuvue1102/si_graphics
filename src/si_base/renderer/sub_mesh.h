@@ -37,13 +37,16 @@ namespace SI
 		{
 		}
 		
-		SubMeshSerializeData ConvertSerializeData() const
+		void ExportSerializeData(SubMeshSerializeData& outData) const
 		{
-			SubMeshSerializeData serializeData;
-			serializeData.m_materialIndex = m_materialIndex;
-			serializeData.m_geometryIndex = m_geometryIndex;
+			outData.m_materialIndex = m_materialIndex;
+			outData.m_geometryIndex = m_geometryIndex;
+		}
 
-			return serializeData;
+		void ImportSerializeData(const SubMeshSerializeData& serializeData)
+		{
+			m_materialIndex  = serializeData.m_materialIndex;
+			m_geometryIndex  = serializeData.m_geometryIndex;
 		}
 
 	private:

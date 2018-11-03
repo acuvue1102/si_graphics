@@ -167,5 +167,10 @@ namespace SI
 			// PathIsDirectoryAはディレクトリだった場合、(BOOL)FILE_ATTRIBUTE_DIRECTORYを返すので注意.
 			return (PathFileExistsA(filePath) == TRUE) && !(PathIsDirectoryA(filePath) == FALSE);
 		}
+		
+		inline static bool SetCurrentDir(const char* dirPath)
+		{
+			return (::SetCurrentDirectoryA(dirPath) == TRUE);
+		}
 	};
 }

@@ -50,4 +50,11 @@ namespace SI
 	private:
 		void* m_handle;
 	};
+
+
+	class FileSystem
+	{
+	public:
+		static bool SetCurrentDir(const char* dir);
+	};
 }

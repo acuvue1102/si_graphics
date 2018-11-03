@@ -3,8 +3,6 @@
 namespace SI
 {
 	class Model;
-	class ModelReaderImpl;
-
 	class ModelReader
 	{
 	public:
@@ -12,9 +10,6 @@ namespace SI
 		~ModelReader();
 
 		bool Read(Model& model, const char* path);
-
-	private:
-		ModelReaderImpl* m_impl;
 	};
 
 } // namespace SI

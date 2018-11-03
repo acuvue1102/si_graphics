@@ -71,4 +71,9 @@ namespace SI
 	{
 		return FileBase::FileExists(filePath);
 	}
+	
+	bool FileSystem::SetCurrentDir(const char* dir)
+	{
+		return FileBase::SetCurrentDir(dir);
+	}
 }

@@ -5,6 +5,7 @@
 #include <si_base/core/scope_exit.h>
 #include <si_base/container/array.h>
 #include <si_base/math/math.h>
+#include <si_base/file/file.h>
 
 #define ENABLE_SERIALIZATION_TEST 1
 
@@ -464,21 +465,25 @@ namespace SerializationTest
 
 #if ENABLE_SERIALIZATION_TEST0
 TEST(Serialization, Serialization0)
-{	
+{
+	bool ret;
+	SI::FileSystem::SetCurrentDir("c:\\tmp");
+
 	SerializationTest::Test0 src;
 	src.intHoge    = 3;
 	src.doubleHoge = 4.0;
 	
 	SI::Serializer serializer;
 	serializer.Initialize();
-	serializer.Serialize("asset\\test0.json", src);
+	ret = serializer.Serialize("test0.json", src);
 	serializer.Terminate();
+	EXPECT_EQ(ret, true);
 
 	SI::Deserializer deserializer;
 	deserializer.Initialize();
 
 	SI::DeserializedObject obj;
-	bool ret = deserializer.Deserialize<SerializationTest::Test0>(obj, "asset\\test0.json");
+	ret = deserializer.Deserialize<SerializationTest::Test0>(obj, "test0.json");
 	EXPECT_EQ(ret, true);
 
 	const SerializationTest::Test0& dst = *obj.Get<SerializationTest::Test0>();

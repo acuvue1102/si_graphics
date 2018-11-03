@@ -25,12 +25,14 @@ namespace SI
 		Material();
 		~Material();
 		
-		MaterialSerializeData ConvertSerializeData() const
+		void ExportSerializeData(MaterialSerializeData& outData) const
 		{
-			MaterialSerializeData serializeData;
-			serializeData.m_name = m_name;
-
-			return serializeData;
+			outData.m_name = m_name;
+		}
+		
+		void ImportSerializeData(const MaterialSerializeData& serializeData)
+		{
+			m_name = serializeData.m_name;
 		}
 
 	public:

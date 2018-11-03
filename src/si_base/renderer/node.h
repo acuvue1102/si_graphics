@@ -35,14 +35,16 @@ namespace SI
 
 		Vfloat4x4 GetLocalMatrix() const{ return m_localMatrix; }
 
-		NodeCoreSerializeData ConvertSerializeData() const
+		void ExportSerializeData(NodeCoreSerializeData& outData) const
 		{
-			NodeCoreSerializeData serializeData;
-
-			serializeData.m_localMatrix          = m_localMatrix;
-			serializeData.m_worldMatrix          = m_worldMatrix;         
-
-			return serializeData;
+			outData.m_localMatrix          = m_localMatrix;
+			outData.m_worldMatrix          = m_worldMatrix;
+		}
+		
+		void ImportSerializeData(const NodeCoreSerializeData& serializeData)
+		{
+			m_localMatrix  = serializeData.m_localMatrix;
+			m_worldMatrix  = serializeData.m_worldMatrix;
 		}
 
 	private:
@@ -124,21 +126,17 @@ namespace SI
 		NodeType      GetNodeComponentType()                const{ return m_nodeComponentType;       }
 		ObjectIndex   GetNodeComponentIndex()               const{ return m_nodeComponent;           }
 
-		NodeSerializeData ConvertSerializeData() const
+		void ExportSerializeData(NodeSerializeData& outData) const
 		{
-			NodeSerializeData serializeData;
-
-			serializeData.m_name              = m_name;
-			serializeData.m_children          = m_children;         
-			serializeData.m_current           = m_current;          
-			serializeData.m_parent            = m_parent;           
-			serializeData.m_nodeComponentType = m_nodeComponentType;
-			serializeData.m_nodeComponent     = m_nodeComponent;    
-
-			return serializeData;
+			outData.m_name              = m_name;
+			outData.m_children          = m_children;         
+			outData.m_current           = m_current;          
+			outData.m_parent            = m_parent;           
+			outData.m_nodeComponentType = m_nodeComponentType;
+			outData.m_nodeComponent     = m_nodeComponent;
 		}
 
-		void ImportFromSerializeData(const NodeSerializeData& serializeData)
+		void ImportSerializeData(const NodeSerializeData& serializeData)
 		{
 			m_name               = serializeData.m_name;
 			m_children           = serializeData.m_children;         

@@ -34,20 +34,6 @@ namespace SI
 		Array<uint32_t>                    m_strings;    // string配列.     Node::m_nameやMaterial::m_nameでアクセスする.
 		Array<char>                        m_stringPool; // string配列の実体.
 
-		ModelSerializeData()
-		{
-		}
-
-		~ModelSerializeData()
-		{
-			Terminate();
-		}
-
-		ModelSerializeData(ModelSerializeData&& src); // ムーブコンストラクタ.
-
-		void Initialize(const Model& model);
-		void Terminate();
-
 		SI_REFLECTION(
 			SI::ModelSerializeData,
 			SI_REFLECTION_MEMBER(m_rootNode),
@@ -59,9 +45,6 @@ namespace SI
 			SI_REFLECTION_MEMBER(m_geometries),
 			SI_REFLECTION_MEMBER(m_strings),
 			SI_REFLECTION_MEMBER(m_stringPool))
-
-	private:
-		ModelSerializeData(const ModelSerializeData&) = delete; // コピーコンストラクタの禁止.
 	};
 
 	class Model
@@ -120,16 +103,9 @@ namespace SI
 
 		Array<char>&          GetStringPool()         { return m_stringPool; }
 		ConstArray<char>      GetStringPool()    const{ return m_stringPool; }
-		
-		ModelSerializeData ConvertSerializeData() const
-		{
-			ModelSerializeData serializeData;
-			serializeData.Initialize(*this);
-
-			return std::move(serializeData);
-		}
-
-		void ImportFromSerializeData(const ModelSerializeData& modelSerializeData);
+	
+		void ExportSerializeData(ModelSerializeData& outModelSerializeData) const;
+		void ImportSerializeData(const ModelSerializeData& modelSerializeData);
 
 	private:
 		friend class FbxParser;
