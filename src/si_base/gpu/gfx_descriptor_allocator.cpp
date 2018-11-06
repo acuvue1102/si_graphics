@@ -20,7 +20,7 @@ namespace SI
 
 	void GfxDescriptorAllocator::Initialize(GfxDescriptorHeapType type, uint32_t maxDescriptorCount)
 	{
-		m_typeSize = BaseDevice::GetDescriptorSize(type);
+		m_typeSize = BaseDevice::GetInstance()->GetDescriptorSize(type);
 		m_maxDescriptorCount = maxDescriptorCount;
 
 		GfxDescriptorHeapDesc desc;

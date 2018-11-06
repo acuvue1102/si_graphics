@@ -87,13 +87,7 @@ namespace SI
 			SI_ASSERT(0);
 		}
 
-		virtual void ImportSerializeData(const GeometrySerializeData& s)
-		{
-			m_vertexLayout = s.m_vertexLayout;
-			m_is16bitIndex = s.m_is16bitIndex;
-
-			// TODO : setup
-		}
+		virtual void ImportSerializeData(const GeometrySerializeData& s);
 
 	public:
 		static Geometry* Create();
@@ -103,10 +97,10 @@ namespace SI
 		friend class FbxParser;
 
 	protected:
-		VertexLayout m_vertexLayout;
-		uint8_t      m_is16bitIndex;
-		GfxBufferEx  m_vertexBuffer;
-		GfxBufferEx  m_indexBuffer;
+		VertexLayout        m_vertexLayout;
+		uint8_t             m_is16bitIndex;
+		GfxBufferEx_Vertex  m_vertexBuffer;
+		GfxBufferEx_Index   m_indexBuffer;
 	};
 
 	class VerboseGeometry : public Geometry

@@ -4,6 +4,12 @@
 namespace SI
 {
 	ModelInstance::ModelInstance()
+		: m_model( std::make_shared<Model>() )
+	{
+	}
+
+	ModelInstance::ModelInstance(ModelPtr& model)
+		: m_model(model)
 	{
 	}
 
@@ -11,9 +17,9 @@ namespace SI
 	{
 	}
 
-	void ModelInstance::SetModel(ModelPtr& model)
-	{
-		m_model = model;
-	}
+	//void ModelInstance::SetModel(ModelPtr& model)
+	//{
+	//	m_model = model;
+	//}
 
 } // namespace SI

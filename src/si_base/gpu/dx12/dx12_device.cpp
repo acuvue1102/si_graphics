@@ -30,11 +30,10 @@
 
 namespace SI
 {
-	size_t BaseDevice::s_descriptorSize[(int)GfxDescriptorHeapType::Max] = {};
-
 	BaseDevice::BaseDevice()
 		: Singleton(this)
 		, m_initialized(false)
+		, m_descriptorSize{}
 	{
 	}
 
@@ -78,7 +77,7 @@ namespace SI
 		for(int i=0; i<(int)GfxDescriptorHeapType::Max; ++i)
 		{
 			D3D12_DESCRIPTOR_HEAP_TYPE type = GetDx12DescriptorHeapType((GfxDescriptorHeapType)i);
-			s_descriptorSize[i] = m_device->GetDescriptorHandleIncrementSize(type);
+			m_descriptorSize[i] = m_device->GetDescriptorHandleIncrementSize(type);
 		}
 
 		m_initialized = true;
@@ -119,8 +118,8 @@ namespace SI
 	
 	size_t BaseDevice::GetDescriptorSize(GfxDescriptorHeapType type)
 	{
-		SI_ASSERT(s_descriptorSize[(int)type] != 0);
-		return s_descriptorSize[(int)type];
+		SI_ASSERT(m_descriptorSize[(int)type] != 0);
+		return m_descriptorSize[(int)type];
 	}
 	
 	int BaseDevice::InitializeFactory(ComPtr<IDXGIFactory4>& outDxgiFactory) const
@@ -609,7 +608,7 @@ namespace SI
 		samplerDesc.MinLOD         = desc.m_minLOD;
 		samplerDesc.MaxLOD         = desc.m_maxLOD;
 
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::Sampler);
+		size_t descriptorSize = BaseDevice::GetInstance()->GetDescriptorSize(GfxDescriptorHeapType::Sampler);
 		
 		D3D12_CPU_DESCRIPTOR_HANDLE dxDescriptor = {descriptor.GetCpuDescriptor().m_ptr};
 		m_device->CreateSampler(&samplerDesc, dxDescriptor);
@@ -636,7 +635,7 @@ namespace SI
 		constantDesc.BufferLocation = baseBuffer->GetLocation();
 		constantDesc.SizeInBytes    = (UINT)baseBuffer->GetSize();
 
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::CbvSrvUav);
+		size_t descriptorSize = BaseDevice::GetInstance()->GetDescriptorSize(GfxDescriptorHeapType::CbvSrvUav);
 		D3D12_CPU_DESCRIPTOR_HANDLE dxDescriptor = {descriptor.GetCpuDescriptor().m_ptr};
 		m_device->CreateConstantBufferView(&constantDesc, dxDescriptor);
 	}

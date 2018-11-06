@@ -73,7 +73,7 @@ namespace APP003
 		// 四角形の頂点バッファのセットアップ.
 		{
 			m_quadVertexBuffer.InitializeAsVertex(
-				"vertex", sizeof(kVertexData), sizeof(kVertexData[0]), 0);
+				"vertex", ArraySize(kVertexData), sizeof(kVertexData[0]), 0);
 		}
 
 		// textureシェーダのセットアップ.

@@ -16,6 +16,9 @@
     <Filter Include="app003_compute">
       <UniqueIdentifier>{0fa102a4-637b-4268-9536-7c6a44e3a5bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="app004_renderer">
+      <UniqueIdentifier>{cb73b6cc-3df4-4f08-890a-a4ce95de6530}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -34,6 +37,12 @@
     <ClCompile Include="app003_compute\pipeline_003.cpp">
       <Filter>app003_compute</Filter>
     </ClCompile>
+    <ClCompile Include="app004_renderer\app_004.cpp">
+      <Filter>app004_renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="app004_renderer\pipeline_004.cpp">
+      <Filter>app004_renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app000_clear_color\pipeline_000.h">
@@ -50,6 +59,12 @@
     </ClInclude>
     <ClInclude Include="app003_compute\pipeline_003.h">
       <Filter>app003_compute</Filter>
+    </ClInclude>
+    <ClInclude Include="app004_renderer\app_004.h">
+      <Filter>app004_renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="app004_renderer\pipeline_004.h">
+      <Filter>app004_renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

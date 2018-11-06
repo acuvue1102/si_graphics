@@ -246,7 +246,7 @@ namespace SI
 		desc.m_mipLevels      = 1;
 		desc.m_format         = GfxFormat::R32_Typeless;
 		desc.m_dimension      = GfxDimension::Texture2D;
-		desc.m_resourceStates = GfxResourceState::GenericRead;
+		desc.m_resourceStates = GfxResourceState::DepthWrite;//GfxResourceState::GenericRead;
 		desc.m_resourceFlags  = GfxResourceFlag::AllowDepthStencil;
 		desc.m_heapType       = GfxHeapType::Default;
 		desc.m_name           = name;

@@ -167,7 +167,7 @@ namespace SI
 
 		// 新しく作る.
 		static const size_t kDefaultPageSize = 512 * 1024;
-		SI_WARNING(kDefaultPageSize < minimumPageSize, "DefaultPageSizeを変えるか、LargePageを分けるほうが良さそう.");
+		SI_WARNING(minimumPageSize < kDefaultPageSize, "DefaultPageSizeを変えるか、LargePageを分けるほうが良さそう.");
 		size_t pageSize = Max(minimumPageSize, kDefaultPageSize);
 		GfxLinearAllocatorPage* newPage = CreateNewPage(pageSize);		
 		m_usingPages[m_currentPageIndex].push_back(newPage);

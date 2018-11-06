@@ -52,6 +52,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>SI_BASE_PROJECT_DIR=R"($(ProjectDir))";_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -63,6 +64,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>SI_BASE_PROJECT_DIR=R"($(ProjectDir))";_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -132,6 +134,7 @@
     <ClCompile Include="renderer\model_reader.cpp" />
     <ClCompile Include="renderer\model_writer.cpp" />
     <ClCompile Include="renderer\node.cpp" />
+    <ClCompile Include="renderer\renderer.cpp" />
     <ClCompile Include="renderer\sub_mesh.cpp" />
     <ClCompile Include="serialization\deserializer.cpp" />
     <ClCompile Include="serialization\reflection.cpp" />
@@ -245,6 +248,7 @@
     <ClInclude Include="renderer\model_writer.h" />
     <ClInclude Include="renderer\node.h" />
     <ClInclude Include="renderer\node_iterator.h" />
+    <ClInclude Include="renderer\renderer.h" />
     <ClInclude Include="renderer\renderer_common.h" />
     <ClInclude Include="renderer\renderer_enum.h" />
     <ClInclude Include="renderer\sub_mesh.h" />

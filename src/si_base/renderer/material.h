@@ -2,6 +2,7 @@
 
 #include "si_base/renderer/renderer_common.h"
 #include "si_base/container/array.h"
+#include "si_base/gpu/gfx_shader.h"
 
 namespace SI
 {
@@ -30,10 +31,7 @@ namespace SI
 			outData.m_name = m_name;
 		}
 		
-		void ImportSerializeData(const MaterialSerializeData& serializeData)
-		{
-			m_name = serializeData.m_name;
-		}
+		void ImportSerializeData(const MaterialSerializeData& serializeData);
 
 	public:
 		static Material* Create();
@@ -43,7 +41,10 @@ namespace SI
 		friend class FbxParser;
 
 	private:
-		LongObjectIndex m_name;
+		LongObjectIndex          m_name;
+		
+		GfxVertexShader          m_shaderVS;
+		GfxPixelShader           m_shaderPS;
 	};
 
 } // namespace SI

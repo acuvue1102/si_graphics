@@ -23,7 +23,7 @@ namespace SI
 	{
 	}
 
-	bool ModelReader::Read(Model& model, const char* path)
+	bool ModelReader::Read(ModelInstancePtr& modelInstance, const char* path)
 	{
 		DeserializedObject deserializedObject;
 		Deserializer deserializer;
@@ -35,7 +35,8 @@ namespace SI
 
 		const ModelSerializeData& serializeData = *deserializedObject.Get<ModelSerializeData>();
 
-		model.ImportSerializeData(serializeData);
+		modelInstance = std::make_shared<ModelInstance>();
+		modelInstance->GetModel()->ImportSerializeData(serializeData);
 			
 		return true;
 	}

@@ -466,8 +466,9 @@ namespace SerializationTest
 #if ENABLE_SERIALIZATION_TEST0
 TEST(Serialization, Serialization0)
 {
+	SI::FileSystem::SetCurrentDir(SI_PROJECT_DIR);
+
 	bool ret;
-	SI::FileSystem::SetCurrentDir("c:\\tmp");
 
 	SerializationTest::Test0 src;
 	src.intHoge    = 3;
@@ -475,7 +476,7 @@ TEST(Serialization, Serialization0)
 	
 	SI::Serializer serializer;
 	serializer.Initialize();
-	ret = serializer.Serialize("test0.json", src);
+	ret = serializer.Serialize("asset\\test0.json", src);
 	serializer.Terminate();
 	EXPECT_EQ(ret, true);
 
@@ -483,7 +484,7 @@ TEST(Serialization, Serialization0)
 	deserializer.Initialize();
 
 	SI::DeserializedObject obj;
-	ret = deserializer.Deserialize<SerializationTest::Test0>(obj, "test0.json");
+	ret = deserializer.Deserialize<SerializationTest::Test0>(obj, "asset\\test0.json");
 	EXPECT_EQ(ret, true);
 
 	const SerializationTest::Test0& dst = *obj.Get<SerializationTest::Test0>();
@@ -495,7 +496,9 @@ TEST(Serialization, Serialization0)
 
 #if ENABLE_SERIALIZATION_TEST1
 TEST(Serialization, Serialization1)
-{	
+{
+	SI::FileSystem::SetCurrentDir(SI_PROJECT_DIR);
+
 	SerializationTest::Test1 src;
 	src.test0Hoge.intHoge = 4;
 	src.test0Hoge.doubleHoge = 8.0;
@@ -524,7 +527,9 @@ TEST(Serialization, Serialization1)
 
 #if ENABLE_SERIALIZATION_TEST2
 TEST(Serialization, Serialization2)
-{	
+{
+	SI::FileSystem::SetCurrentDir(SI_PROJECT_DIR);
+
 	SerializationTest::Test2 src;
 	src.test0PtrHoge = new SerializationTest::Test0; SI_SCOPE_EXIT(delete src.test0PtrHoge;);
 	src.test0PtrHoge->intHoge = 3;
@@ -557,6 +562,8 @@ TEST(Serialization, Serialization2)
 #if ENABLE_SERIALIZATION_TEST3
 TEST(Serialization, Serialization3)
 {
+	SI::FileSystem::SetCurrentDir(SI_PROJECT_DIR);
+
 	SerializationTest::Test3 src;
 	src.uint32Hoge = 5;
 	
@@ -603,6 +610,8 @@ TEST(Serialization, Serialization3)
 #if ENABLE_SERIALIZATION_TEST4
 TEST(Serialization, Serialization4)
 {
+	SI::FileSystem::SetCurrentDir(SI_PROJECT_DIR);
+
 	SerializationTest::Test4 src;
 	src.strHoge = "hogehoge";
 	for(size_t i=0; i<SI::ArraySize(src.intArrayHoge); ++i)
@@ -642,6 +651,8 @@ TEST(Serialization, Serialization4)
 // パラメータが途中で変わっても、互換性を保てるかテスト.
 TEST(Serialization, Serialization5)
 {
+	SI::FileSystem::SetCurrentDir(SI_PROJECT_DIR);
+
 #if BEFORE_SERIALIZATION_TEST5
 	SerializationTest::Test5 src;
 	src.strHoge = "fugafuga";
@@ -697,6 +708,8 @@ TEST(Serialization, Serialization5)
 #if ENABLE_SERIALIZATION_TEST6
 TEST(Serialization, Serialization6)
 {
+	SI::FileSystem::SetCurrentDir(SI_PROJECT_DIR);
+
 	SerializationTest::Test6 src;
 	src.m_child1Array.Setup(new SerializationTest::Test6Child1[2], 2);
 	for(uint32_t i=0; i<src.m_child1Array.GetItemCount(); ++i)

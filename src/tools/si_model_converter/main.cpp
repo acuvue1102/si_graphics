@@ -6,7 +6,7 @@
 #include "si_base/file/file.h"
 #include "si_base/core/print.h"
 #include "si_base/core/assert.h"
-#include "si_base/renderer/model.h"
+#include "si_base/renderer/model_instance.h"
 #include "si_base/renderer/model_writer.h"
 #include "si_base/renderer/model_reader.h"
 #include "fbx_parser.h"
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 #if 0
 	// 読み込みテスト.
 	SI::ModelReader reader;
-	SI::Model model;
+	SI::ModelInstancePtr model;
 	reader.Read(model, output.c_str());
 #endif
 

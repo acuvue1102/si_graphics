@@ -71,7 +71,7 @@ namespace SI
 		rtvDesc.Texture2D.MipSlice = 0;
 		rtvDesc.Texture2D.PlaneSlice = 0;
 
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::Rtv);
+		size_t descriptorSize = BaseDevice::GetInstance()->GetDescriptorSize(GfxDescriptorHeapType::Rtv);
 		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
 		device.CreateRenderTargetView(texture.GetComPtrResource().Get(), &rtvDesc, descriptor);
 	}
@@ -90,7 +90,7 @@ namespace SI
 		dsvDesc.Texture2D.MipSlice  = 0;
 		dsvDesc.Flags               = D3D12_DSV_FLAG_NONE;
 
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::Rtv);
+		size_t descriptorSize = BaseDevice::GetInstance()->GetDescriptorSize(GfxDescriptorHeapType::Rtv);
 		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
 		device.CreateDepthStencilView(texture.GetComPtrResource().Get(), &dsvDesc, descriptor);
 	}
@@ -140,7 +140,7 @@ namespace SI
 			break;
 		}
 
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::CbvSrvUav);
+		size_t descriptorSize = BaseDevice::GetInstance()->GetDescriptorSize(GfxDescriptorHeapType::CbvSrvUav);
 		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
 		device.CreateShaderResourceView(texture.GetComPtrResource().Get(), &srvDesc, descriptor);
 	}
@@ -165,7 +165,7 @@ namespace SI
 		samplerDesc.MinLOD         = desc.m_minLOD;
 		samplerDesc.MaxLOD         = desc.m_maxLOD;
 
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::Sampler);
+		size_t descriptorSize = BaseDevice::GetInstance()->GetDescriptorSize(GfxDescriptorHeapType::Sampler);
 		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
 		device.CreateSampler(&samplerDesc, descriptor);
 	}
@@ -181,14 +181,14 @@ namespace SI
 		constantDesc.BufferLocation = baseBuffer->GetLocation();
 		constantDesc.SizeInBytes    = (UINT)baseBuffer->GetSize();
 
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(GfxDescriptorHeapType::CbvSrvUav);
+		size_t descriptorSize = BaseDevice::GetInstance()->GetDescriptorSize(GfxDescriptorHeapType::CbvSrvUav);
 		D3D12_CPU_DESCRIPTOR_HANDLE descriptor = GetDx12CpuDescriptor(descriptorIndex, descriptorSize);
 		device.CreateConstantBufferView(&constantDesc, descriptor);
 	}
 	
 	GfxDescriptor BaseDescriptorHeap::GetDescriptor(uint32_t descriptorIndex) const
 	{
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(m_type);
+		size_t descriptorSize = BaseDevice::GetInstance()->GetDescriptorSize(m_type);
 
 		GfxDescriptor d(m_cpuDescriptor.ptr, m_gpuDescriptor.ptr);
 		d += descriptorIndex * descriptorSize;
@@ -197,7 +197,7 @@ namespace SI
 	
 	GfxCpuDescriptor BaseDescriptorHeap::GetCpuDescriptor(uint32_t descriptorIndex) const
 	{
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(m_type);
+		size_t descriptorSize = BaseDevice::GetInstance()->GetDescriptorSize(m_type);
 
 		GfxCpuDescriptor d;
 		d.m_ptr = m_cpuDescriptor.ptr + descriptorIndex * descriptorSize;
@@ -206,7 +206,7 @@ namespace SI
 	
 	GfxGpuDescriptor BaseDescriptorHeap::GetGpuDescriptor(uint32_t descriptorIndex) const
 	{
-		size_t descriptorSize = BaseDevice::GetDescriptorSize(m_type);
+		size_t descriptorSize = BaseDevice::GetInstance()->GetDescriptorSize(m_type);
 
 		GfxGpuDescriptor d;
 		d.m_ptr = m_gpuDescriptor.ptr + descriptorIndex * descriptorSize;

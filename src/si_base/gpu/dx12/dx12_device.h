@@ -147,7 +147,7 @@ namespace SI
 		}
 		
 	public:
-		static size_t GetDescriptorSize(GfxDescriptorHeapType type);
+		size_t GetDescriptorSize(GfxDescriptorHeapType type);
 
 	private:
 		int InitializeFactory(ComPtr<IDXGIFactory4>& outDxgiFactory) const;
@@ -165,7 +165,7 @@ namespace SI
 		PoolAllocatorEx*                  m_tempAllocator;
 		bool                              m_initialized;
 
-		static size_t                     s_descriptorSize[(int)GfxDescriptorHeapType::Max];
+		size_t                            m_descriptorSize[(int)GfxDescriptorHeapType::Max];
 	};
 
 } // namespace SI

@@ -4,6 +4,8 @@
 
 #define SI_GLOBAL_CONST extern const __declspec(selectany)
 
+#define SI_STR(a) #a
+
 #define SI__JOIN(a, b) a ## b
 #define SI_JOIN(a, b) SI__JOIN(a, b)
 	

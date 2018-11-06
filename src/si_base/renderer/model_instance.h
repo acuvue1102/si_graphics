@@ -17,9 +17,10 @@ namespace SI
 	{
 	public:
 		ModelInstance();
+		explicit ModelInstance(ModelPtr& model);
 		~ModelInstance();
 
-		void                   SetModel(ModelPtr& model);
+		//void                   SetModel(ModelPtr& model);
 		
 		Model*                 GetModel()           { return m_model.get(); }
 		const Model*           GetModel()      const{ return m_model.get(); }
@@ -50,5 +51,7 @@ namespace SI
 		Array<Material*>   m_materials;
 		Array<Geometry*>   m_geometries;
 	};
+	
+	using ModelInstancePtr = std::shared_ptr<ModelInstance>;
 
 } // namespace SI

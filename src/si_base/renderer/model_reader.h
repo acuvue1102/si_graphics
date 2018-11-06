@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "si_base/renderer/model_instance.h"
+
 namespace SI
 {
 	class Model;
@@ -9,7 +11,7 @@ namespace SI
 		ModelReader();
 		~ModelReader();
 
-		bool Read(Model& model, const char* path);
+		bool Read(ModelInstancePtr& model, const char* path);
 	};
 
 } // namespace SI

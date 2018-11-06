@@ -128,14 +128,14 @@ namespace SI
 		SI_ASSERT(m_format == GfxFormat::Max);
 	}
 		
-	void GfxBufferEx_Index::InitializeAsIndex( const char* name, size_t size, bool is16bit)
+	void GfxBufferEx_Index::InitializeAsIndex( const char* name, size_t indexCount, bool is16bit)
 	{
 		BaseDevice& device = SI_BASE_DEVICE();
 		
 		GfxBufferDesc desc;
 		desc.m_name = name;
 		desc.m_heapType = GfxHeapType::Default;
-		desc.m_bufferSizeInByte = size;
+		desc.m_bufferSizeInByte = indexCount * (is16bit? 2 : 4);
 		desc.m_resourceStates   = GfxResourceState::CopyDest;
 		desc.m_resourceFlags    = GfxResourceFlag::None;
 		m_buffer = device.CreateBuffer(desc);
@@ -174,14 +174,14 @@ namespace SI
 		SI_ASSERT(m_stride == 0);
 	}
 		
-	void GfxBufferEx_Vertex::InitializeAsVertex( const char* name, size_t size, size_t stride, size_t offset)
+	void GfxBufferEx_Vertex::InitializeAsVertex( const char* name, size_t vertexCount, size_t stride, size_t offset)
 	{
 		BaseDevice& device = SI_BASE_DEVICE();
 		
 		GfxBufferDesc desc;
 		desc.m_name = name;
 		desc.m_heapType = GfxHeapType::Default;
-		desc.m_bufferSizeInByte = size;
+		desc.m_bufferSizeInByte = vertexCount * stride;
 		desc.m_resourceStates   = GfxResourceState::CopyDest;
 		desc.m_resourceFlags    = GfxResourceFlag::None;
 		m_buffer = device.CreateBuffer(desc);

@@ -83,6 +83,8 @@
     <ClCompile Include="app002_texture\app_002.cpp" />
     <ClCompile Include="app002_texture\pipeline_002.cpp" />
     <ClCompile Include="app003_compute\pipeline_003.cpp" />
+    <ClCompile Include="app004_renderer\app_004.cpp" />
+    <ClCompile Include="app004_renderer\pipeline_004.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +102,8 @@
     <ClInclude Include="app002_texture\app_002.h" />
     <ClInclude Include="app002_texture\pipeline_002.h" />
     <ClInclude Include="app003_compute\pipeline_003.h" />
+    <ClInclude Include="app004_renderer\app_004.h" />
+    <ClInclude Include="app004_renderer\pipeline_004.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shaders\texture.hlsl">

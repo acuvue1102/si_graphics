@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "si_base/platform/windows_proxy.h"
 #include "si_base/core/core.h"
+#include "si_base/file/file.h"
 #include "si_app/file/path_storage.h"
 #include "si_app/app/app_module.h"
 
@@ -51,6 +52,8 @@ namespace SI
 	int App::OnInitialize(const AppDesc& desc)
 	{
 		if(m_initialized) return 0;
+
+		SI::FileSystem::SetCurrentDir(SI_APP_PROJECT_DIR "..\\..\\");
 
 		m_pathStorage = SI_NEW(PathStorage);
 		m_pathStorage->Initialize();

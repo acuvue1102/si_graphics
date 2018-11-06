@@ -1,5 +1,5 @@
 ﻿
-#include "pipeline_002.h"
+#include "pipeline_004.h"
 
 #include <string>
 #include <vector>
@@ -8,10 +8,11 @@
 #include <si_base/math/math.h>
 #include <si_app/file/file_utility.h>
 #include <si_base/container/array.h>
+#include <si_base/renderer/model_reader.h>
 
 namespace SI
 {
-namespace APP002
+namespace APP004
 {
 	namespace
 	{
@@ -176,6 +177,10 @@ namespace APP002
 
 	int Pipeline::LoadAsset(const AppInitializeInfo& info)
 	{
+		//std::string modelPath = "asset\\model\\sphere.json";
+		//ModelReader modelReader;
+		//modelReader.Read(m_modelInstance, modelPath.c_str());
+
 		// textureシェーダのセットアップ.
 		{
 			std::string shaderPath = SI_PATH_STORAGE().GetExeDirPath();
@@ -445,5 +450,5 @@ namespace APP002
 		EndRender();
 	}
 	
-} // namespace APP002
+} // namespace APP004
 } // namespace SI
