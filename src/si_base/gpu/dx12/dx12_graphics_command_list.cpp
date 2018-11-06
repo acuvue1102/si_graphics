@@ -71,72 +71,28 @@ namespace SI
 		BaseBuffer& targetBuffer,
 		const void* srcBuffer,
 		size_t srcBufferSize)
-	{
-		ID3D12Device& d3dDevice = *device.GetComPtrDevice().Get();
-		ID3D12Resource& d3dResource = *targetBuffer.GetComPtrResource().Get();
-		D3D12_RESOURCE_DESC resourceDesc = d3dResource.GetDesc();
-						
-		UINT subresourceNum = CalcSubresouceNum(
-			resourceDesc.MipLevels,
-			resourceDesc.DepthOrArraySize,
-			resourceDesc.Dimension);
-		SI_ASSERT(subresourceNum == 1);
-			
-		// 一時メモリアロケータからバッファを確保するstd::vector.
-		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>   layouts(subresourceNum);
-
-		UINT64 totalBytes = 0;
-		d3dDevice.GetCopyableFootprints(
-			&resourceDesc,
-			0, subresourceNum, 0,
-			&layouts[0], nullptr, nullptr, &totalBytes);
-			
-		if(srcBufferSize < totalBytes)
-		{
-			SI_ASSERT(0);
-			return -1;
-		}
-
-		// アップロード用のバッファを用意する.
-		D3D12_HEAP_PROPERTIES heapProperties = {};
-		heapProperties.Type                 = D3D12_HEAP_TYPE_UPLOAD;
-		heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-		heapProperties.CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-		heapProperties.CreationNodeMask     = 1;
-		heapProperties.VisibleNodeMask      = 1;
-			
-		D3D12_RESOURCE_DESC bufferDesc = {};
-		bufferDesc.MipLevels          = 1;
-		bufferDesc.Format             = DXGI_FORMAT_UNKNOWN;
-		bufferDesc.Width              = totalBytes;
-		bufferDesc.Height             = 1;
-		bufferDesc.Flags              = D3D12_RESOURCE_FLAG_NONE;
-		bufferDesc.DepthOrArraySize   = 1;
-		bufferDesc.SampleDesc.Count   = 1;
-		bufferDesc.SampleDesc.Quality = 0;
-		bufferDesc.Dimension          = D3D12_RESOURCE_DIMENSION_BUFFER;
-		bufferDesc.Layout             = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		bufferDesc.Alignment          = 0;
-			
+	{	
 		ComPtr<ID3D12Resource> bufferUploadHeap;
-		HRESULT hr = d3dDevice.CreateCommittedResource(
-			&heapProperties,
-			D3D12_HEAP_FLAG_NONE,
-			&bufferDesc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&bufferUploadHeap));
-
-		BYTE* pData = nullptr;
-		hr = bufferUploadHeap->Map(0, NULL, reinterpret_cast<void**>(&pData));
-		if (FAILED(hr))
+		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts;
+		if(device.CreateUploadBuffer(
+			bufferUploadHeap,
+			layouts,
+			targetBuffer,
+			srcBuffer,
+			srcBufferSize) != 0)
 		{
-			SI_ASSERT(0, "error textureUploadHeap->Map", _com_error(hr).ErrorMessage());
 			return -1;
 		}
-		memcpy(pData, srcBuffer, srcBufferSize);
-		bufferUploadHeap->Unmap(0, NULL);
-			
+
+		return UploadBuffer(targetBuffer, bufferUploadHeap, layouts);
+	}
+
+	int BaseGraphicsCommandList::UploadBuffer(
+		BaseBuffer& targetBuffer,
+		ComPtr<ID3D12Resource>& bufferUploadHeap,
+		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& layouts)
+	{
+		ID3D12Resource& d3dResource = *targetBuffer.GetComPtrResource().Get();
 		m_graphicsCommandList->CopyBufferRegion(
 			&d3dResource,
 			0,
@@ -166,119 +122,28 @@ namespace SI
 		const void* srcBuffer,
 		size_t srcBufferSize)
 	{
-		ID3D12Device& d3dDevice = *device.GetComPtrDevice().Get();
-		ID3D12Resource& d3dResource = *targetTexture.GetComPtrResource().Get();
-		D3D12_RESOURCE_DESC resourceDesc = d3dResource.GetDesc();
-
-		UINT subresourceNum = CalcSubresouceNum(
-			resourceDesc.MipLevels,
-			resourceDesc.DepthOrArraySize,
-			resourceDesc.Dimension);
-			
-		// 一時メモリアロケータからバッファを確保するstd::vector.
-		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>   layouts(subresourceNum);
-		GfxTempVector<UINT>                                 numRows(subresourceNum);
-		GfxTempVector<UINT64>                               rowSizeInBytes(subresourceNum);
-
-		UINT64 totalBytes = 0;
-		d3dDevice.GetCopyableFootprints(
-			&resourceDesc,
-			0, subresourceNum, 0,
-			&layouts[0], &numRows[0], &rowSizeInBytes[0], &totalBytes);
-
-
-		// アップロード用のバッファを用意する.
-		D3D12_HEAP_PROPERTIES heapProperties = {};
-		heapProperties.Type                 = D3D12_HEAP_TYPE_UPLOAD;
-		heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-		heapProperties.CPUPageProperty      = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-		heapProperties.CreationNodeMask     = 1;
-		heapProperties.VisibleNodeMask      = 1;
-			
-		D3D12_RESOURCE_DESC bufferDesc = {};
-		bufferDesc.MipLevels          = 1;
-		bufferDesc.Format             = DXGI_FORMAT_UNKNOWN;
-		bufferDesc.Width              = totalBytes;
-		bufferDesc.Height             = 1;
-		bufferDesc.Flags              = D3D12_RESOURCE_FLAG_NONE;
-		bufferDesc.DepthOrArraySize   = 1;
-		bufferDesc.SampleDesc.Count   = 1;
-		bufferDesc.SampleDesc.Quality = 0;
-		bufferDesc.Dimension          = D3D12_RESOURCE_DIMENSION_BUFFER;
-		bufferDesc.Layout             = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-		bufferDesc.Alignment          = 0;
-			
-		ComPtr<ID3D12Resource> textureUploadHeap;
-		HRESULT hr = d3dDevice.CreateCommittedResource(
-			&heapProperties,
-			D3D12_HEAP_FLAG_NONE,
-			&bufferDesc,
-			D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&textureUploadHeap));
-
-		GfxTempVector<D3D12_SUBRESOURCE_DATA> sourcesData(subresourceNum);
-		size_t bpp = GetDx12FormatBits(resourceDesc.Format);
-		
-		bool isBlock = IsBlockCompression(targetTexture.GetFormat());
-
-		const uint8_t* tmpSrc = (const uint8_t*)srcBuffer;
-		if(isBlock)
+		ComPtr<ID3D12Resource>                            textureUploadHeap;
+		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts;
+		if(device.CreateUploadTexture(
+			textureUploadHeap,
+			layouts,
+			targetTexture,
+			srcBuffer,
+			srcBufferSize) != 0)
 		{
-			for(UINT i=0; i<subresourceNum; ++i)
-			{
-				uint32_t w = Max(1u, ((layouts[i].Footprint.Width  + 3u)/4u ));
-				uint32_t h = Max(1u, ((layouts[i].Footprint.Height + 3u)/4u ));
-				sourcesData[i].pData      = tmpSrc;
-				sourcesData[i].RowPitch   = (w * 4 * 4 * bpp) / 8;
-				sourcesData[i].SlicePitch = h * layouts[i].Footprint.Depth;
-				tmpSrc += sourcesData[i].RowPitch * sourcesData[i].SlicePitch;
-			}
-		}
-		else
-		{
-			for(UINT i=0; i<subresourceNum; ++i)
-			{
-				sourcesData[i].pData      = tmpSrc;
-				sourcesData[i].RowPitch   = (layouts[i].Footprint.Width * bpp) / 8;
-				sourcesData[i].SlicePitch = layouts[i].Footprint.Height * layouts[i].Footprint.Depth;
-				tmpSrc += sourcesData[i].RowPitch * sourcesData[i].SlicePitch;
-			}
-		}
-		SI_ASSERT((uintptr_t)tmpSrc <= (uintptr_t)srcBuffer + srcBufferSize);
-
-		BYTE* pData = nullptr;
-		hr = textureUploadHeap->Map(0, NULL, reinterpret_cast<void**>(&pData));
-		if (FAILED(hr))
-		{
-			SI_ASSERT(0, "error textureUploadHeap->Map", _com_error(hr).ErrorMessage());
 			return -1;
 		}
-				
-		for (UINT i=0; i<subresourceNum; ++i)
-		{
-			if (rowSizeInBytes[i] > (SIZE_T)-1)
-			{
-				SI_ASSERT(0);
-				return -1;
-			}
 
-			D3D12_MEMCPY_DEST destData =
-			{
-				pData + layouts[i].Offset,
-				layouts[i].Footprint.RowPitch,
-				layouts[i].Footprint.RowPitch * numRows[i]
-			};
-
-			MemcpySubresource(
-				&destData,
-				&sourcesData[i],
-				(SIZE_T)rowSizeInBytes[i],
-				numRows[i],
-				layouts[i].Footprint.Depth);
-		}
-		textureUploadHeap->Unmap(0, NULL);
-			
+		return UploadTexture(targetTexture, textureUploadHeap, layouts);
+	}
+		
+	int BaseGraphicsCommandList::UploadTexture(
+		BaseTexture& targetTexture,
+		ComPtr<ID3D12Resource>& textureUploadHeap,
+		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& layouts)
+	{
+		ID3D12Resource& d3dResource = *targetTexture.GetComPtrResource().Get();
+		UINT subresourceNum = (UINT)layouts.size();
 		for (UINT i=0; i<subresourceNum; ++i)
 		{
 			D3D12_TEXTURE_COPY_LOCATION dst = {};

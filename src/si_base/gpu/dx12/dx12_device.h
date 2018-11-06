@@ -6,7 +6,9 @@
 #include <d3d12.h>
 #include <wrl/client.h>
 #include <cstdint>
+#include <vector>
 #include "si_base/core/singleton.h"
+#include "si_base/concurency/mutex.h"
 #include "si_base/gpu/gfx_enum.h"
 #include "si_base/gpu/dx12/dx12_declare.h"
 #include "si_base/gpu/dx12/dx12_descriptor_heap.h"
@@ -17,6 +19,9 @@ namespace SI
 {
 	class PoolAllocatorEx;
 	struct GfxCpuDescriptor;
+
+	template<typename T> class GfxStdDeviceTempAllocator;
+	template<typename T> using GfxTempVector = std::vector<T, GfxStdDeviceTempAllocator<T>>;
 
 	class BaseDevice : public Singleton<BaseDevice>
 	{
@@ -136,6 +141,20 @@ namespace SI
 			const uint32_t*          srcDescriptorRangeSizes,
 			GfxDescriptorHeapType    type);
 
+		int CreateUploadBuffer(
+			ComPtr<ID3D12Resource>& outBufferUploadHeap,
+			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>&   outLayouts,
+			BaseBuffer&             targetBuffer,
+			const void*             srcBuffer,
+			size_t                  srcBufferSize);
+
+		int CreateUploadTexture(
+			ComPtr<ID3D12Resource>& outTextureUploadHeap,
+			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& outLayouts,
+			BaseTexture& targetTexture,
+			const void* srcBuffer,
+			size_t srcBufferSize);
+
 	public:
 		PoolAllocatorEx* GetObjectAllocator(){ return m_objectAllocator; }
 		PoolAllocatorEx* GetTempAllocator()  { return m_tempAllocator; }
@@ -166,6 +185,22 @@ namespace SI
 		bool                              m_initialized;
 
 		size_t                            m_descriptorSize[(int)GfxDescriptorHeapType::Max];
+
+		struct UploadingBuffer
+		{
+			BaseBuffer*            m_targetBuffer;
+			ComPtr<ID3D12Resource> m_uploadbuffer;
+
+			UploadingBuffer(
+				BaseBuffer*             targetBuffer,
+				ComPtr<ID3D12Resource>  uploadbuffer)
+				: m_targetBuffer(targetBuffer)
+				, m_uploadbuffer(uploadbuffer)
+			{
+			}
+		};
+		std::vector<UploadingBuffer>  m_uploadingBuffers;
+		Mutex                         m_uploadBufferMutex;
 	};
 
 } // namespace SI

@@ -29,6 +29,11 @@ namespace SI
 		static_assert(sizeof(D3D12_GPU_VIRTUAL_ADDRESS) == sizeof(size_t), "size error");
 
 	public:
+		const ComPtr<ID3D12Resource>& GetComPtrResource() const
+		{
+			return m_resource;
+		}
+
 		ComPtr<ID3D12Resource>& GetComPtrResource()
 		{
 			return m_resource;
