@@ -12,6 +12,7 @@
 #include "si_base/gpu/gfx_enum.h"
 #include "si_base/gpu/dx12/dx12_declare.h"
 #include "si_base/gpu/dx12/dx12_descriptor_heap.h"
+#include "si_base/gpu/dx12/dx12_upload_pool.h"
 
 struct IDXGIFactory4;
 
@@ -141,6 +142,7 @@ namespace SI
 			const uint32_t*          srcDescriptorRangeSizes,
 			GfxDescriptorHeapType    type);
 
+		// upload用のバッファを作るだけ.
 		int CreateUploadBuffer(
 			ComPtr<ID3D12Resource>& outBufferUploadHeap,
 			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>&   outLayouts,
@@ -154,6 +156,20 @@ namespace SI
 			BaseTexture& targetTexture,
 			const void* srcBuffer,
 			size_t srcBufferSize);
+
+		// upload用のバッファを作って登録、Flushまで転送はしない.
+		int UploadBufferLater(
+			BaseBuffer&             targetBuffer,
+			const void*             srcBuffer,
+			size_t                  srcBufferSize);
+
+		int UploadTextureLater(
+			BaseTexture&            targetTexture,
+			const void*             srcBuffer,
+			size_t                  srcBufferSize);
+
+		// upload用のバッファを転送する.
+		int FlushUploadPool(BaseGraphicsCommandList& commandList);
 
 	public:
 		PoolAllocatorEx* GetObjectAllocator(){ return m_objectAllocator; }
@@ -185,22 +201,7 @@ namespace SI
 		bool                              m_initialized;
 
 		size_t                            m_descriptorSize[(int)GfxDescriptorHeapType::Max];
-
-		struct UploadingBuffer
-		{
-			BaseBuffer*            m_targetBuffer;
-			ComPtr<ID3D12Resource> m_uploadbuffer;
-
-			UploadingBuffer(
-				BaseBuffer*             targetBuffer,
-				ComPtr<ID3D12Resource>  uploadbuffer)
-				: m_targetBuffer(targetBuffer)
-				, m_uploadbuffer(uploadbuffer)
-			{
-			}
-		};
-		std::vector<UploadingBuffer>  m_uploadingBuffers;
-		Mutex                         m_uploadBufferMutex;
+		BaseUploadPool                    m_uploadPool;
 	};
 
 } // namespace SI

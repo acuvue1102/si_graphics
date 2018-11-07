@@ -91,6 +91,7 @@
     <ClCompile Include="gpu\dx12\dx12_shader.cpp" />
     <ClCompile Include="gpu\dx12\dx12_swap_chain.cpp" />
     <ClCompile Include="gpu\dx12\dx12_texture.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_upload_pool.cpp" />
     <ClCompile Include="gpu\gfx_buffer.cpp" />
     <ClCompile Include="gpu\gfx_buffer_ex.cpp" />
     <ClCompile Include="gpu\gfx_command_queue.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="gpu\dx12\dx12_shader.h" />
     <ClInclude Include="gpu\dx12\dx12_swap_chain.h" />
     <ClInclude Include="gpu\dx12\dx12_texture.h" />
+    <ClInclude Include="gpu\dx12\dx12_upload_pool.h" />
     <ClInclude Include="gpu\dx12\dx12_utility.h" />
     <ClInclude Include="gpu\gfx.h" />
     <ClInclude Include="gpu\gfx_buffer.h" />

@@ -229,15 +229,18 @@ namespace APP004
 			m_textureConstant->m_uvScale[1]     = 1.0f;
 		}
 
-		std::vector<uint8_t> texData;
-		GfxDdsMetaData texMetaData;
 		{
+			std::vector<uint8_t> texData;
+			GfxDdsMetaData texMetaData;
 			char ddsFilePath[260];
 			sprintf_s(ddsFilePath, "%stexture\\test_texture.dds", SI_PATH_STORAGE().GetAssetDirPath());
 			int ret = FileUtility::Load(texData, ddsFilePath);
 			SI_ASSERT(ret==0);
 
 			m_texture.InitializeDDS("test_texture", &texData[0], texData.size(), texMetaData);
+			
+			GfxTexture tex(m_texture.GetTexture());
+			m_device.UploadTextureLater(tex, texMetaData.m_image, texMetaData.m_imageSise);
 		}
 		
 		// render targetのセットアップ.
@@ -317,15 +320,6 @@ namespace APP004
 			m_graphicsStates[1] = m_device.CreateGraphicsState(stateDesc);
 		}
 
-		// commandList経由でリソースのデータをアップロードする.
-		BeginRender();
-		{
-			GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
-			
-			context.UploadTexture(m_device, m_texture, texMetaData.m_image, texMetaData.m_imageSise);
-		}
-		EndRender();
-
 		return 0;
 	}
 	
@@ -383,6 +377,9 @@ namespace APP004
 		BeginRender();
 		
 		GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
+		
+		m_device.FlushUploadPool(*context.GetGraphicsCommandList());
+
 		context.ResourceBarrier(
 			m_depth,
 			GfxResourceState::DepthWrite);

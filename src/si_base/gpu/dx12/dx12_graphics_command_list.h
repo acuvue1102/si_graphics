@@ -20,10 +20,12 @@
 #include "si_base/gpu/dx12/dx12_device.h"
 #include "si_base/gpu/dx12/dx12_utility.h"
 #include "si_base/gpu/gfx_texture.h"
+#include "si_base/gpu/dx12/dx12_descriptor_heap.h"
 #include "si_base/gpu/gfx_buffer.h"
 #include "si_base/gpu/gfx_viewport.h"
 #include "si_base/gpu/gfx_gpu_resource.h"
 #include "si_base/gpu/gfx_device_std_allocator.h"
+#include "si_base/gpu/gfx_descriptor_heap.h"
 
 namespace SI
 {

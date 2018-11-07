@@ -71,7 +71,7 @@ namespace SI
 		BaseBuffer& targetBuffer,
 		const void* srcBuffer,
 		size_t srcBufferSize)
-	{	
+	{
 		ComPtr<ID3D12Resource> bufferUploadHeap;
 		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts;
 		if(device.CreateUploadBuffer(

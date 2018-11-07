@@ -97,7 +97,20 @@ namespace SI
 			GfxDescriptorHeap& descriptorHeap,
 			uint32_t descriptorIndex,
 			const GfxConstantBufferViewDesc& desc);
+		
+		// upload用のバッファを作って登録、Flushまで転送はしない.
+		int UploadBufferLater(
+			GfxBuffer&              targetBuffer,
+			const void*             srcBuffer,
+			size_t                  srcBufferSize);
 
+		int UploadTextureLater(
+			GfxTexture&             targetTexture,
+			const void*             srcBuffer,
+			size_t                  srcBufferSize);
+
+		// upload用のバッファを転送する.
+		int FlushUploadPool(GfxGraphicsCommandList& commandList);
 	public:
 		BaseDevice* GetBaseDevice(){ return m_base; }
 		const BaseDevice* GetBaseDevice() const{ return m_base; }

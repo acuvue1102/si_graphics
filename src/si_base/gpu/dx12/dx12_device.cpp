@@ -861,8 +861,64 @@ namespace SI
 
 		return 0;
 	}
+	
+	int BaseDevice::UploadBufferLater(
+		BaseBuffer& targetBuffer,
+		const void* srcBuffer,
+		size_t      srcBufferSize)
+	{
+		ComPtr<ID3D12Resource> bufferUploadHeap;
+		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts;
+		if(CreateUploadBuffer(
+			bufferUploadHeap,
+			layouts,
+			targetBuffer,
+			srcBuffer,
+			srcBufferSize) != 0)
+		{
+			return -1;
+		}
+		
+		// upload用のバッファだけ作ってpoolに貯めて、後でコピーする.
+		m_uploadPool.AddBuffer(
+			targetBuffer,
+			std::move(bufferUploadHeap),
+			std::move(layouts));
 
+		return 0;
+	}
 
+	int BaseDevice::UploadTextureLater(
+		BaseTexture& targetTexture,
+		const void*  srcBuffer,
+		size_t       srcBufferSize)
+	{
+		ComPtr<ID3D12Resource>                            textureUploadHeap;
+		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts;
+		if(CreateUploadTexture(
+			textureUploadHeap,
+			layouts,
+			targetTexture,
+			srcBuffer,
+			srcBufferSize) != 0)
+		{
+			return -1;
+		}
+		
+		// upload用のバッファだけ作ってpoolに貯めて、後でコピーする.
+		m_uploadPool.AddTexture(
+			targetTexture,
+			std::move(textureUploadHeap),
+			std::move(layouts));
+
+		return 0;
+	}
+	
+	int BaseDevice::FlushUploadPool(BaseGraphicsCommandList& commandList)
+	{
+		m_uploadPool.Flush(commandList);
+		return 0;
+	}
 
 } // namespace SI
 

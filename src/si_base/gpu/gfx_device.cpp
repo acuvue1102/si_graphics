@@ -271,6 +271,35 @@ namespace SI
 			descriptorIndex,
 			desc);
 	}
+
+	// upload用のバッファを作って登録、Flushまで転送はしない.
+	int GfxDevice::UploadBufferLater(
+		GfxBuffer&              targetBuffer,
+		const void*             srcBuffer,
+		size_t                  srcBufferSize)
+	{
+		return m_base->UploadBufferLater(
+			*targetBuffer.GetBaseBuffer(),
+			srcBuffer,
+			srcBufferSize);
+	}
+
+	int GfxDevice::UploadTextureLater(
+		GfxTexture&             targetTexture,
+		const void*             srcBuffer,
+		size_t                  srcBufferSize)
+	{
+		return m_base->UploadTextureLater(
+			*targetTexture.GetBaseTexture(),
+			srcBuffer,
+			srcBufferSize);
+	}
+
+	// upload用のバッファを転送する.
+	int GfxDevice::FlushUploadPool(GfxGraphicsCommandList& commandList)
+	{
+		return m_base->FlushUploadPool(*commandList.GetBaseGraphicsCommandList());
+	}
 	
 	PoolAllocatorEx* GfxDevice::GetObjectAllocator()
 	{
