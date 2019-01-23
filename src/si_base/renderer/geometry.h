@@ -73,9 +73,7 @@ namespace SI
 		{
 		}
 		
-		virtual ~Geometry()
-		{
-		}
+		virtual ~Geometry();
 
 		virtual uint32_t GetType() const
 		{
@@ -101,49 +99,6 @@ namespace SI
 		uint8_t             m_is16bitIndex;
 		GfxBufferEx_Vertex  m_vertexBuffer;
 		GfxBufferEx_Index   m_indexBuffer;
-	};
-
-	class VerboseGeometry : public Geometry
-	{
-	public:
-		VerboseGeometry()
-		{
-		}
-
-		virtual ~VerboseGeometry()
-		{
-			m_rawVertexBuffer.Reset();
-			m_rawIndexBuffer.Reset();
-		}
-
-		virtual uint32_t GetType() const
-		{
-			return 'Verb';
-		}
-
-		virtual void ExportSerializeData(GeometrySerializeData& outData) const override
-		{
-			outData.m_vertexLayout    = m_vertexLayout;
-			outData.m_is16bitIndex    = m_is16bitIndex;
-			outData.m_rawVertexBuffer = m_rawVertexBuffer;
-			outData.m_rawIndexBuffer  = m_rawIndexBuffer;
-		}
-
-		virtual void ImportSerializeData(const GeometrySerializeData& s) override
-		{
-			SI_ASSERT(0);
-			return;
-		}
-
-	private:
-		static VerboseGeometry* Create();
-
-	private:
-		friend class FbxParser;
-
-	protected:
-		Array<uint8_t>   m_rawVertexBuffer;
-		Array<uint8_t>   m_rawIndexBuffer;
 	};
 
 } // namespace SI

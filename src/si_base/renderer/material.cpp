@@ -2,6 +2,8 @@
 #include "si_base/renderer/material.h"
 
 #include "si_base/gpu/gfx_shader.h"
+#include "si_base/gpu/gfx_graphics_state.h"
+#include "si_base/gpu/gfx_input_layout.h"
 
 namespace SI
 {

@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+#include "si_base/misc/hash_declare.h"
+#include "si_base/gpu/gfx_enum.h"
+
 namespace SI
 {
 	class BaseShader;
@@ -9,6 +12,14 @@ namespace SI
 	struct GfxShaderCompileDesc
 	{
 		const char** m_macros = nullptr; // "マクロ名" "定義"の順に並べる. { "PI", "3.14", nullptr, nullptr }
+	};
+
+	struct GfxShaderBindingResouceCount
+	{
+		uint32_t m_constantCount  = 0;
+		uint32_t m_samplerCount   = 0;
+		uint32_t m_srvBufferCount = 0;
+		uint32_t m_uavBufferCount = 0;
 	};
 	
 	///////////////////////////////////////////////////////
@@ -24,6 +35,13 @@ namespace SI
 			const char* entryPoint,
 			const GfxShaderCompileDesc& desc) = 0;
 		virtual int Release() = 0;
+
+		Hash64 GetHash() const;
+
+		const GfxShaderBindingResouceCount& GetBindingResourceCount() const;
+		virtual GfxShaderType GetType() const = 0;
+
+		bool IsValid() const{ return m_base!=nullptr; }
 
 	public:
 		BaseShader*       GetBaseShader()      { return m_base; }
@@ -46,6 +64,8 @@ namespace SI
 			const char* entryPoint = "VSMain",
 			const GfxShaderCompileDesc& desc = GfxShaderCompileDesc()) override;
 		int Release() override;
+		
+		GfxShaderType GetType() const override{ return GfxShaderType::Vertex; }
 	};
 
 	///////////////////////////////////////////////////////
@@ -61,6 +81,7 @@ namespace SI
 			const char* entryPoint = "PSMain",
 			const GfxShaderCompileDesc& desc = GfxShaderCompileDesc()) override;
 		int Release() override;
+		GfxShaderType GetType() const override{ return GfxShaderType::Pixel; }
 	};
 
 	///////////////////////////////////////////////////////
@@ -76,6 +97,7 @@ namespace SI
 			const char* entryPoint = "CSMain",
 			const GfxShaderCompileDesc& desc = GfxShaderCompileDesc()) override;
 		int Release() override;
+		GfxShaderType GetType() const override{ return GfxShaderType::Compute; }
 	};
 
 } // namespace SI

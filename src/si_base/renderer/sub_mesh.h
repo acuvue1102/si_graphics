@@ -48,6 +48,9 @@ namespace SI
 			m_materialIndex  = serializeData.m_materialIndex;
 			m_geometryIndex  = serializeData.m_geometryIndex;
 		}
+		
+		ObjectIndex GetMaterialIndex() const{ return m_materialIndex; }
+		ObjectIndex GetGeometryIndex() const{ return m_geometryIndex; }
 
 	private:
 		friend class FbxParser;

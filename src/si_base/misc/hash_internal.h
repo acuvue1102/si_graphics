@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include "si_base/misc/hash_declare.h"
 
 #pragma warning(disable:4307) // '*': 整数定数がオーバーフローしました。
 
@@ -10,9 +11,6 @@
 
 namespace SI
 {
-	using Hash32 = uint32_t;
-	using Hash64 = uint64_t;
-
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Fnv-1 Hashの実装.
 	static const uint32_t kFnvBasis32 = 2166136261u;

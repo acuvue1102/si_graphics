@@ -4,6 +4,18 @@
 
 namespace SI
 {
+	enum class GfxShaderType
+	{
+		Vertex = 0,
+		Pixel,
+		Geometry,
+		Hull,
+		Domain,
+		Compute,
+
+		Max,
+	};
+
 	enum class GfxSemanticsType : uint8_t
 	{
 		Invalid = 0,

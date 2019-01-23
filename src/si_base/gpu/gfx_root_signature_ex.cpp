@@ -3,6 +3,7 @@
 #include "si_base/gpu/gfx_root_signature_ex.h"
 #include "si_base/gpu/gfx_device.h"
 #include "si_base/memory/pool_allocator.h"
+#include "si_base/gpu/gfx_shader.h"
 
 namespace SI
 {
@@ -33,6 +34,58 @@ namespace SI
 		SI_ASSERT(m_tables);
 		SI_ASSERT(0 < tableCount);
 	}
+	
+#if 0
+	void GfxRootSignatureDescEx::InitiaizeWithShaderSet(const GfxShaderSet& shaderSet)
+	{
+		const GfxShader* shaders[] =
+		{
+			shaderSet.m_vertexShader,
+			shaderSet.m_pixelShader
+		};
+
+		ReserveTables(2);
+		GfxDescriptorHeapTableEx& table0 = GetTable(0); // sampler以外
+		GfxDescriptorHeapTableEx& table1 = GetTable(1); // sampler
+		
+		// 確保領域を計算するだけ.
+		uint32_t rangeCount0 = 0;
+		uint32_t rangeCount1 = 0;
+		for(size_t i=0; i<ArraySize(shaders); ++i)
+		{
+			const GfxShader* shader = shaders[i];
+			if(shader==nullptr) continue;
+
+			const GfxShaderBindingResouceCount& bindingResourceCount = shader->GetBindingResourceCount();
+			
+			rangeCount0 += bindingResourceCount.m_constantCount;
+			rangeCount0 += bindingResourceCount.m_srvBufferCount;
+			rangeCount0 += bindingResourceCount.m_textureCount;
+			rangeCount0 += bindingResourceCount.m_uavBufferCount;
+
+			rangeCount1 += bindingResourceCount.m_samplerCount;
+		}
+		table0.ReserveRanges(rangeCount0);
+		table1.ReserveRanges(rangeCount1);
+
+		for(size_t i=0; i<ArraySize(shaders); ++i)
+		{
+			const GfxShader* shader = shaders[i];
+			if(shader==nullptr) continue;
+
+			const GfxShaderBindingResouceCount& bindingResourceCount = shader->GetBindingResourceCount();
+
+			table0.ReserveRanges(2);
+			table0.GetRange(0).Set(GfxDescriptorRangeType::Srv, 1, 0, GfxDescriptorRangeFlag::Volatile);
+			table0.GetRange(1).Set(GfxDescriptorRangeType::Cbv, 1, 1, GfxDescriptorRangeFlag::Volatile);
+
+			GfxDescriptorHeapTableEx& table1 = rootSignatureDesc.GetTable(1);
+			table1.ReserveRanges(1);
+			table1.GetRange(0).Set(GfxDescriptorRangeType::Sampler, 1, 0, GfxDescriptorRangeFlag::DescriptorsVolatile);
+
+		}
+	}
+#endif
 
 	void GfxRootSignatureDescEx::Terminate()
 	{

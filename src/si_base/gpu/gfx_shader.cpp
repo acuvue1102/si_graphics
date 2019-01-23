@@ -5,6 +5,16 @@
 
 namespace SI
 {
+	Hash64 GfxShader::GetHash() const
+	{
+		return m_base->GetHash();
+	}
+	
+	const GfxShaderBindingResouceCount& GfxShader::GetBindingResourceCount() const
+	{
+		return m_base->GetBindingResourceCount();
+	}
+
 	GfxVertexShader::GfxVertexShader()
 	{
 	}

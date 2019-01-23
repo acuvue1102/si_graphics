@@ -8,7 +8,9 @@
 #include "si_base/gpu/gfx_root_signature.h"
 
 namespace SI
-{	
+{
+	class GfxShader;
+
 	// GfxDescriptorHeapTableだけだと不便なので、便利にしたクラス.
 	class GfxDescriptorHeapTableEx : private NonCopyable
 	{
@@ -44,6 +46,12 @@ namespace SI
 	};
 	static_assert(sizeof(GfxDescriptorHeapTable)==sizeof(GfxDescriptorHeapTableEx), "size error");
 
+	struct GfxShaderSet
+	{
+		const GfxShader* m_vertexShader = nullptr;
+		const GfxShader* m_pixelShader  = nullptr;
+	};
+
 	// GfxRootSignatureDescだけだと不便なので、便利にしたクラス.
 	class GfxRootSignatureDescEx : private NonCopyable
 	{		
@@ -66,6 +74,8 @@ namespace SI
 		{
 			m_name = name;
 		}
+
+		//void InitiaizeWithShaderSet(const GfxShaderSet& shaderSet);
 
 		// tableのメモリ開放.
 		void Terminate();
@@ -135,4 +145,7 @@ namespace SI
 		uint64_t m_viewsTableBits;                                // sampler以外のtableで使われている箇所のビットを立てたtable.
 		uint16_t m_tableDescriptorCount[kMaxNumDescriptorTables]; // tableのdescriptorの数
 	};
+
+
+
 } // namespace SI

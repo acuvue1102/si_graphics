@@ -3,6 +3,7 @@
 #include "si_base/gpu/gfx_root_signature.h"
 #include "si_base/gpu/gfx_shader.h"
 #include "si_base/gpu/gfx_enum.h"
+#include "si_base/misc/hash_declare.h"
 
 namespace SI
 {
@@ -23,9 +24,30 @@ namespace SI
 		GfxBlend              m_destBlendAlpha = GfxBlend::Zero;
 		GfxBlendOp            m_blendOpAlpha   = GfxBlendOp::Add;
 		GfxLogicOp            m_logicOp        = GfxLogicOp::Noop;
+		
+		bool operator==(const GfxRenderTargetBlendDesc& desc) const
+		{
+			if(m_blendEnable    != desc.m_blendEnable)    return false;
+			if(m_logicOpEnable  != desc.m_logicOpEnable)  return false;
+			if(m_rtWriteMask    != desc.m_rtWriteMask)    return false;
+			if(m_srcBlend       != desc.m_srcBlend)       return false;
+			if(m_destBlend      != desc.m_destBlend)      return false;
+			if(m_blendOp        != desc.m_blendOp)        return false;
+			if(m_srcBlendAlpha  != desc.m_srcBlendAlpha)  return false;
+			if(m_destBlendAlpha != desc.m_destBlendAlpha) return false;
+			if(m_blendOpAlpha   != desc.m_blendOpAlpha)   return false;
+			if(m_logicOp        != desc.m_logicOp)        return false;
+
+			return true;
+		}
+
+		bool operator!=(const GfxRenderTargetBlendDesc& desc) const
+		{
+			return !(*this==desc);
+		}
 	};
 
-	struct GfxGraphicsStateDesc
+	struct GfxGraphicsStateDescCore
 	{
 		const char*              m_name                   = nullptr;
 		GfxRootSignature*        m_rootSignature          = nullptr;
@@ -54,6 +76,23 @@ namespace SI
 		bool                     m_alphaToCoverageEnable  = false;
 		bool                     m_independentBlendEnable = false;
 		bool                     m_frontCounterClockwise  = false;
+
+		Hash64 GenerateHash() const;
+		
+		bool operator==(const GfxGraphicsStateDescCore& desc) const;
+		bool operator!=(const GfxGraphicsStateDescCore& desc) const{ return !(*this==desc); }
+	};
+
+	struct GfxGraphicsStateDesc : public GfxGraphicsStateDescCore
+	{
+		GfxGraphicsStateDesc(){}
+		GfxGraphicsStateDesc(const GfxGraphicsStateDescCore& desc);
+
+		void UpdateHash();
+		Hash64 GetHash();
+
+	private:
+		Hash64 m_hash = 0;
 	};
 
 	class GfxGraphicsState
@@ -61,8 +100,6 @@ namespace SI
 	public:
 		GfxGraphicsState(BaseGraphicsState* base=nullptr);
 		~GfxGraphicsState();
-
-		int Release();
 
 	public:
 		BaseGraphicsState* GetBaseGraphicsState(){ return m_base; }

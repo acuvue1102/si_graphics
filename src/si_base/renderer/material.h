@@ -32,6 +32,9 @@ namespace SI
 		}
 		
 		void ImportSerializeData(const MaterialSerializeData& serializeData);
+				
+		const GfxVertexShader& GetVertexShader() const{ return m_shaderVS; }
+		const GfxPixelShader&  GetPixelShader() const{ return m_shaderPS; }
 
 	public:
 		static Material* Create();

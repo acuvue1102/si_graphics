@@ -12,6 +12,7 @@ namespace SI
 	class SubMesh;
 	class Material;
 	class Geometry;
+	class RenderItem;
 
 	class ModelInstance
 	{
@@ -19,8 +20,6 @@ namespace SI
 		ModelInstance();
 		explicit ModelInstance(ModelPtr& model);
 		~ModelInstance();
-
-		//void                   SetModel(ModelPtr& model);
 		
 		Model*                 GetModel()           { return m_model.get(); }
 		const Model*           GetModel()      const{ return m_model.get(); }
@@ -45,11 +44,14 @@ namespace SI
 		Array<Geometry*>       GetGeometries()      { return m_geometries.IsValid()? m_geometries : m_model->GetGeometries();    }
 		ConstArray<Geometry*>  GetGeometries() const{ return m_geometries.IsValid()? m_geometries : m_model->GetGeometries();    }
 
+		void SetupRenderItem();
+
 	private:
 		ModelPtr           m_model;
 		Array<NodeCore>    m_nodeCores;
 		Array<Material*>   m_materials;
 		Array<Geometry*>   m_geometries;
+		Array<RenderItem>  m_renderItems;
 	};
 	
 	using ModelInstancePtr = std::shared_ptr<ModelInstance>;

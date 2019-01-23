@@ -177,9 +177,9 @@ namespace APP004
 
 	int Pipeline::LoadAsset(const AppInitializeInfo& info)
 	{
-		//std::string modelPath = "asset\\model\\sphere.json";
-		//ModelReader modelReader;
-		//modelReader.Read(m_modelInstance, modelPath.c_str());
+		std::string modelPath = "asset\\model\\sphere.json";
+		ModelReader modelReader;
+		modelReader.Read(m_modelInstance, modelPath.c_str());
 
 		// textureシェーダのセットアップ.
 		{
@@ -356,6 +356,8 @@ namespace APP004
 
 		m_texturePS.Release();
 		m_textureVS.Release();
+		
+		m_modelInstance.reset();
 
 		PipelineBase::OnTerminate();
 

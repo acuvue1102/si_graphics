@@ -136,6 +136,7 @@
     <ClCompile Include="renderer\model_writer.cpp" />
     <ClCompile Include="renderer\node.cpp" />
     <ClCompile Include="renderer\renderer.cpp" />
+    <ClCompile Include="renderer\render_item.cpp" />
     <ClCompile Include="renderer\sub_mesh.cpp" />
     <ClCompile Include="serialization\deserializer.cpp" />
     <ClCompile Include="serialization\reflection.cpp" />
@@ -236,6 +237,7 @@
     <ClInclude Include="misc\bitwise.h" />
     <ClInclude Include="misc\enum_flags.h" />
     <ClInclude Include="misc\hash.h" />
+    <ClInclude Include="misc\hash_declare.h" />
     <ClInclude Include="misc\hash_internal.h" />
     <ClInclude Include="misc\reference_counter.h" />
     <ClInclude Include="misc\string_util.h" />
@@ -253,6 +255,7 @@
     <ClInclude Include="renderer\renderer.h" />
     <ClInclude Include="renderer\renderer_common.h" />
     <ClInclude Include="renderer\renderer_enum.h" />
+    <ClInclude Include="renderer\render_item.h" />
     <ClInclude Include="renderer\sub_mesh.h" />
     <ClInclude Include="serialization\deserializer.h" />
     <ClInclude Include="serialization\reflection.h" />

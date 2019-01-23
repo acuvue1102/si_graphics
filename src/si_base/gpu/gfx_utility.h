@@ -276,4 +276,24 @@ namespace SI
 			   dimension == GfxDimension::TextureCubeArray;
 	}
 
+	inline GfxShaderVisibility GetShaderVisibility(GfxShaderType shaderType)
+	{
+		switch (shaderType)
+		{
+		case GfxShaderType::Vertex:
+			return GfxShaderVisibility::Vertex;
+		case GfxShaderType::Pixel:
+			return GfxShaderVisibility::Pixel;
+		case GfxShaderType::Geometry:
+			return GfxShaderVisibility::Geometry;
+		case GfxShaderType::Hull:
+			return GfxShaderVisibility::Hull;
+		case GfxShaderType::Domain:
+			return GfxShaderVisibility::Domain;
+		case GfxShaderType::Compute:
+		default:
+			return GfxShaderVisibility::All;
+		}
+	}
+
 } // namespace SI
