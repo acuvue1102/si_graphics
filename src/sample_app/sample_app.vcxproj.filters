@@ -19,6 +19,9 @@
     <Filter Include="app004_renderer">
       <UniqueIdentifier>{cb73b6cc-3df4-4f08-890a-a4ce95de6530}</UniqueIdentifier>
     </Filter>
+    <Filter Include="app005_raytracing_in_one_weekend">
+      <UniqueIdentifier>{2012ac2b-ebdc-4197-a4ae-4ef2a24c2967}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -43,6 +46,9 @@
     <ClCompile Include="app004_renderer\pipeline_004.cpp">
       <Filter>app004_renderer</Filter>
     </ClCompile>
+    <ClCompile Include="app005_raytracing_in_one_weekend\pipeline_005.cpp">
+      <Filter>app005_raytracing_in_one_weekend</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app000_clear_color\pipeline_000.h">
@@ -66,6 +72,9 @@
     <ClInclude Include="app004_renderer\pipeline_004.h">
       <Filter>app004_renderer</Filter>
     </ClInclude>
+    <ClInclude Include="app005_raytracing_in_one_weekend\pipeline_005.h">
+      <Filter>app005_raytracing_in_one_weekend</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shaders\color.hlsl">
@@ -81,6 +90,9 @@
       <Filter>shaders</Filter>
     </CustomBuild>
     <CustomBuild Include="shaders\ibl_lut_cs.hlsl">
+      <Filter>shaders</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shaders\raytracing_in_one_weekend.hlsl">
       <Filter>shaders</Filter>
     </CustomBuild>
   </ItemGroup>

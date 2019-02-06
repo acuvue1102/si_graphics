@@ -8,11 +8,12 @@
 #include "app002_texture/app_002.h"
 #include "app003_compute/pipeline_003.h"
 #include "app004_renderer/app_004.h"
+#include "app005_raytracing_in_one_weekend/pipeline_005.h"
 
 /* main function */
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
-	int mode = 4;
+	int mode = 5;
 	
 	SI::AppDesc appDesc;
 	appDesc.m_nCmdShow = nCmdShow;
@@ -45,6 +46,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	case 4:
 	{
 		SI::APP004::App004 app;
+		return app.Run(appDesc);
+	}
+	case 5:
+	{
+		SI::App app;
+		app.Register<SI::APP005::Pipeline>(0);
 		return app.Run(appDesc);
 	}
 	default:

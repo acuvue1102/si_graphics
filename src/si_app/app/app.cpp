@@ -75,7 +75,8 @@ namespace SI
 			initializeInfo.m_hWnd   = GetWindowHandle();
 			for(AppModule* m : m_modules)
 			{
-				m->OnInitialize(initializeInfo);
+				int ret = m->OnInitialize(initializeInfo);
+				SI_ASSERT(ret==0);
 			}
 		}
 

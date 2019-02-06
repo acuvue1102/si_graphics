@@ -85,6 +85,7 @@
     <ClCompile Include="app003_compute\pipeline_003.cpp" />
     <ClCompile Include="app004_renderer\app_004.cpp" />
     <ClCompile Include="app004_renderer\pipeline_004.cpp" />
+    <ClCompile Include="app005_raytracing_in_one_weekend\pipeline_005.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -104,6 +105,7 @@
     <ClInclude Include="app003_compute\pipeline_003.h" />
     <ClInclude Include="app004_renderer\app_004.h" />
     <ClInclude Include="app004_renderer\pipeline_004.h" />
+    <ClInclude Include="app005_raytracing_in_one_weekend\pipeline_005.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shaders\texture.hlsl">
@@ -134,6 +136,15 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="shaders\ibl_lut_cs.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)%(Identity) &gt; NUL</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)%(Identity) &gt; NUL</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(Identity)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="shaders\raytracing_in_one_weekend.hlsl">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy %(Identity) $(OutDir)%(Identity) &gt; NUL</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)%(Identity) &gt; NUL</Command>
