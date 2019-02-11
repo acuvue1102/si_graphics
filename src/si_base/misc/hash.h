@@ -112,7 +112,7 @@ namespace SI
 		}
 	
 		// 文字列のハッシュ.
-		inline void Add(const char*& str)
+		inline void Add(const char* const& str)
 		{
 			SI_ASSERT(str);
 			m_internal.Add(str, strlen(str));
@@ -160,7 +160,7 @@ namespace SI
 		}
 	
 		// 文字列のハッシュ.
-		inline void Add(const char*& str)
+		inline void Add(const char* const& str)
 		{
 			SI_ASSERT(str);
 			m_internal.Add(str, strlen(str));

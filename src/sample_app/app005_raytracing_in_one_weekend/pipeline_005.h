@@ -19,6 +19,7 @@ namespace APP005
 
 		void OnUpdate(const App& app, const AppUpdateInfo&)         override;
 		void OnRender(const App& app, const AppUpdateInfo&)         override;
+		void OnKeyboard(const App& app, Key k, bool isDown)         override;
 
 		int LoadAsset(const AppInitializeInfo& info);
 
@@ -27,16 +28,17 @@ namespace APP005
 		struct TextureShaderConstant;
 
 	protected:
+		static const int kMaxRaytracingCompute = 15;
 		GfxRootSignatureEx       m_computeRootSignatures;
 		GfxRootSignatureEx       m_rootSignatures;
-		GfxComputeState          m_computeStates;
+		GfxComputeState          m_computeStates[kMaxRaytracingCompute];
 		GfxGraphicsState         m_graphicsStates;
 		GfxBufferEx_Constant     m_raytracingConstantBuffers;
 		GfxBufferEx_Constant     m_constantBuffers;
 		RaytracingShaderConstant*    m_raytracingConstant;
 		TextureShaderConstant*   m_textureConstant;
 		
-		GfxComputeShader         m_raytracingCS;
+		GfxComputeShader         m_raytracingCS[kMaxRaytracingCompute];
 
 		GfxVertexShader          m_textureVS;
 		GfxPixelShader           m_texturePS;
@@ -45,6 +47,7 @@ namespace APP005
 		GfxTestureEx_Uav         m_resultTexture;
 
 		GfxSamplerEx             m_sampler;
+		int                      m_currentComputeId;
 	};
 	
 } // namespace APP003

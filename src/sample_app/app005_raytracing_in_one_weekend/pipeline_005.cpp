@@ -6,6 +6,7 @@
 #include <si_base/core/core.h>
 #include <si_app/file/path_storage.h>
 #include <si_base/math/math.h>
+#include <si_base/input/keyboard.h>
 #include "raytracing_in_one_weekend.h"
 
 #define CPU_RATTRACING 0
@@ -83,6 +84,7 @@ namespace APP005
 		: PipelineBase(observerSortKey)
 		, m_raytracingConstant(nullptr)
 		, m_textureConstant(nullptr)
+		, m_currentComputeId(0)
 	{
 	}
 
@@ -118,7 +120,19 @@ namespace APP005
 		{
 			std::string shaderPath = SI_PATH_STORAGE().GetExeDirPath();
 			shaderPath += "shaders\\raytracing_in_one_weekend.hlsl";
-			if(m_raytracingCS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
+			
+			for(int i=0; i<kMaxRaytracingCompute; ++i)
+			{
+				char modeStr[8] = {};
+				sprintf_s(modeStr, "%u", i);
+
+				GfxShaderCompileMacros<1> macros;
+				macros.Add("MODE", modeStr);
+
+				GfxShaderCompileDesc desc;
+				desc.m_macros = macros.m_macros;
+				if(m_raytracingCS[i].LoadAndCompile(shaderPath.c_str(), "CSMain", desc) != 0) return -1;
+			}
 		}
 #endif
 
@@ -126,7 +140,7 @@ namespace APP005
 		{
 			m_resultTexture.InitializeAs2DUav(
 				"copyedTexture",
-#if 1
+#if 0
 				1980,
 				1080,
 #else
@@ -222,11 +236,12 @@ namespace APP005
 		}
 
 		// compute PSOのセットアップ.
+		for(int i=0; i<kMaxRaytracingCompute; ++i)
 		{
 			GfxComputeStateDesc computeStateDesc;
 			computeStateDesc.m_rootSignature = &m_computeRootSignatures.GetRootSignature();
-			computeStateDesc.m_computeShader = &m_raytracingCS;
-			m_computeStates = m_device.CreateComputeState(computeStateDesc);
+			computeStateDesc.m_computeShader = &m_raytracingCS[i];
+			m_computeStates[i] = m_device.CreateComputeState(computeStateDesc);
 		}
 #endif
 
@@ -248,7 +263,10 @@ namespace APP005
 	{
 		m_swapChain.Wait();
 		
-		m_device.ReleaseComputeState(m_computeStates);
+		for(int i=0; i<kMaxRaytracingCompute; ++i)
+		{
+			m_device.ReleaseComputeState(m_computeStates[i]);
+		}
 		m_device.ReleaseGraphicsState(m_graphicsStates);
 
 		m_computeRootSignatures.Terminate();
@@ -266,9 +284,11 @@ namespace APP005
 
 		m_texturePS.Release();
 		m_textureVS.Release();
-
-		m_raytracingCS.Release();
-
+		
+		for(int i=0; i<kMaxRaytracingCompute; ++i)
+		{
+			m_raytracingCS[i].Release();
+		}
 		m_quadVertexBuffer.TerminateAsVertex();
 
 		PipelineBase::OnTerminate();
@@ -278,6 +298,7 @@ namespace APP005
 	
 	void Pipeline::OnUpdate(const App& app, const AppUpdateInfo&)
 	{
+		
 	}
 	
 	void Pipeline::OnRender(const App& app, const AppUpdateInfo&)
@@ -287,14 +308,14 @@ namespace APP005
 		GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
 
 #if !CPU_RATTRACING
-		static bool isFirst = true;
-		if(isFirst)
+		static int s_lastComputeId = -1;
+		if(s_lastComputeId != m_currentComputeId)
 		{
 			context.ResourceBarrier(m_resultTexture, GfxResourceState::UnorderedAccess);
 
 			{
 				context.SetComputeRootSignature(m_computeRootSignatures);
-				context.SetPipelineState(m_computeStates);
+				context.SetPipelineState(m_computeStates[m_currentComputeId]);
 
 				context.SetDynamicViewDescriptor(0, 0, m_raytracingConstantBuffers);
 				context.SetDynamicViewDescriptor(0, 1, m_resultTexture);
@@ -306,7 +327,7 @@ namespace APP005
 
 			context.ResourceBarrier(m_resultTexture, GfxResourceState::PixelShaderResource);
 		}
-		isFirst=false;
+		s_lastComputeId = m_currentComputeId;
 #endif
 
 		{
@@ -337,5 +358,26 @@ namespace APP005
 		EndRender();
 	}
 	
-} // namespace APP003
+	void Pipeline::OnKeyboard(const App& app, Key k, bool isDown)
+	{
+		if(k == Key::Right && isDown)
+		{
+			++m_currentComputeId;
+			
+			if(kMaxRaytracingCompute <= m_currentComputeId)
+			{
+				m_currentComputeId = 0;
+			}
+		}
+		else if(k == Key::Left && isDown)
+		{
+			--m_currentComputeId;
+			if(m_currentComputeId < 0)
+			{
+				m_currentComputeId = kMaxRaytracingCompute;
+			}
+		}
+	}
+	
+} // namespace APP005
 } // namespace SI

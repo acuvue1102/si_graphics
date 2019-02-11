@@ -42,6 +42,16 @@ namespace SI
 		Hash64Generator hashGenerator;
 		hashGenerator.Add(code);
 		hashGenerator.Add(entryPoint);
+		{
+			const GfxShaderCompileMacro* macros = desc.m_macros;
+			while(macros && macros->m_name && macros->m_definition)
+			{
+				hashGenerator.Add(macros->m_name);
+				hashGenerator.Add(macros->m_definition);
+
+				++macros;
+			}
+		}
 		hash = hashGenerator.Generate();
 		
 		WCHAR cachePathW[260]; cachePathW[0] = 0;
@@ -63,6 +73,7 @@ namespace SI
 				hasCache = false;
 			}
 		}
+		static_assert(sizeof(D3D_SHADER_MACRO) == sizeof(GfxShaderCompileMacro), "構造体そのままキャストできない");
 
 		if(!hasCache)
 		{
@@ -70,7 +81,7 @@ namespace SI
 				code,
 				fileSize,
 				path,
-				nullptr,
+				(const D3D_SHADER_MACRO*)desc.m_macros,
 				nullptr,
 				entryPoint,
 				target,

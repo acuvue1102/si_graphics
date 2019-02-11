@@ -2,7 +2,9 @@
 #define THREAD_X 4
 #define THREAD_Y 4
 
+#ifndef MODE
 #define MODE 14
+#endif
 
 #define SAMPLE_COUNT 16
 
@@ -522,7 +524,7 @@ void CSMain(
 #elif MODE>=5
 	color = 0.0.xxx;
 	
-	float2 baseUv = uv + (0.5/SAMPLE_COUNT - 1.0).xx / float2(width, height);
+	float2 baseUv = uv + (0.5/SAMPLE_COUNT - 0.5).xx / float2(width, height);
 	for(int x=0; x<SAMPLE_COUNT; ++x)
 	{
 		for(int y=0; y<SAMPLE_COUNT; ++y)
@@ -727,7 +729,7 @@ void CSMain(
 
 	color = 0.0.xxx;
 	
-	float2 baseUv = uv + (0.5/SAMPLE_COUNT - 1.0).xx / float2(width, height);
+	float2 baseUv = uv + (0.5/SAMPLE_COUNT - 0.5).xx / float2(width, height);
 	for(int x=0; x<SAMPLE_COUNT; ++x)
 	{
 		for(int y=0; y<SAMPLE_COUNT; ++y)

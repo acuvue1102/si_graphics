@@ -9,9 +9,30 @@ namespace SI
 	class BaseVertexShader;
 	class BasePixelShader;
 
+	struct GfxShaderCompileMacro
+	{
+		const char* m_name       = nullptr;
+		const char* m_definition = nullptr;
+	};
+
+	template<size_t SIZE>
+	struct GfxShaderCompileMacros
+	{
+		void Add(const char* name, const char* definition)
+		{
+			SI_ASSERT(m_macroCount<SIZE);
+			GfxShaderCompileMacro& m = m_macros[m_macroCount++];
+			m.m_name = name;
+			m.m_definition = definition;
+		}
+
+		GfxShaderCompileMacro m_macros[SIZE+1]; // +1は番兵用.
+		uint32_t m_macroCount = 0;
+	};
+
 	struct GfxShaderCompileDesc
 	{
-		const char** m_macros = nullptr; // "マクロ名" "定義"の順に並べる. { "PI", "3.14", nullptr, nullptr }
+		const GfxShaderCompileMacro* m_macros = nullptr; // "マクロ名" "定義"の順に並べる. 最後はnullptr. { {"PI", "3.14"}, {nullptr, nullptr} }
 	};
 
 	struct GfxShaderBindingResouceCount
