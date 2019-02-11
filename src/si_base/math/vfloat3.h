@@ -52,8 +52,6 @@ namespace SI
 		Vfloat4 XYZ1() const;
 
 	public:
-		Vfloat  Dot  (Vfloat3_arg v) const;
-		Vfloat3 Cross(Vfloat3_arg v) const;
 		Vfloat  LengthSqr() const;
 		Vfloat  Length() const;
 		Vfloat3 Normalize() const;
@@ -64,7 +62,7 @@ namespace SI
 
 	public:
 		Vfloat3  operator-() const;
-		Vfloat   operator[](size_t i) const &&; // [] operatorは代入を許可しないようにしておく.
+		const Vfloat   operator[](size_t i) const; // [] operatorは代入を許可しないようにしておく.
 		Vfloat3  operator+(Vfloat3_arg v) const;
 		Vfloat3  operator-(Vfloat3_arg v) const;
 		Vfloat3  operator*(Vfloat3_arg v) const;

@@ -20,6 +20,7 @@ namespace SI
 		Microsoft::WRL::ComPtr<ID3DBlob>& shader,
 		Hash64& hash)
 	{
+		HRESULT hr;
 #if defined(_DEBUG)
 		UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
@@ -27,56 +28,68 @@ namespace SI
 #endif
 
 		Microsoft::WRL::ComPtr<ID3DBlob> errCode;
-#if 0
-		WCHAR fileW[260];
-		size_t len = 0;
-		errno_t err = mbstowcs_s(&len, fileW, path, _TRUNCATE);
-		if(err) return -1;
-
-		HRESULT hr = D3DCompileFromFile(
-			fileW,
-			nullptr,
-			nullptr,
-			entryPoint,
-			target,
-			compileFlags,
-			0,
-			&m_shader,
-			&errCode);
-#else
 		File file;
 		if(file.Open(path) < 0) return -1;
 		int64_t fileSize = file.GetFileSize();
 		if(fileSize<=0) return -1;
-		std::vector<char> buffer(fileSize);
+		std::vector<char> buffer(fileSize+1);
 		file.Read(&buffer[0], fileSize);
 		file.Close();
+		buffer[fileSize] = 0;
 
-		HRESULT hr = D3DCompile(
-			&buffer[0],
-			fileSize,
-			path,
-			nullptr,
-			nullptr,
-			entryPoint,
-			target,
-			compileFlags,
-			0,
-			&shader,
-			&errCode);
-#endif
-		if(FAILED(hr))
-		{
-			const char* errString = (const char*)errCode->GetBufferPointer();
-			SI_ASSERT(0, "error D3DCompileFromFile\n%s", errString);
-			return -1;
-		}
+		const char* code = &buffer[0];
 
 		Hash64Generator hashGenerator;
-		hashGenerator.Add(path);
+		hashGenerator.Add(code);
 		hashGenerator.Add(entryPoint);
 		hash = hashGenerator.Generate();
+		
+		WCHAR cachePathW[260]; cachePathW[0] = 0;
+		char cachePath[260]; cachePath[0] = 0;
+		{
+			size_t len = 0;
+			sprintf_s(cachePath, "%s.%s.%llx.blob", path, entryPoint, (uint64_t)hash);
+			errno_t err = mbstowcs_s(&len, cachePathW, cachePath, _TRUNCATE);
+			if(err) return -1;
+		}
 
+		bool hasCache = File::Exists(cachePath);
+		if(hasCache)
+		{
+			hr = D3DReadFileToBlob(cachePathW, &shader);
+			
+			if(FAILED(hr))
+			{
+				hasCache = false;
+			}
+		}
+
+		if(!hasCache)
+		{
+			hr = D3DCompile(
+				code,
+				fileSize,
+				path,
+				nullptr,
+				nullptr,
+				entryPoint,
+				target,
+				compileFlags,
+				0,
+				&shader,
+				&errCode);
+
+			if(FAILED(hr))
+			{
+				const char* errString = (const char*)errCode->GetBufferPointer();
+				SI_ASSERT(0, "error D3DCompileFromFile\n%s", errString);
+				return -1;
+			}
+			
+			// キャッシュ保存.
+			D3DWriteBlobToFile(shader.Get(), cachePathW, TRUE);
+		}
+		
 		ID3D12ShaderReflection* reflector = nullptr;
 		hr = D3DReflect(
 			shader->GetBufferPointer(),

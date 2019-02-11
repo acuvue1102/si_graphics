@@ -21,6 +21,9 @@ namespace SI
 		{
 		}
 		
+		T FetchAdd(T value)   volatile{ return m_value.fetch_add(value); }
+		T FetchAdd(T value)           { return m_value.fetch_add(value); }
+		
 		T operator =(T value) volatile{ return m_value.operator=(value); }
 		T operator =(T value)         { return m_value.operator=(value); }
 		
@@ -54,9 +57,9 @@ namespace SI
 		std::atomic<T> m_value;
 	};
 	
-	using AtomicUint32 = Atomic<uint32_t>;
+	//using AtomicUint32 = Atomic<uint32_t>;
 	using AtomicInt32  = Atomic<int32_t>;
-	using AtomicUint64 = Atomic<uint32_t>;
+	//using AtomicUint64 = Atomic<uint32_t>;
 	using AtomicInt64  = Atomic<int32_t>;
 
 } // namespace SI

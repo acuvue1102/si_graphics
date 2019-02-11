@@ -6,7 +6,7 @@
 
 #define SAMPLE_COUNT 16
 
-#define PLACE_COUNT 3
+#define PLACE_COUNT 2
 #define PLACE_COUNT_ALL (((2*PLACE_COUNT+1)*(2*PLACE_COUNT+1)) + 4)
 
 #define FLT_MAX 3.40282e+38

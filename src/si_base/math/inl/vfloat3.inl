@@ -180,26 +180,6 @@ namespace SI
 		Vfloat4(_mm_blend_ps(m_v, kSiFloat128_1111, 0b1000));
 	}
 
-	inline Vfloat Vfloat3::Dot(Vfloat3_arg v) const
-	{
-		return Vfloat(_mm_dp_ps( m_v, v.m_v, 0b01111111)); // 0b01111111 = w無視したdot
-	}
-
-	inline Vfloat3 Vfloat3::Cross(Vfloat3_arg v) const
-	{
-		__m128 yzxw0 = _mm_shuffle_ps(  m_v,   m_v, _MM_SHUFFLE(3, 0, 2, 1));
-		__m128 zxyw1 = _mm_shuffle_ps(v.m_v, v.m_v, _MM_SHUFFLE(3, 1, 0, 2));
-
-		__m128 p = _mm_mul_ps(yzxw0, zxyw1);
-		
-		__m128 zxyw0 = _mm_shuffle_ps(  m_v,   m_v, _MM_SHUFFLE(3, 1, 0, 2));
-		__m128 yzxw1 = _mm_shuffle_ps(v.m_v, v.m_v, _MM_SHUFFLE(3, 0, 2, 1));
-		
-		__m128 m = _mm_mul_ps(zxyw0, yzxw1);
-
-		return Vfloat3(_mm_sub_ps(p, m));
-	}
-	
 	inline Vfloat Vfloat3::LengthSqr() const
 	{
 		return Math::LengthSqr(*this);
@@ -233,7 +213,7 @@ namespace SI
 		return Vfloat3( _mm_sub_ps( kSiFloat128_0000, Get128() ) );
 	}
 
-	inline Vfloat Vfloat3::operator[](size_t i) const && // [] operatorは代入を許可しないようにしておく.
+	inline const Vfloat Vfloat3::operator[](size_t i) const // [] operatorは代入を許可しないようにしておく.
 	{
 		return GetElement((uint32_t)i);
 	}
@@ -398,12 +378,22 @@ namespace SI
 		
 		inline Vfloat Dot(Vfloat3_arg a, Vfloat3_arg b)
 		{
-			return a.Dot(b);
+			return Vfloat(_mm_dp_ps( a.Get128(), b.Get128(), 0b01111111)); // 0b01111111 = w無視したdot
 		}
 
 		inline Vfloat3 Cross(Vfloat3_arg a, Vfloat3_arg b)
 		{
-			return a.Cross(b);
+			__m128 yzxw0 = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(3, 0, 2, 1));
+			__m128 zxyw1 = _mm_shuffle_ps(b.Get128(), b.Get128(), _MM_SHUFFLE(3, 1, 0, 2));
+
+			__m128 p = _mm_mul_ps(yzxw0, zxyw1);
+		
+			__m128 zxyw0 = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(3, 1, 0, 2));
+			__m128 yzxw1 = _mm_shuffle_ps(b.Get128(), b.Get128(), _MM_SHUFFLE(3, 0, 2, 1));
+		
+			__m128 m = _mm_mul_ps(zxyw0, yzxw1);
+
+			return Vfloat3(_mm_sub_ps(p, m));
 		}
 
 		inline Vfloat LengthSqr(Vfloat3_arg a)

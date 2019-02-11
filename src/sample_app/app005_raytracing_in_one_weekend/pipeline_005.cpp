@@ -6,6 +6,9 @@
 #include <si_base/core/core.h>
 #include <si_app/file/path_storage.h>
 #include <si_base/math/math.h>
+#include "raytracing_in_one_weekend.h"
+
+#define CPU_RATTRACING 0
 
 namespace SI
 {
@@ -33,6 +36,33 @@ namespace APP005
 			{  1.0f,  1.0f, 0.5f ,  1.0f, 0.0f },
 			{  1.0f, -1.0f, 0.5f ,  1.0f, 1.0f },
 		};
+		
+		std::vector<float> GenerateTextureData(uint32_t width, uint32_t height)
+		{
+			const uint32_t pixelSize = 4;
+			const uint32_t rowPitch = width * pixelSize;
+			const uint32_t textureSize = rowPitch * height;
+
+			std::vector<float> data(textureSize);
+			float* pData = &data[0];
+
+			for (uint32_t n = 0; n < textureSize; n += pixelSize)
+			{
+				uint32_t x = n % rowPitch;
+				uint32_t y = n / rowPitch;
+				float u = ((float)x+0.5f)/(float)width;
+				float v = ((float)y+0.5f)/(float)height;
+
+				Vfloat3 color(u, v, 0);
+				
+				pData[n    ] = color.X();	// R
+				pData[n + 1] = color.Y();	// G
+				pData[n + 2] = color.Z();	// B
+				pData[n + 3] = 1.0f;	    // A
+			}
+
+			return std::move(data);
+		}
 	}
 	
 	struct Pipeline::RaytracingShaderConstant
@@ -83,33 +113,35 @@ namespace APP005
 			if(m_textureVS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
 			if(m_texturePS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
 		}
-
+		
+#if !CPU_RATTRACING
 		{
 			std::string shaderPath = SI_PATH_STORAGE().GetExeDirPath();
 			shaderPath += "shaders\\raytracing_in_one_weekend.hlsl";
 			if(m_raytracingCS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
 		}
+#endif
 
-		// ibl lut textureのセットアップ.
+		// result textureのセットアップ.
 		{
 			m_resultTexture.InitializeAs2DUav(
 				"copyedTexture",
-#if 0
+#if 1
 				1980,
 				1080,
 #else
 				320,
 				180,
 #endif
-				GfxFormat::R8G8B8A8_Unorm);
+				GfxFormat::R32G32B32A32_Float);
 		}
 
 		// コンスタントバッファのセットアップ
 		{			
 			m_constantBuffers.InitializeAsConstant("textureConstant", sizeof(TextureShaderConstant));
 			m_textureConstant = static_cast<TextureShaderConstant*>(m_constantBuffers.GetMapPtr());
-			m_textureConstant->m_vertexScale[0] = 0.8f;// * ((float)info.m_height / (float)info.m_width);
-			m_textureConstant->m_vertexScale[1] = 0.8f;
+			m_textureConstant->m_vertexScale[0] = 1;//0.8f;// * ((float)info.m_height / (float)info.m_width);
+			m_textureConstant->m_vertexScale[1] = 1;//0.8f;
 			m_textureConstant->m_uvScale[0]     = 1.0f;
 			m_textureConstant->m_uvScale[1]     = 1.0f;
 		}
@@ -145,20 +177,6 @@ namespace APP005
 			rootSignatureDesc.SetName("rootSig");
 			m_rootSignatures.Initialize(rootSignatureDesc);
 		}
-
-		// compute root signatureのセットアップ
-		{
-			GfxRootSignatureDescEx computeRootSignatureDesc;
-			computeRootSignatureDesc.ReserveTables(1);
-
-			GfxDescriptorHeapTableEx& table0 = computeRootSignatureDesc.GetTable(0);
-			table0.ReserveRanges(2);
-			table0.GetRange(0).Set(GfxDescriptorRangeType::Cbv, 1, 0, GfxDescriptorRangeFlag::Volatile);
-			table0.GetRange(1).Set(GfxDescriptorRangeType::Uav, 1, 0, GfxDescriptorRangeFlag::Volatile);
-
-			computeRootSignatureDesc.SetName("computeRootSig");
-			m_computeRootSignatures.Initialize(computeRootSignatureDesc);
-		}
 		
 		// PSOのセットアップ.
 		{
@@ -186,6 +204,23 @@ namespace APP005
 			m_graphicsStates = m_device.CreateGraphicsState(stateDesc);
 		}
 		
+#if CPU_RATTRACING
+		auto textureData = GenerateRaytracingTextureData(m_resultTexture.GetWidth(), m_resultTexture.GetHeight());
+#else
+		// compute root signatureのセットアップ
+		{
+			GfxRootSignatureDescEx computeRootSignatureDesc;
+			computeRootSignatureDesc.ReserveTables(1);
+
+			GfxDescriptorHeapTableEx& table0 = computeRootSignatureDesc.GetTable(0);
+			table0.ReserveRanges(2);
+			table0.GetRange(0).Set(GfxDescriptorRangeType::Cbv, 1, 0, GfxDescriptorRangeFlag::Volatile);
+			table0.GetRange(1).Set(GfxDescriptorRangeType::Uav, 1, 0, GfxDescriptorRangeFlag::Volatile);
+
+			computeRootSignatureDesc.SetName("computeRootSig");
+			m_computeRootSignatures.Initialize(computeRootSignatureDesc);
+		}
+
 		// compute PSOのセットアップ.
 		{
 			GfxComputeStateDesc computeStateDesc;
@@ -193,12 +228,16 @@ namespace APP005
 			computeStateDesc.m_computeShader = &m_raytracingCS;
 			m_computeStates = m_device.CreateComputeState(computeStateDesc);
 		}
+#endif
 
 		// commandList経由でリソースのデータをアップロードする.
 		BeginRender();
 		{
 			GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
 			context.UploadBuffer(m_device, m_quadVertexBuffer, kVertexData, sizeof(kVertexData));
+#if CPU_RATTRACING
+			context.UploadTexture(m_device, m_resultTexture, &textureData[0], sizeof(textureData[0]) * textureData.size());
+#endif
 		}
 		EndRender();
 
@@ -247,21 +286,28 @@ namespace APP005
 		
 		GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
 
-		context.ResourceBarrier(m_resultTexture, GfxResourceState::UnorderedAccess);
-
+#if !CPU_RATTRACING
+		static bool isFirst = true;
+		if(isFirst)
 		{
-			context.SetComputeRootSignature(m_computeRootSignatures);
-			context.SetPipelineState(m_computeStates);
+			context.ResourceBarrier(m_resultTexture, GfxResourceState::UnorderedAccess);
 
-			context.SetDynamicViewDescriptor(0, 0, m_raytracingConstantBuffers);
-			context.SetDynamicViewDescriptor(0, 1, m_resultTexture);
+			{
+				context.SetComputeRootSignature(m_computeRootSignatures);
+				context.SetPipelineState(m_computeStates);
 
-			uint32_t threadGroupCountX = m_resultTexture.GetWidth()  / 4;
-			uint32_t threadGroupCountY = m_resultTexture.GetHeight() / 4;
-			context.Dispatch(threadGroupCountX, threadGroupCountY);
+				context.SetDynamicViewDescriptor(0, 0, m_raytracingConstantBuffers);
+				context.SetDynamicViewDescriptor(0, 1, m_resultTexture);
+
+				uint32_t threadGroupCountX = m_resultTexture.GetWidth()  / 4;
+				uint32_t threadGroupCountY = m_resultTexture.GetHeight() / 4;
+				context.Dispatch(threadGroupCountX, threadGroupCountY);
+			}
+
+			context.ResourceBarrier(m_resultTexture, GfxResourceState::PixelShaderResource);
 		}
-
-		context.ResourceBarrier(m_resultTexture, GfxResourceState::PixelShaderResource);
+		isFirst=false;
+#endif
 
 		{
 			GfxTestureEx_SwapChain& swapChainTexture = m_swapChain.GetTexture();
