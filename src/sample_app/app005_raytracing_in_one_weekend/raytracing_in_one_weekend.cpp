@@ -497,7 +497,7 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 
 	Lambert lamberts[] =
 	{
-		Lambert(Vfloat3(0.8f, 0.8f, 0.8f)),
+		Lambert(Vfloat3(0.5f, 0.5f, 0.5f)),
 		Lambert(Vfloat3(1.0f, 0.5f, 0.5f)),
 		Lambert(Vfloat3(0.2f, 0.2f, 0.9f)),
 		Lambert(Vfloat3(0.7f, 0.2f, 0.5f)),
