@@ -319,9 +319,11 @@ namespace APP005
 
 				context.SetDynamicViewDescriptor(0, 0, m_raytracingConstantBuffers);
 				context.SetDynamicViewDescriptor(0, 1, m_resultTexture);
-
-				uint32_t threadGroupCountX = m_resultTexture.GetWidth()  / 4;
-				uint32_t threadGroupCountY = m_resultTexture.GetHeight() / 4;
+				
+				static const uint32_t kThreadX = 8;
+				static const uint32_t kThreadY = 8;
+				uint32_t threadGroupCountX = (m_resultTexture.GetWidth()  + kThreadX-1) / kThreadX;
+				uint32_t threadGroupCountY = (m_resultTexture.GetHeight() + kThreadY-1) / kThreadY;
 				context.Dispatch(threadGroupCountX, threadGroupCountY);
 			}
 
@@ -374,7 +376,7 @@ namespace APP005
 			--m_currentComputeId;
 			if(m_currentComputeId < 0)
 			{
-				m_currentComputeId = kMaxRaytracingCompute;
+				m_currentComputeId = kMaxRaytracingCompute-1;
 			}
 		}
 	}

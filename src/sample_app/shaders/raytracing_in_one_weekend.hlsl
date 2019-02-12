@@ -1,6 +1,6 @@
 
-#define THREAD_X 4
-#define THREAD_Y 4
+#define THREAD_X 8
+#define THREAD_Y 8
 
 #ifndef MODE
 #define MODE 14

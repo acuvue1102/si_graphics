@@ -51,7 +51,8 @@ namespace SI
 		ID3D12CommandQueue*               m_commandQueue; // 参照しているだけ.
 		BaseFence                         m_fence;
 		BaseFenceEvent                    m_fenceEvent;
-		uint64_t                          m_fenceValue;		
+		uint64_t                          m_fenceValue;
+		ID3D12Device*                     m_device;
 	};
 
 } // namespace SI

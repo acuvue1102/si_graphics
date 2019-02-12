@@ -16,6 +16,7 @@ namespace SI
 		, m_bufferCount(0)
 		, m_frameIndex(0)
 		, m_commandQueue(nullptr)
+		, m_device(nullptr)
 	{
 	}
 
@@ -93,6 +94,8 @@ namespace SI
 		m_fence.Initialize(device);
 		m_fenceEvent.Initialize();
 
+		m_device = &device;
+
 		return 0;
 	}
 
@@ -121,7 +124,8 @@ namespace SI
 		HRESULT hr = m_swapChain->Present(1, 0);
 		if(FAILED(hr))
 		{
-			SI_ASSERT(0, "error m_swapChain->Present: %s", _com_error(hr).ErrorMessage());
+			HRESULT hr2 = m_device->GetDeviceRemovedReason();
+			SI_ASSERT(0, "error m_swapChain->Present: %s: %s", _com_error(hr).ErrorMessage(), _com_error(hr2).ErrorMessage() );
 			return -1;
 		}
 
