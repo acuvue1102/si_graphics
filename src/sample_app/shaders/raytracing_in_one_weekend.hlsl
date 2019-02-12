@@ -215,7 +215,7 @@ class Camera
 	Ray GetRay(float2 uv)//, float2 seed)
 	{
 		float2 seed = uv;
-		float3 rd = lensRadius * RandomInUnitSphere(seed);
+		float3 rd = lensRadius * (2*RandomInUnitSphere(seed)-1.0.xxx);
 		float3 offset =	u * rd.x + v * rd.y;
 
 		Ray ray = (Ray)0;
