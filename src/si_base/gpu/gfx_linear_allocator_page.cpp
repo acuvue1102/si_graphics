@@ -185,7 +185,11 @@ namespace SI
 		{
 			// copy. m_avaiablePages = m_avaiablePages + usingPages
 			m_avaiablePages.reserve(m_avaiablePages.size() + usingPages.size());
-			std::copy(usingPages.begin(),usingPages.end(),std::back_inserter(m_avaiablePages));
+#if _MSC_VER >=1910 // VC2017
+			std::copy(usingPages.begin(), usingPages.end(), std::back_inserter(m_avaiablePages));
+#else
+			usingPages.insert(usingPages.end(), m_avaiablePages.begin(), m_avaiablePages.end());
+#endif
 			usingPages.clear();
 		}
 	}

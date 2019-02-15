@@ -27,8 +27,8 @@ namespace SI
 
 		m_indexBuffer.InitializeAsIndex(
 			"index",
-			s.m_rawIndexBuffer.GetItemCount() / (m_is16bitIndex? 2 : 4),
-			m_is16bitIndex);
+			s.m_rawIndexBuffer.GetItemCount() / (m_is16bitIndex!=0? 2 : 4),
+			m_is16bitIndex!=0);
 		GfxBuffer ib = m_indexBuffer.GetBuffer();
 		device.UploadBufferLater(ib, s.m_rawIndexBuffer.GetItemsAddr(), ib.GetSize());
 	}

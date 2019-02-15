@@ -93,4 +93,4 @@ using FlagsType = ::SI::EnumFlags<FlagType>; \
 inline FlagsType operator|( FlagType a, FlagType b ) \
 { \
 	return FlagsType( a ) | b; \
-} \
+}

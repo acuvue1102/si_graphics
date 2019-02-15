@@ -9,10 +9,17 @@
 #define USE_FNV_HASH 0
 #define USE_MURMUR2A_HASH 1
 
+#if _MSC_VER >=1910 // VC2017
+#define USE_STATIC_HASH 1
+#else
+#define USE_STATIC_HASH 0
+#endif
+
 namespace SI
 {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Fnv-1 Hashの実装.
+
 	static const uint32_t kFnvBasis32 = 2166136261u;
 	static const uint64_t kFnvBasis64 = 14695981039346656037ull;
 
@@ -21,7 +28,8 @@ namespace SI
 
 	static const Hash32 kDefaultHashSeed32 = kFnvBasis32;
 	static const Hash64 kDefaultHashSeed64 = kFnvBasis64;
-
+	
+#if USE_FNV_HASH
 	inline Hash32 FnvHash32(const void* buffer, size_t bufferSizeInByte, uint32_t seed = kDefaultHashSeed32)
 	{
 		uint32_t hash = seed;
@@ -48,6 +56,7 @@ namespace SI
 		return hash;
 	}	
 	
+#if USE_STATIC_HASH
 	inline constexpr Hash32 StaticFnvHash32(const void* buffer, size_t bufferSizeInByte, uint32_t seed = kDefaultHashSeed32)
 	{
 		// const uint8_t*を使うとコンパイルが通らないので、const char*経由で処理している.
@@ -69,6 +78,7 @@ namespace SI
 				bufferSizeInByte - 1,
 				(kFnvPrime64 * seed) ^ (uint8_t)(((const char*)buffer)[0]) );
 	}
+#endif
 
 	class FnvHash32Generator
 	{
@@ -132,8 +142,11 @@ namespace SI
 		Hash64 m_hash;
 	};
 
+#endif // USE_FNV_HASH
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////
  
+#if USE_MURMUR2A_HASH
 	static const uint32_t kMurmur2APrime32 = 0x5bd1e995;
 	static const uint64_t kMurmur2APrime64 = 0xc6a4a7935bd1e995;
 	
@@ -284,6 +297,7 @@ namespace SI
 		return hash;
 	}
 
+#if USE_STATIC_HASH
 	// c++17じゃないとビルド通らないと思われる.
 	inline constexpr Hash32 StaticMurmur2AHash32(const char* buffer, size_t bufferSizeInByte, uint32_t seed = kDefaultHashSeed32)
 	{
@@ -383,6 +397,7 @@ namespace SI
 
 		return hash;
 	}
+#endif
 
 	class Murmur2AHash32Generator
 	{
@@ -570,6 +585,7 @@ namespace SI
 		uint64_t    m_tail;
 		uint32_t    m_tailCount;
 	};
+#endif // USE_MURMUR2A_HASH
 	
 #if USE_FNV_HASH
 	inline Hash32 InternalHash32(const void* buffer, size_t bufferSizeInByte, uint32_t seed = kDefaultHashSeed32)
@@ -582,6 +598,7 @@ namespace SI
 		return FnvHash64(buffer, bufferSizeInByte, seed);
 	}
 
+#if USE_STATIC_HASH
 	inline constexpr Hash32 StaticInternalHash32(const void* buffer, size_t bufferSizeInByte, uint32_t seed = kDefaultHashSeed32)
 	{
 		return StaticFnvHash32(buffer, bufferSizeInByte, seed);
@@ -591,6 +608,7 @@ namespace SI
 	{
 		return StaticFnvHash64(buffer, bufferSizeInByte, seed);
 	}
+#endif // USE_STATIC_HASH
 	
 	using InternalHash32Generator = FnvHash32Generator;
 	using InternalHash64Generator = FnvHash64Generator;
@@ -607,6 +625,7 @@ namespace SI
 		return Murmur2AHash64(buffer, bufferSizeInByte, seed);
 	}
 
+#if USE_STATIC_HASH
 	inline constexpr Hash32 StaticInternalHash32(const char* buffer, size_t bufferSizeInByte, uint32_t seed = kDefaultHashSeed32)
 	{
 		return StaticMurmur2AHash32(buffer, bufferSizeInByte, seed);
@@ -616,6 +635,7 @@ namespace SI
 	{
 		return StaticMurmur2AHash64(buffer, bufferSizeInByte, seed);
 	}
+#endif // USE_STATIC_HASH
 	
 	using InternalHash32Generator = Murmur2AHash32Generator;
 	using InternalHash64Generator = Murmur2AHash64Generator;

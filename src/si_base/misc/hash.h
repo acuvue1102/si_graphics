@@ -53,6 +53,7 @@ namespace SI
 
 	////////////////////////////////////////////////////////////////////////////////////
 	
+#if USE_STATIC_HASH
 	// 定数文字列のハッシュ. コンパイル時解決.
 	template<size_t SIZE>
 	inline constexpr Hash32 GetHash32S(const char (&str)[SIZE], uint32_t seed = kDefaultHashSeed32)
@@ -66,6 +67,21 @@ namespace SI
 	{
 		return StaticInternalHash64(str, SIZE-1, seed);
 	}
+#else	
+	// 定数文字列のハッシュ. コンパイル時解決.
+	template<size_t SIZE>
+	inline constexpr Hash32 GetHash32S(const char (&str)[SIZE], uint32_t seed = kDefaultHashSeed32)
+	{
+		return InternalHash32(str, SIZE-1, seed);
+	}
+	
+	// 定数文字列のハッシュ. コンパイル時解決.
+	template<size_t SIZE>
+	inline constexpr Hash64 GetHash64S(const char (&str)[SIZE], uint64_t seed = kDefaultHashSeed64)
+	{
+		return InternalHash64(str, SIZE-1, seed);
+	}
+#endif
 
 #if 0 // ポインタのキャストが出来ないのでconstexprで実装できない.
 

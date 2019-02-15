@@ -14,6 +14,29 @@ namespace SI
 		uint32_t    m_inputSlot         = 0;
 		uint32_t    m_alignedByteOffset = 0; // offsetのバイト数.
 
+		GfxInputElement()
+			: m_semanticsName(nullptr)
+			, m_semanticsId(0)
+			, m_format(GfxFormat::Unknown)
+			, m_inputSlot(0)
+			, m_alignedByteOffset(0)
+		{
+		}
+
+		GfxInputElement(
+			const char* semanticsName,
+			uint32_t    semanticsId,
+			GfxFormat   format,
+			uint32_t    inputSlot,
+			uint32_t    alignedByteOffset)
+			: m_semanticsName(semanticsName)
+			, m_semanticsId(semanticsId)
+			, m_format(format)
+			, m_inputSlot(inputSlot)
+			, m_alignedByteOffset(alignedByteOffset)
+		{
+		}
+
 		bool operator==(const GfxInputElement& e) const
 		{
 			if(m_semanticsName)

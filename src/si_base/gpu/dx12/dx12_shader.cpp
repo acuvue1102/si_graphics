@@ -1,6 +1,7 @@
 ﻿
 
 #include <D3Dcompiler.h>
+#include <vector>
 #include "si_base/platform/windows_proxy.h"
 #include "si_base/core/core.h"
 #include "si_base/gpu/gfx_shader.h"
