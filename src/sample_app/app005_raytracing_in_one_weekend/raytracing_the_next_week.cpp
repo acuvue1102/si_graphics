@@ -1,5 +1,5 @@
 ﻿
-#include "raytracing_in_one_weekend.h"
+#include "raytracing_the_next_week.h"
 
 #include <si_base/core/core.h>
 #include <si_base/math/math.h>
@@ -12,7 +12,7 @@
 
 namespace SI
 {
-namespace RayTracingInOneWeekEnd
+namespace RayTracingTheNextWeek
 {
 
 Vfloat3 Lerp(const Vfloat3& a, const Vfloat3& b, float t){ return (1-t)*a + t*b; }
@@ -22,18 +22,21 @@ class Ray
 public: 
 	Ray() {}
 	~Ray(){}
-	Ray(const Vfloat3& pos, const Vfloat3& dir)
+	Ray(const Vfloat3& pos, const Vfloat3& dir, float ti = 0.0f)
 		: position(pos)
 		, direction(dir)
+		, time(ti)
 	{}
 	
 	const Vfloat3& Pos() const{ return position; }
 	const Vfloat3& Dir() const{ return direction; }
+	float Time() const{ return time; }
 	Vfloat3 PointAt(float t) const{ return position + t * direction; }
 
 private:
 	Vfloat3 position;
 	Vfloat3 direction;
+	float time;
 };
 
 float FloatUnitRand()
@@ -70,6 +73,62 @@ Vfloat3 RandomInUnitDisk()
 
 	return o;
 }
+
+class Texture
+{
+public:
+	virtual Vfloat3 Value(float u, float v, const Vfloat3& p) const = 0;
+};
+
+class ConstantTexture : public Texture
+{
+public:
+	ConstantTexture()
+	{
+	}
+
+	ConstantTexture(const Vfloat3& c)
+		: m_color(c)
+	{
+	}
+
+	virtual Vfloat3 Value(float u, float v, const Vfloat3& p) const override
+	{
+		return m_color;
+	}
+
+	Vfloat3 m_color;
+};
+
+class CheckerTexture : public Texture
+{
+public:
+	CheckerTexture()
+	{
+	}
+
+	CheckerTexture(Texture* t0, Texture* t1)
+		: m_even(t0)
+		, m_odd(t1)
+	{
+	}
+
+	virtual Vfloat3 Value(float u, float v, const Vfloat3& p) const override
+	{
+		float sines = sin(10*p.X().AsFloat()) * sin(10*p.Y().AsFloat()) * sin(10*p.Z().AsFloat());
+		if(sines < 0)
+		{
+			return m_odd->Value(u,v,p);
+		}
+		else
+		{
+			return m_even->Value(u,v,p);
+		}
+	}
+		
+	Texture* m_even;
+	Texture* m_odd;
+};
 
 class Material;
 
@@ -190,7 +249,7 @@ public:
 		while(Math::Dot(reflectedDir + fuzz, record.normal) <= 0.0f)
 		{
 			fuzz = roughness * RandomInUnitSphere();
-			if(100 < ++tryCount) return false;
+			if(32 < ++tryCount) return false;
 		}
 		reflectedDir += fuzz;
 
@@ -206,20 +265,64 @@ private:
 class Lambert : public Material
 {
 public:
-	explicit Lambert(const Vfloat3& a = Vfloat3(1.0f)) : albedo(a){}
+	explicit Lambert(const Texture* albedo) : m_albedo(albedo){}
 	virtual ~Lambert(){}
 
 	virtual bool Scatter(const Ray& ray, const HitRecord& record, Vfloat3& outAttenuation, Ray& outRay) const override
 	{
 		Vfloat3 target = record.position + record.normal + RandomInUnitSphere();
-		outRay = Ray(record.position, target - record.position);
-		outAttenuation = albedo;
+		outRay = Ray(record.position, target - record.position, ray.Time());
+		outAttenuation = m_albedo->Value(0, 0, record.position);
 		return true;
 	}
 
 private:
-	Vfloat3 albedo;
+	const Texture* m_albedo;
 };
+
+class Aabb
+{
+public:
+	Aabb()
+		: m_min(0.0f)
+		, m_max(1.0f)
+	{
+	}
+
+	Aabb(const Vfloat3& minV, const Vfloat3& maxV)
+		: m_min(minV)
+		, m_max(maxV)
+	{
+	}
+	
+	Vfloat3 Min() const{ return m_min; }
+	Vfloat3 Max() const{ return m_max; }
+
+	bool Hit(const Ray& ray, float minT, float maxT) const
+	{
+		// Nanとかもいい感じに計算される.
+		Vfloat3 tx0 = (m_min - ray.Pos()) / ray.Dir();
+		Vfloat3 tx1 = (m_max - ray.Pos()) / ray.Dir();
+		
+		Vfloat3 t0 = Math::Min(tx0, tx1);
+		Vfloat3 t1 = Math::Max(tx0, tx1);
+		
+		float tMin = SI::Max(Math::HorizontalMax(t0).AsFloat(), minT);
+		float tMax = SI::Min(Math::HorizontalMin(t1).AsFloat(), maxT);
+		if(tMax <= tMin) return false;
+
+		return true;
+	}
+
+private:
+	Vfloat3 m_min;
+	Vfloat3 m_max;
+};
+
+Aabb CombineAabb(const Aabb& a, const Aabb& b)
+{
+	return Aabb(Math::Min(a.Min(), b.Min()), Math::Max(a.Max(), b.Max()));
+}
 
 class Hitable
 {
@@ -228,6 +331,7 @@ public:
 	virtual ~Hitable(){}
 
 	virtual bool Hit(const Ray& ray, float minT, float maxT, HitRecord& outRecord) const = 0;
+	virtual bool BoundingBox(float t0, float t1, Aabb& outAabb) const = 0;
 };
 
 class Sphere : public Hitable
@@ -283,6 +387,12 @@ public:
 
 		return false;
 	}
+	
+	virtual bool BoundingBox(float t0, float t1, Aabb& outAabb) const override
+	{
+		outAabb = Aabb(center - Vfloat3(radius), center + Vfloat3(radius));
+		return true;
+	}
 
 private:
 	Vfloat3 center;
@@ -290,58 +400,303 @@ private:
 	const Material* material;
 };
 
+class MovingSphere : public Hitable
+{
+public:
+	MovingSphere()
+		: center0(0.0f)
+		, center1(0.0f)
+		, time0(0.0f)
+		, time1(0.0f)
+		, radius(1.0f)
+		, material(nullptr)
+	{}
+
+	MovingSphere(
+		const Vfloat3& c0,
+		const Vfloat3& c1,
+		float t0,
+		float t1,
+		float r,
+		const Material* m)
+		: center0(c0)
+		, center1(c1)
+		, time0(t0)
+		, time1(t1)
+		, radius(r)
+		, material(m)
+	{}
+
+	Vfloat3 Center(float time) const
+	{
+		return center0 + ((time - time0)/(time1 - time0)) * (center1 - center0);
+	}
+
+	float Radius() const{ return radius; }
+
+	bool Hit(const Ray& ray, float minT, float maxT, HitRecord& outRecord) const override
+	{
+		Vfloat3 cp = ray.Pos() - Center(ray.Time());
+	
+		float dotDirDir = Math::Dot(ray.Dir(), ray.Dir());
+		float dotDirCp  = Math::Dot(ray.Dir(), cp);
+		float dotCpCp   = Math::Dot(cp, cp);
+	
+		float a = dotDirDir;
+		float b = 2.0f*dotDirCp;
+		float c = dotCpCp - Radius()*Radius();
+
+		float discriminant = b*b - 4*a*c;
+		if(discriminant <= 0.0f)
+		{
+			return false;
+		}
+		float sqrtDiscriminant = sqrt(discriminant);
+
+		float t = (-b - sqrtDiscriminant) / (2.0f * a);
+		if(minT < t && t < maxT)
+		{
+			outRecord.t = t;
+			outRecord.position = ray.PointAt(t);
+			outRecord.normal = (outRecord.position - Center(ray.Time())) / Radius();
+			outRecord.material = material;
+			return true;
+		}
+		
+		t = (-b + sqrtDiscriminant) / (2.0f * a);
+		if(minT < t && t < maxT)
+		{
+			outRecord.t = t;
+			outRecord.position = ray.PointAt(t);
+			outRecord.normal = (outRecord.position - Center(ray.Time())) / Radius();
+			outRecord.material = material;
+			return true;
+		}
+
+		return false;
+	}
+	
+	virtual bool BoundingBox(float t0, float t1, Aabb& outAabb) const override
+	{
+		Vfloat3 c0 = Center(t0);
+		Vfloat3 c1 = Center(t1);
+		Vfloat3 r(radius);
+		Aabb aabb0(c0-r, c0+r);
+		Aabb aabb1(c1-r, c1+r);
+		outAabb = CombineAabb(aabb0, aabb1);
+		return true;
+	}
+
+private:
+	Vfloat3 center0;
+	Vfloat3 center1;
+	float time0;
+	float time1;
+	float radius;
+	const Material* material;
+};
+
+class BvhNode : public Hitable
+{
+public:
+	BvhNode()
+		: m_left(nullptr)
+		, m_right(nullptr)
+		, m_owner(false)
+	{}
+
+	~BvhNode()
+	{
+		if(m_owner)
+		{
+			delete m_left;
+			delete m_right;
+		}
+	}
+
+	static int CompareAabb(int axis, const void* a, const void* b)
+	{
+		const Hitable* hitable0 = *(const Hitable**)a;
+		const Hitable* hitable1 = *(const Hitable**)b;
+		Aabb aabb0;
+		Aabb aabb1;
+		bool ret0 = hitable0->BoundingBox(0, 0, aabb0);
+		bool ret1 = hitable1->BoundingBox(0, 0, aabb1);
+		SI_ASSERT(ret0 && ret1);
+
+		if(aabb0.Min()[axis] < aabb1.Min()[axis])
+		{
+			return -1;
+		}
+		else
+		{
+			return 1;
+		}
+	}
+
+	void BuildBvh(const Hitable** list, int listCount, float t0, float t1, int axisIndex=0)
+	{
+		SI_ASSERT(m_left==nullptr);
+		SI_ASSERT(m_right==nullptr);
+
+		int axis = axisIndex % 3;
+		if(axis==0)
+		{
+			std::qsort(list, listCount, sizeof(Hitable*), [](const void* a, const void* b)->int{ return CompareAabb(0, a, b); });
+		}
+		else if(axis==1)
+		{
+			std::qsort(list, listCount, sizeof(Hitable*), [](const void* a, const void* b)->int{ return CompareAabb(1, a, b); });
+		}
+		else
+		{
+			std::qsort(list, listCount, sizeof(Hitable*), [](const void* a, const void* b)->int{ return CompareAabb(2, a, b); });
+		}
+
+		if(listCount==1)
+		{
+			m_left = m_right = list[0];
+		}
+		else if(listCount==2)
+		{
+			m_left = list[0];
+			m_right = list[1];
+		}
+		else
+		{
+			m_left  = new BvhNode();
+			m_right = new BvhNode();
+			m_owner = true;
+			
+			int leftCount = listCount/2;
+			((BvhNode*)m_left)->BuildBvh (list,             leftCount,             t0, t1, axis+1);
+			((BvhNode*)m_right)->BuildBvh(list + leftCount, listCount - leftCount, t0, t1, axis+1);
+		}
+		
+		Aabb leftAabb;
+		Aabb rightAabb;
+		bool ret0 = m_left->BoundingBox(t0, t1, leftAabb);
+		bool ret1 = m_right->BoundingBox(t0, t1, rightAabb);
+		SI_ASSERT(ret0 && ret1);
+
+		m_aabb = CombineAabb(leftAabb, rightAabb);
+	}
+	
+	bool Hit(const Ray& ray, float minT, float maxT, HitRecord& outRecord) const override
+	{
+		if(!m_aabb.Hit(ray, minT, maxT)) return false;
+		
+		HitRecord leftRecord;
+		HitRecord rightRecord;
+		
+		bool hitLeft  = m_left? m_left->Hit(ray, minT, maxT, leftRecord) : false;
+		bool hitRight = m_right? m_right->Hit(ray, minT, maxT, rightRecord) : false;
+
+		if(hitLeft && hitRight)
+		{
+			outRecord = (leftRecord.t < rightRecord.t)? leftRecord : rightRecord;
+			return true;
+		}
+		else if(hitLeft)
+		{
+			outRecord = leftRecord;
+			return true;
+		}
+		else if(hitRight)
+		{
+			outRecord = rightRecord;
+			return true;
+		}
+
+		return false;
+	}
+
+	bool BoundingBox(float t0, float t1, Aabb& outAabb) const
+	{
+		outAabb = m_aabb;
+		return true;
+	}
+
+private:
+	const Hitable* m_left;
+	const Hitable* m_right;
+	Aabb m_aabb;
+	bool m_owner;
+};
+
 class HitableList : public Hitable
 {
 public:
-	HitableList() : list(nullptr), count(0)
+	HitableList() : m_list(nullptr), m_count(0), m_bvh(nullptr)
 	{
 	}
 
-	HitableList(int c) : list(new const Hitable* [c]), count(c)
+	HitableList(int c) : m_list(new const Hitable* [c]), m_count(c), m_bvh(nullptr)
 	{
 		Clear();
 	}
 
 	virtual ~HitableList()
 	{
-		delete[] list;
-		count = 0;
+		delete[] m_list;
+		m_count = 0;
+
+		delete m_bvh;
+		m_bvh = nullptr;
 	}
 
 	void Reserve(int c)
 	{
-		delete[] list;
-		list = new const Hitable* [c];
+		delete[] m_list;
+		m_list = new const Hitable* [c];
 		Clear();
-		count = c;
+		m_count = c;
+		
+		delete m_bvh;
+		m_bvh = nullptr;
 	}
 
 	void Clear()
 	{
-		if(0<count && list)
+		if(0<m_count && m_list)
 		{
-			memset(list, 0, sizeof(const Hitable*)*count);
+			memset(m_list, 0, sizeof(const Hitable*)*m_count);
 		}
 	}
 
 	bool Set(int id, const Hitable* h)
 	{
-		if(count<=id) return false;
+		if(m_count<=id) return false;
 		if(id<0) return false;
 
-		list[id] = h;
+		m_list[id] = h;
+		return true;
+	}
+	
+	bool Build(float t0, float t1)
+	{
+		SI_ASSERT(m_bvh==nullptr);
+
+		m_bvh = new BvhNode();
+		m_bvh->BuildBvh(m_list, m_count, t0, t1);
+
 		return true;
 	}
 	
 	bool Hit(const Ray& ray, float minT, float maxT, HitRecord& outRecord) const override
 	{
+		if(m_bvh)
+		{
+			return m_bvh->Hit(ray, minT, maxT, outRecord);
+		}
+
 		bool hitAnything = false;
 		float closestT = maxT;
 		HitRecord tmpRecord;
 
-		for(int i=0; i<count; ++i)
+		for(int i=0; i<m_count; ++i)
 		{
-			const Hitable* h = list[i];
+			const Hitable* h = m_list[i];
 			if(h==nullptr) continue;
 
 			if(h->Hit(ray, minT, closestT, tmpRecord))
@@ -354,43 +709,47 @@ public:
 		return hitAnything;
 	}
 
-public:
-	const Hitable** list;
-	int count;
+	bool BoundingBox(float t0, float t1, Aabb& outAabb) const
+	{
+		if(m_count < 1) return false;
+
+		if(!m_list[0]->BoundingBox(t0, t1, outAabb)) return false;
+
+		Aabb tmpAabb;
+		for(int i=1; i<m_count; ++i)
+		{
+			if(!m_list[i]->BoundingBox(t0, t1, tmpAabb)) return false;
+
+			outAabb = CombineAabb(outAabb, tmpAabb);
+		}
+
+		return true;
+	}
+
+private:
+	const Hitable** m_list;
+	int m_count;
+
+	BvhNode *m_bvh;
 };
 
 class Camera
 {
 public:
-	Camera(uint32_t width=1920, uint32_t height=1080)
+	Camera(
+		Vfloat3 camPos,
+		Vfloat3 target,
+		Vfloat3 vUp,
+		float vFov,
+		float aspect,
+		float aparture,
+		float focusDist,
+		float t0,
+		float t1)
 	{
-		float aspect = (float)width / (float)height;
-	
-		origin = Vfloat3(0.0f);
-		topLeft = Vfloat3(-aspect, 1, -1);
-		horizon = Vfloat3(2.0f*aspect, 0.0f, 0.0f);
-		vertical = Vfloat3(0.0f, -2.0f, 0.0f);
-	}
+		time0 = t0;
+		time1 = t1;
 
-	Ray CalcRay(float u, float v)
-	{
-		Vfloat3 dir = topLeft + u * horizon + v * vertical;
-		Ray r(origin, dir);
-		return r;
-	}
-
-public:
-	Vfloat3 origin;
-	Vfloat3 topLeft;
-	Vfloat3 horizon;
-	Vfloat3 vertical;
-};
-
-class CameraEx
-{
-public:
-	CameraEx(Vfloat3 camPos, Vfloat3 target, Vfloat3 vUp, float vFov, float aspect, float aparture, float focusDist)
-	{
 		lensRadius = 0.5f * aparture;
 		float theta = vFov * kPi / 180.0f;
 		float halfHeight = tan(0.5f * theta);
@@ -406,13 +765,12 @@ public:
 		vertical = 2.0f * halfHeight * focusDist * v;
 	}
 
-	~CameraEx(){}
-
 	Ray CalcRay(float s, float t)
 	{
 		Vfloat3 rd = lensRadius * RandomInUnitDisk();
 		Vfloat3 offset = u * rd.X() + v * rd.Y();
-		return Ray(origin + offset, lowerLeftCorner + s*horizontal + t*vertical - (origin + offset));
+		float time = time0 + FloatUnitRand() * (time1 - time0);
+		return Ray(origin + offset, lowerLeftCorner + s*horizontal + t*vertical - (origin + offset), time);
 	}
 
 private:
@@ -421,6 +779,8 @@ private:
 	Vfloat3 horizontal;
 	Vfloat3 vertical;
 	Vfloat3 u,v,w;
+	float time0;
+	float time1;
 	float lensRadius;
 };
 
@@ -496,12 +856,22 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 	std::vector<float> data(textureSize);
 	float* pData = &data[0];
 
+	std::vector<Texture*> textures;
+	SI_SCOPE_EXIT(for(Texture* t : textures){ delete t; });
+	textures.push_back( new ConstantTexture(Vfloat3(0.2f, 0.3f, 0.1f)) );
+	textures.push_back( new ConstantTexture(Vfloat3(0.9f, 0.9f, 0.9f)) );
+	textures.push_back( new CheckerTexture(textures[0], textures[1]) ); // checker
+	
+	textures.push_back( new ConstantTexture(Vfloat3(1.0f, 0.5f, 0.5f)) );
+	textures.push_back( new ConstantTexture(Vfloat3(0.5f, 0.5f, 0.5f)) );
+	textures.push_back( new ConstantTexture(Vfloat3(0.2f, 0.2f, 0.9f)) );
+
 	Lambert lamberts[] =
 	{
-		Lambert(Vfloat3(0.5f, 0.5f, 0.5f)),
-		Lambert(Vfloat3(1.0f, 0.5f, 0.5f)),
-		Lambert(Vfloat3(0.2f, 0.2f, 0.9f)),
-		Lambert(Vfloat3(0.7f, 0.2f, 0.5f)),
+		Lambert(textures[2]),
+		Lambert(textures[3]),
+		Lambert(textures[4]),
+		Lambert(textures[5]),
 	};
 
 	Metal metals[] =
@@ -521,15 +891,20 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 	float focusDist = (cameraTarget - cameraPos).Length();
 	float apature = 0.05f;
 
-	Camera camera3(width, height);
-	CameraEx camera(
+	float time0 = 0;
+	float time1 = 0.00001f;
+	float timeDif = time1 - time0;
+
+	Camera camera(
 		cameraPos,
 		cameraTarget,
 		Vfloat3(0.0f, 1.0f ,0.0f),  // vup
 		90.0f,
 		(float)width/(float)height,
 		apature, // aparture
-		focusDist);
+		focusDist,
+		time0,
+		time1);
 
 	Sphere spheres[] = 
 	{
@@ -543,8 +918,8 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 	int sphereCount = (int)(sizeof(spheres)/sizeof(spheres[0]));
 		
 	std::vector<Material*> randMaterials;
-	std::vector<Sphere*> randSpheres;
-	int randCount = 8;
+	std::vector<Hitable*> randSpheres;
+	int randCount = 6;
 	int allRandCount = (2 * randCount + 1) * (2 * randCount + 1);
 	randMaterials.reserve(allRandCount);
 	randSpheres.reserve(allRandCount);
@@ -565,33 +940,39 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 			float randKey = FloatUnitRand();
 			if(randKey < 0.8f)
 			{
-				m = new Lambert(RandomInUnitSphere()*RandomInUnitSphere());
+				textures.push_back( new ConstantTexture(RandomInUnitSphere()*RandomInUnitSphere()) );
+				m = new Lambert(textures.back());
+				randMaterials.push_back(m);
+				randSpheres.push_back(new MovingSphere(center, center+Vfloat3(0, 0.5f*timeDif*FloatUnitRand(), 0), time0, time1, 0.2f, m));
 			}
 			else if(randKey < 0.9f)
 			{
 				m = new Metal(0.5f * (Vfloat3(1) + RandomInUnitSphere()), 0.5f * FloatUnitRand());
+				randMaterials.push_back(m);
+				randSpheres.push_back(new Sphere(center, 0.2f, m));
 			}
 			else
 			{
 				m = new Dielectric(1.5f);
+				randMaterials.push_back(m);
+				randSpheres.push_back(new Sphere(center, 0.2f, m));
 			}
-
-			randMaterials.push_back(m);
-			randSpheres.push_back(new Sphere(center, 0.2f, m));
 		}
 	}
 #endif
 
-	HitableList hitables(sphereCount + (int)randSpheres.size());
+	HitableList world(sphereCount + (int)randSpheres.size());
 	for(int i=0; i<sphereCount; ++i)
 	{
-		hitables.Set(i, &spheres[i]);
+		world.Set(i, &spheres[i]);
 	}
 	for(size_t i=0; i<randSpheres.size(); ++i)
 	{
-		Sphere* s = randSpheres[i];
-		hitables.Set((int)i + sphereCount, s);
+		Hitable* s = randSpheres[i];
+		world.Set((int)i + sphereCount, s);
 	}
+
+	world.Build(time0, time1);
 
 	auto func = [&](uint32_t n)
 	{
@@ -610,7 +991,7 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 				v += ((float)vs + 0.5f) / (float)sampleVPerPixel / (float)height;
 		
 				Ray ray = camera.CalcRay(u, v);
-				Vfloat3 sampleColor = RayToColor(ray, hitables);
+				Vfloat3 sampleColor = RayToColor(ray, world);
 
 				color += sampleColor / (float)samplePerPixel;
 			}
@@ -657,7 +1038,7 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 	}
 #endif
 
-	for(Sphere* s : randSpheres)
+	for(Hitable* s : randSpheres)
 	{
 		delete s;
 	}
@@ -672,5 +1053,5 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 	return std::move(data);
 }
 
-} // namespace RayTracingInOneWeekEnd
+} // namespace RayTracingTheNextWeek
 } // namespace SI

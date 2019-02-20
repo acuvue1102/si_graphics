@@ -400,6 +400,22 @@ namespace SI
 			return Vfloat4(_mm_max_ps(a.Get128(), b.Get128()));
 		}
 
+		inline Vfloat HorizontalMin(Vfloat4_arg a)
+		{
+			__m128 zwzw = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(3, 2, 3, 2));
+			__m128 xz_yw  = _mm_min_ps(a.Get128(), zwzw);
+			__m128 yw_yw_yw_yw = _mm_shuffle_ps(xz_yw, xz_yw, _MM_SHUFFLE(1, 1, 1, 1));
+			return Vfloat(_mm_min_ss(xz_yw, yw_yw_yw_yw));
+		}
+
+		inline Vfloat HorizontalMax(Vfloat4_arg a)
+		{
+			__m128 zwzw = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(3, 2, 3, 2));
+			__m128 xz_yw  = _mm_max_ps(a.Get128(), zwzw);
+			__m128 yw_yw_yw_yw = _mm_shuffle_ps(xz_yw, xz_yw, _MM_SHUFFLE(1, 1, 1, 1));
+			return Vfloat(_mm_max_ss(xz_yw, yw_yw_yw_yw));
+		}
+
 		inline Vfloat4 Abs(Vfloat4_arg a)
 		{
 			return Vfloat4(_mm_and_ps(a.Get128(), kSiUint128_AbsMask));

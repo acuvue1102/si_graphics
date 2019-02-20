@@ -99,15 +99,17 @@ namespace SI
 
 	namespace Math
 	{
-		Vfloat4 Min       (Vfloat4_arg a, Vfloat4_arg b);
-		Vfloat4 Max       (Vfloat4_arg a, Vfloat4_arg b);
-		Vfloat4 Abs       (Vfloat4_arg a);
-		Vfloat4 Sqrt      (Vfloat4_arg a);
-		Vfloat4 Rsqrt     (Vfloat4_arg a);
-		Vfloat4 Rcp       (Vfloat4_arg a);
-		Vfloat  LengthSqr (Vfloat4_arg a);
-		Vfloat  Length    (Vfloat4_arg a);
-		Vfloat4 Normalize (Vfloat4_arg a);
+		Vfloat4 Min           (Vfloat4_arg a, Vfloat4_arg b);
+		Vfloat4 Max           (Vfloat4_arg a, Vfloat4_arg b);
+		Vfloat  HorizontalMin (Vfloat3_arg a);
+		Vfloat  HorizontalMax (Vfloat3_arg a);
+		Vfloat4 Abs           (Vfloat4_arg a);
+		Vfloat4 Sqrt          (Vfloat4_arg a);
+		Vfloat4 Rsqrt         (Vfloat4_arg a);
+		Vfloat4 Rcp           (Vfloat4_arg a);
+		Vfloat  LengthSqr     (Vfloat4_arg a);
+		Vfloat  Length        (Vfloat4_arg a);
+		Vfloat4 Normalize     (Vfloat4_arg a);
 		Vfloat4 NormalizeFast (Vfloat4_arg a);
 
 	} // namespace Math

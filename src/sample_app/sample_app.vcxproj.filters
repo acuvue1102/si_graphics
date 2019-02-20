@@ -52,6 +52,9 @@
     <ClCompile Include="app005_raytracing_in_one_weekend\raytracing_in_one_weekend.cpp">
       <Filter>app005_raytracing_in_one_weekend</Filter>
     </ClCompile>
+    <ClCompile Include="app005_raytracing_in_one_weekend\raytracing_the_next_week.cpp">
+      <Filter>app005_raytracing_in_one_weekend</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app000_clear_color\pipeline_000.h">
@@ -79,6 +82,9 @@
       <Filter>app005_raytracing_in_one_weekend</Filter>
     </ClInclude>
     <ClInclude Include="app005_raytracing_in_one_weekend\raytracing_in_one_weekend.h">
+      <Filter>app005_raytracing_in_one_weekend</Filter>
+    </ClInclude>
+    <ClInclude Include="app005_raytracing_in_one_weekend\raytracing_the_next_week.h">
       <Filter>app005_raytracing_in_one_weekend</Filter>
     </ClInclude>
   </ItemGroup>

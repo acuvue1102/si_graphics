@@ -5,9 +5,9 @@
 
 namespace SI
 {
-namespace RayTracingInOneWeekEnd
+namespace RayTracingTheNextWeek
 {
 	std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height);
 	
-} // namespace RayTracingInOneWeekEnd
+} // namespace RayTracingTheNextWeek
 } // namespace SI

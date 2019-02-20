@@ -354,6 +354,22 @@ namespace SI
 		inline Vfloat3 Max(Vfloat3_arg a, Vfloat3_arg b)
 		{
 			return Vfloat3(_mm_max_ps(a.Get128(), b.Get128()));
+		}		
+
+		inline Vfloat HorizontalMin(Vfloat3_arg a)
+		{
+			__m128 zwzw = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(3, 2, 3, 2));
+			__m128 xz_yw  = _mm_min_ps(a.Get128(), zwzw);
+			__m128 yyyy = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(1, 1, 1, 1));
+			return Vfloat(_mm_min_ss(xz_yw, yyyy));
+		}
+
+		inline Vfloat HorizontalMax(Vfloat3_arg a)
+		{
+			__m128 zwzw = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(3, 2, 3, 2));
+			__m128 xz_yw  = _mm_max_ps(a.Get128(), zwzw);
+			__m128 yyyy = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(1, 1, 1, 1));
+			return Vfloat(_mm_max_ss(xz_yw, yyyy));
 		}
 
 		inline Vfloat3 Abs(Vfloat3_arg a)

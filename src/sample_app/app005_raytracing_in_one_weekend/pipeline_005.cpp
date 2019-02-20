@@ -8,8 +8,16 @@
 #include <si_base/math/math.h>
 #include <si_base/input/keyboard.h>
 #include "raytracing_in_one_weekend.h"
+#include "raytracing_the_next_week.h"
 
-#define CPU_RATTRACING 0
+#define HIGH_RESOLUTION 0
+#define CPU_RATTRACING 1
+
+#if CPU_RATTRACING
+#define THE_NEXT_WEEK 1
+#else
+#define THE_NEXT_WEEK 0
+#endif
 
 namespace SI
 {
@@ -140,7 +148,7 @@ namespace APP005
 		{
 			m_resultTexture.InitializeAs2DUav(
 				"copyedTexture",
-#if 0
+#if HIGH_RESOLUTION
 				1980,
 				1080,
 #else
@@ -219,7 +227,13 @@ namespace APP005
 		}
 		
 #if CPU_RATTRACING
-		auto textureData = GenerateRaytracingTextureData(m_resultTexture.GetWidth(), m_resultTexture.GetHeight());
+
+#if THE_NEXT_WEEK
+		auto textureData = RayTracingTheNextWeek::GenerateRaytracingTextureData(m_resultTexture.GetWidth(), m_resultTexture.GetHeight());
+#else
+		auto textureData = RayTracingInOneWeekEnd::GenerateRaytracingTextureData(m_resultTexture.GetWidth(), m_resultTexture.GetHeight());
+#endif
+
 #else
 		// compute root signatureのセットアップ
 		{

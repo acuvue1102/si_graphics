@@ -99,17 +99,19 @@ namespace SI
 
 	namespace Math
 	{
-		Vfloat3 Min       (Vfloat3_arg a, Vfloat3_arg b);
-		Vfloat3 Max       (Vfloat3_arg a, Vfloat3_arg b);
-		Vfloat3 Abs       (Vfloat3_arg a);
-		Vfloat3 Sqrt      (Vfloat3_arg a);
-		Vfloat3 Rsqrt     (Vfloat3_arg a);
-		Vfloat3 Rcp       (Vfloat3_arg a);
-		Vfloat  Dot       (Vfloat3_arg a, Vfloat3_arg b);
-		Vfloat3 Cross     (Vfloat3_arg a, Vfloat3_arg b);
-		Vfloat  LengthSqr (Vfloat3_arg a);
-		Vfloat  Length    (Vfloat3_arg a);
-		Vfloat3 Normalize (Vfloat3_arg a);
+		Vfloat3 Min           (Vfloat3_arg a, Vfloat3_arg b);
+		Vfloat3 Max           (Vfloat3_arg a, Vfloat3_arg b);
+		Vfloat  HorizontalMin (Vfloat3_arg a);
+		Vfloat  HorizontalMax (Vfloat3_arg a);
+		Vfloat3 Abs           (Vfloat3_arg a);
+		Vfloat3 Sqrt          (Vfloat3_arg a);
+		Vfloat3 Rsqrt         (Vfloat3_arg a);
+		Vfloat3 Rcp           (Vfloat3_arg a);
+		Vfloat  Dot           (Vfloat3_arg a, Vfloat3_arg b);
+		Vfloat3 Cross         (Vfloat3_arg a, Vfloat3_arg b);
+		Vfloat  LengthSqr     (Vfloat3_arg a);
+		Vfloat  Length        (Vfloat3_arg a);
+		Vfloat3 Normalize     (Vfloat3_arg a);
 		Vfloat3 NormalizeFast (Vfloat3_arg a);
 
 	} // namespace Math
