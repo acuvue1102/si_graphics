@@ -11,6 +11,7 @@
 #include "raytracing_the_next_week.h"
 
 #define HIGH_RESOLUTION 0
+#define MIDDLE_RESOLUTION 0
 #define CPU_RATTRACING 1
 
 #if CPU_RATTRACING
@@ -151,6 +152,9 @@ namespace APP005
 #if HIGH_RESOLUTION
 				1980,
 				1080,
+#elif MIDDLE_RESOLUTION
+				320*2,
+				180*2,
 #else
 				320,
 				180,

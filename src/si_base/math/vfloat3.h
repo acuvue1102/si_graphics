@@ -16,7 +16,7 @@ namespace SI
 	{
 	public:
 		Vfloat3();		
-		Vfloat3(float x, float y, float z);		
+		Vfloat3(float x, float y, float z);
 		Vfloat3(Vfloat x, Vfloat y, Vfloat z);		
 		explicit Vfloat3(float value);		
 		explicit Vfloat3(Vfloat_arg value);		
@@ -75,6 +75,10 @@ namespace SI
 		Vfloat3  operator*(Vquat_arg q) const;
 		Vfloat3& operator+=(Vfloat3_arg v);
 		Vfloat3& operator-=(Vfloat3_arg v);
+		Vfloat3& operator*=(Vfloat3_arg v);
+		Vfloat3& operator/=(Vfloat3_arg v);
+		Vfloat3& operator*=(float f);
+		Vfloat3& operator/=(float f);
 		bool     operator==(const Vfloat3& v) const;
 		bool     operator!=(const Vfloat3& v) const;
 
@@ -103,6 +107,8 @@ namespace SI
 		Vfloat3 Max           (Vfloat3_arg a, Vfloat3_arg b);
 		Vfloat  HorizontalMin (Vfloat3_arg a);
 		Vfloat  HorizontalMax (Vfloat3_arg a);
+		Vfloat  HorizontalAdd (Vfloat3_arg a);
+		Vfloat  HorizontalMul (Vfloat3_arg a);
 		Vfloat3 Abs           (Vfloat3_arg a);
 		Vfloat3 Sqrt          (Vfloat3_arg a);
 		Vfloat3 Rsqrt         (Vfloat3_arg a);
@@ -113,6 +119,7 @@ namespace SI
 		Vfloat  Length        (Vfloat3_arg a);
 		Vfloat3 Normalize     (Vfloat3_arg a);
 		Vfloat3 NormalizeFast (Vfloat3_arg a);
+		Vfloat3 Floor         (Vfloat3_arg a);
 
 	} // namespace Math
 }

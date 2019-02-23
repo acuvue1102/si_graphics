@@ -318,6 +318,30 @@ namespace SI
 		*this = *this - v;
 		return (*this);
 	}
+
+	inline Vfloat4& Vfloat4::operator*=(Vfloat4_arg v)
+	{
+		*this = *this * v;
+		return (*this);
+	}
+
+	inline Vfloat4& Vfloat4::operator/=(Vfloat4_arg v)
+	{
+		*this = *this / v;
+		return (*this);
+	}
+
+	inline Vfloat4& Vfloat4::operator*=(float f)
+	{
+		*this = *this * f;
+		return (*this);
+	}
+
+	inline Vfloat4& Vfloat4::operator/=(float f)
+	{
+		*this = *this / f;
+		return (*this);
+	}
 	
 	inline bool Vfloat4::operator==(const Vfloat4& v) const
 	{
@@ -402,7 +426,7 @@ namespace SI
 
 		inline Vfloat HorizontalMin(Vfloat4_arg a)
 		{
-			__m128 zwzw = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(3, 2, 3, 2));
+			__m128 zwzw = _mm_movehl_ps(a.Get128(), a.Get128());
 			__m128 xz_yw  = _mm_min_ps(a.Get128(), zwzw);
 			__m128 yw_yw_yw_yw = _mm_shuffle_ps(xz_yw, xz_yw, _MM_SHUFFLE(1, 1, 1, 1));
 			return Vfloat(_mm_min_ss(xz_yw, yw_yw_yw_yw));
@@ -410,10 +434,26 @@ namespace SI
 
 		inline Vfloat HorizontalMax(Vfloat4_arg a)
 		{
-			__m128 zwzw = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(3, 2, 3, 2));
+			__m128 zwzw = _mm_movehl_ps(a.Get128(), a.Get128());
 			__m128 xz_yw  = _mm_max_ps(a.Get128(), zwzw);
 			__m128 yw_yw_yw_yw = _mm_shuffle_ps(xz_yw, xz_yw, _MM_SHUFFLE(1, 1, 1, 1));
 			return Vfloat(_mm_max_ss(xz_yw, yw_yw_yw_yw));
+		}
+
+		inline Vfloat HorizontalAdd(Vfloat4_arg a)
+		{
+			__m128 zwzw = _mm_movehl_ps(a.Get128(), a.Get128());
+			__m128 xz_yw_xz_yw = _mm_add_ps(a.Get128(), zwzw);
+			__m128 yw_yw_yw_yw = _mm_shuffle_ps(xz_yw_xz_yw, xz_yw_xz_yw, _MM_SHUFFLE(1, 1, 1, 1));
+			return Vfloat(_mm_add_ss(xz_yw_xz_yw, yw_yw_yw_yw));
+		}
+
+		inline Vfloat HorizontalMul(Vfloat4_arg a)
+		{
+			__m128 zwzw = _mm_movehl_ps(a.Get128(), a.Get128());
+			__m128 xz_yw_xz_yw = _mm_mul_ps(a.Get128(), zwzw);
+			__m128 yw_yw_yw_yw = _mm_shuffle_ps(xz_yw_xz_yw, xz_yw_xz_yw, _MM_SHUFFLE(1, 1, 1, 1));
+			return Vfloat(_mm_mul_ss(xz_yw_xz_yw, yw_yw_yw_yw));
 		}
 
 		inline Vfloat4 Abs(Vfloat4_arg a)
@@ -462,6 +502,15 @@ namespace SI
 		{
 			Vfloat lengthSqr = LengthSqr(a);
 			return Vfloat4(a * Rsqrt(lengthSqr)); // rsqrt精度良くない...
+		}
+
+		inline Vfloat4 Floor(Vfloat4_arg a)
+		{
+			__m128i int128 = _mm_cvtps_epi32(a.Get128());
+			__m128 float128 = _mm_cvtepi32_ps(int128);
+			__m128 floor128 = _mm_sub_ps(float128, _mm_and_ps(_mm_cmplt_ps(a.Get128(), float128), kSiFloat128_1111));
+
+			return Vfloat4(floor128);
 		}
 
 	} // namespace Math

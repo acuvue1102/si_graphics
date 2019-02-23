@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <smmintrin.h>
+
 #include "si_base/math/vfloat.h"
 #include "si_base/math/math_internal.h"
 
@@ -137,6 +139,15 @@ namespace SI
 		inline Vfloat Rcp(const Vfloat& a)
 		{
 			return Vfloat(_mm_rcp_ss(a.Get128()));
+		}
+
+		inline Vfloat Floor(const Vfloat& a)
+		{
+			__m128i int128 = _mm_cvtps_epi32(a.Get128());
+			__m128 float128 = _mm_cvtepi32_ps(int128);
+			__m128 floor128 = _mm_sub_ps(float128, _mm_and_ps(_mm_cmplt_ps(a.Get128(), float128), kSiFloat128_1111));
+
+			return Vfloat(floor128);
 		}
 		
 	} // namespace Math

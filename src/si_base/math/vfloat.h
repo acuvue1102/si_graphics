@@ -49,6 +49,7 @@ namespace SI
 		Vfloat Sqrt (const Vfloat& a);
 		Vfloat Rsqrt(const Vfloat& a);
 		Vfloat Rcp  (const Vfloat& a);
+		Vfloat Floor(const Vfloat& a);
 
 	} // namespace Math
 }

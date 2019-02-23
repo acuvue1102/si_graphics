@@ -280,6 +280,30 @@ namespace SI
 		return (*this);
 	}
 
+	inline Vfloat3& Vfloat3::operator*=(Vfloat3_arg v)
+	{
+		*this = *this * v;
+		return (*this);
+	}
+
+	inline Vfloat3& Vfloat3::operator/=(Vfloat3_arg v)
+	{
+		*this = *this / v;
+		return (*this);
+	}
+
+	inline Vfloat3& Vfloat3::operator*=(float f)
+	{
+		*this = *this * f;
+		return (*this);
+	}
+
+	inline Vfloat3& Vfloat3::operator/=(float f)
+	{
+		*this = *this / f;
+		return (*this);
+	}
+
 	inline bool Vfloat3::operator==(const Vfloat3& v) const
 	{
 		__m128 cmp = _mm_cmpeq_ps(m_v, v.m_v);
@@ -358,18 +382,34 @@ namespace SI
 
 		inline Vfloat HorizontalMin(Vfloat3_arg a)
 		{
-			__m128 zwzw = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(3, 2, 3, 2));
-			__m128 xz_yw  = _mm_min_ps(a.Get128(), zwzw);
+			__m128 zzzz = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(2, 2, 2, 2));
+			__m128 xz_yz_zz  = _mm_min_ps(a.Get128(), zzzz);
 			__m128 yyyy = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(1, 1, 1, 1));
-			return Vfloat(_mm_min_ss(xz_yw, yyyy));
+			return Vfloat(_mm_min_ss(xz_yz_zz, yyyy));
 		}
 
 		inline Vfloat HorizontalMax(Vfloat3_arg a)
 		{
-			__m128 zwzw = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(3, 2, 3, 2));
-			__m128 xz_yw  = _mm_max_ps(a.Get128(), zwzw);
+			__m128 zzzz = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(2, 2, 2, 2));
+			__m128 xz_yz_zz  = _mm_max_ps(a.Get128(), zzzz);
 			__m128 yyyy = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(1, 1, 1, 1));
-			return Vfloat(_mm_max_ss(xz_yw, yyyy));
+			return Vfloat(_mm_max_ss(xz_yz_zz, yyyy));
+		}
+
+		inline Vfloat HorizontalAdd(Vfloat3_arg a)
+		{
+			__m128 zzzz = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(2, 2, 2, 2));
+			__m128 xz_yz_xz_yz = _mm_add_ps(a.Get128(), zzzz);
+			__m128 yyyy = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(1, 1, 1, 1));
+			return Vfloat(_mm_add_ss(xz_yz_xz_yz, yyyy));
+		}
+
+		inline Vfloat HorizontalMul(Vfloat3_arg a)
+		{
+			__m128 zzzz = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(2, 2, 2, 2));
+			__m128 xz_yz_xz_yz = _mm_mul_ps(a.Get128(), zzzz);
+			__m128 yyyy = _mm_shuffle_ps(a.Get128(), a.Get128(), _MM_SHUFFLE(1, 1, 1, 1));
+			return Vfloat(_mm_mul_ss(xz_yz_xz_yz, yyyy));
 		}
 
 		inline Vfloat3 Abs(Vfloat3_arg a)
@@ -438,6 +478,15 @@ namespace SI
 		{
 			Vfloat lengthSqr = LengthSqr(a);
 			return Vfloat3(a * Rsqrt(lengthSqr)); // rsqrt精度良くない...
+		}
+
+		inline Vfloat3 Floor(Vfloat3_arg a)
+		{
+			__m128i int128 = _mm_cvtps_epi32(a.Get128());
+			__m128 float128 = _mm_cvtepi32_ps(int128);
+			__m128 floor128 = _mm_sub_ps(float128, _mm_and_ps(_mm_cmplt_ps(a.Get128(), float128), kSiFloat128_1111));
+
+			return Vfloat3(floor128);
 		}
 
 	} // namespace Math

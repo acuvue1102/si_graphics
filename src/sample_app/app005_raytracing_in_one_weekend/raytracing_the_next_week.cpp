@@ -130,6 +130,169 @@ public:
 	Texture* m_odd;
 };
 
+class Perlin
+{
+public:
+	Perlin()
+		: m_randVector(nullptr)
+		, m_permX(nullptr)
+		, m_permY(nullptr)
+		, m_permZ(nullptr)
+	{
+	}
+
+	~Perlin()
+	{
+		delete[] m_randVector;
+		delete[] m_permX;
+		delete[] m_permY;
+		delete[] m_permZ;
+	}
+
+	float Noise(const Vfloat3& p) const
+	{
+		Vfloat3 floorP = Math::Floor(p);
+		Vfloat3 uvw = p - floorP;
+		int i = (int)floorP.X();
+		int j = (int)floorP.Y();
+		int k = (int)floorP.Z();
+
+		Vfloat3 c[2][2][2];
+		for(int x=0; x<2; ++x)
+		{
+			for(int y=0; y<2; ++y)
+			{
+				for(int z=0; z<2; ++z)
+				{
+					c[x][y][z] = m_randVector[m_permX[(i+x)&255] ^ m_permY[(j+y)&255] ^ m_permZ[(k+z)&255]];
+				}
+			}
+		}
+
+		return TrilinearInterp(c, uvw);
+	}
+
+	float Turb(const Vfloat3& p, int depth = 7) const
+	{
+		float accum = 0;
+		Vfloat3 tmp = p;
+		float weight = 1;
+		for(int i=0; i<depth; ++i)
+		{
+			accum += weight * Noise(tmp);
+			weight *= 0.5f;
+			tmp *= 2;
+		}
+
+		return fabs(accum);
+	}
+
+	void Generate(int size)
+	{
+		m_randVector = GenerateRandVector(size);
+		m_permX = GeneratePerm(size);
+		m_permY = GeneratePerm(size);
+		m_permZ = GeneratePerm(size);
+	}
+	
+private:
+	static float* GenerateRanFloat(int size)
+	{
+		float* p = new float[size];
+		for(int i=0; i<size; ++i)
+		{
+			p[i] = FloatUnitRand();
+		}
+		return p;
+	}
+
+	static Vfloat3* GenerateRandVector(int size)
+	{
+		Vfloat3* p = new Vfloat3[size];
+		for(int i=0; i<size; ++i)
+		{
+			Vfloat3 v(FloatUnitRand(), FloatUnitRand(), FloatUnitRand());
+			p[i] = Math::Normalize(Vfloat3(-1) + 2.0f * v);
+		}
+		return p;
+	}
+
+	static void Permute(int* p, int n)
+	{
+		for(int i=n-1; 0<i; --i)
+		{
+			int target = int(FloatUnitRand()*(i+1));
+			std::swap(p[i], p[target]);
+		}
+	}
+
+	static int* GeneratePerm(int size)
+	{
+		int* p = new int[size];
+		for(int i=0; i<size; ++i)
+		{
+			p[i] = i;
+		}
+
+		Permute(p, size);
+		return p;
+	}
+
+	static float TrilinearInterp(Vfloat3 c[2][2][2], Vfloat3 uvw)
+	{
+		Vfloat3 uuvvww = uvw*uvw*(Vfloat3(3.0f) - Vfloat3(2.0f)*uvw);
+		float accum = 0;
+		for(int i=0; i<2; ++i)
+		{
+			for(int j=0; j<2; ++j)
+			{
+				for(int k=0; k<2; ++k)
+				{
+					Vfloat3 ijk((float)i, (float)j, (float)k);
+					Vfloat3 weight(uvw - ijk);
+					Vfloat3 tmp = (ijk*uuvvww + (Vfloat3::One() - ijk) * (Vfloat3::One()-uuvvww));
+					accum += Math::HorizontalMul(tmp) * Math::Dot(c[i][j][k], weight);
+				}
+			}
+		}
+
+		return accum;
+	}
+
+private:
+	Vfloat3* m_randVector;
+	int*   m_permX;
+	int*   m_permY;
+	int*   m_permZ;
+};
+
+class NoiseTexture : public Texture
+{
+public:
+	NoiseTexture()
+	{
+		m_perlin.Generate(256);
+		m_scale = 1;
+	}
+
+	NoiseTexture(float scale)
+		: m_scale(scale)
+	{
+		m_perlin.Generate(256);
+	}
+
+	virtual Vfloat3 Value(float u, float v, const Vfloat3& p) const
+	{
+		//return Vfloat3(1,1,1) * m_perlin.Noise(m_scale*p);
+		//return Vfloat3(0.5f) * m_perlin.Noise(m_scale*p) + Vfloat3(0.5f);
+		//return Vfloat3(0.5f) * m_perlin.Turb(m_scale*p);
+		return Vfloat3(0.5f) * ( 1 + sin(m_scale*p.Z() + 10 * m_perlin.Turb(p)));
+	}
+
+	Perlin m_perlin;
+	float m_scale;
+};
+
 class Material;
 
 struct HitRecord
@@ -627,30 +790,26 @@ private:
 class HitableList : public Hitable
 {
 public:
-	HitableList() : m_list(nullptr), m_count(0), m_bvh(nullptr)
+	HitableList() : m_bvh(nullptr)
 	{
 	}
 
-	HitableList(int c) : m_list(new const Hitable* [c]), m_count(c), m_bvh(nullptr)
+	HitableList(int c) : m_list(c), m_bvh(nullptr)
 	{
 		Clear();
 	}
 
 	virtual ~HitableList()
 	{
-		delete[] m_list;
-		m_count = 0;
-
 		delete m_bvh;
 		m_bvh = nullptr;
 	}
 
 	void Reserve(int c)
 	{
-		delete[] m_list;
-		m_list = new const Hitable* [c];
+		m_list.clear();
+		m_list.resize(c);
 		Clear();
-		m_count = c;
 		
 		delete m_bvh;
 		m_bvh = nullptr;
@@ -658,15 +817,15 @@ public:
 
 	void Clear()
 	{
-		if(0<m_count && m_list)
+		if(!m_list.empty())
 		{
-			memset(m_list, 0, sizeof(const Hitable*)*m_count);
+			std::fill(m_list.begin(), m_list.end(), nullptr);
 		}
 	}
 
 	bool Set(int id, const Hitable* h)
 	{
-		if(m_count<=id) return false;
+		if(m_list.size()<=id) return false;
 		if(id<0) return false;
 
 		m_list[id] = h;
@@ -678,7 +837,7 @@ public:
 		SI_ASSERT(m_bvh==nullptr);
 
 		m_bvh = new BvhNode();
-		m_bvh->BuildBvh(m_list, m_count, t0, t1);
+		m_bvh->BuildBvh(&m_list[0], (int)m_list.size(), t0, t1);
 
 		return true;
 	}
@@ -694,7 +853,7 @@ public:
 		float closestT = maxT;
 		HitRecord tmpRecord;
 
-		for(int i=0; i<m_count; ++i)
+		for(int i=0; i<m_list.size(); ++i)
 		{
 			const Hitable* h = m_list[i];
 			if(h==nullptr) continue;
@@ -711,12 +870,12 @@ public:
 
 	bool BoundingBox(float t0, float t1, Aabb& outAabb) const
 	{
-		if(m_count < 1) return false;
+		if(m_list.empty()) return false;
 
 		if(!m_list[0]->BoundingBox(t0, t1, outAabb)) return false;
 
 		Aabb tmpAabb;
-		for(int i=1; i<m_count; ++i)
+		for(int i=1; i<m_list.size(); ++i)
 		{
 			if(!m_list[i]->BoundingBox(t0, t1, tmpAabb)) return false;
 
@@ -726,11 +885,161 @@ public:
 		return true;
 	}
 
-private:
-	const Hitable** m_list;
-	int m_count;
+protected:
+	std::vector<const Hitable*> m_list;
 
 	BvhNode *m_bvh;
+};
+
+class TwoPerlinSphere : public HitableList
+{
+public:
+	TwoPerlinSphere()
+	{
+		m_noise = new NoiseTexture(4);
+		m_lambert = new Lambert(m_noise);
+
+		Reserve(2);
+		Set(0, new Sphere(Vfloat3(0, -1000, 0), 1000, m_lambert));
+		Set(1, new Sphere(Vfloat3(0, 2, 0), 2, m_lambert));
+	}
+
+	virtual ~TwoPerlinSphere()
+	{
+		delete m_list[1];
+		delete m_list[0];
+
+		delete m_lambert;
+		delete m_noise;
+	}
+
+private:
+	NoiseTexture* m_noise;
+	Lambert* m_lambert;
+};
+
+class ManySpheres : public HitableList
+{
+public:
+	ManySpheres(float time0, float time1)
+	{
+		float timeDif = time1 - time0;
+		textures.push_back( new ConstantTexture(Vfloat3(0.2f, 0.3f, 0.1f)) );
+		textures.push_back( new ConstantTexture(Vfloat3(0.9f, 0.9f, 0.9f)) );
+		textures.push_back( new CheckerTexture(textures[0], textures[1]) ); // checker
+	
+		textures.push_back( new ConstantTexture(Vfloat3(1.0f, 0.5f, 0.5f)) );
+		textures.push_back( new ConstantTexture(Vfloat3(0.5f, 0.5f, 0.5f)) );
+		textures.push_back( new ConstantTexture(Vfloat3(0.2f, 0.2f, 0.9f)) );
+
+		static const Lambert lamberts[] =
+		{
+			Lambert(textures[2]),
+			Lambert(textures[3]),
+			Lambert(textures[4]),
+			Lambert(textures[5]),
+		};
+
+		static const Metal metals[] =
+		{
+			Metal(Vfloat3(1.0f, 1.0f, 1.0f), 0.0f),
+			Metal(Vfloat3(1.0f, 0.5f, 0.5f), 0.5f),
+		};
+
+		static const Dielectric dielectrics[] = 
+		{
+			Dielectric(1.5f),
+			Dielectric(2.4f),
+		};
+
+		static const Sphere spheres[] = 
+		{
+			Sphere(Vfloat3(0.0f, -10000.f, 0.0f), 10000.0f, &lamberts[0]),
+			Sphere(Vfloat3(-4.0f, 1.0f, -1.0f), 1.0f, &dielectrics[0]),
+			Sphere(Vfloat3(0.0f, 1.0f, -1.0f), 1.0f, &lamberts[1]),
+			Sphere(Vfloat3(4.0f, 1.0f, -1.0f), 1.0f, &metals[0]),
+		};
+		int sphereCount = (int)(sizeof(spheres)/sizeof(spheres[0]));
+		
+		int randCount = 6;
+		int allRandCount = (2 * randCount + 1) * (2 * randCount + 1);
+		randMaterials.reserve(allRandCount);
+		randSpheres.reserve(allRandCount);
+
+	#if 1
+		for(int z=-randCount; z<=randCount; ++z)
+		{
+			if(z==-1) continue;
+
+			for(int x=-randCount; x<=randCount; ++x)
+			{
+				Material* m = nullptr;
+				Vfloat3 center = Vfloat3((float)x+0.9f*FloatUnitRand(), 0.2f, (float)z+0.9f*FloatUnitRand());
+				if((center - Vfloat3(4,0.2f,0)).Length() < 0.9f) continue;
+				if((center - Vfloat3(-4,0.2f,0)).Length() < 0.9f) continue;
+				if((center - Vfloat3(0,0.2f,0)).Length() < 0.9f) continue;
+
+				float randKey = FloatUnitRand();
+				if(randKey < 0.8f)
+				{
+					textures.push_back( new ConstantTexture(RandomInUnitSphere()*RandomInUnitSphere()) );
+					m = new Lambert(textures.back());
+					randMaterials.push_back(m);
+					randSpheres.push_back(new MovingSphere(center, center+Vfloat3(0, 0.5f*timeDif*FloatUnitRand(), 0), time0, time1, 0.2f, m));
+				}
+				else if(randKey < 0.9f)
+				{
+					m = new Metal(0.5f * (Vfloat3(1) + RandomInUnitSphere()), 0.5f * FloatUnitRand());
+					randMaterials.push_back(m);
+					randSpheres.push_back(new Sphere(center, 0.2f, m));
+				}
+				else
+				{
+					m = new Dielectric(1.5f);
+					randMaterials.push_back(m);
+					randSpheres.push_back(new Sphere(center, 0.2f, m));
+				}
+			}
+		}
+	#endif
+
+		Reserve(sphereCount + (int)randSpheres.size());
+		for(int i=0; i<sphereCount; ++i)
+		{
+			Set(i, &spheres[i]);
+		}
+		for(size_t i=0; i<randSpheres.size(); ++i)
+		{
+			Hitable* s = randSpheres[i];
+			Set((int)i + sphereCount, s);
+		}
+	}
+
+	virtual ~ManySpheres()
+	{
+		for(Hitable* s : randSpheres)
+		{
+			delete s;
+		}
+		randSpheres.clear();
+		
+		for(Material* m : randMaterials)
+		{
+			delete m;
+		}
+		randMaterials.clear();
+		
+		for(Texture* t : textures)
+		{
+			delete t;
+		};
+		textures.clear();
+	}
+
+private:
+	std::vector<Texture*> textures;
+	std::vector<Material*> randMaterials;
+	std::vector<Hitable*> randSpheres;
 };
 
 class Camera
@@ -856,39 +1165,17 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 	std::vector<float> data(textureSize);
 	float* pData = &data[0];
 
-	std::vector<Texture*> textures;
-	SI_SCOPE_EXIT(for(Texture* t : textures){ delete t; });
-	textures.push_back( new ConstantTexture(Vfloat3(0.2f, 0.3f, 0.1f)) );
-	textures.push_back( new ConstantTexture(Vfloat3(0.9f, 0.9f, 0.9f)) );
-	textures.push_back( new CheckerTexture(textures[0], textures[1]) ); // checker
-	
-	textures.push_back( new ConstantTexture(Vfloat3(1.0f, 0.5f, 0.5f)) );
-	textures.push_back( new ConstantTexture(Vfloat3(0.5f, 0.5f, 0.5f)) );
-	textures.push_back( new ConstantTexture(Vfloat3(0.2f, 0.2f, 0.9f)) );
-
-	Lambert lamberts[] =
-	{
-		Lambert(textures[2]),
-		Lambert(textures[3]),
-		Lambert(textures[4]),
-		Lambert(textures[5]),
-	};
-
-	Metal metals[] =
-	{
-		Metal(Vfloat3(1.0f, 1.0f, 1.0f), 0.0f),
-		Metal(Vfloat3(1.0f, 0.5f, 0.5f), 0.5f),
-	};
-
-	Dielectric dielectrics[] = 
-	{
-		Dielectric(1.5f),
-		Dielectric(2.4f),
-	};
-
+#if 0
 	Vfloat3 cameraPos(4,2,4);
+	float vFov = 90;
 	Vfloat3 cameraTarget(0.0f, 0.0f, -1.0f);
 	float focusDist = (cameraTarget - cameraPos).Length();
+#else
+	Vfloat3 cameraPos(13,2,3);
+	float vFov = 20;
+	Vfloat3 cameraTarget(0.0f, 0.0f, 0.0f);
+	float focusDist = 10;
+#endif
 	float apature = 0.05f;
 
 	float time0 = 0;
@@ -899,79 +1186,18 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 		cameraPos,
 		cameraTarget,
 		Vfloat3(0.0f, 1.0f ,0.0f),  // vup
-		90.0f,
+		vFov,
 		(float)width/(float)height,
 		apature, // aparture
 		focusDist,
 		time0,
 		time1);
 
-	Sphere spheres[] = 
-	{
-		Sphere(Vfloat3(0.0f, -10000.f, 0.0f), 10000.0f, &lamberts[0]),
-		Sphere(Vfloat3(-4.0f, 1.0f, -1.0f), 1.0f, &dielectrics[0]),
-		Sphere(Vfloat3(0.0f, 1.0f, -1.0f), 1.0f, &lamberts[1]),
-		Sphere(Vfloat3(4.0f, 1.0f, -1.0f), 1.0f, &metals[0]),
-		//Sphere(Vfloat3(2.0f, 0.20f, -1.0f), 0.5f, &lamberts[2]),
-		//Sphere(Vfloat3(-2.0f, 0.20f, -1.0f), 0.5f, &metals[1]),
-	};
-	int sphereCount = (int)(sizeof(spheres)/sizeof(spheres[0]));
-		
-	std::vector<Material*> randMaterials;
-	std::vector<Hitable*> randSpheres;
-	int randCount = 6;
-	int allRandCount = (2 * randCount + 1) * (2 * randCount + 1);
-	randMaterials.reserve(allRandCount);
-	randSpheres.reserve(allRandCount);
-
-#if 1
-	for(int z=-randCount; z<=randCount; ++z)
-	{
-		if(z==-1) continue;
-
-		for(int x=-randCount; x<=randCount; ++x)
-		{
-			Material* m = nullptr;
-			Vfloat3 center = Vfloat3((float)x+0.9f*FloatUnitRand(), 0.2f, (float)z+0.9f*FloatUnitRand());
-			if((center - Vfloat3(4,0.2f,0)).Length() < 0.9f) continue;
-			if((center - Vfloat3(-4,0.2f,0)).Length() < 0.9f) continue;
-			if((center - Vfloat3(0,0.2f,0)).Length() < 0.9f) continue;
-
-			float randKey = FloatUnitRand();
-			if(randKey < 0.8f)
-			{
-				textures.push_back( new ConstantTexture(RandomInUnitSphere()*RandomInUnitSphere()) );
-				m = new Lambert(textures.back());
-				randMaterials.push_back(m);
-				randSpheres.push_back(new MovingSphere(center, center+Vfloat3(0, 0.5f*timeDif*FloatUnitRand(), 0), time0, time1, 0.2f, m));
-			}
-			else if(randKey < 0.9f)
-			{
-				m = new Metal(0.5f * (Vfloat3(1) + RandomInUnitSphere()), 0.5f * FloatUnitRand());
-				randMaterials.push_back(m);
-				randSpheres.push_back(new Sphere(center, 0.2f, m));
-			}
-			else
-			{
-				m = new Dielectric(1.5f);
-				randMaterials.push_back(m);
-				randSpheres.push_back(new Sphere(center, 0.2f, m));
-			}
-		}
-	}
+#if 0
+	ManySpheres world(time0, time1);
+#else
+	TwoPerlinSphere world;
 #endif
-
-	HitableList world(sphereCount + (int)randSpheres.size());
-	for(int i=0; i<sphereCount; ++i)
-	{
-		world.Set(i, &spheres[i]);
-	}
-	for(size_t i=0; i<randSpheres.size(); ++i)
-	{
-		Hitable* s = randSpheres[i];
-		world.Set((int)i + sphereCount, s);
-	}
-
 	world.Build(time0, time1);
 
 	auto func = [&](uint32_t n)
@@ -1037,18 +1263,6 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 		func(pix);
 	}
 #endif
-
-	for(Hitable* s : randSpheres)
-	{
-		delete s;
-	}
-	randSpheres.clear();
-		
-	for(Material* m : randMaterials)
-	{
-		delete m;
-	}
-	randMaterials.clear();
 
 	return std::move(data);
 }

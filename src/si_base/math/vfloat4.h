@@ -74,6 +74,10 @@ namespace SI
 		Vfloat4 operator*(Vfloat4x3_arg m) const;
 		Vfloat4& operator+=(Vfloat4_arg v);
 		Vfloat4& operator-=(Vfloat4_arg v);
+		Vfloat4& operator*=(Vfloat4_arg v);
+		Vfloat4& operator/=(Vfloat4_arg v);
+		Vfloat4& operator*=(float f);
+		Vfloat4& operator/=(float f);
 		bool     operator==(const Vfloat4& v) const;
 		bool     operator!=(const Vfloat4& v) const;
 
@@ -101,8 +105,10 @@ namespace SI
 	{
 		Vfloat4 Min           (Vfloat4_arg a, Vfloat4_arg b);
 		Vfloat4 Max           (Vfloat4_arg a, Vfloat4_arg b);
-		Vfloat  HorizontalMin (Vfloat3_arg a);
-		Vfloat  HorizontalMax (Vfloat3_arg a);
+		Vfloat  HorizontalMin (Vfloat4_arg a);
+		Vfloat  HorizontalMax (Vfloat4_arg a);
+		Vfloat  HorizontalAdd (Vfloat4_arg a);
+		Vfloat  HorizontalMul (Vfloat4_arg a);
 		Vfloat4 Abs           (Vfloat4_arg a);
 		Vfloat4 Sqrt          (Vfloat4_arg a);
 		Vfloat4 Rsqrt         (Vfloat4_arg a);
@@ -111,6 +117,7 @@ namespace SI
 		Vfloat  Length        (Vfloat4_arg a);
 		Vfloat4 Normalize     (Vfloat4_arg a);
 		Vfloat4 NormalizeFast (Vfloat4_arg a);
+		Vfloat4 Floor         (Vfloat4_arg a);
 
 	} // namespace Math
 }
