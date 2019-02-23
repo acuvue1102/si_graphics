@@ -12,6 +12,7 @@ namespace SI
 		uint32_t     m_width      = 1;
 		uint32_t     m_height     = 1;
 		uint32_t     m_depth      = 1;
+		uint32_t     m_pitchOrLinearSize = 0; // 無圧縮の時はスキャンラインのバイトサイズ. 圧縮時はトップレベルのバイトサイズ.
 		uint32_t     m_arraySize  = 1;
 		uint32_t     m_mipLevel   = 1;
 		GfxFormat    m_format     = GfxFormat::Unknown;

@@ -591,6 +591,7 @@ namespace SI
 		outDdsMeta.m_width      = width;
 		outDdsMeta.m_height     = height;
 		outDdsMeta.m_depth      = depth;
+		outDdsMeta.m_pitchOrLinearSize = header.m_pitchOrLinearSize;
 		outDdsMeta.m_arraySize  = arraySize;
 		outDdsMeta.m_mipLevel   = mipLevel;
 		outDdsMeta.m_format     = format;

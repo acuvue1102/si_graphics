@@ -20,6 +20,12 @@ namespace SI
 		return (a<b)? b : a;
 	}
 
+	template<typename T>
+	const T& Clamp(const T& value, const T& minValue, const T& maxValue)
+	{
+		return Min(Max(value, minValue), maxValue);
+	}
+
 	template <typename T>
 	T AlignUp(T value, size_t alignment)
 	{

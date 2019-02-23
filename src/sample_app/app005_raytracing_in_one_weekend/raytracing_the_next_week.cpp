@@ -8,6 +8,10 @@
 #include <chrono>
 #include <si_base/concurency/atomic.h>
 #include <si_base/concurency/mutex.h>
+#include <si_base/gpu/gfx_dds.h>
+#include <si_base/gpu/gfx_utility.h>
+#include <si_app/file/file_utility.h>
+#include <si_app/file/path_storage.h>
 //#include <omp.h>
 
 namespace SI
@@ -293,16 +297,98 @@ public:
 	float m_scale;
 };
 
+class DdsTexture : public Texture
+{
+public:
+	DdsTexture()
+		: m_pixelByteSize(0)
+	{
+	}
+
+	DdsTexture(const char* ddsPath)
+	{
+		Load(ddsPath);
+	}
+
+	void Load(const char* ddsFilePath)
+	{
+		int ret = SI::FileUtility::Load(m_texData, ddsFilePath);
+		SI_ASSERT(ret==0);
+
+		ret = SI::LoadDdsFromMemory(m_texMetaData, &m_texData[0], m_texData.size());
+		SI_ASSERT(ret==0);
+
+		if(SI::IsBlockCompression(m_texMetaData.m_format))
+		{
+			SI_ASSERT(0, "圧縮テクスチャは未対応.");
+
+			m_texData.clear();
+			m_texMetaData = GfxDdsMetaData();
+			m_pixelByteSize = 0;
+		}
+
+		m_pixelByteSize = (uint32_t)SI::GetFormatBits(m_texMetaData.m_format) / 8;
+	}
+
+	virtual Vfloat3 Value(float u, float v, const Vfloat3& p) const override
+	{
+		if(!m_texMetaData.m_image) return Vfloat3(0.0f);
+
+		uint32_t w = m_texMetaData.m_width;
+		uint32_t h = m_texMetaData.m_height;
+		uint32_t x = (uint32_t)(u * w);
+		uint32_t y = (uint32_t)((1-v) * h);
+		
+		x = SI::Clamp(x, 0u, w-1u);
+		y = SI::Clamp(y, 0u, h-1u);
+		uint32_t bytePitch = m_texMetaData.m_pitchOrLinearSize;
+		
+		uint32_t index = m_pixelByteSize * x + y * bytePitch;
+		SI_ASSERT(index+m_pixelByteSize <= m_texMetaData.m_imageSise);
+		const void* pixelPtr = &((const uint8_t*)m_texMetaData.m_image)[index];
+
+		Vfloat3 color(0.0f);
+		switch (m_texMetaData.m_format)
+		{
+		case SI::GfxFormat::R8G8B8A8_Unorm:
+		{
+			const uint8_t* pixelPtr8 = (const uint8_t*)pixelPtr;
+			color.Set((float)pixelPtr8[0], (float)pixelPtr8[1], (float)pixelPtr8[2]);
+			color /= 255.0f;
+			break;
+		}
+		default:
+			SI_ASSERT(0, "未対応フォーマット.");
+			break;
+		}
+
+		return color;
+	}
+	
+	std::vector<uint8_t> m_texData;
+	GfxDdsMetaData m_texMetaData;
+	uint32_t m_pixelByteSize;
+};
+
 class Material;
 
 struct HitRecord
 {
-	HitRecord() : t(0.0f), position(0.0f), normal(0.0f, 1.0f, 0.0f), material(nullptr) {}
+	HitRecord()
+		: t(0.0f)
+		, position(0.0f)
+		, normal(0.0f, 1.0f, 0.0f)
+		, material(nullptr)
+		, u(0.0f)
+		, v(0.0f)
+	{}
 
 	float t;
 	Vfloat3 position;
 	Vfloat3 normal;
 	const Material* material;
+	float u;
+	float v;
 };
 
 class Material
@@ -435,7 +521,7 @@ public:
 	{
 		Vfloat3 target = record.position + record.normal + RandomInUnitSphere();
 		outRay = Ray(record.position, target - record.position, ray.Time());
-		outAttenuation = m_albedo->Value(0, 0, record.position);
+		outAttenuation = m_albedo->Value(record.u, record.v, record.position);
 		return true;
 	}
 
@@ -535,6 +621,7 @@ public:
 			outRecord.position = ray.PointAt(t);
 			outRecord.normal = (outRecord.position - Center()) / Radius();
 			outRecord.material = material;
+			GetUv(outRecord.position, outRecord.u, outRecord.v);
 			return true;
 		}
 		
@@ -545,6 +632,7 @@ public:
 			outRecord.position = ray.PointAt(t);
 			outRecord.normal = (outRecord.position - Center()) / Radius();
 			outRecord.material = material;
+			GetUv(outRecord.position, outRecord.u, outRecord.v);
 			return true;
 		}
 
@@ -555,6 +643,19 @@ public:
 	{
 		outAabb = Aabb(center - Vfloat3(radius), center + Vfloat3(radius));
 		return true;
+	}
+
+	void GetUv(const Vfloat3& p, float& u, float& v) const
+	{
+		Vfloat3 unitP = Math::Normalize(p-center);
+		SI_ASSERT(fabs(unitP.X().AsFloat())<=1.0f);
+		SI_ASSERT(fabs(unitP.Y().AsFloat())<=1.0f);
+		SI_ASSERT(fabs(unitP.Z().AsFloat())<=1.0f);
+
+		float phi = atan2(unitP.Z().AsFloat(), unitP.X().AsFloat());
+		float theta = asin(unitP.Y().AsFloat());
+		u = 1.0f - (phi + SI::kPi) / (2 * SI::kPi);
+		v = (theta + SI::kPi*0.5f) / SI::kPi;
 	}
 
 private:
@@ -623,6 +724,7 @@ public:
 			outRecord.position = ray.PointAt(t);
 			outRecord.normal = (outRecord.position - Center(ray.Time())) / Radius();
 			outRecord.material = material;
+			GetUv(outRecord.position, ray.Time(), outRecord.u, outRecord.v);
 			return true;
 		}
 		
@@ -633,10 +735,24 @@ public:
 			outRecord.position = ray.PointAt(t);
 			outRecord.normal = (outRecord.position - Center(ray.Time())) / Radius();
 			outRecord.material = material;
+			GetUv(outRecord.position, ray.Time(), outRecord.u, outRecord.v);
 			return true;
 		}
 
 		return false;
+	}
+
+	void GetUv(const Vfloat3& p, float t, float& u, float& v) const
+	{
+		Vfloat3 unitP = Math::Normalize(p-Center(t));
+		SI_ASSERT(fabs(unitP.X().AsFloat())<=1.0f);
+		SI_ASSERT(fabs(unitP.Y().AsFloat())<=1.0f);
+		SI_ASSERT(fabs(unitP.Z().AsFloat())<=1.0f);
+
+		float phi = atan2(unitP.Z().AsFloat(), unitP.X().AsFloat());
+		float theta = asin(unitP.Y().AsFloat());
+		u = 1.0f - (phi + SI::kPi) / (2 * SI::kPi);
+		v = (theta + SI::kPi*0.5f) / SI::kPi;
 	}
 	
 	virtual bool BoundingBox(float t0, float t1, Aabb& outAabb) const override
@@ -896,26 +1012,37 @@ class TwoPerlinSphere : public HitableList
 public:
 	TwoPerlinSphere()
 	{
-		m_noise = new NoiseTexture(4);
-		m_lambert = new Lambert(m_noise);
+		m_noiseTexture = new NoiseTexture(4);
+
+		char ddsFilePath[260];
+		sprintf_s(ddsFilePath, "%stexture\\test_texture_rgba8.dds", SI_PATH_STORAGE().GetAssetDirPath());
+		//sprintf_s(ddsFilePath, "%stexture\\grid.dds", SI_PATH_STORAGE().GetAssetDirPath());
+		m_ddsTexture = new DdsTexture(ddsFilePath);
+
+		m_lambert0 = new Lambert(m_noiseTexture);
+		m_lambert1 = new Lambert(m_ddsTexture);
 
 		Reserve(2);
-		Set(0, new Sphere(Vfloat3(0, -1000, 0), 1000, m_lambert));
-		Set(1, new Sphere(Vfloat3(0, 2, 0), 2, m_lambert));
+		Set(0, new Sphere(Vfloat3(0, -1000, 0), 1000, m_lambert0));
+		Set(1, new Sphere(Vfloat3(0, 2, 0), 2, m_lambert1));
 	}
 
 	virtual ~TwoPerlinSphere()
 	{
 		delete m_list[1];
 		delete m_list[0];
-
-		delete m_lambert;
-		delete m_noise;
+		
+		delete m_lambert0;
+		delete m_lambert1;
+		delete m_noiseTexture;
+		delete m_ddsTexture;
 	}
 
 private:
-	NoiseTexture* m_noise;
-	Lambert* m_lambert;
+	DdsTexture* m_ddsTexture;
+	NoiseTexture* m_noiseTexture;
+	Lambert* m_lambert0;
+	Lambert* m_lambert1;
 };
 
 class ManySpheres : public HitableList
@@ -1169,6 +1296,11 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 	Vfloat3 cameraPos(4,2,4);
 	float vFov = 90;
 	Vfloat3 cameraTarget(0.0f, 0.0f, -1.0f);
+	float focusDist = (cameraTarget - cameraPos).Length();
+#elif 1
+	Vfloat3 cameraPos(4,2,4);
+	float vFov = 60;
+	Vfloat3 cameraTarget(0.0f, 2.0f, 0.0f);
 	float focusDist = (cameraTarget - cameraPos).Length();
 #else
 	Vfloat3 cameraPos(13,2,3);
