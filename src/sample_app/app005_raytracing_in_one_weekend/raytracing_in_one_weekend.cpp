@@ -53,7 +53,7 @@ Vfloat3 RandomInUnitSphere()
 
 	do
 	{
-		o = Vfloat3(FloatUnitRand(), FloatUnitRand(), FloatUnitRand());
+		o = 2.0 * Vfloat3(FloatUnitRand(), FloatUnitRand(), FloatUnitRand()) - Vfloat3::One();
 	} while(1.0f <= o.LengthSqr());
 
 	return o;

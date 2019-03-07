@@ -60,7 +60,7 @@ Vfloat3 RandomInUnitSphere()
 
 	do
 	{
-		o = Vfloat3(FloatUnitRand(), FloatUnitRand(), FloatUnitRand());
+		o = 2.0 * Vfloat3(FloatUnitRand(), FloatUnitRand(), FloatUnitRand()) - Vfloat3::One();
 	} while(1.0f <= o.LengthSqr());
 
 	return o;
@@ -398,6 +398,7 @@ public:
 	virtual ~Material(){}
 
 	virtual bool Scatter(const Ray& ray, const HitRecord& record, Vfloat3& outAttenuation, Ray& outRay) const = 0;
+	virtual Vfloat3 Emitted(float u, float v, const Vfloat3& p) const{ return Vfloat3(0.0f); }
 };
 
 Vfloat3 Reflect(const Vfloat3& unitV, const Vfloat3& normal)
@@ -511,6 +512,28 @@ private:
 	float roughness;
 };
 
+class DiffuseLight : public Material
+{
+public:
+	DiffuseLight(const Texture* texture)
+		: m_emit(texture)
+	{
+	}
+	
+	virtual bool Scatter(const Ray& ray, const HitRecord& record, Vfloat3& outAttenuation, Ray& outRay) const override
+	{
+		return false;
+	}
+	
+	virtual Vfloat3 Emitted(float u, float v, const Vfloat3& p) const override
+	{
+		return m_emit->Value(u,v,p);
+	}
+
+private:
+	const Texture* m_emit;
+};
+
 class Lambert : public Material
 {
 public:
@@ -526,6 +549,24 @@ public:
 	}
 
 private:
+	const Texture* m_albedo;
+};
+
+class Isotropic :public Material
+{
+public:
+	Isotropic(const Texture* albedo)
+		: m_albedo(albedo)
+	{
+	}
+	
+	virtual bool Scatter(const Ray& ray, const HitRecord& record, Vfloat3& outAttenuation, Ray& outRay) const override
+	{
+		outRay = Ray(record.position, RandomInUnitSphere(), ray.Time());
+		outAttenuation = m_albedo->Value(record.u, record.v, record.position);
+		return true;
+	}
+
 	const Texture* m_albedo;
 };
 
@@ -583,6 +624,345 @@ public:
 	virtual bool BoundingBox(float t0, float t1, Aabb& outAabb) const = 0;
 };
 
+class ConstantMedium : public Hitable
+{
+public:
+	ConstantMedium(Hitable* hitable, float density, const Isotropic* phaseFunction)
+		: m_hitable(hitable)
+		, m_density(density)
+		, m_phaseFunction(phaseFunction)
+	{}
+
+	virtual bool Hit(const Ray& ray, float minT, float maxT, HitRecord& outRecord) const override
+	{
+		HitRecord rec0, rec1;
+		if(!m_hitable->Hit(ray, -FLT_MAX, FLT_MAX, rec0)){ return false; }
+		if(!m_hitable->Hit(ray, rec0.t+0.0001f, FLT_MAX, rec1)){ return false; }
+		
+		if(rec0.t < minT) rec0.t = minT;
+		if(maxT < rec1.t) rec1.t = maxT;
+
+		if(rec1.t <= rec0.t) return false;
+
+		if(rec0.t < 0) rec0.t = 0;
+
+		float distance = (rec1.t - rec0.t) * ray.Dir().Length().AsFloat();
+		float hitDistance = -(1/m_density) * log(FloatUnitRand());
+
+		if(distance <= hitDistance) return false;
+
+		outRecord.t        = rec0.t + hitDistance / ray.Dir().Length().AsFloat();
+		outRecord.position = ray.PointAt(outRecord.t);
+		outRecord.normal   = Vfloat3(1,0,0); // arbitary
+		outRecord.material = m_phaseFunction;
+
+		return true;
+	}
+
+	virtual bool BoundingBox(float t0, float t1, Aabb& outAabb) const override
+	{
+		return m_hitable->BoundingBox(t0, t1, outAabb);
+	}
+
+	Hitable* m_hitable;
+	float m_density;
+	const Material* m_phaseFunction;
+};
+
+
+class Translate : public Hitable
+{
+public:
+	Translate(
+		Hitable* hitable,
+		const Vfloat3& offset)
+		: m_hitable(hitable)
+		, m_offset(offset)
+	{}
+
+	virtual bool Hit(const Ray& ray, float minT, float maxT, HitRecord& outRecord) const override
+	{
+		Ray movedRay(ray.Pos() - m_offset, ray.Dir(), ray.Time());
+		if(m_hitable->Hit(movedRay, minT, maxT, outRecord))
+		{
+			outRecord.position += m_offset;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	virtual bool BoundingBox(float t0, float t1, Aabb& outAabb) const override
+	{
+		if(m_hitable->BoundingBox(t0, t1, outAabb))
+		{
+			outAabb = Aabb(outAabb.Min() + m_offset, outAabb.Max() + m_offset);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+private:
+	Hitable* m_hitable;
+	Vfloat3 m_offset;
+};
+
+class RotateY : public Hitable
+{
+public:
+	RotateY(Hitable* hitable, float angle)
+		: m_hitable(hitable)
+	{
+		m_sinTheta = sin(angle);
+		m_cosTheta = cos(angle);
+		m_hasAabb = m_hitable->BoundingBox(0, 1, m_aabb); 
+		
+		Vfloat3 points[8] =
+		{
+			m_aabb.Min(),
+			Vfloat3(m_aabb.Max().X(), m_aabb.Min().Y(), m_aabb.Min().Z()),
+			Vfloat3(m_aabb.Min().X(), m_aabb.Max().Y(), m_aabb.Min().Z()),
+			Vfloat3(m_aabb.Max().X(), m_aabb.Max().Y(), m_aabb.Min().Z()),
+			Vfloat3(m_aabb.Min().X(), m_aabb.Min().Y(), m_aabb.Max().Z()),
+			Vfloat3(m_aabb.Max().X(), m_aabb.Min().Y(), m_aabb.Max().Z()),
+			Vfloat3(m_aabb.Min().X(), m_aabb.Max().Y(), m_aabb.Max().Z()),
+			m_aabb.Max(),
+		};
+		
+		Vfloat3 minPos(FLT_MAX);
+		Vfloat3 maxPos(-FLT_MAX);
+		for(const Vfloat3& p : points)
+		{
+			Vfloat3 rotatedP = CalcRotateY(p, -m_sinTheta, m_cosTheta); // 逆回転
+			minPos = Math::Min(minPos, rotatedP);
+			maxPos = Math::Max(maxPos, rotatedP);
+		}
+
+		m_aabb = Aabb(minPos, maxPos);
+	}
+
+	static Vfloat3 CalcRotateY(const Vfloat3& v, float sinTheta, float cosTheta)
+	{
+		return Vfloat3(
+			cosTheta*v.X() - sinTheta*v.Z(),
+			v.Y(),
+			sinTheta*v.X() + cosTheta*v.Z());
+	}
+
+	virtual bool Hit(const Ray& ray, float minT, float maxT, HitRecord& outRecord) const override
+	{
+		Vfloat3 pos = ray.Pos();
+		Vfloat3 dir = ray.Dir();		
+		pos = CalcRotateY(pos, m_sinTheta, m_cosTheta);
+		dir = CalcRotateY(dir, m_sinTheta, m_cosTheta);
+
+		Ray rotatedRay(pos, dir, ray.Time());
+		if(m_hitable->Hit(rotatedRay, minT, maxT, outRecord))
+		{
+			outRecord.position = CalcRotateY(outRecord.position, -m_sinTheta, m_cosTheta); // 逆回転
+			outRecord.normal   = CalcRotateY(outRecord.normal,   -m_sinTheta, m_cosTheta); // 逆回転
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	virtual bool BoundingBox(float t0, float t1, Aabb& outAabb) const override
+	{
+		if(m_hasAabb)
+		{
+			outAabb = m_aabb;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+private:
+	Hitable* m_hitable;
+	float m_sinTheta;
+	float m_cosTheta;
+	bool m_hasAabb;
+	Aabb m_aabb;
+};
+
+class XYRect : public Hitable
+{
+public:
+	XYRect(float x0, float x1, float y0, float y1, float z, const Material* m)
+		: m_x0(x0)
+		, m_x1(x1)
+		, m_y0(y0)
+		, m_y1(y1)
+		, m_z(z)
+		, m_material(m)
+	{}
+
+	bool Hit(const Ray& ray, float minT, float maxT, HitRecord& outRecord) const override
+	{
+		float t = (m_z - ray.Pos().Z().AsFloat()) / ray.Dir().Z().AsFloat();
+		if(t<minT || maxT<t) return false;
+
+		Vfloat3 xyz = ray.PointAt(t);
+		float x = xyz.X().AsFloat();
+		float y = xyz.Y().AsFloat();
+		if(x < m_x0 || m_x1 < x) return false;
+		if(y < m_y0 || m_y1 < y) return false;
+		
+		outRecord.u = (x - m_x0) / (m_x1 - m_x0);
+		outRecord.v = (y - m_y0) / (m_y1 - m_y0);
+		outRecord.t = t;
+		outRecord.material = m_material;
+		outRecord.position = xyz;
+		outRecord.normal = Vfloat3(0,0,1);
+
+		return true;
+	}
+	
+	virtual bool BoundingBox(float t0, float t1, Aabb& outAabb) const override
+	{
+		outAabb = Aabb(Vfloat3(m_x0, m_y0, m_z-0.001f), Vfloat3(m_x1, m_y1, m_z+0.001f));
+		return true;
+	}
+
+private:
+	float m_x0, m_x1;
+	float m_y0, m_y1;
+	float m_z;
+	const Material* m_material;
+};
+
+class XZRect : public Hitable
+{
+public:
+	XZRect(float x0, float x1, float z0, float z1, float y, const Material* m)
+		: m_x0(x0)
+		, m_x1(x1)
+		, m_z0(z0)
+		, m_z1(z1)
+		, m_y(y)
+		, m_material(m)
+	{}
+
+	bool Hit(const Ray& ray, float minT, float maxT, HitRecord& outRecord) const override
+	{
+		float t = (m_y - ray.Pos().Y().AsFloat()) / ray.Dir().Y().AsFloat();
+		if(t<minT || maxT<t) return false;
+
+		Vfloat3 xyz = ray.PointAt(t);
+		float x = xyz.X().AsFloat();
+		float z = xyz.Z().AsFloat();
+		if(x < m_x0 || m_x1 < x) return false;
+		if(z < m_z0 || m_z1 < z) return false;
+		
+		outRecord.u = (x - m_x0) / (m_x1 - m_x0);
+		outRecord.v = (z - m_z0) / (m_z1 - m_z0);
+		outRecord.t = t;
+		outRecord.material = m_material;
+		outRecord.position = xyz;
+		outRecord.normal = Vfloat3(0,1,0);
+
+		return true;
+	}
+	
+	virtual bool BoundingBox(float t0, float t1, Aabb& outAabb) const override
+	{
+		outAabb = Aabb(Vfloat3(m_x0, m_y-0.001f, m_z0), Vfloat3(m_x1, m_y+0.001f, m_z1));
+		return true;
+	}
+
+private:
+	float m_x0, m_x1;
+	float m_z0, m_z1;
+	float m_y;
+	const Material* m_material;
+};
+
+class YZRect : public Hitable
+{
+public:
+	YZRect(float y0, float y1, float z0, float z1, float x, const Material* m)
+		: m_y0(y0)
+		, m_y1(y1)
+		, m_z0(z0)
+		, m_z1(z1)
+		, m_x(x)
+		, m_material(m)
+	{}
+
+	bool Hit(const Ray& ray, float minT, float maxT, HitRecord& outRecord) const override
+	{
+		float t = (m_x - ray.Pos().X().AsFloat()) / ray.Dir().X().AsFloat();
+		if(t<minT || maxT<t) return false;
+
+		Vfloat3 xyz = ray.PointAt(t);
+		float y = xyz.Y().AsFloat();
+		float z = xyz.Z().AsFloat();
+		if(y < m_y0 || m_y1 < y) return false;
+		if(z < m_z0 || m_z1 < z) return false;
+		
+		outRecord.u = (y - m_y0) / (m_y1 - m_y0);
+		outRecord.v = (z - m_z0) / (m_z1 - m_z0);
+		outRecord.t = t;
+		outRecord.material = m_material;
+		outRecord.position = xyz;
+		outRecord.normal = Vfloat3(1,0,0);
+
+		return true;
+	}
+	
+	virtual bool BoundingBox(float t0, float t1, Aabb& outAabb) const override
+	{
+		outAabb = Aabb(Vfloat3(m_x-0.001f, m_y0, m_z0), Vfloat3(m_x+0.001f, m_y1, m_z1));
+		return true;
+	}
+
+private:
+	float m_y0, m_y1;
+	float m_z0, m_z1;
+	float m_x;
+	const Material* m_material;
+};
+
+class FlipNormal : public Hitable
+{
+public:
+	FlipNormal(const Hitable* h)
+		: m_hitable(h)
+	{
+	}	
+
+	bool Hit(const Ray& ray, float minT, float maxT, HitRecord& outRecord) const override
+	{
+		if(m_hitable->Hit(ray, minT, maxT, outRecord))
+		{
+			outRecord.normal = -outRecord.normal;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	virtual bool BoundingBox(float t0, float t1, Aabb& outAabb) const override
+	{
+		return m_hitable->BoundingBox(t0, t1, outAabb);
+	}
+
+private:
+	const Hitable* m_hitable;
+};
+
 class Sphere : public Hitable
 {
 public:
@@ -619,7 +999,7 @@ public:
 		{
 			outRecord.t = t;
 			outRecord.position = ray.PointAt(t);
-			outRecord.normal = (outRecord.position - Center()) / Radius();
+			outRecord.normal = Math::Normalize(outRecord.position - Center());// / Radius();
 			outRecord.material = material;
 			GetUv(outRecord.position, outRecord.u, outRecord.v);
 			return true;
@@ -630,7 +1010,7 @@ public:
 		{
 			outRecord.t = t;
 			outRecord.position = ray.PointAt(t);
-			outRecord.normal = (outRecord.position - Center()) / Radius();
+			outRecord.normal = Math::Normalize(outRecord.position - Center());// / Radius();
 			outRecord.material = material;
 			GetUv(outRecord.position, outRecord.u, outRecord.v);
 			return true;
@@ -722,7 +1102,7 @@ public:
 		{
 			outRecord.t = t;
 			outRecord.position = ray.PointAt(t);
-			outRecord.normal = (outRecord.position - Center(ray.Time())) / Radius();
+			outRecord.normal = Math::Normalize(outRecord.position - Center(ray.Time()));// / Radius();
 			outRecord.material = material;
 			GetUv(outRecord.position, ray.Time(), outRecord.u, outRecord.v);
 			return true;
@@ -733,7 +1113,7 @@ public:
 		{
 			outRecord.t = t;
 			outRecord.position = ray.PointAt(t);
-			outRecord.normal = (outRecord.position - Center(ray.Time())) / Radius();
+			outRecord.normal = Math::Normalize(outRecord.position - Center(ray.Time()));// / Radius();
 			outRecord.material = material;
 			GetUv(outRecord.position, ray.Time(), outRecord.u, outRecord.v);
 			return true;
@@ -910,7 +1290,7 @@ public:
 	{
 	}
 
-	HitableList(int c) : m_list(c), m_bvh(nullptr)
+	HitableList(int c) : m_hitables(c), m_bvh(nullptr)
 	{
 		Clear();
 	}
@@ -921,31 +1301,12 @@ public:
 		m_bvh = nullptr;
 	}
 
-	void Reserve(int c)
-	{
-		m_list.clear();
-		m_list.resize(c);
-		Clear();
-		
-		delete m_bvh;
-		m_bvh = nullptr;
-	}
-
 	void Clear()
 	{
-		if(!m_list.empty())
+		if(!m_hitables.empty())
 		{
-			std::fill(m_list.begin(), m_list.end(), nullptr);
+			std::fill(m_hitables.begin(), m_hitables.end(), nullptr);
 		}
-	}
-
-	bool Set(int id, const Hitable* h)
-	{
-		if(m_list.size()<=id) return false;
-		if(id<0) return false;
-
-		m_list[id] = h;
-		return true;
 	}
 	
 	bool Build(float t0, float t1)
@@ -953,7 +1314,7 @@ public:
 		SI_ASSERT(m_bvh==nullptr);
 
 		m_bvh = new BvhNode();
-		m_bvh->BuildBvh(&m_list[0], (int)m_list.size(), t0, t1);
+		m_bvh->BuildBvh(&m_hitables[0], (int)m_hitables.size(), t0, t1);
 
 		return true;
 	}
@@ -969,9 +1330,9 @@ public:
 		float closestT = maxT;
 		HitRecord tmpRecord;
 
-		for(int i=0; i<m_list.size(); ++i)
+		for(int i=0; i<m_hitables.size(); ++i)
 		{
-			const Hitable* h = m_list[i];
+			const Hitable* h = m_hitables[i];
 			if(h==nullptr) continue;
 
 			if(h->Hit(ray, minT, closestT, tmpRecord))
@@ -986,14 +1347,14 @@ public:
 
 	bool BoundingBox(float t0, float t1, Aabb& outAabb) const
 	{
-		if(m_list.empty()) return false;
+		if(m_hitables.empty()) return false;
 
-		if(!m_list[0]->BoundingBox(t0, t1, outAabb)) return false;
+		if(!m_hitables[0]->BoundingBox(t0, t1, outAabb)) return false;
 
 		Aabb tmpAabb;
-		for(int i=1; i<m_list.size(); ++i)
+		for(int i=1; i<m_hitables.size(); ++i)
 		{
-			if(!m_list[i]->BoundingBox(t0, t1, tmpAabb)) return false;
+			if(!m_hitables[i]->BoundingBox(t0, t1, tmpAabb)) return false;
 
 			outAabb = CombineAabb(outAabb, tmpAabb);
 		}
@@ -1002,96 +1363,315 @@ public:
 	}
 
 protected:
-	std::vector<const Hitable*> m_list;
-
+	std::vector<const Hitable*> m_hitables;
 	BvhNode *m_bvh;
 };
 
-class TwoPerlinSphere : public HitableList
+class SceneBase : public HitableList
+{
+public:
+	SceneBase()
+	{
+	}
+
+	virtual ~SceneBase()
+	{
+		for(const Hitable* hitable : m_hitables)
+		{
+			delete hitable;
+		}
+		m_hitables.clear();
+
+		for(const Hitable* hitable : m_coreHitables)
+		{
+			delete hitable;
+		}
+		m_coreHitables.clear();
+
+		for(Material* material : m_materials)
+		{
+			delete material;
+		}
+		m_materials.clear();
+
+		for(const Texture* texture : m_textures)
+		{
+			delete texture;
+		}
+		m_textures.clear();
+	}
+
+protected:
+	std::vector<Texture*>  m_textures;
+	std::vector<Material*> m_materials;
+	std::vector<Hitable*>  m_coreHitables; // Hitableとして登録しないが、作成したいHitable(FlipNormal用)
+};
+
+class Box : public SceneBase
+{
+public:
+	Box(const Vfloat3& p0, const Vfloat3& p1, const Material* material)
+		: m_p0(p0)
+		, m_p1(p1)
+		, m_material(material)
+	{
+		float p0x = m_p0.X().AsFloat();
+		float p0y = m_p0.Y().AsFloat();
+		float p0z = m_p0.Z().AsFloat();
+		float p1x = m_p1.X().AsFloat();
+		float p1y = m_p1.Y().AsFloat();
+		float p1z = m_p1.Z().AsFloat();
+		
+		m_hitables.push_back( new XYRect(p0x, p1x, p0y, p1y, p1z, material ) );
+		m_coreHitables.push_back( new XYRect(p0x, p1x, p0y, p1y, p0z, material ) );
+		m_hitables.push_back( new FlipNormal(m_coreHitables.back()) );
+		
+		m_hitables.push_back( new XZRect(p0x, p1x, p0z, p1z, p1y, material ) );
+		m_coreHitables.push_back( new XZRect(p0x, p1x, p0z, p1z, p0y, material ) );
+		m_hitables.push_back( new FlipNormal(m_coreHitables.back()) );
+		
+		m_hitables.push_back( new YZRect(p0y, p1y, p0z, p1z, p1x, material ) );
+		m_coreHitables.push_back( new YZRect(p0y, p1y, p0z, p1z, p0x, material ) );
+		m_hitables.push_back( new FlipNormal(m_coreHitables.back()) );
+	}
+	
+	virtual bool BoundingBox(float t0, float t1, Aabb& outAabb) const override
+	{
+		outAabb = Aabb(m_p0, m_p1);
+		return true;
+	}
+
+private:
+	Vfloat3 m_p0;
+	Vfloat3 m_p1;
+	const Material* m_material;
+};
+
+class CornellBox : public SceneBase
+{
+public:
+	CornellBox()
+	{
+		m_textures.push_back( new ConstantTexture(Vfloat3(0.65f, 0.05f, 0.05f)) );
+		m_textures.push_back( new ConstantTexture(Vfloat3(0.73f, 0.73f, 0.73f)) );
+		m_textures.push_back( new ConstantTexture(Vfloat3(0.12f, 0.45f, 0.15f)) );
+		m_textures.push_back( new ConstantTexture(Vfloat3(15, 15, 15)) );
+		m_textures.push_back( new ConstantTexture(Vfloat3(1, 1, 1)) );
+		m_textures.push_back( new ConstantTexture(Vfloat3(0, 0, 0)) );
+		
+		m_materials.push_back( new Lambert(m_textures[0]) );
+		const Material* red = m_materials.back();
+		m_materials.push_back( new Lambert(m_textures[1]) );
+		const Material* white = m_materials.back();		
+		m_materials.push_back( new Lambert(m_textures[2]) );
+		const Material* green = m_materials.back();
+		m_materials.push_back( new DiffuseLight(m_textures[3]) );
+		const Material* light = m_materials.back();
+		m_materials.push_back( new Isotropic(m_textures[4]) );
+		const Material* isotopic0 = m_materials.back();
+		m_materials.push_back( new Isotropic(m_textures[5]) );
+		const Material* isotopic1 = m_materials.back();
+		
+		m_coreHitables.push_back( new YZRect(0.0f, 555.0f, 0.0f, 555.0f, 555.0f, green ) );
+		m_hitables.push_back( new FlipNormal(m_coreHitables.back()) );
+		
+		m_hitables.push_back( new YZRect(0.0f, 555.0f, 0.0f, 555.0f, 0.0f, red ) );
+		
+		m_hitables.push_back( new XZRect(213.0f, 343.0f, 227.0f, 332.0f, 554.0f, light ) );
+		
+		m_coreHitables.push_back( new XZRect(0.0f, 555.0f, 0.0f, 555.0f, 555.0f, white ) );
+		m_hitables.push_back( new FlipNormal(m_coreHitables.back()) );
+		
+		m_hitables.push_back( new XZRect(0.0f, 555.0f, 0.0f, 555.0f, 0.0f, white ) );
+
+		m_coreHitables.push_back( new XYRect(0.0f, 555.0f, 0.0f, 555.0f, 555.0f, white ) );
+		m_hitables.push_back( new FlipNormal(m_coreHitables.back()) );
+		
+#if 0
+		m_coreHitables.push_back( new Box(Vfloat3(0, 0, 0), Vfloat3(165, 165, 165), white) );
+		m_coreHitables.push_back( new RotateY(m_coreHitables.back(), -18*SI::kPi/180.0f) );
+		m_hitables.push_back( new Translate(m_coreHitables.back(), Vfloat3(130, 0, 65)) );
+		
+		m_coreHitables.push_back( new Box(Vfloat3(0, 0, 0), Vfloat3(165, 330, 165), white) );
+		m_coreHitables.push_back( new RotateY(m_coreHitables.back(), 15*SI::kPi/180.0f) );
+		m_hitables.push_back( new Translate(m_coreHitables.back(), Vfloat3(265, 0, 295)) );
+#else
+		m_coreHitables.push_back( new Box(Vfloat3(0, 0, 0), Vfloat3(165, 165, 165), white) );
+		m_coreHitables.push_back( new RotateY(m_coreHitables.back(), -18*SI::kPi/180.0f) );
+		m_coreHitables.push_back( new Translate(m_coreHitables.back(), Vfloat3(130, 0, 65)) );
+		m_hitables.push_back( new ConstantMedium(m_coreHitables.back(), 0.01f, (Isotropic*)isotopic0) );
+		
+		m_coreHitables.push_back( new Box(Vfloat3(0, 0, 0), Vfloat3(165, 330, 165), white) );
+		m_coreHitables.push_back( new RotateY(m_coreHitables.back(), 15*SI::kPi/180.0f) );
+		m_coreHitables.push_back( new Translate(m_coreHitables.back(), Vfloat3(265, 0, 295)) );
+		m_hitables.push_back( new ConstantMedium(m_coreHitables.back(), 0.01f, (Isotropic*)isotopic1) );
+#endif
+	}
+};
+
+class FinalScene : public SceneBase
+{
+public:
+	FinalScene()
+	{
+		m_textures.push_back( new ConstantTexture(Vfloat3(0.73f, 0.73f, 0.73f)) );
+		const Texture* whiteTex = m_textures.back();
+		m_textures.push_back( new ConstantTexture(Vfloat3(0.48f, 0.83f, 0.53f)) );
+		const Texture* groundTex = m_textures.back();
+		m_textures.push_back( new ConstantTexture(Vfloat3(7,7,7)) );
+		const Texture* lightTex = m_textures.back();
+		m_textures.push_back( new ConstantTexture(Vfloat3(0.7f, 0.3f, 0.1f)) );
+		const Texture* movingTex = m_textures.back();
+		m_textures.push_back( new ConstantTexture(Vfloat3(0.2f, 0.4f, 0.9f)) );
+		const Texture* fogTex0 = m_textures.back();
+		m_textures.push_back( new ConstantTexture(Vfloat3(1.0f, 1.0f, 1.0f)) );
+		const Texture* fogTex1 = m_textures.back();
+		char ddsFilePath[260];
+		sprintf_s(ddsFilePath, "%stexture\\test_texture_rgba8.dds", SI_PATH_STORAGE().GetAssetDirPath());
+		m_textures.push_back( new DdsTexture(ddsFilePath) );
+		const Texture* ddsTex = m_textures.back();
+		m_textures.push_back( new NoiseTexture(0.1f) );
+		const Texture* noiseTex = m_textures.back();
+		
+		m_materials.push_back( new Lambert(whiteTex) );
+		const Material* white = m_materials.back();
+		m_materials.push_back( new Lambert(groundTex) );
+		const Material* ground = m_materials.back();
+		m_materials.push_back( new DiffuseLight(lightTex) );
+		const Material* light = m_materials.back();
+		m_materials.push_back( new Lambert(movingTex) );
+		const Material* movingMat = m_materials.back();
+		m_materials.push_back( new Dielectric(1.5f) );
+		const Material* dielectric= m_materials.back();
+		m_materials.push_back( new Metal(Vfloat3(0.8f, 0.8f, 0.9f), 10.0f) );
+		const Material* metal= m_materials.back();
+		m_materials.push_back( new Isotropic(fogTex0) );
+		const Isotropic* isotropic0 = (Isotropic*)m_materials.back();
+		m_materials.push_back( new Isotropic(fogTex1) );
+		const Isotropic* isotropic1 = (Isotropic*)m_materials.back();
+		m_materials.push_back( new Lambert(ddsTex) );
+		const Material* imageMat = m_materials.back();
+		m_materials.push_back( new Lambert(noiseTex) );
+		const Material* noiseMat = m_materials.back();
+
+		const int groundBoxCount = 20;
+		for(int i=0; i<groundBoxCount; ++i)
+		{
+			for(int j=0; j<groundBoxCount; ++j)
+			{
+				float w = 100.0f;
+				Vfloat3 p0(
+					-1000.0f + i*w,
+					0.0f,
+					-1000.0f + j*w);
+				Vfloat3 p1(
+					p0.X().AsFloat() + w,
+					100.0f * (FloatUnitRand() + 0.01f),
+					p0.Z().AsFloat() + w);
+
+				m_hitables.push_back( new Box(p0, p1, ground) );
+			}
+		}
+		
+		m_hitables.push_back( new XZRect(123.0f, 423.0f, 147.0f, 412.0f, 554.0f, light ) );
+
+		Vfloat3 center(400, 400, 200);
+		m_hitables.push_back( new MovingSphere(center, center+Vfloat3(30,0,0), 0, 1, 50, movingMat) );
+		
+		m_hitables.push_back( new Sphere(Vfloat3(260, 150, 45), 50, dielectric) );
+		m_hitables.push_back( new Sphere(Vfloat3(0, 150, 145), 50, metal) );
+		
+		m_coreHitables.push_back( new Sphere(Vfloat3(360, 150, 145), 70, dielectric) );
+		m_hitables.push_back( new ConstantMedium(m_coreHitables.back(), 0.2f, isotropic0) );
+		
+		m_coreHitables.push_back( new Sphere(Vfloat3(0.0f), 5000, dielectric) );
+		m_hitables.push_back( new ConstantMedium(m_coreHitables.back(), 0.0001f, isotropic1) );
+
+		
+		m_hitables.push_back( new Sphere(Vfloat3(400, 200, 400), 100, imageMat) );
+		m_hitables.push_back( new Sphere(Vfloat3(220, 280, 300), 80, noiseMat) );
+
+		const int ballCount = 1000;
+		for(int i=0; i<ballCount; ++i)
+		{
+			m_coreHitables.push_back( new Sphere(165*Vfloat3(FloatUnitRand(), FloatUnitRand(), FloatUnitRand()), 10, white) );
+			m_coreHitables.push_back( new RotateY(m_coreHitables.back(), 15*SI::kPi/180.0f) );
+			m_hitables.push_back( new Translate(m_coreHitables.back(), Vfloat3(-100, 270, 395)) );
+		}
+	}
+};
+
+class SimpleLightScene : public SceneBase
+{
+public:
+	SimpleLightScene()
+	{
+		m_textures.push_back( new NoiseTexture(4.0f) );
+		m_textures.push_back( new ConstantTexture(Vfloat3(4.0f)) );
+		
+		m_materials.push_back( new Lambert(m_textures[0]) );
+		m_materials.push_back( new DiffuseLight(m_textures[1]) );
+		m_materials.push_back( new Metal() );
+		
+		m_hitables.push_back( new Sphere(Vfloat3(0, -1000, 0), 1000.0f, m_materials[0] ) );
+		m_hitables.push_back( new Sphere(Vfloat3(0, 2, 0), 2.0f, m_materials[0] ) );
+		m_hitables.push_back( new Sphere(Vfloat3(0, 7, 0), 2.0f, m_materials[1] ) );
+		m_hitables.push_back( new XYRect(3.0f, 5.0f, 0.50f, 3.0f, -2.0f, m_materials[1] ) );
+	}
+};
+
+class TwoPerlinSphere : public SceneBase
 {
 public:
 	TwoPerlinSphere()
 	{
-		m_noiseTexture = new NoiseTexture(4);
+		m_textures.push_back( new NoiseTexture(4) );
 
 		char ddsFilePath[260];
 		sprintf_s(ddsFilePath, "%stexture\\test_texture_rgba8.dds", SI_PATH_STORAGE().GetAssetDirPath());
-		//sprintf_s(ddsFilePath, "%stexture\\grid.dds", SI_PATH_STORAGE().GetAssetDirPath());
-		m_ddsTexture = new DdsTexture(ddsFilePath);
+		m_textures.push_back( new DdsTexture(ddsFilePath) );
 
-		m_lambert0 = new Lambert(m_noiseTexture);
-		m_lambert1 = new Lambert(m_ddsTexture);
+		m_materials.push_back( new Lambert(m_textures[0]) );
+		m_materials.push_back( new Lambert(m_textures[1]) );
 
-		Reserve(2);
-		Set(0, new Sphere(Vfloat3(0, -1000, 0), 1000, m_lambert0));
-		Set(1, new Sphere(Vfloat3(0, 2, 0), 2, m_lambert1));
+		m_hitables.push_back( new Sphere(Vfloat3(0, -1000, 0), 1000, m_materials[0]) );
+		m_hitables.push_back( new Sphere(Vfloat3(0, 2, 0), 2, m_materials[1]) );
 	}
-
-	virtual ~TwoPerlinSphere()
-	{
-		delete m_list[1];
-		delete m_list[0];
-		
-		delete m_lambert0;
-		delete m_lambert1;
-		delete m_noiseTexture;
-		delete m_ddsTexture;
-	}
-
-private:
-	DdsTexture* m_ddsTexture;
-	NoiseTexture* m_noiseTexture;
-	Lambert* m_lambert0;
-	Lambert* m_lambert1;
 };
 
-class ManySpheres : public HitableList
+class ManySpheres : public SceneBase
 {
 public:
 	ManySpheres(float time0, float time1)
 	{
 		float timeDif = time1 - time0;
-		textures.push_back( new ConstantTexture(Vfloat3(0.2f, 0.3f, 0.1f)) );
-		textures.push_back( new ConstantTexture(Vfloat3(0.9f, 0.9f, 0.9f)) );
-		textures.push_back( new CheckerTexture(textures[0], textures[1]) ); // checker
+		m_textures.push_back( new ConstantTexture(Vfloat3(0.2f, 0.3f, 0.1f)) );
+		m_textures.push_back( new ConstantTexture(Vfloat3(0.9f, 0.9f, 0.9f)) );
+		m_textures.push_back( new CheckerTexture(m_textures[0], m_textures[1]) ); // checker
 	
-		textures.push_back( new ConstantTexture(Vfloat3(1.0f, 0.5f, 0.5f)) );
-		textures.push_back( new ConstantTexture(Vfloat3(0.5f, 0.5f, 0.5f)) );
-		textures.push_back( new ConstantTexture(Vfloat3(0.2f, 0.2f, 0.9f)) );
+		m_textures.push_back( new ConstantTexture(Vfloat3(1.0f, 0.5f, 0.5f)) );
+		m_textures.push_back( new ConstantTexture(Vfloat3(0.5f, 0.5f, 0.5f)) );
+		m_textures.push_back( new ConstantTexture(Vfloat3(0.2f, 0.2f, 0.9f)) );
 
-		static const Lambert lamberts[] =
-		{
-			Lambert(textures[2]),
-			Lambert(textures[3]),
-			Lambert(textures[4]),
-			Lambert(textures[5]),
-		};
+		size_t lambertId = m_materials.size();
+		m_materials.push_back( new Lambert(m_textures[2]) );
+		m_materials.push_back( new Lambert(m_textures[3]) );
+		m_materials.push_back( new Lambert(m_textures[4]) );
+		m_materials.push_back( new Lambert(m_textures[5]) );
+		size_t metalId = m_materials.size();
+		m_materials.push_back( new Metal(Vfloat3(1.0f, 1.0f, 1.0f), 0.0f) );
+		m_materials.push_back( new Metal(Vfloat3(1.0f, 0.5f, 0.5f), 0.5f) );
+		size_t dielectricId = m_materials.size();
+		m_materials.push_back( new Dielectric(1.5f) );
+		m_materials.push_back( new Dielectric(2.4f) );
 
-		static const Metal metals[] =
-		{
-			Metal(Vfloat3(1.0f, 1.0f, 1.0f), 0.0f),
-			Metal(Vfloat3(1.0f, 0.5f, 0.5f), 0.5f),
-		};
-
-		static const Dielectric dielectrics[] = 
-		{
-			Dielectric(1.5f),
-			Dielectric(2.4f),
-		};
-
-		static const Sphere spheres[] = 
-		{
-			Sphere(Vfloat3(0.0f, -10000.f, 0.0f), 10000.0f, &lamberts[0]),
-			Sphere(Vfloat3(-4.0f, 1.0f, -1.0f), 1.0f, &dielectrics[0]),
-			Sphere(Vfloat3(0.0f, 1.0f, -1.0f), 1.0f, &lamberts[1]),
-			Sphere(Vfloat3(4.0f, 1.0f, -1.0f), 1.0f, &metals[0]),
-		};
-		int sphereCount = (int)(sizeof(spheres)/sizeof(spheres[0]));
+		m_hitables.push_back( new Sphere(Vfloat3(0.0f, -1000.f, 0.0f), 1000.0f, m_materials[lambertId]) );
+		m_hitables.push_back( new Sphere(Vfloat3(-4.0f, 1.0f, -1.0f), 1.0f, m_materials[dielectricId]) );
+		m_hitables.push_back( new Sphere(Vfloat3(0.0f, 1.0f, -1.0f), 1.0f, m_materials[lambertId+1]) );
+		m_hitables.push_back( new Sphere(Vfloat3(4.0f, 1.0f, -1.0f), 1.0f, m_materials[metalId]));
 		
 		int randCount = 6;
 		int allRandCount = (2 * randCount + 1) * (2 * randCount + 1);
-		randMaterials.reserve(allRandCount);
-		randSpheres.reserve(allRandCount);
 
 	#if 1
 		for(int z=-randCount; z<=randCount; ++z)
@@ -1109,64 +1689,27 @@ public:
 				float randKey = FloatUnitRand();
 				if(randKey < 0.8f)
 				{
-					textures.push_back( new ConstantTexture(RandomInUnitSphere()*RandomInUnitSphere()) );
-					m = new Lambert(textures.back());
-					randMaterials.push_back(m);
-					randSpheres.push_back(new MovingSphere(center, center+Vfloat3(0, 0.5f*timeDif*FloatUnitRand(), 0), time0, time1, 0.2f, m));
+					m_textures.push_back( new ConstantTexture(RandomInUnitSphere()*RandomInUnitSphere()) );
+					m = new Lambert(m_textures.back());
+					m_materials.push_back(m);
+					m_hitables.push_back(new MovingSphere(center, center+Vfloat3(0, 0.5f*timeDif*FloatUnitRand(), 0), time0, time1, 0.2f, m));
 				}
 				else if(randKey < 0.9f)
 				{
 					m = new Metal(0.5f * (Vfloat3(1) + RandomInUnitSphere()), 0.5f * FloatUnitRand());
-					randMaterials.push_back(m);
-					randSpheres.push_back(new Sphere(center, 0.2f, m));
+					m_materials.push_back(m);
+					m_hitables.push_back(new Sphere(center, 0.2f, m));
 				}
 				else
 				{
 					m = new Dielectric(1.5f);
-					randMaterials.push_back(m);
-					randSpheres.push_back(new Sphere(center, 0.2f, m));
+					m_materials.push_back(m);
+					m_hitables.push_back(new Sphere(center, 0.2f, m));
 				}
 			}
 		}
 	#endif
-
-		Reserve(sphereCount + (int)randSpheres.size());
-		for(int i=0; i<sphereCount; ++i)
-		{
-			Set(i, &spheres[i]);
-		}
-		for(size_t i=0; i<randSpheres.size(); ++i)
-		{
-			Hitable* s = randSpheres[i];
-			Set((int)i + sphereCount, s);
-		}
 	}
-
-	virtual ~ManySpheres()
-	{
-		for(Hitable* s : randSpheres)
-		{
-			delete s;
-		}
-		randSpheres.clear();
-		
-		for(Material* m : randMaterials)
-		{
-			delete m;
-		}
-		randMaterials.clear();
-		
-		for(Texture* t : textures)
-		{
-			delete t;
-		};
-		textures.clear();
-	}
-
-private:
-	std::vector<Texture*> textures;
-	std::vector<Material*> randMaterials;
-	std::vector<Hitable*> randSpheres;
 };
 
 class Camera
@@ -1243,14 +1786,6 @@ bool CheckIfRayHitsSphere(const Ray& ray, const Sphere& sphere, float& outT)
 	return true;
 }
 
-Vfloat3 RayToColor(const Ray& r)
-{
-	Vfloat3 unitDir = (r.Dir()).Normalize();
-
-	float t = 0.5f*unitDir.Y() + 0.5f;
-	return Lerp(Vfloat3(1.0f), Vfloat3(0.5f, 0.7f, 1.0f), t);
-}
-
 Vfloat3 RayToColor(const Ray& r, const Hitable& world, int bounce = 0)
 {
 	HitRecord record;
@@ -1258,21 +1793,26 @@ Vfloat3 RayToColor(const Ray& r, const Hitable& world, int bounce = 0)
 	{
 		Ray scatteredRay;
 		Vfloat3 attenuation;
+		Vfloat3 emissive = record.material->Emitted(record.u, record.v, record.position);
 		if( bounce < 64 && record.material->Scatter(r, record, attenuation, scatteredRay) )
 		{
-			return attenuation * RayToColor(scatteredRay, world, bounce+1);
+			return emissive + attenuation * RayToColor(scatteredRay, world, bounce+1);
 		}
 		else
 		{
-			return Vfloat3(0.0f);
+			return emissive;
 		}
 	}
 	else
 	{
+#if 1
+		return Vfloat3(0.0f);
+#else
 		Vfloat3 unitDir = (r.Dir()).Normalize();
 
 		float t = 0.5f*unitDir.Y() + 0.5f;
 		return Lerp(Vfloat3(1.0f), Vfloat3(0.5f, 0.7f, 1.0f), t);
+#endif
 	}
 }
 
@@ -1297,21 +1837,36 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 	float vFov = 90;
 	Vfloat3 cameraTarget(0.0f, 0.0f, -1.0f);
 	float focusDist = (cameraTarget - cameraPos).Length();
-#elif 1
-	Vfloat3 cameraPos(4,2,4);
-	float vFov = 60;
-	Vfloat3 cameraTarget(0.0f, 2.0f, 0.0f);
-	float focusDist = (cameraTarget - cameraPos).Length();
-#else
+#elif 0
 	Vfloat3 cameraPos(13,2,3);
 	float vFov = 20;
 	Vfloat3 cameraTarget(0.0f, 0.0f, 0.0f);
 	float focusDist = 10;
+#elif 0
+	Vfloat3 cameraPos(4,2,4);
+	float vFov = 60;
+	Vfloat3 cameraTarget(0.0f, 2.0f, 0.0f);
+	float focusDist = (cameraTarget - cameraPos).Length();
+#elif 0
+	Vfloat3 cameraPos(8,3,2);
+	float vFov = 70;
+	Vfloat3 cameraTarget(0.0f, 1.0f, -1.0f);
+	float focusDist = (cameraTarget - cameraPos).Length();
+#elif 0
+	Vfloat3 cameraPos(278,278,-800);
+	float vFov = 40;
+	Vfloat3 cameraTarget(278.0f, 278.0f, 0.0f);
+	float focusDist = (cameraTarget - cameraPos).Length();
+#else
+	Vfloat3 cameraPos(478,278,-800);
+	float vFov = 30;
+	Vfloat3 cameraTarget(278.0f, 278.0f, 0.0f);
+	float focusDist = (cameraTarget - cameraPos).Length();
 #endif
 	float apature = 0.05f;
 
 	float time0 = 0;
-	float time1 = 0.00001f;
+	float time1 = 1;
 	float timeDif = time1 - time0;
 
 	Camera camera(
@@ -1327,8 +1882,14 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 
 #if 0
 	ManySpheres world(time0, time1);
-#else
+#elif 0
 	TwoPerlinSphere world;
+#elif 0
+	SimpleLightScene world;
+#elif 0
+	CornellBox world;
+#else
+	FinalScene world;
 #endif
 	world.Build(time0, time1);
 
@@ -1363,38 +1924,43 @@ std::vector<float> GenerateRaytracingTextureData(uint32_t width, uint32_t height
 		pData[n + 3] = 1.0f;	    // A
 	};
 
+	{
+		auto start2 = std::chrono::system_clock::now();
+		SI_SCOPE_EXIT( SI_PRINT("RaytracingTime=%dms\n", (int)std::chrono::duration_cast<std::chrono::milliseconds>((std::chrono::system_clock::now() - start2)).count()); );
+
 #if 1
-	std::atomic<int> pix = 0;
-	auto funcEntry = [&]()
-	{
-		for (int pp = pix.fetch_add((int)pixelSize); pp < (int)textureSize; pp = pix.fetch_add((int)pixelSize))
+		std::atomic<int> pix = 0;
+		auto funcEntry = [&]()
 		{
-			func(pp);
+			for (int pp = pix.fetch_add((int)pixelSize); pp < (int)textureSize; pp = pix.fetch_add((int)pixelSize))
+			{
+				func(pp);
+			}
+		};
+		std::vector<std::thread> threads;
+		// スレッド立てて
+		for(int i=0; i<7; ++i)
+		{
+			threads.emplace_back(funcEntry);
 		}
-	};
-	std::vector<std::thread> threads;
-	// スレッド立てて
-	for(int i=0; i<7; ++i)
-	{
-		threads.emplace_back(funcEntry);
-	}
 
-	// 一緒に仕事する.
-	funcEntry();
+		// 一緒に仕事する.
+		funcEntry();
 
-	// 待つ
-	for(auto& t : threads)
-	{
-		t.join();
-	}
-	threads.clear();
+		// 待つ
+		for(auto& t : threads)
+		{
+			t.join();
+		}
+		threads.clear();
 #else
-	//#pragma omp parallel for
-	for (int32_t pix = 0; pix < (int)textureSize; pix += pixelSize)
-	{
-		func(pix);
-	}
+		//#pragma omp parallel for
+		for (int32_t pix = 0; pix < (int)textureSize; pix += pixelSize)
+		{
+			func(pix);
+		}
 #endif
+	}
 
 	return std::move(data);
 }
