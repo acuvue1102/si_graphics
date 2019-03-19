@@ -42,6 +42,7 @@ namespace SI
 			SI_ASSERT(m_allocatedStateCount==0, "開放忘れ");
 
 			SI_DELETE_ARRAY(m_stateItemArray);
+			m_stateItemArray = nullptr;
 
 			m_handleAllocator.Terminate();
 

@@ -128,6 +128,7 @@ namespace SI
 			usingPages.clear();
 		}		
 		SI_DELETE_ARRAY(m_usingPages);
+		m_usingPages = nullptr;
 		m_queueBufferCount = 0;
 		m_currentPageIndex = 0;
 		m_cpuAccess = true;

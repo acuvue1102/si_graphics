@@ -619,6 +619,7 @@ namespace SI
 		if(!m_impl) return;
 
 		SI_DELETE(m_impl);
+		m_impl = nullptr;
 	}
 	
 	bool Serializer::SerializeRoot(std::string& outString, const void* buffer, const ReflectionType& reflection)

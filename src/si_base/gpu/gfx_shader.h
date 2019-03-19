@@ -38,9 +38,11 @@ namespace SI
 	struct GfxShaderBindingResouceCount
 	{
 		uint32_t m_constantCount  = 0;
-		uint32_t m_samplerCount   = 0;
 		uint32_t m_srvBufferCount = 0;
 		uint32_t m_uavBufferCount = 0;
+		uint32_t m_samplerCount   = 0;
+		
+		uint32_t m_constantBufferSizeArray[16] = {}; // コンスタントバッファのサイズ
 	};
 	
 	///////////////////////////////////////////////////////

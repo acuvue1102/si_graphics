@@ -115,6 +115,7 @@ namespace SI
 		m_bufferCount = 0;
 		m_frameIndex = 0;
 		SI_DELETE_ARRAY(m_textures);
+		m_textures = nullptr;
 		m_swapChain.Reset();
 		return 0;
 	}

@@ -27,12 +27,12 @@ namespace SI
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 	
-	GfxRootSignatureDescEx::GfxRootSignatureDescEx(uint32_t tableCount)
-		: m_tables(SI_DEVICE_TEMP_ALLOCATOR().NewArrayRaw<GfxDescriptorHeapTableEx>(tableCount))
+	GfxRootSignatureDescEx::GfxRootSignatureDescEx(uint32_t tableCount, uint32_t rootDescriptorCount)
+		: m_tables(0<tableCount? SI_DEVICE_TEMP_ALLOCATOR().NewArrayRaw<GfxDescriptorHeapTableEx>(tableCount) : nullptr)
 		, m_tableCount(tableCount)
+		, m_rootDescriptors(0<rootDescriptorCount? SI_DEVICE_TEMP_ALLOCATOR().NewArrayRaw<GfxRootDescriptor>(rootDescriptorCount) : nullptr)
+		, m_rootDescriptorCount(rootDescriptorCount)
 	{
-		SI_ASSERT(m_tables);
-		SI_ASSERT(0 < tableCount);
 	}
 	
 #if 0
@@ -96,13 +96,20 @@ namespace SI
 			m_tables = nullptr;
 			m_tableCount = 0;
 		}
+
+		if(m_rootDescriptors)
+		{
+			auto& pool = SI_DEVICE_TEMP_ALLOCATOR();
+			pool.DeleteArrayRaw(m_rootDescriptors, m_rootDescriptorCount);
+			m_rootDescriptors = nullptr;
+			m_rootDescriptorCount = 0;
+		}
 	}
 
 	void GfxRootSignatureDescEx::ReserveTables(uint32_t tableCount)
 	{
-		Terminate();
-
 		SI_ASSERT(0 < tableCount);
+		SI_ASSERT(!m_tables);
 			
 		auto& pool = SI_DEVICE_TEMP_ALLOCATOR();
 		m_tables = pool.NewArrayRaw<GfxDescriptorHeapTableEx>(tableCount);
@@ -110,7 +117,19 @@ namespace SI
 			
 		SI_ASSERT(m_tables);
 	}
+	
 
+	void GfxRootSignatureDescEx::ReserveDescriptors(uint32_t rootDescriptorCount)
+	{
+		SI_ASSERT(0 < rootDescriptorCount);
+		SI_ASSERT(!m_rootDescriptors);
+			
+		auto& pool = SI_DEVICE_TEMP_ALLOCATOR();
+		m_rootDescriptors = pool.NewArrayRaw<GfxRootDescriptor>(rootDescriptorCount);
+		m_rootDescriptorCount = rootDescriptorCount;
+			
+		SI_ASSERT(m_rootDescriptors);
+	}
 	
 	void GfxRootSignatureEx::Initialize(const GfxRootSignatureDesc& desc)
 	{
@@ -139,6 +158,9 @@ namespace SI
 				m_tableDescriptorCount[i] += ranges[j].m_descriptorCount;
 			}
 		}
+
+		m_tableCount = desc.m_tableCount;
+		m_rootDescriptorCount = desc.m_rootDescriptorCount;
 
 		// TODO: 同じROOT SIGNATUREだったら再利用した方がよさげ.
 

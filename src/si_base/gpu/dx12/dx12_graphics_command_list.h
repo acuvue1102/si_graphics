@@ -203,12 +203,20 @@ namespace SI
 		}
 
 		inline void SetGraphicsDescriptorTable(
-			uint32_t tableIndex,
+			uint32_t rootIndex,
 			GfxGpuDescriptor descriptor)
 		{
 			D3D12_GPU_DESCRIPTOR_HANDLE handle;
 			handle.ptr = descriptor.m_ptr;
-			m_graphicsCommandList->SetGraphicsRootDescriptorTable(tableIndex, handle);
+			m_graphicsCommandList->SetGraphicsRootDescriptorTable(rootIndex, handle);
+		}
+
+		inline void SetGraphicsRootCBV(
+			uint32_t rootIndex,
+			const BaseBuffer& buffer)
+		{
+			D3D12_GPU_VIRTUAL_ADDRESS gpuAddr = buffer.GetGpuAddr();
+			m_graphicsCommandList->SetGraphicsRootConstantBufferView(rootIndex, gpuAddr);
 		}
 
 		inline void SetComputeDescriptorTable(

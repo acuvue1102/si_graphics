@@ -39,6 +39,7 @@ namespace SI
 
 			m_handleAllocator.Terminate();
 			SI_DELETE_ARRAY(m_objects);
+			m_objects = nullptr;
 			m_objectCount = 0;
 			m_allocatedObjectCount = 0;
 		}

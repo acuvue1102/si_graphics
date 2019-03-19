@@ -296,4 +296,20 @@ namespace SI
 		}
 	}
 
+	inline const char* GetSemanticsName(GfxSemanticsType type)
+	{
+		static const char* kSemanticsNames[] =
+		{
+			"",         // Invalid
+			"POSITION", // Position
+			"NORMAL",   // Normal
+			"TEXCOORD", // UV,
+			"TANGENT",  // Tangent,
+			"COLOR",    // Color,
+		};
+		SI_ASSERT( (0 < (int)type) && ((int)type < (int)ArraySize(kSemanticsNames)));
+
+		return kSemanticsNames[(int)type];
+	}
+
 } // namespace SI

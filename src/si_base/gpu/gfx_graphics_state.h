@@ -51,8 +51,8 @@ namespace SI
 	{
 		const char*              m_name                   = nullptr;
 		GfxRootSignature*        m_rootSignature          = nullptr;
-		GfxVertexShader*         m_vertexShader           = nullptr;
-		GfxPixelShader*          m_pixelShader            = nullptr;
+		const GfxVertexShader*   m_vertexShader           = nullptr;
+		const GfxPixelShader*    m_pixelShader            = nullptr;
 
 		const GfxInputElement*   m_inputElements          = nullptr;
 		int                      m_inputElementCount      = 0;

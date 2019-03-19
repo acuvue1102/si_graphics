@@ -51,6 +51,7 @@ namespace SI
 			m_topFreeNode.m_next = nullptr;
 
 			SI_DELETE_ARRAY(m_nodes);
+			m_nodes = nullptr;
 		}
 	}
 

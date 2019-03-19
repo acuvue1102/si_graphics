@@ -103,6 +103,7 @@ namespace SI
 		{
 			m_pathStorage->Terminate();
 			SI_DELETE(m_pathStorage);
+			m_pathStorage = nullptr;
 		}
 
 		m_initialized = false;

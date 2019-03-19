@@ -62,6 +62,7 @@ namespace SI
 		static Vfloat4x3 RotateX(float radian);
 		static Vfloat4x3 RotateY(float radian);
 		static Vfloat4x3 RotateZ(float radian);
+		static Vfloat4x3 Identity();
 				
 	public:
 		__m128 GetRow128(uint32_t rowIndex) const;

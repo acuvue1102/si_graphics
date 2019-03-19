@@ -211,6 +211,15 @@ namespace SI
 	{
 		return Math::RotateZ4x4(radian);
 	}
+
+	inline Vfloat4x4 Vfloat4x4::Identity()
+	{
+		return Vfloat4x4(
+			kSiFloat128_1000,
+			kSiFloat128_0100,
+			kSiFloat128_0010,
+			kSiFloat128_0001);
+	}
 	
 	inline __m128 Vfloat4x4::GetRow128(uint32_t rowIndex) const
 	{

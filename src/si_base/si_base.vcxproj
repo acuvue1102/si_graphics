@@ -136,6 +136,8 @@
     <ClCompile Include="renderer\model_writer.cpp" />
     <ClCompile Include="renderer\node.cpp" />
     <ClCompile Include="renderer\renderer.cpp" />
+    <ClCompile Include="renderer\renderer_draw_stage.cpp" />
+    <ClCompile Include="renderer\renderer_graphics_state.cpp" />
     <ClCompile Include="renderer\render_item.cpp" />
     <ClCompile Include="renderer\sub_mesh.cpp" />
     <ClCompile Include="serialization\deserializer.cpp" />
@@ -254,7 +256,10 @@
     <ClInclude Include="renderer\node_iterator.h" />
     <ClInclude Include="renderer\renderer.h" />
     <ClInclude Include="renderer\renderer_common.h" />
+    <ClInclude Include="renderer\renderer_draw_stage.h" />
+    <ClInclude Include="renderer\renderer_draw_stage_type.h" />
     <ClInclude Include="renderer\renderer_enum.h" />
+    <ClInclude Include="renderer\renderer_graphics_state.h" />
     <ClInclude Include="renderer\render_item.h" />
     <ClInclude Include="renderer\sub_mesh.h" />
     <ClInclude Include="serialization\deserializer.h" />

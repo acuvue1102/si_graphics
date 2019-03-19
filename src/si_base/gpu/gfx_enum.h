@@ -4,6 +4,26 @@
 
 namespace SI
 {
+	enum class GfxRootDescriptorType
+    {
+        CBV = 0,
+        SRV,
+        UAV,
+
+        Max,
+	};
+
+	enum class GfxRootDescriptorFlag
+    {
+        None                        = 0,
+        DataVolatile                = 1<<0,
+        DataStaticWhileSetAtExecute = 1<<1,
+        DataStatic                  = 1<<2,
+		
+        Max                         = 1<<3,
+	};
+	SI_DECLARE_ENUM_FLAGS(GfxRootDescriptorFlags, GfxRootDescriptorFlag);
+
 	enum class GfxShaderType
 	{
 		Vertex = 0,

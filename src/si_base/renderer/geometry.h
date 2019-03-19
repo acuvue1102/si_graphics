@@ -23,11 +23,12 @@ namespace SI
 			SI_REFLECTION_MEMBER_AS_TYPE(m_format, uint8_t))
 	};
 
+	static const size_t kMaxVertexAttributeCount = 15;
 	struct VertexLayout
 	{
 		uint16_t                   m_stride;
 		uint8_t                    m_attributeCount;
-		VertexSemanticsAndFormat   m_attributes[15];
+		VertexSemanticsAndFormat   m_attributes[kMaxVertexAttributeCount];
 
 		VertexLayout()
 			: m_stride(0)
@@ -86,6 +87,12 @@ namespace SI
 		}
 
 		virtual void ImportSerializeData(const GeometrySerializeData& s);
+
+		
+		const VertexLayout& GetVertexLayout() const{ return m_vertexLayout; }
+		bool Is16BitIndex() const{ return m_is16bitIndex; }
+		const GfxBufferEx_Vertex& GetVertexBuffer() const{ return m_vertexBuffer; }
+		const GfxBufferEx_Index& GetIndexBuffer() const{ return m_indexBuffer; }
 
 	public:
 		static Geometry* Create();

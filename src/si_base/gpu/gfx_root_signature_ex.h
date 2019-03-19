@@ -60,10 +60,12 @@ namespace SI
 			: m_name(nullptr)
 			, m_tables(nullptr)
 			, m_tableCount(0)
+			, m_rootDescriptors(0)
+			, m_rootDescriptorCount(0)
 		{
 		}
 
-		explicit GfxRootSignatureDescEx(uint32_t tableCount);
+		GfxRootSignatureDescEx(uint32_t tableCount, uint32_t rootDescriptorCount);
 
 		~GfxRootSignatureDescEx()
 		{
@@ -77,11 +79,14 @@ namespace SI
 
 		//void InitiaizeWithShaderSet(const GfxShaderSet& shaderSet);
 
-		// tableのメモリ開放.
+		// table/descriptorのメモリ開放.
 		void Terminate();
 
 		// tableのメモリ確保
 		void ReserveTables(uint32_t tableCount);
+
+		// descriptorのメモリ確保
+		void ReserveDescriptors(uint32_t descriptorCount);
 
 		GfxDescriptorHeapTableEx& GetTable( uint32_t tableIndex )
 		{
@@ -89,12 +94,20 @@ namespace SI
 			return m_tables[tableIndex];
 		}
 
+		GfxRootDescriptor& GetRootDescriptor( uint32_t rootDescriptorIndex )
+		{
+			SI_ASSERT(rootDescriptorIndex < m_rootDescriptorCount);
+			return m_rootDescriptors[rootDescriptorIndex];
+		}
+
 		GfxRootSignatureDesc GetDesc() const
 		{
 			return GfxRootSignatureDesc(
 				m_name,
 				reinterpret_cast<GfxDescriptorHeapTable*>(m_tables),
-				m_tableCount);
+				m_tableCount,
+				m_rootDescriptors,
+				m_rootDescriptorCount);
 		}
 
 		operator GfxRootSignatureDesc() const
@@ -106,6 +119,8 @@ namespace SI
 		const char*               m_name;
 		GfxDescriptorHeapTableEx* m_tables;
 		uint32_t                  m_tableCount;
+		GfxRootDescriptor*        m_rootDescriptors;
+		uint32_t                  m_rootDescriptorCount; // rootに入れるdescriptor.
 	};
 
 	class GfxRootSignatureEx
@@ -114,6 +129,8 @@ namespace SI
 		GfxRootSignatureEx()
 		: m_samplerTableBits(0)
 		, m_viewsTableBits(0)
+		, m_tableCount(0)
+		, m_rootDescriptorCount(0)
 		{
 			memset(m_tableDescriptorCount, 0, sizeof(m_tableDescriptorCount));
 		}
@@ -137,6 +154,9 @@ namespace SI
 		{
 			return m_tableDescriptorCount[index];
 		}
+		
+		uint32_t GetTableCount() const{ return m_tableCount; }
+		uint32_t GetRootDescriptorCount() const{ return m_rootDescriptorCount; }
 
 	private:
 		GfxRootSignature m_sig;
@@ -144,6 +164,9 @@ namespace SI
 		uint64_t m_samplerTableBits;                              // sampler tableの使われている箇所のbitを立てたtable.
 		uint64_t m_viewsTableBits;                                // sampler以外のtableで使われている箇所のビットを立てたtable.
 		uint16_t m_tableDescriptorCount[kMaxNumDescriptorTables]; // tableのdescriptorの数
+
+		uint32_t m_tableCount;
+		uint32_t m_rootDescriptorCount;
 	};
 
 

@@ -12,6 +12,44 @@
 
 namespace SI
 {
+	inline D3D12_ROOT_PARAMETER_TYPE GetDx12RootParameterType(GfxRootDescriptorType type)
+	{
+		static const D3D12_ROOT_PARAMETER_TYPE kTable[] = 
+		{
+			D3D12_ROOT_PARAMETER_TYPE_CBV,
+			D3D12_ROOT_PARAMETER_TYPE_SRV,
+			D3D12_ROOT_PARAMETER_TYPE_UAV
+		};
+		static_assert(ArraySize(kTable) == (size_t)GfxRootDescriptorType::Max, "tableError");
+
+		return kTable[(int)type];
+	}
+
+	inline D3D12_ROOT_DESCRIPTOR_FLAGS GetDx12RootDescriptorFlags(GfxRootDescriptorFlags flags)
+	{
+		static const D3D12_ROOT_DESCRIPTOR_FLAGS kTable[] = 
+		{
+			D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE,
+			D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE,
+			D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC
+		};
+		static_assert(((size_t)1<<(ArraySize(kTable))) == ((size_t)GfxRootDescriptorFlag::Max), "tableError");
+
+		D3D12_ROOT_DESCRIPTOR_FLAGS dxFlags = D3D12_ROOT_DESCRIPTOR_FLAG_NONE;
+		uint32_t mask = flags.GetMask();
+		while(mask != 0)
+		{
+			int msb = Bitwise::MSB32(mask);
+			if(msb<0) break;
+			if((int)ArraySize(kTable) <= msb) continue;
+
+			dxFlags |= kTable[msb];
+			mask &= ~((uint32_t)1<<(uint32_t)msb);
+		}
+
+		return dxFlags;
+	}
+
 	inline D3D12_SHADER_VISIBILITY GetDx12ShaderVisibility(GfxShaderVisibility v)
 	{
 		static const D3D12_SHADER_VISIBILITY kTable[] = 

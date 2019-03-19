@@ -83,6 +83,7 @@ namespace SI
 		PoolAllocator::Terminate();
 		
 		SI_DELETE_ARRAY(m_poolMemory);
+		m_poolMemory = nullptr;
 	}
 
 } // namespace SI

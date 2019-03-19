@@ -546,6 +546,7 @@ namespace SI
 		
 		///////////////////////////////////////////////////////////
 		// tangent
+		fbxSubMesh.CreateElementTangent(); // tangentを作る.
 		std::array<const FbxLayerElementArrayTemplate<FbxVector4>*, 8> tangentArrays;
 		int tangentCount = fbxSubMesh.GetElementTangentCount();
 		tangentCount = SI::Min(tangentCount, (int)tangentArrays.size());

@@ -184,6 +184,15 @@ namespace SI
 		return Math::RotateZ4x3(radian);
 	}
 
+	inline Vfloat4x3 Vfloat4x3::Identity()
+	{
+		return Vfloat4x3(
+			kSiFloat128_1000,
+			kSiFloat128_0100,
+			kSiFloat128_0010,
+			kSiFloat128_0001);
+	}
+
 	inline Vfloat4 operator*(Vfloat4_arg v, Vfloat4x3_arg m)
 	{
 		return Math::Multiply(v, m);

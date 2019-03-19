@@ -60,7 +60,9 @@ namespace SI
 		void SetCbvSrvUavDescriptorHeap(GfxDescriptorHeap* cbvSrvUavDescriptorHeap);
 		void SetSamplerDescriptorHeap(GfxDescriptorHeap* samplerDescriptorHeap);
 
-		void SetGraphicsDescriptorTable(uint32_t tableIndex, GfxGpuDescriptor descriptor);
+		void SetGraphicsDescriptorTable(uint32_t rootIndex, GfxGpuDescriptor descriptor);
+		
+		void SetGraphicsRootCBV(uint32_t rootIndex, const GfxBuffer& buffer);
 		
 		void SetDynamicViewDescriptor( 
 			uint32_t rootIndex, uint32_t offset,

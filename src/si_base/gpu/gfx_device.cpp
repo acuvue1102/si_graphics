@@ -41,7 +41,8 @@ namespace SI
 
 		int ret = m_base->Terminate();
 		SI_DELETE(m_base);
-		
+		m_base = nullptr;
+
 		return ret;
 	}
 		
@@ -270,6 +271,38 @@ namespace SI
 			*descriptorHeap.GetBaseDescriptorHeap(),
 			descriptorIndex,
 			desc);
+	}
+	
+	void GfxDevice::CopyDescriptors(
+		uint32_t                 dstDescriptorRangeCount,
+		const GfxCpuDescriptor*  dstDescriptorRangeStarts,
+		const uint32_t*          dstDescriptorRangeSizes,
+		uint32_t                 srcDescriptorRangeCount,
+		const GfxCpuDescriptor*  srcDescriptorRangeStarts,
+		const uint32_t*          srcDescriptorRangeSizes,
+		GfxDescriptorHeapType    type)
+	{
+		m_base->CopyDescriptors(
+			dstDescriptorRangeCount,
+			dstDescriptorRangeStarts,
+			dstDescriptorRangeSizes,
+			srcDescriptorRangeCount,
+			srcDescriptorRangeStarts,
+			srcDescriptorRangeSizes,
+			type);
+	}
+
+	void GfxDevice::CopyDescriptorsSimple(
+		uint32_t                 descriptorCount,
+		GfxCpuDescriptor         dstDescriptorRangeStart,
+		GfxCpuDescriptor         srcDescriptorRangeStart,
+		GfxDescriptorHeapType    type)
+	{
+		m_base->CopyDescriptorsSimple(
+			descriptorCount,
+			dstDescriptorRangeStart,
+			srcDescriptorRangeStart,
+			type);
 	}
 
 	// upload用のバッファを作って登録、Flushまで転送はしない.

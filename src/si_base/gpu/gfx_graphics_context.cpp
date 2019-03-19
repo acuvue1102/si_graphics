@@ -64,7 +64,9 @@ namespace SI
 
 			m_maxStateCount = 0;
 			SI_DELETE_ARRAY(m_penddingStates);
+			m_penddingStates = nullptr;
 			SI_DELETE_ARRAY(m_currentStates);
+			m_currentStates = nullptr;
 
 			SI_DEVICE().ReleaseGraphicsCommandList(m_commandList);
 			m_base = nullptr;
@@ -223,10 +225,17 @@ namespace SI
 	}
 
 	void GfxGraphicsContext::SetGraphicsDescriptorTable(
-		uint32_t tableIndex,
+		uint32_t rootIndex,
 		GfxGpuDescriptor descriptor)
 	{
-		m_base->SetGraphicsDescriptorTable(tableIndex, descriptor);
+		m_base->SetGraphicsDescriptorTable(rootIndex, descriptor);
+	}
+
+	void GfxGraphicsContext::SetGraphicsRootCBV(
+		uint32_t rootIndex,
+		const GfxBuffer& buffer)
+	{
+		m_base->SetGraphicsRootCBV(rootIndex, *buffer.GetBaseBuffer());
 	}
 	
 	void GfxGraphicsContext::SetDynamicViewDescriptor( 

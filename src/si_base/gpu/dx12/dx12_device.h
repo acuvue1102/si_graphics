@@ -142,6 +142,12 @@ namespace SI
 			const uint32_t*          srcDescriptorRangeSizes,
 			GfxDescriptorHeapType    type);
 
+		void CopyDescriptorsSimple(
+			uint32_t                 descriptorCount,
+			GfxCpuDescriptor         dstDescriptorRangeStart,
+			GfxCpuDescriptor         srcDescriptorRangeStart,
+			GfxDescriptorHeapType    type);
+
 		// upload用のバッファを作るだけ.
 		int CreateUploadBuffer(
 			ComPtr<ID3D12Resource>& outBufferUploadHeap,

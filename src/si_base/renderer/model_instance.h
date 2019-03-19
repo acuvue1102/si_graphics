@@ -2,6 +2,8 @@
 
 #include "si_base/container/array.h"
 #include "si_base/renderer/model.h"
+#include "si_base/renderer/renderer_graphics_state.h"
+#include "si_base/renderer/renderer_draw_stage.h"
 
 namespace SI
 {
@@ -12,8 +14,7 @@ namespace SI
 	class SubMesh;
 	class Material;
 	class Geometry;
-	class RenderItem;
-
+	
 	class ModelInstance
 	{
 	public:
@@ -43,15 +44,17 @@ namespace SI
 
 		Array<Geometry*>       GetGeometries()      { return m_geometries.IsValid()? m_geometries : m_model->GetGeometries();    }
 		ConstArray<Geometry*>  GetGeometries() const{ return m_geometries.IsValid()? m_geometries : m_model->GetGeometries();    }
-
-		void SetupRenderItem();
+		
+		void Setup();
+		void SetupPSO(const RendererGraphicsStateDesc& desc);
 
 	private:
-		ModelPtr           m_model;
-		Array<NodeCore>    m_nodeCores;
-		Array<Material*>   m_materials;
-		Array<Geometry*>   m_geometries;
-		Array<RenderItem>  m_renderItems;
+		ModelPtr              m_model;
+		Array<NodeCore>       m_nodeCores;
+		Array<Material*>      m_materials;
+		Array<Geometry*>      m_geometries;
+
+		RendererDrawStageList m_drawStageList;
 	};
 	
 	using ModelInstancePtr = std::shared_ptr<ModelInstance>;

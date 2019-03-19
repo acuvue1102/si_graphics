@@ -177,9 +177,14 @@ namespace APP004
 
 	int Pipeline::LoadAsset(const AppInitializeInfo& info)
 	{
-		std::string modelPath = "asset\\model\\sphere.json";
-		ModelReader modelReader;
-		modelReader.Read(m_modelInstance, modelPath.c_str());
+		//std::string modelPath = "asset\\model\\sphere.json";
+		//ModelReader modelReader;
+		//modelReader.Read(m_modelInstance, modelPath.c_str());
+
+		RendererGraphicsStateDesc rgsDesc;
+		rgsDesc.m_rtvFormats[0]      = GfxFormat::R8G8B8A8_Unorm;
+		rgsDesc.m_dsvFormat          = GfxFormat::D32_Float;
+		m_modelInstance->SetupPSO(rgsDesc);
 
 		// textureシェーダのセットアップ.
 		{
@@ -261,17 +266,21 @@ namespace APP004
 
 		// root signatureのセットアップ
 		{
-			GfxRootSignatureDescEx rootSignatureDesc;
-			rootSignatureDesc.ReserveTables(2);
+			GfxRootSignatureDescEx rootSignatureDesc(2, 1);
 
 			GfxDescriptorHeapTableEx& table0 = rootSignatureDesc.GetTable(0);
-			table0.ReserveRanges(2);
+			table0.ReserveRanges(1);
 			table0.GetRange(0).Set(GfxDescriptorRangeType::Srv, 1, 0, GfxDescriptorRangeFlag::Volatile);
-			table0.GetRange(1).Set(GfxDescriptorRangeType::Cbv, 1, 1, GfxDescriptorRangeFlag::Volatile);
+			//table0.GetRange(1).Set(GfxDescriptorRangeType::Cbv, 1, 1, GfxDescriptorRangeFlag::Volatile);
 
 			GfxDescriptorHeapTableEx& table1 = rootSignatureDesc.GetTable(1);
 			table1.ReserveRanges(1);
 			table1.GetRange(0).Set(GfxDescriptorRangeType::Sampler, 1, 0, GfxDescriptorRangeFlag::DescriptorsVolatile);
+
+			GfxRootDescriptor& rootDescriptor0 = rootSignatureDesc.GetRootDescriptor(0);
+			rootDescriptor0.m_type = GfxRootDescriptorType::CBV;
+			rootDescriptor0.m_shaderRegisterIndex = 1;
+			rootDescriptor0.m_flags = GfxRootDescriptorFlag::DataVolatile;
 
 			rootSignatureDesc.SetName("rootSig0");
 			m_rootSignatures[0].Initialize(rootSignatureDesc);
@@ -396,8 +405,8 @@ namespace APP004
 			context.SetGraphicsRootSignature(m_rootSignatures[0]);
 			
 			context.SetDynamicViewDescriptor(0, 0, m_texture);
-			context.SetDynamicViewDescriptor(0, 1, m_constantBuffers[0]);
 			context.SetDynamicSamplerDescriptor(1, 0, m_sampler);
+			context.SetGraphicsRootCBV(2, m_constantBuffers[0].GetBuffer());
 		
 			context.SetRenderTarget(m_rt, m_depth);
 
@@ -433,8 +442,9 @@ namespace APP004
 			context.SetGraphicsRootSignature(m_rootSignatures[1]);
 
 			context.SetDynamicViewDescriptor(0, 0, m_rt);
-			context.SetDynamicViewDescriptor(0, 1, m_constantBuffers[1]);
+			//context.SetDynamicViewDescriptor(0, 1, m_constantBuffers[1]);
 			context.SetDynamicSamplerDescriptor(1, 0, m_sampler);
+			context.SetGraphicsRootCBV(2, m_constantBuffers[1].GetBuffer());
 
 			swapChainTexture.SetClearColor(GfxColorRGBA(0.0f, 0.2f, 0.4f, 1.0f));
 			context.ClearRenderTarget(swapChainTexture);

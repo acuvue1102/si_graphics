@@ -98,6 +98,21 @@ namespace SI
 			uint32_t descriptorIndex,
 			const GfxConstantBufferViewDesc& desc);
 		
+		void CopyDescriptors(
+			uint32_t                 dstDescriptorRangeCount,
+			const GfxCpuDescriptor*  dstDescriptorRangeStarts,
+			const uint32_t*          dstDescriptorRangeSizes,
+			uint32_t                 srcDescriptorRangeCount,
+			const GfxCpuDescriptor*  srcDescriptorRangeStarts,
+			const uint32_t*          srcDescriptorRangeSizes,
+			GfxDescriptorHeapType    type);
+
+		void CopyDescriptorsSimple(
+			uint32_t                 descriptorCount,
+			GfxCpuDescriptor         dstDescriptorRangeStart,
+			GfxCpuDescriptor         srcDescriptorRangeStart,
+			GfxDescriptorHeapType    type);
+		
 		// upload用のバッファを作って登録、Flushまで転送はしない.
 		int UploadBufferLater(
 			GfxBuffer&              targetBuffer,

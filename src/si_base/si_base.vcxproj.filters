@@ -346,11 +346,20 @@
     <ClInclude Include="gpu\dx12\dx12_upload_pool.h">
       <Filter>gpu\dx12</Filter>
     </ClInclude>
+    <ClInclude Include="misc\hash_declare.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer_graphics_state.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer_draw_stage.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
     <ClInclude Include="renderer\render_item.h">
       <Filter>renderer</Filter>
     </ClInclude>
-    <ClInclude Include="misc\hash_declare.h">
-      <Filter>misc</Filter>
+    <ClInclude Include="renderer\renderer_draw_stage_type.h">
+      <Filter>renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -601,6 +610,12 @@
     </ClCompile>
     <ClCompile Include="gpu\dx12\dx12_upload_pool.cpp">
       <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\renderer_graphics_state.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\renderer_draw_stage.cpp">
+      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="renderer\render_item.cpp">
       <Filter>renderer</Filter>

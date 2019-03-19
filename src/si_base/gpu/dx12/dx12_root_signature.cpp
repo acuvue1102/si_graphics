@@ -26,7 +26,8 @@ namespace SI
 		ID3D12Device& d3dDevice = *device.GetComPtrDevice().Get();
 		
 		PoolAllocatorEx* tempAllocator = device.GetTempAllocator();
-		D3D12_ROOT_PARAMETER1* parameters = (0<desc.m_tableCount)? tempAllocator->NewArray<D3D12_ROOT_PARAMETER1>((size_t)desc.m_tableCount) : nullptr;
+		uint32_t parameterCount = desc.m_tableCount + desc.m_rootDescriptorCount;
+		D3D12_ROOT_PARAMETER1* parameters = (0<parameterCount)? tempAllocator->NewArray<D3D12_ROOT_PARAMETER1>((size_t)parameterCount) : nullptr;
 		for(uint32_t t=0; t<desc.m_tableCount; ++t)
 		{
 			D3D12_ROOT_PARAMETER1& outParameter = parameters[t];
@@ -62,6 +63,19 @@ namespace SI
 			outTable.NumDescriptorRanges = inTable.m_rangeCount;
 			outTable.pDescriptorRanges   = ranges;
 		}
+		
+		for(uint32_t d=0; d<desc.m_rootDescriptorCount; ++d)
+		{
+			const GfxRootDescriptor& inDescriptor = desc.m_rootDescriptors[d];
+			D3D12_ROOT_PARAMETER1& outParameter = parameters[desc.m_tableCount + d];
+			D3D12_ROOT_DESCRIPTOR1& outDescriptor = outParameter.Descriptor;
+			
+			outParameter.ParameterType    = GetDx12RootParameterType(inDescriptor.m_type); 
+			outParameter.ShaderVisibility = GetDx12ShaderVisibility(inDescriptor.m_visibility);
+			outDescriptor.ShaderRegister = inDescriptor.m_shaderRegisterIndex;
+			outDescriptor.RegisterSpace  = inDescriptor.m_registerSpace;
+			outDescriptor.Flags          = GetDx12RootDescriptorFlags(inDescriptor.m_flags);
+		}
 
 		// このスコープを抜けると全て開放するように...
 		SI_SCOPE_EXIT(
@@ -75,7 +89,7 @@ namespace SI
 		D3D12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
 		rootSignatureDesc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
 		D3D12_ROOT_SIGNATURE_DESC1& rootSignatureDesc1 = rootSignatureDesc.Desc_1_1;
-		rootSignatureDesc1.NumParameters     = desc.m_tableCount;
+		rootSignatureDesc1.NumParameters     = parameterCount;
 		rootSignatureDesc1.pParameters       = parameters;
 		rootSignatureDesc1.NumStaticSamplers = 0;
 		rootSignatureDesc1.pStaticSamplers   = nullptr;

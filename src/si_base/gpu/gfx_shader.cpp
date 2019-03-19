@@ -41,6 +41,7 @@ namespace SI
 		{
 			m_base->Release();
 			SI_DELETE(m_base);
+			m_base = nullptr;
 		}
 
 		return 0;
@@ -74,6 +75,7 @@ namespace SI
 		{
 			m_base->Release();
 			SI_DELETE(m_base);
+			m_base = nullptr;
 		}
 
 		return 0;
@@ -107,6 +109,7 @@ namespace SI
 		{
 			m_base->Release();
 			SI_DELETE(m_base);
+			m_base = nullptr;
 		}
 
 		return 0;

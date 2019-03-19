@@ -668,6 +668,7 @@ namespace SI
 		if(!m_impl) return;
 
 		SI_DELETE(m_impl);
+		m_impl = nullptr;
 	}
 	
 	bool Deserializer::DeserializeRoot(

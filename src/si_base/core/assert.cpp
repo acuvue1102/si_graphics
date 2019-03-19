@@ -13,7 +13,7 @@ namespace SI
 		void PrintErrorInternal(const char* buf)
 		{
 			OutputDebugStringA(buf);
-			printf(buf);
+			puts(buf);
 		}
 	}
 

@@ -110,9 +110,11 @@ namespace SI
 
 		m_tempAllocator->TerminateEx();
 		SI_DELETE(m_tempAllocator);
+		m_tempAllocator = nullptr;
 
 		m_objectAllocator->TerminateEx();
 		SI_DELETE(m_objectAllocator);
+		m_objectAllocator = nullptr;
 
 		m_initialized = false;
 		return 0;
@@ -427,8 +429,55 @@ namespace SI
 		const GfxRenderTargetViewDesc& desc)
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-		rtvDesc.Format = texture.GetComPtrResource()->GetDesc().Format;
-		rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+		D3D12_RESOURCE_DESC resourceDesc = texture.GetComPtrResource()->GetDesc();
+		rtvDesc.Format = resourceDesc.Format;
+		D3D12_RTV_DIMENSION rtvDimension = D3D12_RTV_DIMENSION_UNKNOWN;
+		switch(resourceDesc.Dimension)
+		{
+		case D3D12_RESOURCE_DIMENSION_BUFFER:
+			rtvDimension = D3D12_RTV_DIMENSION_BUFFER;
+			break;
+		case D3D12_RESOURCE_DIMENSION_TEXTURE1D:
+			if(resourceDesc.DepthOrArraySize<=1)
+			{
+				rtvDimension = D3D12_RTV_DIMENSION_TEXTURE1D;
+			}
+			else
+			{
+				rtvDimension = D3D12_RTV_DIMENSION_TEXTURE1DARRAY;
+			}
+			break;
+		case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
+			if(resourceDesc.SampleDesc.Count<=1)
+			{
+				if(resourceDesc.DepthOrArraySize<=1)
+				{
+					rtvDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+				}
+				else
+				{
+					rtvDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+				}
+			}
+			else
+			{
+				if(resourceDesc.DepthOrArraySize<=1)
+				{
+					rtvDimension = D3D12_RTV_DIMENSION_TEXTURE2DMS;
+				}
+				else
+				{
+					rtvDimension = D3D12_RTV_DIMENSION_TEXTURE2DMSARRAY;
+				}
+			}
+			break;
+		case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
+			rtvDimension = D3D12_RTV_DIMENSION_TEXTURE3D;
+			break;
+		default:
+			break;
+		}
+		rtvDesc.ViewDimension = rtvDimension;
 		rtvDesc.Texture2D.MipSlice = 0;
 		rtvDesc.Texture2D.PlaneSlice = 0;
 
@@ -658,6 +707,21 @@ namespace SI
 		m_device.Get()->CopyDescriptors(
 			dstDescriptorRangeCount, dxDst, dstDescriptorRangeSizes,
 			srcDescriptorRangeCount, dxSrc, srcDescriptorRangeSizes,
+			GetDx12DescriptorHeapType(type));
+	}
+	
+	void BaseDevice::CopyDescriptorsSimple(
+		uint32_t                 descriptorCount,
+		GfxCpuDescriptor         dstDescriptorRangeStart,
+		GfxCpuDescriptor         srcDescriptorRangeStart,
+		GfxDescriptorHeapType    type)
+	{
+		D3D12_CPU_DESCRIPTOR_HANDLE dxDst = {dstDescriptorRangeStart.m_ptr};
+		D3D12_CPU_DESCRIPTOR_HANDLE dxSrc = {srcDescriptorRangeStart.m_ptr};
+		m_device.Get()->CopyDescriptorsSimple(
+			descriptorCount,
+			dxDst,
+			dxSrc,
 			GetDx12DescriptorHeapType(type));
 	}
 	

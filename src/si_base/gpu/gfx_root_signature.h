@@ -56,27 +56,44 @@ namespace SI
 		uint32_t              m_rangeCount = 0;
 		GfxShaderVisibility   m_visibility = GfxShaderVisibility::All;
 	};
+	
+	struct GfxRootDescriptor
+	{
+		uint32_t                m_shaderRegisterIndex = 0;
+		uint32_t                m_registerSpace       = 0;
+		GfxRootDescriptorFlags  m_flags               = GfxRootDescriptorFlag::None;
+		GfxShaderVisibility     m_visibility          = GfxShaderVisibility::All;
+		GfxRootDescriptorType   m_type                = GfxRootDescriptorType::CBV;
+	};
 
 	struct GfxRootSignatureDesc
 	{
 		const char*             m_name;
 		GfxDescriptorHeapTable* m_tables;
 		uint32_t                m_tableCount;
+		GfxRootDescriptor*      m_rootDescriptors;
+		uint32_t                m_rootDescriptorCount; // rootに入れるdescriptor.
 
 		GfxRootSignatureDesc()
 			: m_name(nullptr)
 			, m_tables(nullptr)
 			, m_tableCount(0)
+			, m_rootDescriptors(nullptr)
+			, m_rootDescriptorCount(0)
 		{
 		}
 
 		GfxRootSignatureDesc(
 			const char*             name,
 			GfxDescriptorHeapTable* tables,
-			uint32_t                tableCount)
+			uint32_t                tableCount,
+			GfxRootDescriptor*      rootDescriptors,
+			uint32_t                rootDescriptorCount)
 			: m_name(name)
 			, m_tables(tables)
 			, m_tableCount(tableCount)
+			, m_rootDescriptors(rootDescriptors)
+			, m_rootDescriptorCount(rootDescriptorCount)
 		{
 		}
 	};
