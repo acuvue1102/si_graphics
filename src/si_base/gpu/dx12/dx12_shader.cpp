@@ -30,7 +30,11 @@ namespace SI
 
 		Microsoft::WRL::ComPtr<ID3DBlob> errCode;
 		File file;
-		if(file.Open(path) < 0) return -1;
+		if(file.Open(path) < 0)
+		{
+			SI_ASSERT(0, "%s is missing.", path);
+			return -1;
+		}
 		int64_t fileSize = file.GetFileSize();
 		if(fileSize<=0) return -1;
 		std::vector<char> buffer(fileSize+1);
@@ -124,26 +128,48 @@ namespace SI
 			return -1;
 		}
 
-		GfxShaderBindingResouceCount& counter = m_resourceCount;
+		GfxShaderBinding& binding = m_binding;
 		for(UINT i=0; i<shdDesc.BoundResources; ++i)
 		{
 			D3D12_SHADER_INPUT_BIND_DESC bindDesc;
 			reflector->GetResourceBindingDesc(i, &bindDesc);
-			SI_PRINT("%d: %s\n", i, bindDesc.Name);
+			//SI_PRINT("%d: %s\n", i, bindDesc.Name);
 
 			switch(bindDesc.Type)
 			{
 			case D3D_SIT_CBUFFER:
-				++counter.m_constantCount;
+			{
+				GfxShaderConstantInfo& cbInfo = binding.m_constantInfoArray[binding.m_constantCount];
+				++binding.m_constantCount;
+				
+				binding.m_constantSlotMask |= 1ull<<bindDesc.BindPoint;
+				cbInfo.m_slot = bindDesc.BindPoint;
+				ID3D12ShaderReflectionConstantBuffer* cbReflection = reflector->GetConstantBufferByName(bindDesc.Name);
+				if(!cbReflection) break;
+
+				D3D12_SHADER_BUFFER_DESC cbDesc;
+				if(FAILED(cbReflection->GetDesc(&cbDesc))) break;
+
+				cbInfo.m_size = cbDesc.Size;
+
 				break;
+			}
 			case D3D_SIT_TBUFFER:
 			case D3D_SIT_STRUCTURED:
 			case D3D_SIT_BYTEADDRESS:
 			case D3D_SIT_TEXTURE:
-				++counter.m_srvBufferCount;
+			{
+				GfxShaderSRVInfo& srvInfo = binding.m_srvInfoArray[binding.m_srvBufferCount];
+				++binding.m_srvBufferCount;
+				
+				binding.m_srvSlotMask |= 1ull<<bindDesc.BindPoint;
+				srvInfo.m_slot     = bindDesc.BindPoint;
+				srvInfo.m_isBuffer = (D3D_SIT_TEXTURE==bindDesc.Type)? 0 : 1;
 				break;
+			}
 			case D3D_SIT_SAMPLER:
-				++counter.m_samplerCount;
+				++binding.m_samplerCount;
+				binding.m_samplerSlotMask |= 1ull<<bindDesc.BindPoint;
 				break;
 			case D3D_SIT_UAV_RWTYPED:
 			case D3D_SIT_UAV_RWSTRUCTURED:
@@ -151,7 +177,8 @@ namespace SI
 			case D3D_SIT_UAV_APPEND_STRUCTURED:
 			case D3D_SIT_UAV_CONSUME_STRUCTURED:
 			case D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER:
-				++counter.m_uavBufferCount;
+				++binding.m_uavBufferCount;
+				binding.m_uavSlotMask |= 1ull<<bindDesc.BindPoint;
 				break;
 			default:
 				break;

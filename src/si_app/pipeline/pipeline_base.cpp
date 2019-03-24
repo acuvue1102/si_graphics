@@ -52,12 +52,16 @@ namespace SI
 		m_contextManager.Initialize(contextManagerDesc);
 		//m_graphicsCommandList = m_device.CreateGraphicsCommandList();
 
+		m_renderer.Initialize();
+
 		return 0;
 	}
 
 	int PipelineBase::OnTerminate()
 	{
 		//m_device.ReleaseGraphicsCommandList(m_graphicsCommandList);
+		
+		m_renderer.Terminate();
 
 		m_contextManager.Terminate();
 			

@@ -7,9 +7,6 @@
     <Filter Include="app000_clear_color">
       <UniqueIdentifier>{59e9ee47-3d7d-4a61-afee-9aa20fa6e148}</UniqueIdentifier>
     </Filter>
-    <Filter Include="shaders">
-      <UniqueIdentifier>{c48b040d-7a6f-45c5-b33c-d153bcd38376}</UniqueIdentifier>
-    </Filter>
     <Filter Include="app002_texture">
       <UniqueIdentifier>{300cd5fb-c511-447a-8283-308546cbac81}</UniqueIdentifier>
     </Filter>
@@ -21,6 +18,9 @@
     </Filter>
     <Filter Include="app005_raytracing_in_one_weekend">
       <UniqueIdentifier>{2012ac2b-ebdc-4197-a4ae-4ef2a24c2967}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shader">
+      <UniqueIdentifier>{c48b040d-7a6f-45c5-b33c-d153bcd38376}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -89,26 +89,26 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="shaders\color.hlsl">
-      <Filter>shaders</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\texture.hlsl">
-      <Filter>shaders</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\lambert.hlsl">
-      <Filter>shaders</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\copy_texture_cs.hlsl">
-      <Filter>shaders</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\ibl_lut_cs.hlsl">
-      <Filter>shaders</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\raytracing_in_one_weekend.hlsl">
-      <Filter>shaders</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shaders\simple.hlsl">
-      <Filter>shaders</Filter>
-    </CustomBuild>
+    <None Include="..\..\asset\shader\simple.hlsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\..\asset\shader\texture.hlsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\..\asset\shader\ibl_lut_cs.hlsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\..\asset\shader\copy_texture_cs.hlsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\..\asset\shader\color.hlsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\..\asset\shader\raytracing_in_one_weekend.hlsl">
+      <Filter>shader</Filter>
+    </None>
+    <None Include="..\..\asset\shader\lambert.hlsl">
+      <Filter>shader</Filter>
+    </None>
   </ItemGroup>
 </Project>

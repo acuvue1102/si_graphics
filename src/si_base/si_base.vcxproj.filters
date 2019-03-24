@@ -361,6 +361,24 @@
     <ClInclude Include="renderer\renderer_draw_stage_type.h">
       <Filter>renderer</Filter>
     </ClInclude>
+    <ClInclude Include="file\file_utility.h">
+      <Filter>file</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_descriptor_heap_ex.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\material\material_simple.h">
+      <Filter>renderer\material</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\material_type.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\material_factory.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_graphics_state_ex.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -404,6 +422,9 @@
     </Filter>
     <Filter Include="serialization">
       <UniqueIdentifier>{4ea472a5-cca8-4a91-b2b4-7628e982f2a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\material">
+      <UniqueIdentifier>{45c70802-9f56-484f-832d-c25abe06dcf8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -619,6 +640,18 @@
     </ClCompile>
     <ClCompile Include="renderer\render_item.cpp">
       <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_descriptor_heap_ex.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\material\material_simple.cpp">
+      <Filter>renderer\material</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\material_factory.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_graphics_state_ex.cpp">
+      <Filter>gpu</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

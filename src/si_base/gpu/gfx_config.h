@@ -25,4 +25,6 @@ namespace SI
 	
 	static const uint32_t kMaxNumDescriptors      = 256;
 	static const uint32_t kMaxNumDescriptorTables = 32;
+
+	using GpuAddres = uint64_t;
 }

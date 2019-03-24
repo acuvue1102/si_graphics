@@ -101,6 +101,7 @@
     <ClCompile Include="gpu\gfx_dds.cpp" />
     <ClCompile Include="gpu\gfx_descriptor_allocator.cpp" />
     <ClCompile Include="gpu\gfx_descriptor_heap.cpp" />
+    <ClCompile Include="gpu\gfx_descriptor_heap_ex.cpp" />
     <ClCompile Include="gpu\gfx_descriptor_heap_pool.cpp" />
     <ClCompile Include="gpu\gfx_device.cpp" />
     <ClCompile Include="gpu\gfx_dynamic_descriptor_heap.cpp" />
@@ -108,6 +109,7 @@
     <ClCompile Include="gpu\gfx_graphics_command_list.cpp" />
     <ClCompile Include="gpu\gfx_graphics_context.cpp" />
     <ClCompile Include="gpu\gfx_graphics_state.cpp" />
+    <ClCompile Include="gpu\gfx_graphics_state_ex.cpp" />
     <ClCompile Include="gpu\gfx_linear_allocator.cpp" />
     <ClCompile Include="gpu\gfx_linear_allocator_page.cpp" />
     <ClCompile Include="gpu\gfx_resource_states_pool.cpp" />
@@ -129,6 +131,8 @@
     <ClCompile Include="platform\window_app.cpp" />
     <ClCompile Include="renderer\geometry.cpp" />
     <ClCompile Include="renderer\material.cpp" />
+    <ClCompile Include="renderer\material\material_simple.cpp" />
+    <ClCompile Include="renderer\material_factory.cpp" />
     <ClCompile Include="renderer\mesh.cpp" />
     <ClCompile Include="renderer\model.cpp" />
     <ClCompile Include="renderer\model_instance.cpp" />
@@ -159,6 +163,7 @@
     <ClInclude Include="core\scope_exit.h" />
     <ClInclude Include="core\singleton.h" />
     <ClInclude Include="file\file.h" />
+    <ClInclude Include="file\file_utility.h" />
     <ClInclude Include="file\file_win.h" />
     <ClInclude Include="gpu\dx12\dx12_buffer.h" />
     <ClInclude Include="gpu\dx12\dx12_command_list.h" />
@@ -192,6 +197,7 @@
     <ClInclude Include="gpu\gfx_desc.h" />
     <ClInclude Include="gpu\gfx_descriptor_allocator.h" />
     <ClInclude Include="gpu\gfx_descriptor_heap.h" />
+    <ClInclude Include="gpu\gfx_descriptor_heap_ex.h" />
     <ClInclude Include="gpu\gfx_descriptor_heap_pool.h" />
     <ClInclude Include="gpu\gfx_device.h" />
     <ClInclude Include="gpu\gfx_device_std_allocator.h" />
@@ -202,6 +208,7 @@
     <ClInclude Include="gpu\gfx_graphics_command_list.h" />
     <ClInclude Include="gpu\gfx_graphics_context.h" />
     <ClInclude Include="gpu\gfx_graphics_state.h" />
+    <ClInclude Include="gpu\gfx_graphics_state_ex.h" />
     <ClInclude Include="gpu\gfx_input_layout.h" />
     <ClInclude Include="gpu\gfx_linear_allocator.h" />
     <ClInclude Include="gpu\gfx_linear_allocator_page.h" />
@@ -247,6 +254,9 @@
     <ClInclude Include="platform\window_app.h" />
     <ClInclude Include="renderer\geometry.h" />
     <ClInclude Include="renderer\material.h" />
+    <ClInclude Include="renderer\material\material_simple.h" />
+    <ClInclude Include="renderer\material_factory.h" />
+    <ClInclude Include="renderer\material_type.h" />
     <ClInclude Include="renderer\mesh.h" />
     <ClInclude Include="renderer\model.h" />
     <ClInclude Include="renderer\model_instance.h" />

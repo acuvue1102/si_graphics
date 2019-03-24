@@ -27,4 +27,24 @@ namespace SI
 	{
 		return m_base->GetDepth();
 	}
+
+	GfxFormat GfxTexture::GetFormat() const
+	{
+		return m_base->GetFormat();
+	}
+
+	uint32_t GfxTexture::GetArraySize() const
+	{
+		return m_base->GetArraySize();
+	}
+
+	uint32_t GfxTexture::GetMipLevels() const
+	{
+		return m_base->GetMipLevels();
+	}
+	
+	void* GfxTexture::GetNativeResource()
+	{
+		return m_base->GetNativeResource();
+	}
 } // namespace SI

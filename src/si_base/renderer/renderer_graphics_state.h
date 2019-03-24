@@ -7,6 +7,7 @@ namespace SI
 	struct RendererGraphicsStateDescCore
 	{
 		GfxFillMode              m_fillMode               = GfxFillMode::Solid;
+		GfxCullMode              m_cullMode               = GfxCullMode::Back;
 		uint32_t                 m_renderTargetCount      = 1;
 		GfxFormat                m_rtvFormats[8]          = {};
 		GfxRenderTargetBlendDesc m_rtvBlend[8];
@@ -22,12 +23,13 @@ namespace SI
 		bool                     m_stencilEnable          = false;
 		bool                     m_alphaToCoverageEnable  = false;
 		bool                     m_independentBlendEnable = false;
+		bool                     m_frontCounterClockwise  = false;
 	};
 
 	struct RendererGraphicsStateDesc : public RendererGraphicsStateDescCore
 	{
-		void UpdateHash();
-		Hash64 GetHash();
+		void GenerateHash();
+		Hash64 GetHash() const{ return m_hash; }
 
 	private:
 		Hash64 m_hash = 0;

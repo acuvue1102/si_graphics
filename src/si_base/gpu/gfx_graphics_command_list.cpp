@@ -171,13 +171,17 @@ namespace SI
 		GfxDevice& device,
 		GfxBuffer& targetBuffer,
 		const void* srcBuffer,
-		size_t srcBufferSize)
+		size_t srcBufferSize,
+		GfxResourceState before,
+		GfxResourceState after)
 	{
 		return m_base->UploadBuffer(
 			*device.GetBaseDevice(),
 			*targetBuffer.GetBaseBuffer(),
 			srcBuffer,
-			srcBufferSize);
+			srcBufferSize,
+			before,
+			after);
 	}
 
 	int GfxGraphicsCommandList::UploadTexture(

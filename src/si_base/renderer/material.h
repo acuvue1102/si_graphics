@@ -4,8 +4,11 @@
 #include "si_base/gpu/gfx_shader.h"
 #include "si_base/gpu/gfx_buffer_ex.h"
 #include "si_base/gpu/gfx_root_signature_ex.h"
+#include "si_base/gpu/gfx_texture_ex.h"
+#include "si_base/gpu/gfx_descriptor_heap_ex.h"
 #include "si_base/renderer/renderer_common.h"
 #include "si_base/renderer/renderer_draw_stage_type.h"
+#include "si_base/renderer/material_type.h"
 
 namespace SI
 {
@@ -23,13 +26,14 @@ namespace SI
 			SI_REFLECTION_MEMBER_AS_TYPE(m_name, uint32_t))
 	};
 
-	class RenderMaterial
+	class RenderMaterial : private NonCopyable
 	{
 	public:
-		RenderMaterial(){}
+		RenderMaterial() : m_CBVRootIndexOffset(0){}
 		virtual ~RenderMaterial(){}
 		
-		RendererDrawStageType        GetStage()         const{ return m_stage; }
+		virtual RendererDrawStageType GetStageType()     const = 0;
+
 		GfxVertexShader&             GetVertexShader()       { return m_vertexShader; }
 		const GfxVertexShader&       GetVertexShader()  const{ return m_vertexShader; }
 		GfxPixelShader&              GetPixelShader()        { return m_pixelShader; }
@@ -38,56 +42,55 @@ namespace SI
 		const GfxRootSignatureEx&    GetRootSignature() const{ return m_rootSignature; }
 		GfxBufferEx_Constant&        GetConstantBuffer(uint32_t frameIndex)     { return m_constantBuffers[frameIndex]; }
 		const GfxBufferEx_Constant&  GetConstantBuffer(uint32_t frameIndex)const{ return m_constantBuffers[frameIndex]; }
-		GfxDescriptorHeap&           GetSrvHeap(uint32_t frameIndex)     { return m_srvHeaps[frameIndex]; }
-		const GfxDescriptorHeap&     GetSrvHeap(uint32_t frameIndex)const{ return m_srvHeaps[frameIndex]; }
-		GfxDescriptorHeap&           GetCbvHeap(uint32_t frameIndex)     { return m_cbvHeaps[frameIndex]; }
-		const GfxDescriptorHeap&     GetCbvHeap(uint32_t frameIndex)const{ return m_cbvHeaps[frameIndex]; }
-		GfxDescriptorHeap&           GetSamplerHeap(uint32_t frameIndex)     { return m_samplerHeaps[frameIndex]; }
-		const GfxDescriptorHeap&     GetSamplerHeap(uint32_t frameIndex)const{ return m_samplerHeaps[frameIndex]; }
+		GfxDescriptorHeapEx&         GetSrvHeap(uint32_t frameIndex)     { return m_srvHeaps[frameIndex]; }
+		const GfxDescriptorHeapEx&   GetSrvHeap(uint32_t frameIndex)const{ return m_srvHeaps[frameIndex]; }
+		GfxDescriptorHeapEx&         GetSamplerHeap(uint32_t frameIndex)     { return m_samplerHeaps[frameIndex]; }
+		const GfxDescriptorHeapEx&   GetSamplerHeap(uint32_t frameIndex)const{ return m_samplerHeaps[frameIndex]; }
 
 	protected:
-		RendererDrawStageType  m_stage;
+		static const uint32_t kReserveCbv = 2; // SceneDB + InstanceDB
+		
+		bool DefaultSetup(
+			const char* name,
+			const char* shaderPath,
+			int8_t materialConstantSlot=2);
+
+		void SetupDefaultRootSignatureDescEx(
+			GfxRootSignatureDescEx& outRootSignatureDesc,
+			const char* name,
+			uint32_t srvCount = 0,
+			uint32_t samplerCount = 0,
+			uint32_t cbvCount = kReserveCbv+1);
+
+	protected:
 		GfxVertexShader        m_vertexShader;
 		GfxPixelShader         m_pixelShader;
 		GfxRootSignatureEx     m_rootSignature;
 
 		GfxBufferEx_Constant   m_constantBuffers[kFrameCount];
-		GfxDescriptorHeap      m_srvHeaps[kFrameCount];
-		GfxDescriptorHeap      m_cbvHeaps[kFrameCount];
-		GfxDescriptorHeap      m_samplerHeaps[kFrameCount];
+		GfxDescriptorHeapEx    m_srvHeaps[kFrameCount];
+		GfxDescriptorHeapEx    m_samplerHeaps[kFrameCount];
+		uint32_t               m_CBVRootIndexOffset;
 	};	
 
-	class RenderMaterial_Simple : public RenderMaterial
-	{
-	public:
-		RenderMaterial_Simple() {}
-		virtual ~RenderMaterial_Simple(){}
-
-		void Initialize();
-	};
-
-	class Material
+	class Material : private NonCopyable
 	{
 	public:
 		Material();
-		~Material();
+		virtual ~Material();
 		
-		void ExportSerializeData(MaterialSerializeData& outData) const
-		{
-			outData.m_name = m_name;
-		}
-		
-		void ImportSerializeData(const MaterialSerializeData& serializeData);
+		virtual void ExportSerializeData(MaterialSerializeData& outData) const = 0;		
+		virtual void ImportSerializeData(const MaterialSerializeData& serializeData) = 0;
 
-		const RenderMaterial* GetRenderMaterialSet(RendererDrawStageType stage) const
+		RenderMaterial* GetRenderMaterialSet(RendererDrawStageType stageType)
 		{
-			if(!m_mask.CheckEnable(stage)) return nullptr;
+			if(!m_mask.CheckEnable(stageType)) return nullptr;
 
 			uint32_t count = m_renderMaterials.GetItemCount();
 			for(uint32_t i=0; i<count; ++i)
 			{
-				const RenderMaterial* m = m_renderMaterials.GetItem(i);
-				if(m->GetStage()==stage)
+				RenderMaterial* m = m_renderMaterials.GetItem(i);
+				if(m->GetStageType()==stageType)
 				{
 					return m;
 				}				
@@ -97,17 +100,39 @@ namespace SI
 			return nullptr;
 		}
 
-	public:
-		static Material* Create();
-		static void Release(Material*& material);		
+		const RenderMaterial* GetRenderMaterialSet(RendererDrawStageType stageType) const
+		{
+			return GetRenderMaterialSet(stageType);
+		}
+		
+		RendererDrawStageMask GetDrawStageMask() const
+		{
+			return m_mask;
+		}
 
-	private:
+		void SetupDrawStageMask()
+		{
+			m_mask.Reset();
+			uint32_t count = m_renderMaterials.GetItemCount();
+			for(uint32_t i=0; i<count; ++i)
+			{
+				RenderMaterial* m = m_renderMaterials.GetItem(i);
+				RendererDrawStageType stageType = m->GetStageType();
+
+				SI_ASSERT(!m_mask.CheckEnable(stageType), "同じステージに2個以上RenderMaterialがある.");
+				m_mask.EnableMaskBit(stageType);
+			}
+		}
+
+		virtual void UpdateRenderMaterial(RenderMaterial& renderMaterial, uint32_t frameIndex) const = 0;
+
+	protected:
 		friend class FbxParser;
 
-	private:
-		LongObjectIndex           m_name;
-		Array<RenderMaterial*>    m_renderMaterials;
-		RendererDrawStageMask     m_mask;
+	protected:
+		LongObjectIndex            m_name;
+		SafeArray<RenderMaterial*> m_renderMaterials;
+		RendererDrawStageMask      m_mask;
 	};
 
 } // namespace SI

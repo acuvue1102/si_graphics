@@ -106,7 +106,7 @@ namespace SI
 		}
 	}
 
-	void GfxRootSignatureDescEx::ReserveTables(uint32_t tableCount)
+	void GfxRootSignatureDescEx::CreateTables(uint32_t tableCount)
 	{
 		SI_ASSERT(0 < tableCount);
 		SI_ASSERT(!m_tables);
@@ -119,7 +119,7 @@ namespace SI
 	}
 	
 
-	void GfxRootSignatureDescEx::ReserveDescriptors(uint32_t rootDescriptorCount)
+	void GfxRootSignatureDescEx::CreateRootDescriptors(uint32_t rootDescriptorCount)
 	{
 		SI_ASSERT(0 < rootDescriptorCount);
 		SI_ASSERT(!m_rootDescriptors);

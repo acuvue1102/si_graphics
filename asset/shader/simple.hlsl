@@ -1,8 +1,9 @@
 
 cbuffer SceneCB : register(b0)
 {
-	float4x4 cbView : packoffset(c0.x);
-	float4x4 cbProj : packoffset(c4.x);
+	float4x4 cbView     : packoffset(c0.x);
+	float4x4 cbProj     : packoffset(c4.x);
+	float4x4 cbViewProj : packoffset(c8.x);
 };
 
 cbuffer InstanceCB : register(b1)
@@ -45,8 +46,9 @@ PSInput VSMain(VSInput input,
 	float4 worldPos    = mul(cbWorlds[insId], float4(input.position.xyz, 1));
 	float3 worldNormal = mul((float3x3)cbWorlds[insId], input.normal);
 	
-	result.position  = mul(ViewProj, worldPos);
-	result.uv       = cbUvScale * input.uv;
+	result.position  = mul(cbViewProj, worldPos);
+	result.uv        = cbUvScale * input.uv;
+	result.normal   = worldNormal;
 
 	return result;
 }
@@ -55,7 +57,7 @@ PsOutput PSMain(PSInput input)
 {
 	PsOutput output;
 	
-	output.color = texture0.Sample(sampler0, input.uv);
+	output.color = float4(input.normal, 1);//texture0.Sample(sampler0, input.uv);
 
 	return output;
 }

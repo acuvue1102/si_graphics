@@ -930,7 +930,9 @@ namespace SI
 	int BaseDevice::UploadBufferLater(
 		BaseBuffer& targetBuffer,
 		const void* srcBuffer,
-		size_t      srcBufferSize)
+		size_t      srcBufferSize,
+		GfxResourceState before,
+		GfxResourceState after)
 	{
 		ComPtr<ID3D12Resource> bufferUploadHeap;
 		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts;
@@ -948,7 +950,9 @@ namespace SI
 		m_uploadPool.AddBuffer(
 			targetBuffer,
 			std::move(bufferUploadHeap),
-			std::move(layouts));
+			std::move(layouts),
+			before,
+			after);
 
 		return 0;
 	}

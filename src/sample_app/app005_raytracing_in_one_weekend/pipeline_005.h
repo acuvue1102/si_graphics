@@ -46,7 +46,7 @@ namespace APP005
 		GfxBufferEx_Vertex       m_quadVertexBuffer;		
 		GfxTestureEx_Uav         m_resultTexture;
 
-		GfxSamplerEx             m_sampler;
+		GfxDynamicSampler        m_sampler;
 		int                      m_currentComputeId;
 	};
 	

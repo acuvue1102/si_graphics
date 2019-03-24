@@ -167,7 +167,9 @@ namespace SI
 		int UploadBufferLater(
 			BaseBuffer&             targetBuffer,
 			const void*             srcBuffer,
-			size_t                  srcBufferSize);
+			size_t                  srcBufferSize,
+			GfxResourceState        before,
+			GfxResourceState        after);
 
 		int UploadTextureLater(
 			BaseTexture&            targetTexture,

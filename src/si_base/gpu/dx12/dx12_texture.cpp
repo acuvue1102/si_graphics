@@ -73,6 +73,8 @@ namespace SI
 		SetHeight(desc.m_height);
 		SetDepth(desc.m_depth);
 		SetFormat(desc.m_format);
+		SetArraySize(desc.m_arraySize);
+		SetMipLevels(desc.m_mipLevels);
 
 		HRESULT hr = device.CreateCommittedResource(
 			&heapProperties,

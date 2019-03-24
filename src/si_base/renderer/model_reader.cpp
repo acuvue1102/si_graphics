@@ -37,7 +37,7 @@ namespace SI
 
 		modelInstance = std::make_shared<ModelInstance>();
 		modelInstance->GetModel()->ImportSerializeData(serializeData);
-		//modelInstance->SetupRootSignature();
+		modelInstance->Setup();
 			
 		return true;
 	}

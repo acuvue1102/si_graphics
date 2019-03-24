@@ -5,6 +5,7 @@
 #include "si_base/renderer/sub_mesh.h"
 #include "si_base/renderer/material.h"
 #include "si_base/renderer/geometry.h"
+#include "si_base/renderer/material_factory.h"
 
 namespace SI
 {
@@ -331,7 +332,7 @@ namespace SI
 		uint32_t materialCount = m_materials.GetItemCount();
 		for(uint32_t i=0; i<materialCount; ++i)
 		{
-			Material::Release(m_materials[i]);
+			MaterialFactory::Release(m_materials[i]);
 		}
 
 		Material** materials = m_materials.GetItemsAddr();
@@ -523,8 +524,9 @@ namespace SI
 			AllocateMaterials(materialCount);
 			for(uint32_t i=0; i<materialCount; ++i)
 			{
-				m_materials[i] = SI_NEW(SI::Material);
+				m_materials[i] = MaterialFactory::Create(MaterialType::Simple);
 				m_materials[i]->ImportSerializeData(serializeData.m_materials.GetItem(i));
+				m_materials[i]->SetupDrawStageMask();
 			}
 		}
 		

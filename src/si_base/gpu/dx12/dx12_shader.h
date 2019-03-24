@@ -56,15 +56,15 @@ namespace SI
 			return m_hash;
 		}
 
-		const GfxShaderBindingResouceCount& GetBindingResourceCount() const
+		const GfxShaderBinding& GetShaderBinding() const
 		{
-			return m_resourceCount;
+			return m_binding;
 		}
 
 	protected:
 		ComPtr<ID3DBlob>              m_shader;
 		Hash64                        m_hash;
-		GfxShaderBindingResouceCount  m_resourceCount;
+		GfxShaderBinding              m_binding;
 	};
 
 	class BaseVertexShader : public BaseShader

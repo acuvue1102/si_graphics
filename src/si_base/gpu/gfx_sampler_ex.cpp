@@ -6,16 +6,16 @@
 
 namespace SI
 {
-	GfxSamplerEx::GfxSamplerEx()
+	GfxDynamicSampler::GfxDynamicSampler()
 	{
 	}
 
-	GfxSamplerEx::~GfxSamplerEx()
+	GfxDynamicSampler::~GfxDynamicSampler()
 	{
 		SI_ASSERT(m_descriptor.GetCpuDescriptor().m_ptr == 0);
 	}
 
-	void GfxSamplerEx::Initialize(const GfxSamplerDesc& samplerDesc)
+	void GfxDynamicSampler::Initialize(const GfxSamplerDesc& samplerDesc)
 	{
 		SI_ASSERT(m_descriptor.GetCpuDescriptor().m_ptr == 0);
 
@@ -25,7 +25,7 @@ namespace SI
 		device.CreateSampler(m_descriptor, samplerDesc);
 	}
 	
-	void GfxSamplerEx::Terminate()
+	void GfxDynamicSampler::Terminate()
 	{
 		if(m_descriptor.GetCpuDescriptor().m_ptr == 0) return;
 

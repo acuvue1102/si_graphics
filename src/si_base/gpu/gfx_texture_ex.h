@@ -17,7 +17,8 @@ namespace SI
 
 	enum class GfxTextureExType
 	{
-		Static = 0,
+		Invalid = 0,
+		Static,
 		Rt,
 		DepthRt,
 		Uav,
@@ -31,10 +32,6 @@ namespace SI
 		GfxTextureEx();
 		virtual ~GfxTextureEx();
 		
-		void InitializeAs2DStatic( const char* name, uint32_t width, uint32_t height, GfxFormat format, uint32_t mipLevel=1);
-		int  InitializeDDS( const char* name, const void* ddsBuffer, size_t ddsBufferSize, GfxDdsMetaData& outDdsMetaData);
-		void TerminateStatic();
-		
 		        GfxDescriptor GetSrvDescriptor() const{ return m_srvDescriptor; }
 		virtual GfxDescriptor GetRtvDescriptor() const{ return GfxDescriptor(); }
 		virtual GfxDescriptor GetDsvDescriptor() const{ return GfxDescriptor(); }
@@ -43,10 +40,8 @@ namespace SI
 		virtual GfxResourceStates GetResourceStates() const{ return GfxResourceState::Common; }
 		virtual void SetResourceStates(GfxResourceStates) {}
 		
-		virtual GfxTextureExType GetType() const
-		{
-			return GfxTextureExType::Static;
-		}
+		virtual GfxTextureExType GetType() const = 0;
+		virtual void Terminate() = 0;
 
 		virtual GfxColorRGBA GetClearColor() const
 		{
@@ -57,27 +52,50 @@ namespace SI
 		{
 			return GfxDepthStencil();
 		}
-
-		GfxTexture GetTexture()
-		{
-			return GfxTexture(m_texture);
-		}
+		
+		      GfxTexture& Get()     { return m_texture; }
+		const GfxTexture& Get()const{ return m_texture; }
 		
 		uint32_t GetWidth() const;
 		uint32_t GetHeight() const;
 		uint32_t GetDepth() const;
 		GfxFormat GetFormat() const;
+		uint32_t GetArraySize() const;
+		uint32_t GetMipLevels() const;
 		
 		virtual void* GetNativeResource() override;
 		
 	public:
-		BaseTexture*  GetBaseTexture(){ return m_texture; }
+		BaseTexture*  GetBaseTexture(){ return m_texture.GetBaseTexture(); }
 
 	protected:
-		BaseTexture*            m_texture;
+		GfxTexture              m_texture;
 		GfxDescriptor           m_srvDescriptor;
 		ReferenceCounter        m_ref;
 		GfxDimension            m_dimension;
+	};
+
+	class GfxTextureEx_Static : public GfxTextureEx
+	{
+	public:
+		GfxTextureEx_Static();
+		virtual ~GfxTextureEx_Static();
+
+		void InitializeAs2DStatic( const char* name, uint32_t width, uint32_t height, GfxFormat format, uint32_t mipLevel=1);
+		int  InitializeDDS( const char* name, const void* ddsBuffer, size_t ddsBufferSize, GfxDdsMetaData& outDdsMetaData);
+		void TerminateStatic();
+
+		virtual GfxTextureExType GetType() const override
+		{
+			return GfxTextureExType::Static;
+		}
+
+		virtual void Terminate() override
+		{
+			TerminateStatic();
+		}
+
+	private:
 	};
 	
 	// 書き換えの可能性があるテクスチャの基底クラス
@@ -148,6 +166,11 @@ namespace SI
 			return GfxTextureExType::Rt;
 		}
 
+		virtual void Terminate() override
+		{
+			TerminateRt();
+		}
+
 		virtual GfxColorRGBA GetClearColor() const override
 		{
 			return m_clearColor;
@@ -195,6 +218,11 @@ namespace SI
 			return GfxTextureExType::DepthRt;
 		}
 
+		virtual void Terminate() override
+		{
+			TerminateDepthRt();
+		}
+
 		virtual GfxDepthStencil GetClearDepthStencil() const override
 		{
 			return m_clearDepthStencil;
@@ -236,6 +264,11 @@ namespace SI
 		virtual GfxTextureExType GetType() const override
 		{
 			return GfxTextureExType::SwapChain;
+		}
+
+		virtual void Terminate() override
+		{
+			TerminateSwapChain();
 		}
 
 		virtual GfxDescriptor GetRtvDescriptor() const override
@@ -284,6 +317,11 @@ namespace SI
 		virtual GfxTextureExType GetType() const override
 		{
 			return GfxTextureExType::Uav;
+		}
+
+		virtual void Terminate() override
+		{
+			TerminateUav();
 		}
 
 		virtual GfxDescriptor GetUavDescriptor() const override

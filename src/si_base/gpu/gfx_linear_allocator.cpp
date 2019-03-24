@@ -55,7 +55,7 @@ namespace SI
 			offset,
 			size,
 			(void*)(m_currentPage->GetCpuAddr() + offset),
-			m_currentPage->GetCpuAddr() + offset);
+			m_currentPage->GetGpuAddr() + offset);
 	}
 	
 	void GfxLinearAllocator::Reset()

@@ -72,6 +72,11 @@ namespace SI
 			uint32_t descriptorIndex,
 			GfxTexture& texture,
 			const GfxDepthStencilViewDesc& desc);
+
+		void CreateDepthStencilView(
+			GfxDescriptor& descriptor,
+			GfxTexture& texture,
+			const GfxDepthStencilViewDesc& desc);
 		
 		void CreateShaderResourceView(
 			GfxDescriptorHeap& descriptorHeap,
@@ -83,6 +88,17 @@ namespace SI
 			GfxDescriptor& descriptor,
 			GfxTexture& texture,
 			const GfxShaderResourceViewDesc& desc);
+		
+		void CreateUnorderedAccessView(
+			GfxDescriptorHeap& descriptorHeap,
+			uint32_t descriptorIndex,
+			GfxTexture& texture,
+			const GfxUnorderedAccessViewDesc& desc);
+		
+		void CreateUnorderedAccessView(
+			GfxDescriptor& descriptor,
+			GfxTexture& texture,
+			const GfxUnorderedAccessViewDesc& desc);
 
 		void CreateSampler(
 			GfxDescriptorHeap& descriptorHeap,
@@ -96,6 +112,10 @@ namespace SI
 		void CreateConstantBufferView(
 			GfxDescriptorHeap& descriptorHeap,
 			uint32_t descriptorIndex,
+			const GfxConstantBufferViewDesc& desc);
+
+		void CreateConstantBufferView(
+			GfxDescriptor& descriptor,
 			const GfxConstantBufferViewDesc& desc);
 		
 		void CopyDescriptors(
@@ -117,7 +137,9 @@ namespace SI
 		int UploadBufferLater(
 			GfxBuffer&              targetBuffer,
 			const void*             srcBuffer,
-			size_t                  srcBufferSize);
+			size_t                  srcBufferSize,
+			GfxResourceState        before,
+			GfxResourceState        after);
 
 		int UploadTextureLater(
 			GfxTexture&             targetTexture,

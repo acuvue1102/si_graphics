@@ -213,6 +213,13 @@ namespace SI
 
 		inline void SetGraphicsRootCBV(
 			uint32_t rootIndex,
+			GpuAddres gpuAddr)
+		{
+			m_graphicsCommandList->SetGraphicsRootConstantBufferView(rootIndex, (D3D12_GPU_VIRTUAL_ADDRESS)gpuAddr);
+		}
+
+		inline void SetGraphicsRootCBV(
+			uint32_t rootIndex,
 			const BaseBuffer& buffer)
 		{
 			D3D12_GPU_VIRTUAL_ADDRESS gpuAddr = buffer.GetGpuAddr();
@@ -387,12 +394,16 @@ namespace SI
 			BaseDevice& device,
 			BaseBuffer& targetBuffer,
 			const void* srcBuffer,
-			size_t srcBufferSize);
+			size_t srcBufferSize,
+			GfxResourceStates before,
+			GfxResourceStates after);
 		
 		int UploadBuffer(
 			BaseBuffer& targetBuffer,
 			ComPtr<ID3D12Resource>& bufferUploadHeap,
-			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& layouts);
+			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& layouts,
+			GfxResourceStates before,
+			GfxResourceStates after);
 		
 		int UploadTexture(
 			BaseDevice& device,

@@ -218,12 +218,29 @@ namespace SI
 			desc);
 	}
 
+	void GfxDevice::CreateDepthStencilView(
+		GfxDescriptor& descriptor,
+		GfxTexture& texture,
+		const GfxDepthStencilViewDesc& desc)
+	{
+		m_base->CreateDepthStencilView(
+			descriptor,
+			*texture.GetBaseTexture(),
+			desc);
+	}
+
 	void GfxDevice::CreateShaderResourceView(
 		GfxDescriptorHeap& descriptorHeap,
 		uint32_t descriptorIndex,
 		GfxTexture& texture,
 		const GfxShaderResourceViewDesc& desc)
 	{
+		if(!descriptorHeap.IsValid())
+		{
+			SI_WARNING(0, "descriptor heap is invalid.\n");
+			return;
+		}
+
 		m_base->CreateShaderResourceView(
 			*descriptorHeap.GetBaseDescriptorHeap(),
 			descriptorIndex,
@@ -241,12 +258,48 @@ namespace SI
 			*texture.GetBaseTexture(),
 			desc);
 	}
+
+	void GfxDevice::CreateUnorderedAccessView(
+		GfxDescriptorHeap& descriptorHeap,
+		uint32_t descriptorIndex,
+		GfxTexture& texture,
+		const GfxUnorderedAccessViewDesc& desc)
+	{
+		if(!descriptorHeap.IsValid())
+		{
+			SI_WARNING(0, "descriptor heap is invalid.\n");
+			return;
+		}
+
+		m_base->CreateUnorderedAccessView(
+			*descriptorHeap.GetBaseDescriptorHeap(),
+			descriptorIndex,
+			*texture.GetBaseTexture(),
+			desc);
+	}
+
+	void GfxDevice::CreateUnorderedAccessView(
+		GfxDescriptor& descriptor,
+		GfxTexture& texture,
+		const GfxUnorderedAccessViewDesc& desc)
+	{
+		m_base->CreateUnorderedAccessView(
+			descriptor,
+			*texture.GetBaseTexture(),
+			desc);
+	}
 	
 	void GfxDevice::CreateSampler(
 		GfxDescriptorHeap& descriptorHeap,
 		uint32_t descriptorIndex,
 		const GfxSamplerDesc& desc)
 	{
+		if(!descriptorHeap.IsValid())
+		{
+			SI_WARNING(0, "descriptor heap is invalid.\n");
+			return;
+		}
+
 		m_base->CreateSampler(
 			*descriptorHeap.GetBaseDescriptorHeap(),
 			descriptorIndex,
@@ -270,6 +323,15 @@ namespace SI
 		m_base->CreateConstantBufferView(
 			*descriptorHeap.GetBaseDescriptorHeap(),
 			descriptorIndex,
+			desc);
+	}
+
+	void GfxDevice::CreateConstantBufferView(
+		GfxDescriptor& descriptor,
+		const GfxConstantBufferViewDesc& desc)
+	{
+		m_base->CreateConstantBufferView(
+			descriptor,
 			desc);
 	}
 	
@@ -309,12 +371,16 @@ namespace SI
 	int GfxDevice::UploadBufferLater(
 		GfxBuffer&              targetBuffer,
 		const void*             srcBuffer,
-		size_t                  srcBufferSize)
+		size_t                  srcBufferSize,
+		GfxResourceState        before,
+		GfxResourceState        after)
 	{
 		return m_base->UploadBufferLater(
 			*targetBuffer.GetBaseBuffer(),
 			srcBuffer,
-			srcBufferSize);
+			srcBufferSize,
+			before,
+			after);
 	}
 
 	int GfxDevice::UploadTextureLater(

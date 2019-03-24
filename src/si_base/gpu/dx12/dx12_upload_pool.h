@@ -7,6 +7,7 @@
 #include <wrl/client.h>
 #include <cstdint>
 #include <vector>
+#include "si_base/gpu/gfx_enum.h"
 
 namespace SI
 {
@@ -34,7 +35,9 @@ namespace SI
 		void AddBuffer(
 			BaseBuffer& targetBuffer,
 			ComPtr<ID3D12Resource> uploadbuffer,
-			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts);
+			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts,
+			GfxResourceState before,
+			GfxResourceState after);
 
 		void AddTexture(
 			BaseTexture& targetTexture,

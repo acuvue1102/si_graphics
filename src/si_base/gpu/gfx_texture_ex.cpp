@@ -13,8 +13,7 @@
 namespace SI
 {
 	GfxTextureEx::GfxTextureEx()
-		: m_texture(nullptr)
-		, m_srvDescriptor()
+		: m_srvDescriptor()
 		, m_ref()
 		, m_dimension(GfxDimension::Max)
 	{
@@ -22,14 +21,60 @@ namespace SI
 
 	GfxTextureEx::~GfxTextureEx()
 	{
-		SI_ASSERT(m_texture==nullptr);
+		SI_ASSERT(!m_texture.IsValid());
 		SI_ASSERT(!m_ref.IsValid());
 	}
+	
+	uint32_t GfxTextureEx::GetWidth() const
+	{
+		return m_texture.GetWidth();
+	}
 
-	void GfxTextureEx::InitializeAs2DStatic(
+	uint32_t GfxTextureEx::GetHeight() const
+	{
+		return m_texture.GetHeight();
+	}
+
+	uint32_t GfxTextureEx::GetDepth() const
+	{
+		return m_texture.GetDepth();
+	}
+
+	GfxFormat GfxTextureEx::GetFormat() const
+	{
+		return m_texture.GetFormat();
+	}
+	
+	uint32_t GfxTextureEx::GetArraySize() const
+	{
+		return m_texture.GetArraySize();
+	}
+	
+	uint32_t GfxTextureEx::GetMipLevels() const
+	{
+		return m_texture.GetMipLevels();
+	}
+	
+	void* GfxTextureEx::GetNativeResource()
+	{
+		return m_texture.GetNativeResource();
+	}
+	
+	////////////////////////////////////////////////////////////////////
+
+	GfxTextureEx_Static::GfxTextureEx_Static()
+	{
+	}
+
+	GfxTextureEx_Static::~GfxTextureEx_Static()
+	{
+		TerminateStatic();
+	}
+	
+	void GfxTextureEx_Static::InitializeAs2DStatic(
 		const char* name, uint32_t width, uint32_t height, GfxFormat format, uint32_t mipLevel)
 	{
-		BaseDevice& device = SI_BASE_DEVICE();
+		GfxDevice& device = *GfxDevice::GetInstance();
 
 		GfxTextureDesc desc;
 		desc.m_name           = name;
@@ -51,12 +96,12 @@ namespace SI
 		srvDesc.m_miplevels = mipLevel;
 		srvDesc.m_arraySize = 1;
 		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Allocate(1);
-		device.CreateShaderResourceView(m_srvDescriptor, *m_texture, srvDesc);
+		device.CreateShaderResourceView(m_srvDescriptor, m_texture, srvDesc);
 
 		m_ref.Create();
 	}
 	
-	int GfxTextureEx::InitializeDDS( const char* name, const void* ddsBuffer, size_t ddsBufferSize, GfxDdsMetaData& outDdsMetaData)
+	int GfxTextureEx_Static::InitializeDDS( const char* name, const void* ddsBuffer, size_t ddsBufferSize, GfxDdsMetaData& outDdsMetaData)
 	{
 		GfxDdsMetaData& ddsMetaData = outDdsMetaData;
 
@@ -67,7 +112,7 @@ namespace SI
 		}
 
 
-		BaseDevice& device = SI_BASE_DEVICE();
+		GfxDevice& device = *GfxDevice::GetInstance();
 
 		GfxTextureDesc desc;
 		desc.m_name           = name;
@@ -91,7 +136,7 @@ namespace SI
 		srvDesc.m_miplevels = desc.m_mipLevels;
 		srvDesc.m_arraySize = desc.m_arraySize;
 		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Allocate(1);
-		device.CreateShaderResourceView(m_srvDescriptor, *m_texture, srvDesc);
+		device.CreateShaderResourceView(m_srvDescriptor, m_texture, srvDesc);
 
 
 		m_ref.Create();
@@ -99,48 +144,22 @@ namespace SI
 		return 0;
 	}
 
-	void GfxTextureEx::TerminateStatic()
+	void GfxTextureEx_Static::TerminateStatic()
 	{
 		if(GetType() != GfxTextureExType::Static) return;
 
-		if(m_texture)
+		if(m_texture.IsValid())
 		{
 			if(m_ref.ReleaseRef()==0)
 			{
-				SI_BASE_DEVICE().ReleaseTexture(m_texture);
+				GfxDevice::GetInstance()->ReleaseTexture(m_texture);
 				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Deallocate(m_srvDescriptor);
 			}
 			
-			m_texture = nullptr;
+			m_texture = GfxTexture();
 			m_srvDescriptor = GfxDescriptor();
 		}
 	}
-	
-	uint32_t GfxTextureEx::GetWidth() const
-	{
-		return m_texture->GetWidth();
-	}
-
-	uint32_t GfxTextureEx::GetHeight() const
-	{
-		return m_texture->GetHeight();
-	}
-
-	uint32_t GfxTextureEx::GetDepth() const
-	{
-		return m_texture->GetDepth();
-	}
-
-	GfxFormat GfxTextureEx::GetFormat() const
-	{
-		return m_texture->GetFormat();
-	}
-	
-	void* GfxTextureEx::GetNativeResource()
-	{
-		return m_texture->GetNativeResource();
-	}
-	
 	////////////////////////////////////////////////////////////////////
 			
 	GfxTestureEx_Rt::GfxTestureEx_Rt()
@@ -153,6 +172,7 @@ namespace SI
 
 	GfxTestureEx_Rt::~GfxTestureEx_Rt()
 	{
+		TerminateRt();
 		SI_ASSERT(m_rtvDescriptor.GetCpuDescriptor().m_ptr==0);
 	}
 
@@ -160,7 +180,7 @@ namespace SI
 		const char* name, uint32_t width, uint32_t height,
 		GfxFormat format, const GfxColorRGBA& clearColor)
 	{
-		BaseDevice& device = SI_BASE_DEVICE();
+		GfxDevice& device = *GfxDevice::GetInstance();
 
 		GfxTextureDesc desc;
 		desc.m_name           = name;
@@ -187,11 +207,11 @@ namespace SI
 		srvDesc.m_miplevels = 1;
 		srvDesc.m_arraySize = 1;
 		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Allocate(1);
-		device.CreateShaderResourceView(m_srvDescriptor, *m_texture, srvDesc);
+		device.CreateShaderResourceView(m_srvDescriptor, m_texture, srvDesc);
 		
 		GfxRenderTargetViewDesc rtvDesc;
 		m_rtvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::Rtv).Allocate(1);
-		device.CreateRenderTargetView(m_rtvDescriptor, *m_texture, rtvDesc);
+		device.CreateRenderTargetView(m_rtvDescriptor, m_texture, rtvDesc);
 		
 		SI_RESOURCE_STATES_POOL().AllocateHandle(this);
 				
@@ -202,13 +222,13 @@ namespace SI
 	{
 		if(GetType() != GfxTextureExType::Rt) return;
 		
-		if(m_texture)
+		if(m_texture.IsValid())
 		{
 			if(m_ref.ReleaseRef()==0)
 			{
 				SI_RESOURCE_STATES_POOL().DeallocateHandle(this);
 
-				SI_BASE_DEVICE().ReleaseTexture(m_texture);
+				GfxDevice::GetInstance()->ReleaseTexture(m_texture);
 				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Deallocate(m_srvDescriptor);
 				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::Rtv).Deallocate(m_rtvDescriptor);
 			}
@@ -217,7 +237,7 @@ namespace SI
 				SetResourceStateHandle(kInvalidHandle);
 			}
 			
-			m_texture = nullptr;
+			m_texture = GfxTexture();
 			m_srvDescriptor = GfxDescriptor();
 			m_rtvDescriptor = GfxDescriptor();
 		}
@@ -231,6 +251,7 @@ namespace SI
 
 	GfxTestureEx_DepthRt::~GfxTestureEx_DepthRt()
 	{
+		TerminateDepthRt();
 		SI_ASSERT(m_dsvDescriptor.GetCpuDescriptor().m_ptr==0);
 	}
 		
@@ -238,7 +259,7 @@ namespace SI
 		const char* name, uint32_t width, uint32_t height,
 		const float rtClearDepth)
 	{
-		BaseDevice& device = SI_BASE_DEVICE();
+		GfxDevice& device = *GfxDevice::GetInstance();
 
 		GfxTextureDesc desc;
 		desc.m_width          = width;
@@ -261,11 +282,11 @@ namespace SI
 		srvDesc.m_miplevels = 1;
 		srvDesc.m_arraySize = 1;
 		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Allocate(1);
-		device.CreateShaderResourceView(m_srvDescriptor, *m_texture, srvDesc);
+		device.CreateShaderResourceView(m_srvDescriptor, m_texture, srvDesc);
 		
 		GfxDepthStencilViewDesc dsvDesc;
 		m_dsvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::Dsv).Allocate(1);
-		device.CreateDepthStencilView(m_dsvDescriptor, *m_texture, dsvDesc);
+		device.CreateDepthStencilView(m_dsvDescriptor, m_texture, dsvDesc);
 
 		SI_RESOURCE_STATES_POOL().AllocateHandle(this);
 				
@@ -283,13 +304,13 @@ namespace SI
 	{
 		if(GetType() != GfxTextureExType::DepthRt) return;
 		
-		if(m_texture)
+		if(m_texture.IsValid())
 		{
 			if(m_ref.ReleaseRef()==0)
 			{
 				SI_RESOURCE_STATES_POOL().DeallocateHandle(this);
 
-				SI_BASE_DEVICE().ReleaseTexture(m_texture);
+				GfxDevice::GetInstance()->ReleaseTexture(m_texture);
 				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Deallocate(m_srvDescriptor);
 				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::Dsv).Deallocate(m_dsvDescriptor);
 			}
@@ -298,7 +319,7 @@ namespace SI
 				SetResourceStateHandle(kInvalidHandle);
 			}
 			
-			m_texture = nullptr;
+			m_texture = GfxTexture();
 			m_srvDescriptor = GfxDescriptor();
 			m_dsvDescriptor = GfxDescriptor();
 		}
@@ -312,6 +333,7 @@ namespace SI
 
 	GfxTestureEx_SwapChain::~GfxTestureEx_SwapChain()
 	{
+		TerminateSwapChain();
 		SI_ASSERT(m_rtvDescriptor.GetCpuDescriptor().m_ptr==0);
 	}
 
@@ -319,16 +341,16 @@ namespace SI
 		const char* name, uint32_t width, uint32_t height,
 		void* nativeSwapChain, uint32_t swapChainIndex)
 	{
-		BaseDevice& device = SI_BASE_DEVICE();
+		GfxDevice& device = *GfxDevice::GetInstance();
 
 		SetInitialResourceStates(GfxResourceState::Common);
 
-		m_texture = SI_NEW(BaseTexture);
-		m_texture->InitializeAsSwapChainTexture(width, height, nativeSwapChain, swapChainIndex);
+		m_texture = GfxTexture(SI_NEW(BaseTexture));
+		m_texture.GetBaseTexture()->InitializeAsSwapChainTexture(width, height, nativeSwapChain, swapChainIndex);
 		
 		GfxRenderTargetViewDesc rtvDesc;
 		m_rtvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::Rtv).Allocate(1);
-		device.CreateRenderTargetView(m_rtvDescriptor, *m_texture, rtvDesc);
+		device.CreateRenderTargetView(m_rtvDescriptor, m_texture, rtvDesc);
 				
 		SI_RESOURCE_STATES_POOL().AllocateHandle(this);
 
@@ -339,15 +361,15 @@ namespace SI
 	{
 		if(GetType() != GfxTextureExType::SwapChain) return;
 
-		if(m_texture)
+		if(m_texture.IsValid())
 		{
-			BaseDevice& device = SI_BASE_DEVICE();
+			GfxDevice& device = *GfxDevice::GetInstance();
 			
 			if(m_ref.ReleaseRef()==0)
 			{
 				SI_RESOURCE_STATES_POOL().DeallocateHandle(this);
 
-				SI_DELETE(m_texture);
+				SI_DELETE(m_texture.GetBaseTexture());
 				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::Rtv).Deallocate(m_rtvDescriptor);
 			}
 			else
@@ -355,7 +377,7 @@ namespace SI
 				SetResourceStateHandle(kInvalidHandle);
 			}
 			
-			m_texture = nullptr;
+			m_texture = GfxTexture();
 			m_rtvDescriptor = GfxDescriptor();
 		}
 	}
@@ -370,6 +392,7 @@ namespace SI
 
 	GfxTestureEx_Uav::~GfxTestureEx_Uav()
 	{
+		TerminateUav();
 		SI_ASSERT(m_uavDescriptor.GetCpuDescriptor().m_ptr==0);
 	}
 		
@@ -377,7 +400,7 @@ namespace SI
 		const char* name, uint32_t width, uint32_t height,
 		GfxFormat format)
 	{
-		BaseDevice& device = SI_BASE_DEVICE();
+		GfxDevice& device = *GfxDevice::GetInstance();
 
 		GfxTextureDesc desc;
 		desc.m_width          = width;
@@ -399,7 +422,7 @@ namespace SI
 		srvDesc.m_miplevels = 1;
 		srvDesc.m_arraySize = 1;
 		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Allocate(1);
-		device.CreateShaderResourceView(m_srvDescriptor, *m_texture, srvDesc);
+		device.CreateShaderResourceView(m_srvDescriptor, m_texture, srvDesc);
 		
 		GfxUnorderedAccessViewDesc uavDesc;
 		uavDesc.m_uavDimension = GfxDimension::Texture2D;
@@ -407,7 +430,7 @@ namespace SI
 		uavDesc.m_mipslice   = 0;
 		uavDesc.m_planeSlice = 0;
 		m_uavDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Allocate(1);
-		device.CreateUnorderedAccessView(m_uavDescriptor, *m_texture, uavDesc);
+		device.CreateUnorderedAccessView(m_uavDescriptor, m_texture, uavDesc);
 
 		SI_RESOURCE_STATES_POOL().AllocateHandle(this);
 				
@@ -418,7 +441,7 @@ namespace SI
 	{
 		if(GetType() != GfxTextureExType::Uav) return;
 		
-		if(m_texture)
+		if(m_texture.IsValid())
 		{
 			if(m_ref.ReleaseRef()==0)
 			{
@@ -426,14 +449,14 @@ namespace SI
 
 				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Deallocate(m_uavDescriptor);
 				SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Deallocate(m_srvDescriptor);
-				SI_BASE_DEVICE().ReleaseTexture(m_texture);
+				GfxDevice::GetInstance()->ReleaseTexture(m_texture);
 			}
 			else
 			{
 				SetResourceStateHandle(kInvalidHandle);
 			}
 			
-			m_texture = nullptr;
+			m_texture = GfxTexture();
 			m_srvDescriptor = GfxDescriptor();
 			m_uavDescriptor = GfxDescriptor();
 		}

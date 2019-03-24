@@ -4,24 +4,13 @@
 
 namespace SI
 {
-	void RendererGraphicsStateDesc::UpdateHash()
+	void RendererGraphicsStateDesc::GenerateHash()
 	{
 		const RendererGraphicsStateDescCore& core = *this;
 
 		Hash64Generator generator;
 		generator.Add(core);
 		m_hash = generator.Generate();
-	}
-	
-	Hash64 RendererGraphicsStateDesc::GetHash()
-	{
-		if(m_hash==0)
-		{
-			UpdateHash();
-		}
-		SI_ASSERT(m_hash!=0);
-
-		return m_hash;
 	}
 
 } // namespace SI

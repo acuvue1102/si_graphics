@@ -1,8 +1,7 @@
 ﻿#pragma once
 
-#include "si_base/container/array.h"
-#include "si_base/renderer/renderer_common.h"
-#include "si_base/renderer/render_item.h"
+#include "si_base/misc/bitwise.h"
+
 
 namespace SI
 {
@@ -21,6 +20,11 @@ namespace SI
 		{
 		}
 
+		void Reset()
+		{
+			m_mask = 0;
+		}
+
 		void EnableMaskBit(RendererDrawStageType type)
 		{
 			m_mask |= (uint64_t)1 << (uint64_t)type;
@@ -34,6 +38,46 @@ namespace SI
 		bool CheckEnable(RendererDrawStageType type) const
 		{
 			return (bool)(m_mask & ((uint64_t)1 << (uint64_t)type));
+		}
+
+		RendererDrawStageMask operator|=(RendererDrawStageMask mask)
+		{
+			m_mask |= mask.m_mask;
+			return *this;
+		}
+
+		RendererDrawStageMask operator&=(RendererDrawStageMask mask)
+		{
+			m_mask |= mask.m_mask;
+			return *this;
+		}
+
+		RendererDrawStageMask operator|(const RendererDrawStageMask& m)
+		{
+			RendererDrawStageMask ret;
+			ret.m_mask = (m_mask | m.m_mask);
+			return ret;
+		}
+
+		RendererDrawStageMask operator&(const RendererDrawStageMask& m)
+		{
+			RendererDrawStageMask ret;
+			ret.m_mask = (m_mask & m.m_mask);
+			return ret;
+		}
+
+		uint32_t GetStageCount() const
+		{
+			return Bitwise::BitCount64(m_mask);
+		}
+
+		RendererDrawStageType GetFirstStage() const
+		{
+			int bit = Bitwise::LSB64(m_mask);
+			if(bit<0) return RendererDrawStageType::RendererDrawStageType_Max;
+			SI_ASSERT(bit<(int)RendererDrawStageType_Max);
+
+			return (RendererDrawStageType)bit;
 		}
 
 	private:

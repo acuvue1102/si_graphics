@@ -75,7 +75,6 @@
     <ClInclude Include="app\app.h" />
     <ClInclude Include="app\app_module.h" />
     <ClInclude Include="camera\trackball_camera.h" />
-    <ClInclude Include="file\file_utility.h" />
     <ClInclude Include="file\path_storage.h" />
     <ClInclude Include="pipeline\pipeline_base.h" />
   </ItemGroup>

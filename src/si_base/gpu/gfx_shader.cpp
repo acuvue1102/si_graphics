@@ -10,9 +10,9 @@ namespace SI
 		return m_base->GetHash();
 	}
 	
-	const GfxShaderBindingResouceCount& GfxShader::GetBindingResourceCount() const
+	const GfxShaderBinding& GfxShader::GetBindingResource() const
 	{
-		return m_base->GetBindingResourceCount();
+		return m_base->GetShaderBinding();
 	}
 
 	GfxVertexShader::GfxVertexShader()

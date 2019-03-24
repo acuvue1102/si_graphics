@@ -83,16 +83,18 @@ namespace SI
 		void Terminate();
 
 		// tableのメモリ確保
-		void ReserveTables(uint32_t tableCount);
+		void CreateTables(uint32_t tableCount);
 
 		// descriptorのメモリ確保
-		void ReserveDescriptors(uint32_t descriptorCount);
+		void CreateRootDescriptors(uint32_t descriptorCount);
 
 		GfxDescriptorHeapTableEx& GetTable( uint32_t tableIndex )
 		{
 			SI_ASSERT(tableIndex < m_tableCount);
 			return m_tables[tableIndex];
 		}
+
+		uint32_t GetTableCount() const{ return m_tableCount; }
 
 		GfxRootDescriptor& GetRootDescriptor( uint32_t rootDescriptorIndex )
 		{
@@ -144,8 +146,8 @@ namespace SI
 		void Terminate();
 
 	public:
-		GfxRootSignature&       GetRootSignature(){ return m_sig; }
-		const GfxRootSignature& GetRootSignature() const{ return m_sig; }
+		GfxRootSignature&       Get(){ return m_sig; }
+		const GfxRootSignature& Get() const{ return m_sig; }
 		operator GfxRootSignature() const{ return m_sig; }
 
 		uint64_t GetSamplerTableBits()             const{ return m_samplerTableBits; };

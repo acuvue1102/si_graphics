@@ -6,7 +6,7 @@
 #include <si_base/core/core.h>
 #include <si_app/file/path_storage.h>
 #include <si_base/math/math.h>
-#include <si_app/file/file_utility.h>
+#include <si_base/file/file_utility.h>
 #include <si_base/container/array.h>
 
 namespace SI
@@ -254,7 +254,7 @@ namespace APP002
 		// root signatureのセットアップ
 		{
 			GfxRootSignatureDescEx rootSignatureDesc;
-			rootSignatureDesc.ReserveTables(2);
+			rootSignatureDesc.CreateTables(2);
 
 			GfxDescriptorHeapTableEx& table0 = rootSignatureDesc.GetTable(0);
 			table0.ReserveRanges(2);
@@ -291,7 +291,7 @@ namespace APP002
 			stateDesc.m_cullMode           = GfxCullMode::Back;
 			stateDesc.m_inputElements      = kPosNormalUvVertexElements;
 			stateDesc.m_inputElementCount  = (int)ArraySize(kPosNormalUvVertexElements);
-			stateDesc.m_rootSignature      = &m_rootSignatures[0].GetRootSignature();
+			stateDesc.m_rootSignature      = &m_rootSignatures[0].Get();
 			stateDesc.m_vertexShader       = &m_lambertVS;
 			stateDesc.m_pixelShader        = &m_lambertPS;
 			stateDesc.m_rtvFormats[0]      = GfxFormat::R8G8B8A8_Unorm;
@@ -305,7 +305,7 @@ namespace APP002
 			stateDesc.m_pixelShader        = &m_texturePS;
 			stateDesc.m_inputElements      = kPosUvVertexElements;
 			stateDesc.m_inputElementCount  = (int)ArraySize(kPosUvVertexElements);
-			stateDesc.m_rootSignature      = &m_rootSignatures[1].GetRootSignature();
+			stateDesc.m_rootSignature      = &m_rootSignatures[1].Get();
 			stateDesc.m_rtvFormats[0]      = GfxFormat::R8G8B8A8_Unorm;
 			stateDesc.m_dsvFormat          = GfxFormat::Unknown;
 			stateDesc.m_depthEnable        = false;

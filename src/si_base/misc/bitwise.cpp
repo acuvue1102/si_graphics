@@ -10,15 +10,15 @@ namespace SI
 {
 #if _WIN32
 	// 立っているビットをカウントする.
-	int Bitwise::BitCount32(uint32_t mask)
+	uint32_t Bitwise::BitCount32(uint32_t mask)
 	{
-		return (int)__popcnt(mask);
+		return __popcnt(mask);
 	}
 
 	// 立っているビットをカウントする.
-	 int Bitwise::BitCount64(uint64_t mask)
+	uint32_t Bitwise::BitCount64(uint64_t mask)
 	{
-		return (int)__popcnt64(mask);
+		return (uint32_t)__popcnt64(mask);
 	}
 
 	int Bitwise::MSB32(uint32_t mask)

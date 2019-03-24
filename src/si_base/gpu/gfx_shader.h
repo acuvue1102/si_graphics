@@ -35,14 +35,33 @@ namespace SI
 		const GfxShaderCompileMacro* m_macros = nullptr; // "マクロ名" "定義"の順に並べる. 最後はnullptr. { {"PI", "3.14"}, {nullptr, nullptr} }
 	};
 
-	struct GfxShaderBindingResouceCount
+	struct GfxShaderSRVInfo
+	{
+		int8_t   m_slot     = -1;
+		uint8_t  m_isBuffer = 0;
+	};
+
+	struct GfxShaderConstantInfo
+	{
+		uint16_t m_size    = 0;
+		int8_t   m_slot    = -1;
+		uint8_t  m_padding = 0;
+	};
+
+	struct GfxShaderBinding
 	{
 		uint32_t m_constantCount  = 0;
 		uint32_t m_srvBufferCount = 0;
 		uint32_t m_uavBufferCount = 0;
 		uint32_t m_samplerCount   = 0;
 		
-		uint32_t m_constantBufferSizeArray[16] = {}; // コンスタントバッファのサイズ
+		uint64_t m_constantSlotMask = 0;
+		uint64_t m_srvSlotMask      = 0;
+		uint64_t m_uavSlotMask      = 0;
+		uint64_t m_samplerSlotMask  = 0;
+
+		GfxShaderConstantInfo m_constantInfoArray[16]; // コンスタントバッファのサイズ
+		GfxShaderSRVInfo      m_srvInfoArray[16];
 	};
 	
 	///////////////////////////////////////////////////////
@@ -61,7 +80,7 @@ namespace SI
 
 		Hash64 GetHash() const;
 
-		const GfxShaderBindingResouceCount& GetBindingResourceCount() const;
+		const GfxShaderBinding& GetBindingResource() const;
 		virtual GfxShaderType GetType() const = 0;
 
 		bool IsValid() const{ return m_base!=nullptr; }

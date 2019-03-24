@@ -126,7 +126,7 @@ namespace APP003
 		// root signatureのセットアップ
 		{
 			GfxRootSignatureDescEx rootSignatureDesc;
-			rootSignatureDesc.ReserveTables(2);
+			rootSignatureDesc.CreateTables(2);
 
 			GfxDescriptorHeapTableEx& table0 = rootSignatureDesc.GetTable(0);
 			table0.ReserveRanges(2);
@@ -144,7 +144,7 @@ namespace APP003
 		// compute root signatureのセットアップ
 		{
 			GfxRootSignatureDescEx computeRootSignatureDesc;
-			computeRootSignatureDesc.ReserveTables(1);
+			computeRootSignatureDesc.CreateTables(1);
 
 			GfxDescriptorHeapTableEx& table0 = computeRootSignatureDesc.GetTable(0);
 			table0.ReserveRanges(2);
@@ -174,7 +174,7 @@ namespace APP003
 			stateDesc.m_pixelShader        = &m_texturePS;
 			stateDesc.m_inputElements      = kPosUvVertexElements;
 			stateDesc.m_inputElementCount  = (int)ArraySize(kPosUvVertexElements);
-			stateDesc.m_rootSignature      = &m_rootSignatures.GetRootSignature();
+			stateDesc.m_rootSignature      = &m_rootSignatures.Get();
 			stateDesc.m_rtvFormats[0]      = GfxFormat::R8G8B8A8_Unorm;
 			stateDesc.m_dsvFormat          = GfxFormat::Unknown;
 			stateDesc.m_depthEnable        = false;
@@ -184,7 +184,7 @@ namespace APP003
 		// compute PSOのセットアップ.
 		{
 			GfxComputeStateDesc computeStateDesc;
-			computeStateDesc.m_rootSignature = &m_computeRootSignatures.GetRootSignature();
+			computeStateDesc.m_rootSignature = &m_computeRootSignatures.Get();
 			computeStateDesc.m_computeShader = &m_iblLutCS;
 			m_computeStates = m_device.CreateComputeState(computeStateDesc);
 		}
@@ -193,7 +193,7 @@ namespace APP003
 		BeginRender();
 		{
 			GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
-			context.UploadBuffer(m_device, m_quadVertexBuffer, kVertexData, sizeof(kVertexData));
+			context.UploadBuffer(m_device, m_quadVertexBuffer, kVertexData, sizeof(kVertexData), GfxResourceState::VertexAndConstantBuffer);
 		}
 		EndRender();
 

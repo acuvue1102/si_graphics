@@ -60,7 +60,7 @@ namespace APP001
 		GfxGraphicsStateDesc stateDesc;
 		stateDesc.m_inputElements      = kElements;
 		stateDesc.m_inputElementCount  = (int)ArraySize(kElements);
-		stateDesc.m_rootSignature      = &m_rootSignature.GetRootSignature();
+		stateDesc.m_rootSignature      = &m_rootSignature.Get();
 		stateDesc.m_vertexShader       = &m_vertexShader;
 		stateDesc.m_pixelShader        = &m_pixelShader;
 		stateDesc.m_rtvFormats[0]      = GfxFormat::R8G8B8A8_Unorm;

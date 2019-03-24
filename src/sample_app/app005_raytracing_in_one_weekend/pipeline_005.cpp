@@ -189,7 +189,7 @@ namespace APP005
 		// root signatureのセットアップ
 		{
 			GfxRootSignatureDescEx rootSignatureDesc;
-			rootSignatureDesc.ReserveTables(2);
+			rootSignatureDesc.CreateTables(2);
 
 			GfxDescriptorHeapTableEx& table0 = rootSignatureDesc.GetTable(0);
 			table0.ReserveRanges(2);
@@ -223,7 +223,7 @@ namespace APP005
 			stateDesc.m_pixelShader        = &m_texturePS;
 			stateDesc.m_inputElements      = kPosUvVertexElements;
 			stateDesc.m_inputElementCount  = (int)ArraySize(kPosUvVertexElements);
-			stateDesc.m_rootSignature      = &m_rootSignatures.GetRootSignature();
+			stateDesc.m_rootSignature      = &m_rootSignatures.Get();
 			stateDesc.m_rtvFormats[0]      = GfxFormat::R8G8B8A8_Unorm;
 			stateDesc.m_dsvFormat          = GfxFormat::Unknown;
 			stateDesc.m_depthEnable        = false;
@@ -267,7 +267,7 @@ namespace APP005
 		BeginRender();
 		{
 			GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
-			context.UploadBuffer(m_device, m_quadVertexBuffer, kVertexData, sizeof(kVertexData));
+			context.UploadBuffer(m_device, m_quadVertexBuffer, kVertexData, sizeof(kVertexData), GfxResourceState::VertexAndConstantBuffer);
 #if CPU_RATTRACING
 			context.UploadTexture(m_device, m_resultTexture, &textureData[0], sizeof(textureData[0]) * textureData.size());
 #endif

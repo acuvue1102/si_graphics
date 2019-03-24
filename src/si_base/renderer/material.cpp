@@ -1,118 +1,147 @@
 ﻿
 #include "si_base/renderer/material.h"
 
+#include "si_base/misc/bitwise.h"
+#include "si_base/file/file_utility.h"
 #include "si_base/gpu/gfx_shader.h"
 #include "si_base/gpu/gfx_graphics_state.h"
 #include "si_base/gpu/gfx_input_layout.h"
 #include "si_base/gpu/gfx_root_signature_ex.h"
+#include "si_base/gpu/gfx_dds.h"
 #include "si_base/renderer/renderer.h"
 
 namespace SI
 {
-	struct SimpleMaterialCB
+	bool RenderMaterial::DefaultSetup(
+		const char* name,
+		const char* shaderPath,
+		int8_t materialConstantSlot)
 	{
-		float m_uvScale[2];
-	};
-
-	void RenderMaterial_Simple::Initialize()
-	{
-		std::string shaderPath = "asset\\shader\\lambert.hlsl";
-		if(m_vertexShader.LoadAndCompile(shaderPath.c_str()) != 0)
+		if(m_vertexShader.LoadAndCompile(shaderPath) != 0)
 		{
 			SI_ASSERT(0);
-			return;
+			return false;
 		}
 
-		if(m_pixelShader.LoadAndCompile(shaderPath.c_str()) != 0)
+		if(m_pixelShader.LoadAndCompile(shaderPath) != 0)
 		{
 			SI_ASSERT(0);
-			return;
+			return false;
 		}
 		
+		const GfxShaderBinding& vsBinding = m_vertexShader.GetBindingResource();
+		const GfxShaderBinding& psBinding = m_pixelShader.GetBindingResource();
+
+		uint64_t constantMask = vsBinding.m_constantSlotMask | psBinding.m_constantSlotMask;
+		uint32_t constantCount = Bitwise::BitCount64(constantMask);
+
+		uint64_t srvMask = vsBinding.m_srvSlotMask | psBinding.m_srvSlotMask;
+		uint32_t srvCount = Bitwise::BitCount64(srvMask);
+
+		uint64_t samplerMask = vsBinding.m_samplerSlotMask | psBinding.m_samplerSlotMask;
+		uint32_t samplerCount = Bitwise::BitCount64(samplerMask);
+
+		// vs/psで共通のバッファのサイズを取得する.
+		uint16_t materialConstantSize = 0;
+		for(const GfxShaderBinding& binding : {vsBinding, psBinding})
+		{
+			// なるべくすぐ見つかると思われる後ろから調べる.
+			for(int i=(int)binding.m_constantCount-1; 0<=i; --i)
+			{
+				const GfxShaderConstantInfo& sbInfo = binding.m_constantInfoArray[i];
+				if(materialConstantSlot == sbInfo.m_slot)
+				{
+					materialConstantSize = Max(materialConstantSize, sbInfo.m_size);
+					break;
+				}
+			}
+		}
+
 		GfxRootSignatureDescEx rootSignatureDesc;
-		rootSignatureDesc.ReserveTables(2);
-		
-		static const uint32_t kSrvCount = 1;
-		static const uint32_t kCbvCount = 3;
-		static const uint32_t kSamplerCount = 1;
-		GfxDescriptorHeapTableEx& table0 = rootSignatureDesc.GetTable(0);
-		table0.ReserveRanges(2);
-		table0.GetRange(0).Set(GfxDescriptorRangeType::Srv, kSrvCount, 0, GfxDescriptorRangeFlag::Volatile);
-		table0.GetRange(1).Set(GfxDescriptorRangeType::Cbv, kCbvCount, 0, GfxDescriptorRangeFlag::Volatile);
+		SetupDefaultRootSignatureDescEx(
+			rootSignatureDesc,
+			name,
+			srvCount,
+			samplerCount,
+			constantCount);
+		m_rootSignature.Initialize(rootSignatureDesc);
 
-		GfxDescriptorHeapTableEx& table1 = rootSignatureDesc.GetTable(1);
-		table1.ReserveRanges(1);
-		table1.GetRange(0).Set(GfxDescriptorRangeType::Sampler, kSamplerCount, 0, GfxDescriptorRangeFlag::DescriptorsVolatile);
-
-		rootSignatureDesc.SetName("rootSig0");
-		m_rootSignature.Initialize(rootSignatureDesc);		
-
-		Renderer& render = *Renderer::GetInstance();
+		//Renderer& render = *Renderer::GetInstance();
 		for(uint32_t i=0; i<kFrameCount; ++i)
 		{
 			GfxBufferEx_Constant& constantBuffer = m_constantBuffers[i];
-			GfxDescriptorHeap& srvHeap = m_srvHeaps[i];
-			GfxDescriptorHeap& cbvHeap = m_cbvHeaps[i];
-			GfxDescriptorHeap& samplerHeap = m_samplerHeaps[i];
+			GfxDescriptorHeapEx& srvHeap = m_srvHeaps[i];
+			GfxDescriptorHeapEx& samplerHeap = m_samplerHeaps[i];
 
-			// コンスタントバッファのセットアップ
+			// マテリアル用のコンスタントバッファのセットアップ
+			if(0<materialConstantSize)
 			{
-				constantBuffer.InitializeAsConstant("SimpleMaterialCB", sizeof(SimpleMaterialCB));
-				SimpleMaterialCB* cb = static_cast<SimpleMaterialCB*>(constantBuffer.GetMapPtr());
-				memset(cb, 0, sizeof(SimpleMaterialCB));
-
-				cb->m_uvScale[0]  = 1.0f;
-				cb->m_uvScale[1]  = 1.0f;
+				constantBuffer.InitializeAsConstant(name, materialConstantSize);
+				void* cb = constantBuffer.GetMapPtr();
+				memset(cb, 0, materialConstantSize);
 			}
 
 			// SRVのセットアップ
+			if(0<srvCount)
 			{
-				GfxDescriptorHeapDesc srvHeapDesc;
-				srvHeapDesc.m_descriptorCount = 1;
-				srvHeapDesc.m_type = GfxDescriptorHeapType::CbvSrvUav;
-				srvHeapDesc.m_flag = GfxDescriptorHeapFlag::ShaderVisible;
-				GfxDevice& device = *GfxDevice::GetInstance();
-				srvHeap = device.CreateDescriptorHeap(srvHeapDesc);
-			
-				//GfxShaderResourceViewDesc sceneSrvDesc;
-				//sceneSrvDesc.m_arraySize
-				//GfxBuffer sceneCb = render.GetSceneDB(i).GetBuffer();
-				//sceneCbvDesc.m_buffer = &sceneCb;
-				//device.CreateConstantBufferView(srvHeap, 0, sceneCbvDesc);
-			}
-
-			// CBVのセットアップ
-			{
-				GfxDescriptorHeapDesc cbvHeapDesc;
-				cbvHeapDesc.m_descriptorCount = 3;
-				cbvHeapDesc.m_type = GfxDescriptorHeapType::CbvSrvUav;
-				cbvHeapDesc.m_flag = GfxDescriptorHeapFlag::ShaderVisible;
-				GfxDevice& device = *GfxDevice::GetInstance();
-				cbvHeap = device.CreateDescriptorHeap(cbvHeapDesc);
-			
-				GfxConstantBufferViewDesc sceneCbvDesc;
-				GfxBuffer sceneCb = render.GetSceneDB(i).GetBuffer();
-				sceneCbvDesc.m_buffer = &sceneCb;
-				device.CreateConstantBufferView(cbvHeap, 0, sceneCbvDesc);
-			
-				//GfxConstantBufferViewDesc instanceCbvDesc;
-				//GfxBuffer instanceCb = render.GetDummyCB().GetBuffer(); // ひとまずダミーのCBを指しとく.
-				//instanceCbvDesc.m_buffer = &instanceCb;
-				//device.CreateConstantBufferView(cbvHeap, 1, instanceCbvDesc);
-			
-				GfxConstantBufferViewDesc materialCbvDesc;
-				GfxBuffer materialCb = constantBuffer.GetBuffer();
-				materialCbvDesc.m_buffer = &materialCb;
-				device.CreateConstantBufferView(cbvHeap, 2, materialCbvDesc);
+				srvHeap.InitializeAsCbvSrvUav(srvCount);
 			}
 		
-			GfxDescriptorHeapDesc samplerHeapDesc;
-			samplerHeapDesc.m_descriptorCount = 1;
-			samplerHeapDesc.m_type = GfxDescriptorHeapType::CbvSrvUav;
-			samplerHeapDesc.m_flag = GfxDescriptorHeapFlag::ShaderVisible;
-			GfxDevice& device = *GfxDevice::GetInstance();
-			samplerHeap = device.CreateDescriptorHeap(samplerHeapDesc);
+			// Samplerのセットアップ
+			if(0<samplerCount)
+			{
+				samplerHeap.InitializeAsSampler(samplerCount);
+			}
 		}
+
+		return true;
+	}
+
+	void RenderMaterial::SetupDefaultRootSignatureDescEx(
+		GfxRootSignatureDescEx& outRootSignatureDesc,
+		const char* name,
+		uint32_t srvCount,
+		uint32_t samplerCount,
+		uint32_t cbvCount)
+	{
+		m_CBVRootIndexOffset = 0;
+		if(0<srvCount) ++m_CBVRootIndexOffset;
+		if(0<samplerCount) ++m_CBVRootIndexOffset;
+
+		if(0<m_CBVRootIndexOffset)
+		{
+			outRootSignatureDesc.CreateTables(m_CBVRootIndexOffset);
+
+			uint32_t rootIndex = 0;
+			if(0<srvCount)
+			{
+				GfxDescriptorHeapTableEx& table0 = outRootSignatureDesc.GetTable(rootIndex++);
+				table0.ReserveRanges(1);
+				table0.GetRange(0).Set(GfxDescriptorRangeType::Srv, srvCount, 0, GfxDescriptorRangeFlag::Volatile);
+			}
+
+			if(0<samplerCount)
+			{
+				GfxDescriptorHeapTableEx& table1 = outRootSignatureDesc.GetTable(rootIndex++);
+				table1.ReserveRanges(1);
+				table1.GetRange(0).Set(GfxDescriptorRangeType::Sampler, samplerCount, 0, GfxDescriptorRangeFlag::DescriptorsVolatile);
+			}
+
+			SI_ASSERT(rootIndex==m_CBVRootIndexOffset);
+		}
+
+		outRootSignatureDesc.CreateRootDescriptors(cbvCount);
+		for(uint32_t i=0; i<cbvCount; ++i)
+		{
+			GfxRootDescriptor& rootDescriptor = outRootSignatureDesc.GetRootDescriptor(i);
+			rootDescriptor.m_type = GfxRootDescriptorType::CBV;
+			rootDescriptor.m_shaderRegisterIndex = i;
+			rootDescriptor.m_registerSpace = 0;
+			rootDescriptor.m_flags = GfxRootDescriptorFlag::DataVolatile;
+			rootDescriptor.m_visibility = GfxShaderVisibility::All;
+		}
+		
+		outRootSignatureDesc.SetName(name);
 	}
 
 	//---------------------------------------------------
@@ -124,24 +153,13 @@ namespace SI
 	
 	Material::~Material()
 	{
-	}
-
-	void Material::ImportSerializeData(const MaterialSerializeData& serializeData)
-	{
-		m_name = serializeData.m_name;
-		
-		m_mask.EnableMaskBit(RendererDrawStageType_Opaque);
-	}
-
-	Material* Material::Create()
-	{
-		return new Material();
-	}
-
-	void Material::Release(Material*& material)
-	{
-		delete material;
-		material = nullptr;
+		uint32_t renderMaterialCount = m_renderMaterials.GetItemCount();
+		for(uint32_t i=0; i<renderMaterialCount; ++i)
+		{
+			RenderMaterial* r = m_renderMaterials[i];
+			SI_DELETE(r);
+		}
+		m_renderMaterials.Reset();
 	}
 	
 } // namespace SI

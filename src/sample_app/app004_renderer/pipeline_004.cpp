@@ -6,9 +6,10 @@
 #include <si_base/core/core.h>
 #include <si_app/file/path_storage.h>
 #include <si_base/math/math.h>
-#include <si_app/file/file_utility.h>
+#include <si_base/file/file_utility.h>
 #include <si_base/container/array.h>
 #include <si_base/renderer/model_reader.h>
+#include <si_base/renderer/renderer.h>
 
 namespace SI
 {
@@ -177,29 +178,27 @@ namespace APP004
 
 	int Pipeline::LoadAsset(const AppInitializeInfo& info)
 	{
-		//std::string modelPath = "asset\\model\\sphere.json";
-		//ModelReader modelReader;
-		//modelReader.Read(m_modelInstance, modelPath.c_str());
+		std::string modelPath = "asset\\model\\sphere.json";
+		//std::string modelPath = "asset\\model\\pig.json";
+		ModelReader modelReader;
+		modelReader.Read(m_modelInstance, modelPath.c_str());
 
-		RendererGraphicsStateDesc rgsDesc;
-		rgsDesc.m_rtvFormats[0]      = GfxFormat::R8G8B8A8_Unorm;
-		rgsDesc.m_dsvFormat          = GfxFormat::D32_Float;
-		m_modelInstance->SetupPSO(rgsDesc);
-
+		m_renderer.Add(m_modelInstance);
+		
 		// textureシェーダのセットアップ.
 		{
 			std::string shaderPath = SI_PATH_STORAGE().GetExeDirPath();
 			shaderPath += "shaders\\texture.hlsl";
-			if(m_textureVS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
-			if(m_texturePS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
+			if(m_textureVS.LoadAndCompile("asset\\shader\\texture.hlsl") != 0) return -1;
+			if(m_texturePS.LoadAndCompile("asset\\shader\\texture.hlsl") != 0) return -1;
 		}
 
 		// lambertシェーダのセットアップ.
 		{
 			std::string shaderPath = SI_PATH_STORAGE().GetExeDirPath();
 			shaderPath += "shaders\\lambert.hlsl";
-			if(m_lambertVS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
-			if(m_lambertPS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
+			if(m_lambertVS.LoadAndCompile("asset\\shader\\lambert.hlsl") != 0) return -1;
+			if(m_lambertPS.LoadAndCompile("asset\\shader\\lambert.hlsl") != 0) return -1;
 		}
 
 		// コンスタントバッファのセットアップ
@@ -213,7 +212,7 @@ namespace APP004
 				float t = (float)i / (float)ArraySize(m_lambertConstant->m_world);
 				t *= 2.0f * kPi;
 
-				Vfloat3 pos(1.5f*cosf(t), 0.0f, 1.5f*sinf(t));
+				Vfloat3 pos(2.5f*cosf(t), 0.0f, 2.5f*sinf(t));
 
 				m_lambertConstant->m_world[i] = Math::Translate4x4(pos);
 			}
@@ -239,12 +238,12 @@ namespace APP004
 			GfxDdsMetaData texMetaData;
 			char ddsFilePath[260];
 			sprintf_s(ddsFilePath, "%stexture\\test_texture.dds", SI_PATH_STORAGE().GetAssetDirPath());
-			int ret = FileUtility::Load(texData, ddsFilePath);
+			int ret = FileUtility::Load(texData, "asset\\texture\\test_texture.dds");
 			SI_ASSERT(ret==0);
 
 			m_texture.InitializeDDS("test_texture", &texData[0], texData.size(), texMetaData);
 			
-			GfxTexture tex(m_texture.GetTexture());
+			GfxTexture tex(m_texture.Get());
 			m_device.UploadTextureLater(tex, texMetaData.m_image, texMetaData.m_imageSise);
 		}
 		
@@ -308,7 +307,7 @@ namespace APP004
 			stateDesc.m_cullMode           = GfxCullMode::Back;
 			stateDesc.m_inputElements      = kPosNormalUvVertexElements;
 			stateDesc.m_inputElementCount  = (int)ArraySize(kPosNormalUvVertexElements);
-			stateDesc.m_rootSignature      = &m_rootSignatures[0].GetRootSignature();
+			stateDesc.m_rootSignature      = &m_rootSignatures[0].Get();
 			stateDesc.m_vertexShader       = &m_lambertVS;
 			stateDesc.m_pixelShader        = &m_lambertPS;
 			stateDesc.m_rtvFormats[0]      = GfxFormat::R8G8B8A8_Unorm;
@@ -322,7 +321,7 @@ namespace APP004
 			stateDesc.m_pixelShader        = &m_texturePS;
 			stateDesc.m_inputElements      = kPosUvVertexElements;
 			stateDesc.m_inputElementCount  = (int)ArraySize(kPosUvVertexElements);
-			stateDesc.m_rootSignature      = &m_rootSignatures[1].GetRootSignature();
+			stateDesc.m_rootSignature      = &m_rootSignatures[1].Get();
 			stateDesc.m_rtvFormats[0]      = GfxFormat::R8G8B8A8_Unorm;
 			stateDesc.m_dsvFormat          = GfxFormat::Unknown;
 			stateDesc.m_depthEnable        = false;
@@ -338,6 +337,9 @@ namespace APP004
 
 		m_lambertConstant->m_view        = view;
 		m_lambertConstant->m_viewProj    = view * projMatrix;
+		
+		m_view = view;
+		m_proj = projMatrix;
 	}
 
 	int Pipeline::OnTerminate()
@@ -381,6 +383,8 @@ namespace APP004
 		m_lambertConstant->m_pointLightInfo[1].m_lightPos   = Vfloat3(3*cos(0.6f*s_t), -0.5f, 3*sin(0.6f*s_t));
 		m_lambertConstant->m_pointLightInfo[2].m_lightPos   = Vfloat3(3*sin(0.4f*s_t), 2*sin(0.3f*s_t), -1.5f);
 		m_lambertConstant->m_pointLightInfo[3].m_lightPos   = Vfloat3(2*sin(0.4f*s_t), 3*cos(0.2f*s_t), 0.5f);
+
+		m_renderer.Update();
 	}
 	
 	void Pipeline::OnRender(const App& app, const AppUpdateInfo&)
@@ -398,6 +402,29 @@ namespace APP004
 		context.ResourceBarrier(
 			m_rt,
 			GfxResourceState::RenderTarget);
+		
+		context.SetRenderTarget(m_rt, m_depth);
+
+		GfxViewport viewport0 = GfxViewport(0.0f, 0.0f, (float)m_rt.GetWidth(), (float)m_rt.GetHeight());
+		GfxScissor scissor0  = GfxScissor(0, 0, m_rt.GetWidth(), m_rt.GetHeight());
+		context.SetViewports(1, &viewport0);
+		context.SetScissors(1, &scissor0);
+
+		context.ClearRenderTarget(m_rt);
+		context.ClearDepthStencilTarget(m_depth);
+
+		m_renderer.SetViewMatrix(m_view);
+		m_renderer.SetProjectionMatrix(m_proj);
+
+		RendererGraphicsStateDesc renderDesc;
+		renderDesc.m_rtvFormats[0] = GfxFormat::R8G8B8A8_Unorm;
+		renderDesc.m_dsvFormat = GfxFormat::D32_Float;
+		renderDesc.m_depthEnable = true;
+		renderDesc.m_depthWriteMask = GfxDepthWriteMask::All;
+		m_renderer.Render(
+			context,
+			RendererDrawStageType::RendererDrawStageType_Opaque,
+			renderDesc);
 
 		// 箱をレンダーターゲットに対して描く
 		{
@@ -406,17 +433,7 @@ namespace APP004
 			
 			context.SetDynamicViewDescriptor(0, 0, m_texture);
 			context.SetDynamicSamplerDescriptor(1, 0, m_sampler);
-			context.SetGraphicsRootCBV(2, m_constantBuffers[0].GetBuffer());
-		
-			context.SetRenderTarget(m_rt, m_depth);
-
-			GfxViewport viewport0 = GfxViewport(0.0f, 0.0f, (float)m_rt.GetWidth(), (float)m_rt.GetHeight());
-			GfxScissor scissor0  = GfxScissor(0, 0, m_rt.GetWidth(), m_rt.GetHeight());
-			context.SetViewports(1, &viewport0);
-			context.SetScissors(1, &scissor0);
-
-			context.ClearRenderTarget(m_rt);
-			context.ClearDepthStencilTarget(m_depth);
+			context.SetGraphicsRootCBV(2, m_constantBuffers[0].Get());
 
 			context.SetPrimitiveTopology(GfxPrimitiveTopology::TriangleList);
 			
@@ -444,7 +461,7 @@ namespace APP004
 			context.SetDynamicViewDescriptor(0, 0, m_rt);
 			//context.SetDynamicViewDescriptor(0, 1, m_constantBuffers[1]);
 			context.SetDynamicSamplerDescriptor(1, 0, m_sampler);
-			context.SetGraphicsRootCBV(2, m_constantBuffers[1].GetBuffer());
+			context.SetGraphicsRootCBV(2, m_constantBuffers[1].Get());
 
 			swapChainTexture.SetClearColor(GfxColorRGBA(0.0f, 0.2f, 0.4f, 1.0f));
 			context.ClearRenderTarget(swapChainTexture);

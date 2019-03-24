@@ -44,17 +44,19 @@ namespace SI
 
 		Array<Geometry*>       GetGeometries()      { return m_geometries.IsValid()? m_geometries : m_model->GetGeometries();    }
 		ConstArray<Geometry*>  GetGeometries() const{ return m_geometries.IsValid()? m_geometries : m_model->GetGeometries();    }
+
+		RendererDrawStageList& GetDrawStageList(){ return *m_drawStageList; }
 		
 		void Setup();
-		void SetupPSO(const RendererGraphicsStateDesc& desc);
 
+		using RendererDrawStageListPtr = std::shared_ptr<RendererDrawStageList>;
 	private:
-		ModelPtr              m_model;
-		Array<NodeCore>       m_nodeCores;
-		Array<Material*>      m_materials;
-		Array<Geometry*>      m_geometries;
+		ModelPtr                  m_model;
+		Array<NodeCore>           m_nodeCores;
+		Array<Material*>          m_materials;
+		Array<Geometry*>          m_geometries;
 
-		RendererDrawStageList m_drawStageList;
+		RendererDrawStageListPtr  m_drawStageList;
 	};
 	
 	using ModelInstancePtr = std::shared_ptr<ModelInstance>;

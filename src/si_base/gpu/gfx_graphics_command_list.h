@@ -91,7 +91,9 @@ namespace SI
 			GfxDevice& device,
 			GfxBuffer& targetBuffer,
 			const void* srcBuffer,
-			size_t srcBufferSize);
+			size_t srcBufferSize,
+			GfxResourceState before,
+			GfxResourceState after);
 
 		int UploadTexture(
 			GfxDevice& device,

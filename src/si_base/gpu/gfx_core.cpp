@@ -63,6 +63,9 @@ namespace SI
 	{
 		m_viewDescriptorHeapPool.Flip();
 		m_samplerDescriptorHeapPool.Flip();
+		
+		m_cpuLinearAllocatorPageManager.Flip();
+		m_gpuLinearAllocatorPageManager.Flip();
 	}
 	
 } // namespace SI

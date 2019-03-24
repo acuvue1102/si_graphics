@@ -35,6 +35,8 @@ namespace SI
 		      BaseBuffer* GetBaseBuffer()      { return m_base; }
 		const BaseBuffer* GetBaseBuffer() const{ return m_base; }
 
+		bool IsValid() const{ return m_base != 0; }
+
 	private:
 		BaseBuffer* m_base;
 	};

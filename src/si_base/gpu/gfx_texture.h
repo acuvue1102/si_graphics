@@ -35,6 +35,10 @@ namespace SI
 		uint32_t GetWidth() const;
 		uint32_t GetHeight() const;
 		uint32_t GetDepth() const;
+		GfxFormat GetFormat() const;
+		uint32_t GetArraySize() const;
+		uint32_t GetMipLevels() const;
+		void* GetNativeResource();
 
 		bool IsValid() const{ return (m_base!=nullptr); }
 

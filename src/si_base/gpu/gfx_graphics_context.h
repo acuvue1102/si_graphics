@@ -14,7 +14,7 @@ namespace SI
 {
 	class GfxTextureEx;
 	class GfxBufferEx;
-	class GfxSamplerEx;
+	class GfxDynamicSampler;
 	class BaseCommandList;
 	class BaseGraphicsCommandList;
 	class GfxTexture;
@@ -62,6 +62,7 @@ namespace SI
 
 		void SetGraphicsDescriptorTable(uint32_t rootIndex, GfxGpuDescriptor descriptor);
 		
+		void SetGraphicsRootCBV(uint32_t rootIndex, GpuAddres gpuAddr);
 		void SetGraphicsRootCBV(uint32_t rootIndex, const GfxBuffer& buffer);
 		
 		void SetDynamicViewDescriptor( 
@@ -79,7 +80,7 @@ namespace SI
 		
 		void SetDynamicSamplerDescriptor(
 			uint32_t rootIndex, uint32_t offset,
-			const GfxSamplerEx& sampler);
+			const GfxDynamicSampler& sampler);
 		void SetDynamicSamplerDescriptor(
 			uint32_t rootIndex, uint32_t offset,
 			GfxCpuDescriptor descriptor);
@@ -160,12 +161,16 @@ namespace SI
 			GfxDevice& device,
 			GfxBuffer& targetBuffer,
 			const void* srcBuffer,
-			size_t srcBufferSize);
+			size_t srcBufferSize,
+			GfxResourceStates before = GfxResourceState::CopyDest,
+			GfxResourceStates after = GfxResourceState::PixelShaderResource);
+
 		int UploadBuffer(
 			GfxDevice& device,
 			GfxBufferEx& targetBuffer,
 			const void* srcBuffer,
-			size_t srcBufferSize);
+			size_t srcBufferSize,
+			GfxResourceStates after);
 
 		int UploadTexture(
 			GfxDevice& device,

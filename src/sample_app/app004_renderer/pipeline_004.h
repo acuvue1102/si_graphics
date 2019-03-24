@@ -45,12 +45,15 @@ namespace APP004
 		GfxVertexShader          m_lambertVS;
 		GfxPixelShader           m_lambertPS;
 
-		GfxTextureEx             m_texture;
+		GfxTextureEx_Static      m_texture;
 
 		GfxTestureEx_Rt          m_rt;
 		GfxTestureEx_DepthRt     m_depth;
 
-		GfxSamplerEx             m_sampler;
+		GfxDynamicSampler        m_sampler;
+		
+		Vfloat4x4                m_view;
+		Vfloat4x4                m_proj;
 	};
 	
 } // namespace APP004

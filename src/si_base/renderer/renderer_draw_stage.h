@@ -13,20 +13,25 @@ namespace SI
 	public:
 		RendererDrawStage()
 			: m_type(RendererDrawStageType_Max)
-			, m_submeshIndex(kInvalidObjectIndex)
-			, m_renderItem()
 		{
 		}
 
 		RendererDrawStage(
-			RendererDrawStageType type,
-			ObjectIndex submeshIndex)
+			RendererDrawStageType type)
 			: m_type(type)
-			, m_submeshIndex(submeshIndex)
-			, m_renderItem()
 		{
 		}
 		
+		void Initialize(uint32_t renderItemCount)
+		{
+			m_renderItems.Setup(renderItemCount);
+		}
+
+		void Terminate()
+		{
+			m_renderItems.Reset();
+		}
+
 		void SetDrawStageType(RendererDrawStageType type)
 		{
 			m_type = type;
@@ -37,30 +42,24 @@ namespace SI
 			return m_type;
 		}
 
-		RenderItem& GetRenderItem()
+		uint32_t GetRenderItemCount() const
 		{
-			return m_renderItem;
+			return m_renderItems.GetItemCount();
 		}
 
-		const RenderItem& GetRenderItem() const
+		RenderItem& GetRenderItem(uint32_t index)
 		{
-			return m_renderItem;
+			return m_renderItems[index];
 		}
 
-		void SetSubmeshIndex(ObjectIndex index)
+		const RenderItem& GetRenderItem(uint32_t index) const
 		{
-			m_submeshIndex = index;
-		}
-
-		ObjectIndex GetSubmeshIndex() const
-		{
-			return m_submeshIndex;
+			return m_renderItems[index];
 		}
 
 	private:
-		RendererDrawStageType m_type;
-		ObjectIndex           m_submeshIndex;
-		RenderItem            m_renderItem;
+		RendererDrawStageType  m_type;
+		SafeArray<RenderItem>  m_renderItems;
 	};
 
 	class RendererDrawStageList
@@ -75,12 +74,12 @@ namespace SI
 			m_drawStageList.reserve(count);
 		}
 		
-		RendererDrawStage& Add(RendererDrawStageType type, ObjectIndex submeshIndex)
+		RendererDrawStage& Add(RendererDrawStageType type)
 		{
 			SI_ASSERT(!HasDrawStage(type));
 
 			m_mask.EnableMaskBit(type);
-			return m_drawStageList.emplace_back(type, submeshIndex);
+			return m_drawStageList.emplace_back(type);
 		}
 
 		bool HasDrawStage(RendererDrawStageType type) const

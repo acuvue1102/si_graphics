@@ -4,11 +4,11 @@
 
 namespace SI
 {
-	class GfxSamplerEx
+	class GfxDynamicSampler
 	{
 	public:
-		GfxSamplerEx();
-		~GfxSamplerEx();
+		GfxDynamicSampler();
+		~GfxDynamicSampler();
 
 		void Initialize(const GfxSamplerDesc& samplerDesc);
 		void Terminate();

@@ -28,34 +28,49 @@ namespace SI
 		GfxBufferEx();
 		virtual ~GfxBufferEx();
 		
-		void InitializeAsStatic( const char* name, size_t size);
-		void TerminateAsStatic();
-		
 		virtual GfxDescriptor GetSrvDescriptor() const{ return GfxDescriptor(); }
 		virtual GfxDescriptor GetUavDescriptor() const{ return GfxDescriptor(); }
 		
 		virtual GfxResourceStates GetResourceStates() const{ return GfxResourceState::Common; }
 		virtual void SetResourceStates(GfxResourceStates) {}
 		
-		virtual GfxBufferExType GetType() const
-		{
-			return GfxBufferExType::Static;
-		}
+		virtual GfxBufferExType GetType() const = 0;
+		virtual void Terminate() = 0;
 		
-		GfxBuffer GetBuffer() const
-		{
-			return GfxBuffer(m_buffer);
-		}
+		      GfxBuffer& Get()      { return m_buffer; }
+		const GfxBuffer& Get() const{ return m_buffer; }
 		
 		size_t GetSize() const;
 		virtual void* GetNativeResource() override;
 		
 	public:
-		BaseBuffer*  GetBaseBuffer(){ return m_buffer; }
+		BaseBuffer*  GetBaseBuffer(){ return m_buffer.GetBaseBuffer(); }
 
 	protected:
-		BaseBuffer*             m_buffer;
+		GfxBuffer               m_buffer;
 		ReferenceCounter        m_ref;
+	};
+
+	class GfxBufferEx_Static : public GfxBufferEx
+	{
+	public:
+		GfxBufferEx_Static();
+		virtual ~GfxBufferEx_Static();
+		
+		void InitializeAsStatic( const char* name, size_t size);
+		void TerminateAsStatic();
+		
+		virtual GfxBufferExType GetType() const override
+		{
+			return GfxBufferExType::Static;
+		}
+
+		virtual void Terminate() override
+		{
+			TerminateAsStatic();
+		}
+
+	private:
 	};
 
 	class GfxBufferEx_Constant : public GfxBufferEx
@@ -73,14 +88,25 @@ namespace SI
 		{
 			return GfxBufferExType::Constant;
 		}
+
+		virtual void Terminate() override
+		{
+			TerminateAsConstant();
+		}
 		
 		void* GetMapPtr()
 		{
 			return m_mapPtr;
 		}
+		
+		size_t GetSize() const
+		{
+			return m_size;
+		}
 
 	protected:
 		void*                   m_mapPtr;
+		size_t                  m_size;
 		GfxDescriptor           m_srvDescriptor;
 	};
 	
@@ -96,6 +122,11 @@ namespace SI
 		virtual GfxBufferExType GetType() const override
 		{
 			return GfxBufferExType::Index;
+		}
+
+		virtual void Terminate() override
+		{
+			TerminateAsIndex();
 		}
 
 		GfxFormat GetFormat() const{ return m_format; }
@@ -116,6 +147,11 @@ namespace SI
 		virtual GfxBufferExType GetType() const override
 		{
 			return GfxBufferExType::Vertex;
+		}
+
+		virtual void Terminate() override
+		{
+			TerminateAsVertex();
 		}
 		
 		size_t GetStride() const{ return m_stride; }

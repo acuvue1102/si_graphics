@@ -173,7 +173,7 @@ namespace SI
 
 	void GfxGraphicsContext::SetGraphicsRootSignature(GfxRootSignatureEx& rootSignature)
 	{
-		if(!m_base->SetGraphicsRootSignature(*rootSignature.GetRootSignature().GetBaseRootSignature()))
+		if(!m_base->SetGraphicsRootSignature(*rootSignature.Get().GetBaseRootSignature()))
 		{
 			return; // 前と同じなので何もしない.
 		}
@@ -184,7 +184,7 @@ namespace SI
 
 	void GfxGraphicsContext::SetComputeRootSignature(GfxRootSignatureEx& rootSignature)
 	{
-		if(!m_base->SetComputeRootSignature(*rootSignature.GetRootSignature().GetBaseRootSignature()))
+		if(!m_base->SetComputeRootSignature(*rootSignature.Get().GetBaseRootSignature()))
 		{
 			return; // 前と同じなので何もしない.
 		}
@@ -233,6 +233,13 @@ namespace SI
 
 	void GfxGraphicsContext::SetGraphicsRootCBV(
 		uint32_t rootIndex,
+		GpuAddres gpuAddr)
+	{
+		m_base->SetGraphicsRootCBV(rootIndex, gpuAddr);
+	}
+
+	void GfxGraphicsContext::SetGraphicsRootCBV(
+		uint32_t rootIndex,
 		const GfxBuffer& buffer)
 	{
 		m_base->SetGraphicsRootCBV(rootIndex, *buffer.GetBaseBuffer());
@@ -272,7 +279,7 @@ namespace SI
 
 	void GfxGraphicsContext::SetDynamicSamplerDescriptor(
 		uint32_t rootIndex, uint32_t offset,
-		const GfxSamplerEx& sampler)
+		const GfxDynamicSampler& sampler)
 	{
 		SetDynamicSamplerDescriptor(
 			rootIndex, offset,
@@ -328,7 +335,7 @@ namespace SI
 	void GfxGraphicsContext::SetIndexBuffer(const GfxBufferEx_Index& indexBuffer)
 	{
 		GfxIndexBufferView indexBufferView(
-			indexBuffer.GetBuffer(), indexBuffer.GetFormat(), indexBuffer.GetSize());
+			indexBuffer.Get(), indexBuffer.GetFormat(), indexBuffer.GetSize());
 		m_base->SetIndexBuffer(&indexBufferView);
 	}
 		
@@ -356,7 +363,7 @@ namespace SI
 			const GfxBufferEx_Vertex& buffer = *buffers[i];
 			
 			views[i] = GfxVertexBufferView(
-				buffer.GetBuffer(),
+				buffer.Get(),
 				buffer.GetSize(),
 				buffer.GetStride(),
 				buffer.GetOffset() );
@@ -373,7 +380,7 @@ namespace SI
 	void GfxGraphicsContext::SetVertexBuffer(uint32_t slot, const GfxBufferEx_Vertex& buffer)
 	{
 		GfxVertexBufferView bufferView(
-			buffer.GetBuffer(), buffer.GetSize(), buffer.GetStride(), buffer.GetOffset() );
+			buffer.Get(), buffer.GetSize(), buffer.GetStride(), buffer.GetOffset() );
 		SetVertexBuffers(slot, 1, &bufferView);
 	}
 
@@ -490,26 +497,40 @@ namespace SI
 		GfxDevice& device,
 		GfxBuffer& targetBuffer,
 		const void* srcBuffer,
-		size_t srcBufferSize)
+		size_t srcBufferSize,
+		GfxResourceStates before,
+		GfxResourceStates after)
 	{
 		return m_base->UploadBuffer(
 			*device.GetBaseDevice(),
 			*targetBuffer.GetBaseBuffer(),
 			srcBuffer,
-			srcBufferSize);
+			srcBufferSize,
+			before,
+			after);
 	}
 
 	int GfxGraphicsContext::UploadBuffer(
 		GfxDevice& device,
 		GfxBufferEx& targetBuffer,
 		const void* srcBuffer,
-		size_t srcBufferSize)
+		size_t srcBufferSize,
+		GfxResourceStates after)
 	{
-		return m_base->UploadBuffer(
-			*device.GetBaseDevice(),
-			*targetBuffer.GetBaseBuffer(),
+		uint32_t resourceStateHandle = targetBuffer.GetResourceStateHandle();
+		GfxResourceStates before = GetCurrentResourceState(resourceStateHandle);
+
+		SI_ASSERT(before == GfxResourceState::Pendding || before == GfxResourceState::CopyDest); // beforeStateはCopyDestだろう.
+		
+		SetCurrentResourceState(resourceStateHandle, after);
+
+		return UploadBuffer(
+			device,
+			targetBuffer.Get(),
 			srcBuffer,
-			srcBufferSize);
+			srcBufferSize,
+			GfxResourceState::CopyDest,
+			after);
 	}
 
 	int GfxGraphicsContext::UploadTexture(
@@ -565,16 +586,19 @@ namespace SI
 
 	void GfxGraphicsContext::BindDescriptorHeaps()
 	{
-		if(m_cbvSrvUavDescriptorHeap && m_samplerDescriptorHeap)
+		bool isCvbSrvUavValid = m_cbvSrvUavDescriptorHeap && m_cbvSrvUavDescriptorHeap->IsValid();
+		bool isSamplerValid = m_samplerDescriptorHeap && m_samplerDescriptorHeap->IsValid();
+
+		if( isCvbSrvUavValid && isSamplerValid)
 		{
 			GfxDescriptorHeap* descriptorHeaps[] = {m_cbvSrvUavDescriptorHeap, m_samplerDescriptorHeap};
 			m_base->SetDescriptorHeaps(2, descriptorHeaps);
 		}
-		else if(m_cbvSrvUavDescriptorHeap)
+		else if(isCvbSrvUavValid)
 		{
 			m_base->SetDescriptorHeaps(1, &m_cbvSrvUavDescriptorHeap);
 		}
-		else if(m_samplerDescriptorHeap)
+		else if(isSamplerValid)
 		{
 			m_base->SetDescriptorHeaps(1, &m_samplerDescriptorHeap);
 		}

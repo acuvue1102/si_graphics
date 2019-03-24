@@ -10,7 +10,7 @@
 #include <si_base/concurency/mutex.h>
 #include <si_base/gpu/gfx_dds.h>
 #include <si_base/gpu/gfx_utility.h>
-#include <si_app/file/file_utility.h>
+#include <si_base/file/file_utility.h>
 #include <si_app/file/path_storage.h>
 //#include <omp.h>
 

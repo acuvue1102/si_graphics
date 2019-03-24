@@ -50,6 +50,16 @@ namespace SI
 		{
 			return m_format;
 		}
+
+		uint32_t GetArraySize() const
+		{
+			return m_arraySize;
+		}
+
+		uint32_t GetMipLevels() const
+		{
+			return m_mipLevels;
+		}
 		
 		void SetWidth(uint32_t w)
 		{
@@ -70,6 +80,16 @@ namespace SI
 		{
 			m_format = f;
 		}
+		
+		void SetArraySize(uint32_t arraySize)
+		{
+			m_arraySize = arraySize;
+		}
+		
+		void SetMipLevels(uint32_t mipLevels)
+		{
+			m_mipLevels = mipLevels;
+		}
 
 	public:
 		ComPtr<ID3D12Resource>& GetComPtrResource()
@@ -88,6 +108,8 @@ namespace SI
 		uint32_t                          m_height = 0;
 		uint32_t                          m_depth  = 0;
 		GfxFormat                         m_format = GfxFormat::Unknown;
+		uint32_t                          m_arraySize = 0;
+		uint32_t                          m_mipLevels = 0;
 	};
 
 } // namespace SI

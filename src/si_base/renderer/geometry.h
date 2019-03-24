@@ -3,6 +3,7 @@
 #include "si_base/container/array.h"
 #include "si_base/renderer/renderer_common.h"
 #include "si_base/gpu/gfx_buffer_ex.h"
+#include "si_base/gpu/gfx_input_layout.h"
 
 namespace SI
 {
@@ -93,6 +94,10 @@ namespace SI
 		bool Is16BitIndex() const{ return m_is16bitIndex; }
 		const GfxBufferEx_Vertex& GetVertexBuffer() const{ return m_vertexBuffer; }
 		const GfxBufferEx_Index& GetIndexBuffer() const{ return m_indexBuffer; }
+		uint32_t GetIndexCount() const{ return (uint32_t)(m_indexBuffer.GetSize()/(m_is16bitIndex? 2 :4)); }
+
+		const GfxInputElement* GetInputElements() const{ return m_inputElements.GetItemsAddr(); }
+		uint32_t GetInputElementCount() const{ return m_inputElements.GetItemCount(); }
 
 	public:
 		static Geometry* Create();
@@ -102,10 +107,11 @@ namespace SI
 		friend class FbxParser;
 
 	protected:
-		VertexLayout        m_vertexLayout;
-		uint8_t             m_is16bitIndex;
-		GfxBufferEx_Vertex  m_vertexBuffer;
-		GfxBufferEx_Index   m_indexBuffer;
+		VertexLayout               m_vertexLayout;
+		uint8_t                    m_is16bitIndex;
+		GfxBufferEx_Vertex         m_vertexBuffer;
+		GfxBufferEx_Index          m_indexBuffer;
+		SafeArray<GfxInputElement> m_inputElements;
 	};
 
 } // namespace SI

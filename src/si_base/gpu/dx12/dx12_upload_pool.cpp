@@ -17,14 +17,20 @@ namespace SI
 		BaseBuffer*                                       m_targetBuffer;
 		ComPtr<ID3D12Resource>                            m_uploadbuffer;
 		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> m_layouts;
+		GfxResourceStates                                 m_before;
+		GfxResourceStates                                 m_after;
 
 		BaseUploadBuffer(
 			BaseBuffer*             targetBuffer,
 			ComPtr<ID3D12Resource>  uploadbuffer,
-			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layout)
+			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layout,
+			GfxResourceStates before,
+			GfxResourceStates after)
 			: m_targetBuffer(targetBuffer)
 			, m_uploadbuffer(std::move(uploadbuffer))
 			, m_layouts(std::move(layout))
+			, m_before(before)
+			, m_after(after)
 		{
 		}
 	};
@@ -60,10 +66,17 @@ namespace SI
 		void AddBuffer(
 			BaseBuffer&                                        targetBuffer,
 			ComPtr<ID3D12Resource>&                            uploadbuffer,
-			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& layouts)
+			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& layouts,
+			GfxResourceState                                   before,
+			GfxResourceState                                   after)
 		{
 			MutexLocker locker(m_mutex);
-			m_uploadBuffers.emplace_back(&targetBuffer, std::move(uploadbuffer), std::move(layouts));
+			m_uploadBuffers.emplace_back(
+				&targetBuffer,
+				std::move(uploadbuffer),
+				std::move(layouts),
+				before,
+				after);
 		}
 
 		void AddTexture(
@@ -84,7 +97,9 @@ namespace SI
 				graphicsCommandList.UploadBuffer(
 					*b.m_targetBuffer,
 					b.m_uploadbuffer,
-					b.m_layouts);
+					b.m_layouts,
+					b.m_before,
+					b.m_after);
 			}
 			m_uploadBuffers.clear();
 			
@@ -119,9 +134,11 @@ namespace SI
 	void BaseUploadPool::AddBuffer(
 		BaseBuffer& targetBuffer,
 		ComPtr<ID3D12Resource> uploadbuffer,
-		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts)
+		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts,
+		GfxResourceState before,
+		GfxResourceState after)
 	{
-		m_impl->AddBuffer(targetBuffer, uploadbuffer, layouts);
+		m_impl->AddBuffer(targetBuffer, uploadbuffer, layouts, before, after);
 	}
 
 	void BaseUploadPool::AddTexture(

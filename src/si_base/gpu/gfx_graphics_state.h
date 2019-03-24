@@ -105,6 +105,8 @@ namespace SI
 		BaseGraphicsState* GetBaseGraphicsState(){ return m_base; }
 		const BaseGraphicsState* GetBaseGraphicsState() const{ return m_base; }
 
+		bool IsValid() const{ return m_base != 0; }
+
 	private:
 		BaseGraphicsState* m_base;
 	};

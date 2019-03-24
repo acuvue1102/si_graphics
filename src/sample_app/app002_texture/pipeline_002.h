@@ -41,12 +41,12 @@ namespace APP002
 		GfxVertexShader          m_lambertVS;
 		GfxPixelShader           m_lambertPS;
 
-		GfxTextureEx             m_texture;
+		GfxTextureEx_Static      m_texture;
 
 		GfxTestureEx_Rt          m_rt;
 		GfxTestureEx_DepthRt     m_depth;
 
-		GfxSamplerEx             m_sampler;
+		GfxDynamicSampler        m_sampler;
 	};
 	
 } // namespace APP002

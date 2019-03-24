@@ -1,47 +1,35 @@
 
-//Texture2D<float4> texture0 : register(t0);
-//SamplerState      sampler0 : register(s0);
+Texture2D<float4> texture0 : register(t0);
+SamplerState      sampler0 : register(s0);
 
-#if 0
 struct PointLightInfo
 {
 	float4 Position;
 	float4 Color;
 };
-#endif
 
-cbuffer SceneBuffer : register(b1)
-{
-	float4x4         View         : packoffset(c0.x);
-	float4x4         ViewProj     : packoffset(c4.x);
-	//PointLightInfo   LightInfo[4] : packoffset(c8.x);
-};
-
-cbuffer InstanceBuffer : register(b2)
+cbuffer ConstantBuffer : register(b1)
 {
 	float4x4         World[8]     : packoffset(c0.x);
+	float4x4         View         : packoffset(c32.x);
+	float4x4         ViewProj     : packoffset(c36.x);
+	float2           UvScale      : packoffset(c40.x);
+	PointLightInfo   LightInfo[4] : packoffset(c41.x);
 };
-
-#if 0
-cbuffer MaterialBuffer : register(b3)
-{
-	float2           UvScale      : packoffset(c2.x);
-};
-#endif
 
 struct VSInput
 {
 	float3 position   : POSITION;
 	float3 normal     : NORMAL;
-	//float2 uv         : TEXCOORD0;
+	float2 uv         : TEXCOORD0;
 };
 
 struct PSInput
 {
 	float4 position  : SV_POSITION;
-	//float4 posInView : TEXCOORD0;
+	float4 posInView : TEXCOORD0;
 	float3 normal    : TEXCOORD1;
-	//float2 uv        : TEXCOORD2;
+	float2 uv        : TEXCOORD2;
 };
 
 struct PsOutput
@@ -59,9 +47,9 @@ PSInput VSMain(
 	float3 worldNormal = mul((float3x3)World[insId], input.normal);
 	
 	result.position  = mul(ViewProj, worldPos);
-	//result.posInView = mul(View, worldPos);
+	result.posInView = mul(View, worldPos);
 	result.normal    = mul((float3x3)View, worldNormal);
-	//result.uv        = UvScale * input.uv;
+	result.uv        = UvScale * input.uv;
 
 	return result;
 }
@@ -70,12 +58,11 @@ PsOutput PSMain(PSInput input)
 {
 	PsOutput output;
 
-	//float3 pos = input.posInView.xyz/input.posInView.w;
+	float3 pos = input.posInView.xyz/input.posInView.w;
 	float3 N = normalize(input.normal);
-	float3 albedo = float3(0.5, 1, 0.8); // pow(texture0.Sample(sampler0, input.uv).xyz, 1/2.2);
+	float3 albedo = pow(texture0.Sample(sampler0, input.uv).xyz, 1/2.2);
 
 	float3 color = 0.0.xxx;
-#if 0
 	for(int i=0; i<4; ++i)
 	{
 		float3 lightPos   = LightInfo[i].Position.xyz;
@@ -93,8 +80,7 @@ PsOutput PSMain(PSInput input)
 
 		color += diffuse;
 	}
-#endif
-	color = albedo;
+	
 	
 	float3 skyColor = float3(0.2, 0.3, 0.4);
 	float3 groundColor = float3(0.2, 0.2, 0.2);
