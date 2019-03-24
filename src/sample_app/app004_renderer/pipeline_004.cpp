@@ -178,8 +178,8 @@ namespace APP004
 
 	int Pipeline::LoadAsset(const AppInitializeInfo& info)
 	{
-		std::string modelPath = "asset\\model\\sphere.json";
-		//std::string modelPath = "asset\\model\\pig.json";
+		//std::string modelPath = "asset\\model\\sphere.json";
+		std::string modelPath = "asset\\model\\pig.json";
 		ModelReader modelReader;
 		modelReader.Read(m_modelInstance, modelPath.c_str());
 
