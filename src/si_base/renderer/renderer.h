@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <unordered_map>
 #include "si_base/renderer/renderer_common.h"
 #include "si_base/container/array.h"
 #include "si_base/core/singleton.h"
