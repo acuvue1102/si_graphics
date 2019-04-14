@@ -18,6 +18,14 @@ namespace SI
 		m_row[2] = kSiFloat128_0010;
 		m_row[3] = kSiFloat128_0000;
 	}
+	
+	inline Vfloat4x3::Vfloat4x3(const Vfloat4x3& m)
+	{
+		m_row[0] = m.m_row[0];
+		m_row[1] = m.m_row[1];
+		m_row[2] = m.m_row[2];
+		m_row[3] = m.m_row[3];
+	}
 
 	inline Vfloat4x3::Vfloat4x3(
 		Vfloat3_arg row0,
@@ -191,6 +199,15 @@ namespace SI
 			kSiFloat128_0100,
 			kSiFloat128_0010,
 			kSiFloat128_0001);
+	}
+	
+	inline Vfloat4x3& Vfloat4x3::operator=(const Vfloat4x3& m)
+	{
+		m_row[0] = m.m_row[0];
+		m_row[1] = m.m_row[1];
+		m_row[2] = m.m_row[2];
+		m_row[3] = m.m_row[3];
+		return (*this);
 	}
 
 	inline Vfloat4 operator*(Vfloat4_arg v, Vfloat4x3_arg m)

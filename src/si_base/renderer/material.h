@@ -12,9 +12,90 @@
 
 namespace SI
 {
+	struct FloatAttribute
+	{
+		const char* m_name;
+		const char* m_filePath;
+		float m_value;
+
+		FloatAttribute()
+			: m_name(nullptr)
+			, m_filePath(nullptr)
+			, m_value(0.0f)
+		{
+		}
+
+		SI_REFLECTION(
+			SI::FloatAttribute,
+			SI_REFLECTION_MEMBER(m_name),
+			SI_REFLECTION_MEMBER(m_filePath),
+			SI_REFLECTION_MEMBER(m_value))
+	};
+	struct BoolAttribute
+	{
+		const char* m_name;
+		const char* m_filePath;
+		bool m_value;
+
+		BoolAttribute()
+			: m_name(nullptr)
+			, m_filePath(nullptr)
+			, m_value(false)
+		{
+		}
+
+		SI_REFLECTION(
+			SI::BoolAttribute,
+			SI_REFLECTION_MEMBER(m_name),
+			SI_REFLECTION_MEMBER(m_filePath),
+			SI_REFLECTION_MEMBER(m_value))
+	};
+	struct IntAttribute
+	{
+		const char* m_name;
+		const char* m_filePath;
+		int m_value;
+
+		IntAttribute()
+			: m_name(nullptr)
+			, m_filePath(nullptr)
+			, m_value(0)
+		{
+		}
+
+		SI_REFLECTION(
+			SI::IntAttribute,
+			SI_REFLECTION_MEMBER(m_name),
+			SI_REFLECTION_MEMBER(m_filePath),
+			SI_REFLECTION_MEMBER(m_value))
+	};
+	struct Vfloat4Attribute
+	{
+		const char* m_name;
+		const char* m_filePath;
+		Vfloat4 m_value;
+
+		Vfloat4Attribute()
+			: m_name(nullptr)
+			, m_filePath(nullptr)
+			, m_value(0.0f)
+		{
+		}
+
+		SI_REFLECTION(
+			SI::Vfloat4Attribute,
+			SI_REFLECTION_MEMBER(m_name),
+			SI_REFLECTION_MEMBER(m_filePath),
+			SI_REFLECTION_MEMBER(m_value))
+	};
+
 	struct MaterialSerializeData
 	{
-		LongObjectIndex m_name;
+		LongObjectIndex          m_name;
+		Array<BoolAttribute>     m_bools;
+		Array<FloatAttribute>    m_floats;
+		Array<IntAttribute>      m_ints;
+		Array<Vfloat4Attribute>  m_vfloat4s;
 
 		MaterialSerializeData()
 			: m_name(kInvalidLongObjectIndex)
@@ -23,7 +104,11 @@ namespace SI
 
 		SI_REFLECTION(
 			SI::MaterialSerializeData,
-			SI_REFLECTION_MEMBER_AS_TYPE(m_name, uint32_t))
+			SI_REFLECTION_MEMBER_AS_TYPE(m_name, uint32_t),
+			SI_REFLECTION_MEMBER(m_bools),
+			SI_REFLECTION_MEMBER(m_floats),
+			SI_REFLECTION_MEMBER(m_ints),
+			SI_REFLECTION_MEMBER(m_vfloat4s))
 	};
 
 	class RenderMaterial : private NonCopyable

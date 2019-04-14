@@ -8,6 +8,7 @@
 #include "si_base/renderer/mesh.h"
 #include "si_base/renderer/sub_mesh.h"
 #include "si_base/renderer/material.h"
+#include "si_base/memory/linear_allocator.h"
 
 namespace fbxsdk
 {
@@ -42,6 +43,7 @@ namespace SI
 		std::vector<std::vector<uint32_t>>   m_indexBuffers;
 		std::vector<LongObjectIndex>         m_strings;
 		std::vector<char>                    m_stringPool;
+		LinearAllocator                      m_tempAllocator;
 		
 		void Clear();
 		void Reserve(size_t count);

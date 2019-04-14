@@ -11,6 +11,11 @@ namespace SI
 		: m_v(kSiFloat128_0000)
 	{
 	}
+	
+	inline Vfloat::Vfloat(const Vfloat& v)
+		: m_v(v.m_v)
+	{
+	}
 		
 	inline Vfloat::Vfloat(float value)
 		: m_v(_mm_set_ss(value))
@@ -68,6 +73,12 @@ namespace SI
 	}
 
 	///////////////////////////////////////////////////////////////////
+	
+	inline Vfloat& Vfloat::operator=(const Vfloat& v)
+	{
+		this->m_v = v.m_v;
+		return (*this);
+	}
 
 	inline Vfloat operator+(float f, Vfloat_arg vf)
 	{

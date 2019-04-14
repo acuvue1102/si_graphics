@@ -15,7 +15,8 @@ namespace SI
 	class alignas(16) Vfloat3
 	{
 	public:
-		Vfloat3();		
+		Vfloat3();
+		Vfloat3(const Vfloat3& v);
 		Vfloat3(float x, float y, float z);
 		Vfloat3(Vfloat x, Vfloat y, Vfloat z);		
 		explicit Vfloat3(float value);		
@@ -61,6 +62,7 @@ namespace SI
 		PackedFloat3 GetPackedFloat3() const;
 
 	public:
+		Vfloat3& operator=(const Vfloat3& v);
 		Vfloat3  operator-() const;
 		const Vfloat   operator[](size_t i) const; // [] operatorは代入を許可しないようにしておく.
 		Vfloat3  operator+(Vfloat3_arg v) const;

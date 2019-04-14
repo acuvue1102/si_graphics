@@ -7,7 +7,8 @@ namespace SI
 	class alignas(16) Vfloat
 	{
 	public:
-		Vfloat();		
+		Vfloat();
+		Vfloat(const Vfloat& v);
 		Vfloat(float value); // no explicit
 		explicit Vfloat(const __m128& v);
 		
@@ -19,6 +20,7 @@ namespace SI
 		float AsFloat() const;
 
 	public:
+		Vfloat& operator=(const Vfloat& v);
 		operator float() const;
 		Vfloat operator+(Vfloat_arg r) const;
 		Vfloat operator-(Vfloat_arg r) const;

@@ -125,6 +125,7 @@
     <ClCompile Include="math\math_print.cpp" />
     <ClCompile Include="memory\dlmalloc.c" />
     <ClCompile Include="memory\handle_allocator.cpp" />
+    <ClCompile Include="memory\linear_allocator.cpp" />
     <ClCompile Include="memory\pool_allocator.cpp" />
     <ClCompile Include="misc\argument_parser.cpp" />
     <ClCompile Include="misc\bitwise.cpp" />
@@ -240,6 +241,7 @@
     <ClInclude Include="memory\allocator_base.h" />
     <ClInclude Include="memory\dlmalloc.h" />
     <ClInclude Include="memory\handle_allocator.h" />
+    <ClInclude Include="memory\linear_allocator.h" />
     <ClInclude Include="memory\pool_allocator.h" />
     <ClInclude Include="memory\object_pool.h" />
     <ClInclude Include="misc\argument_parser.h" />

@@ -11,6 +11,8 @@ namespace SI
 	public:
 		Vfloat4x4();
 
+		Vfloat4x4(const Vfloat4x4& m);
+
 		Vfloat4x4(
 			Vfloat4_arg row0,
 			Vfloat4_arg row1,
@@ -56,6 +58,7 @@ namespace SI
 		Vfloat4x4 Transpose() const;
 
 	public:
+		Vfloat4x4& operator=(const Vfloat4x4& m);
 		Vfloat4   operator[](size_t i) const; // [] operatorは代入を許可しないようにしておく.
 		Vfloat4x4 operator*(Vfloat4x4_arg m) const;
 

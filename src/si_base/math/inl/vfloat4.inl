@@ -15,6 +15,11 @@ namespace SI
 		: m_v(kSiFloat128_0000)
 	{
 	}
+	
+	inline Vfloat4::Vfloat4(const Vfloat4& v)
+		: m_v(v.m_v)
+	{
+	}
 
 	inline Vfloat4::Vfloat4(float x, float y, float z, float w)
 		: m_v(_si_mm_set(x, y, z, w))
@@ -245,6 +250,12 @@ namespace SI
 	inline Vfloat4 Vfloat4::NormalizeFast() const
 	{
 		return Math::NormalizeFast(*this);
+	}
+	
+	inline Vfloat4& Vfloat4::operator=(const Vfloat4& v)
+	{
+		this->m_v = v.m_v;
+		return (*this);
 	}
 	
 	inline Vfloat4 Vfloat4::operator-() const

@@ -20,6 +20,13 @@ namespace SI
 		m_row[2] = kSiFloat128_0010;
 		m_row[3] = kSiFloat128_0001;
 	}
+	
+	inline Vfloat3x3::Vfloat3x3(const Vfloat3x3& m)
+	{
+		m_row[0] = m.m_row[0];
+		m_row[1] = m.m_row[1];
+		m_row[2] = m.m_row[2];
+	}
 
 	inline Vfloat3x3::Vfloat3x3(
 		Vfloat3_arg row0,
@@ -194,6 +201,14 @@ namespace SI
 	inline Vfloat3x3 Vfloat3x3::Transpose() const
 	{
 		return Math::Transpose(*this);
+	}
+	
+	inline Vfloat3x3& Vfloat3x3::operator=(const Vfloat3x3& m)
+	{
+		m_row[0] = m.m_row[0];
+		m_row[1] = m.m_row[1];
+		m_row[2] = m.m_row[2];
+		return (*this);
 	}
 	
 	inline Vfloat3 Vfloat3x3::operator[](size_t i) const

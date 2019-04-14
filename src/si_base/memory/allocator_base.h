@@ -41,8 +41,9 @@ namespace SI
 			// 配列数を保持するための領域を先頭に用意する.
 			static const int kExtraBufferSize = (int)sizeof(uint64_t);
 			static const int kTypeSize   = Max((int)sizeof(T), (int)alignof(T));
-			static const int kExtraCount = kExtraBufferSize/kTypeSize + (kExtraBufferSize%kTypeSize==0)? 0 : 1;
+			static const int kExtraCount = kExtraBufferSize/kTypeSize + ((kExtraBufferSize%kTypeSize==0)? 0 : 1);
 			static const int kAlignment  = Max((int)alignof(T), 8);
+			SI_ASSERT(0<kExtraCount);
 
 			if(arrayCount<=0) return nullptr;
 

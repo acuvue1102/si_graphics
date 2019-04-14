@@ -12,6 +12,8 @@ namespace SI
 	public:
 		Vfloat3x3();
 
+		Vfloat3x3(const Vfloat3x3& m);
+
 		Vfloat3x3(
 			Vfloat3_arg row0,
 			Vfloat3_arg row1,
@@ -47,6 +49,7 @@ namespace SI
 		Vfloat3x3 Transpose() const;
 
 	public:
+		Vfloat3x3& operator=(const Vfloat3x3& m);
 		Vfloat3   operator[](size_t i) const; // [] operatorは代入を許可しないようにしておく.
 		Vfloat3x3 operator*(Vfloat3x3_arg m) const;
 				
@@ -56,7 +59,7 @@ namespace SI
 	private:
 		__m128   m_row[3];
 	};
-
+	
 	Vfloat4 operator*(Vfloat4_arg v, Vfloat3x3_arg m);
 	
 	namespace Math

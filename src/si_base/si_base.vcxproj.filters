@@ -379,6 +379,9 @@
     <ClInclude Include="gpu\gfx_graphics_state_ex.h">
       <Filter>gpu</Filter>
     </ClInclude>
+    <ClInclude Include="memory\linear_allocator.h">
+      <Filter>memory</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -652,6 +655,9 @@
     </ClCompile>
     <ClCompile Include="gpu\gfx_graphics_state_ex.cpp">
       <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="memory\linear_allocator.cpp">
+      <Filter>memory</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

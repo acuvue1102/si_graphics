@@ -15,6 +15,11 @@ namespace SI
 		: m_v(kSiFloat128_0000)
 	{
 	}
+	
+	inline Vfloat3::Vfloat3(const Vfloat3& v)
+		: m_v(v.m_v)
+	{
+	}
 		
 	inline Vfloat3::Vfloat3(float x, float y, float z)
 		: m_v(_si_mm_set(x, y, z, 0.0f))
@@ -206,6 +211,12 @@ namespace SI
 		p.m_v[0] = X().AsFloat();
 		p.m_v[1] = Y().AsFloat();
 		p.m_v[2] = Z().AsFloat();
+	}
+	
+	inline Vfloat3& Vfloat3::operator=(const Vfloat3& v)
+	{
+		this->m_v = v.m_v;
+		return (*this);
 	}
 
 	inline Vfloat3 Vfloat3::operator-() const

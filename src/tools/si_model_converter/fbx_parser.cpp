@@ -27,6 +27,16 @@ using namespace fbxsdk;
 
 namespace
 {
+	void SetString(const char*& outStr, const char* name, SI::LinearAllocator& allocator)
+	{
+		uint32_t len =(uint32_t)strlen(name);
+
+		char* buf = allocator.NewArray<char>(len+1);
+		strcpy_s(buf, len+1, name);
+
+		outStr = buf;
+	}
+
 	/// 1/255までの誤差を無視する.
 	static const double kRoundScale = 255.0;
 
@@ -280,6 +290,7 @@ namespace SI
 		m_vertexBuffers.clear();
 		m_indexBuffers.clear();
 		m_strings.clear();
+		m_tempAllocator.Reset();
 	}
 
 	void ModelParsedData::Reserve(size_t count)
@@ -362,7 +373,9 @@ namespace SI
 		}
 
 		// 三角形化する.
+		m_fbxGeometryConverter->RemoveBadPolygonsFromMeshes(fbxScene);
 		m_fbxGeometryConverter->Triangulate(fbxScene, true);
+		//m_fbxGeometryConverter->RemoveBadPolygonsFromMeshes(fbxScene);
 
 		FbxNode* fbxRootNode = fbxScene->GetRootNode();
 		if(!fbxRootNode)
@@ -437,7 +450,8 @@ namespace SI
 		ModelParsedData& outParsedData,
 		FbxMesh& fbxMesh)
 	{
-		m_fbxGeometryConverter->SplitMeshPerMaterial(&fbxMesh, true);
+		std::string meshName = fbxMesh.GetName();
+		m_fbxGeometryConverter->SplitMeshPerMaterial(&fbxMesh, false);
 
 		FbxNode* meshNode = fbxMesh.GetNode();
 		int nodeAttributeCount = meshNode->GetNodeAttributeCount();
@@ -453,6 +467,8 @@ namespace SI
 			//if(nodeAttr == &fbxMesh) continue; // 分割前のsubmesh
 
 			FbxMesh* fbxSubMesh = (FbxMesh*)nodeAttr;
+			std::string submeshName = fbxSubMesh->GetName();
+			if(nodeAttributeCount!=1 && meshName == submeshName) continue; // 分割前のやつ
 			
 			SubMeshSerializeData subMesh;
 			bool ret = ParseSubMesh(subMesh, outParsedData, *fbxSubMesh);
@@ -702,9 +718,16 @@ namespace SI
 		if(0 < elementMaterialCount)
 		{
 			FbxGeometryElementMaterial* fbxMaterial = fbxSubMesh.GetElementMaterial();
-			std::string materialName = fbxMaterial->GetName();
+			//std::string materialName = fbxMaterial->GetName();
+
+			fbxsdk::FbxNode* fbxNode = fbxSubMesh.GetNode();
+			fbxsdk::FbxSurfaceMaterial* fbxSurfaceMaterial = fbxNode->GetMaterial(fbxMaterial->GetIndexArray().GetAt(0));
+
+			std::string materialName = fbxSurfaceMaterial->GetName();
+			fbxsdk::FbxProperty prop = fbxSurfaceMaterial->GetFirstProperty();
 
 			ObjectIndex foundMaterialIndex = kInvalidObjectIndex;
+
 			size_t createdMaterialCount = outParsedMeta.m_materials.size();
 			for(size_t i=0; i<createdMaterialCount; ++i)
 			{
@@ -735,6 +758,142 @@ namespace SI
 				size_t len = materialName.size()+1;
 				outParsedMeta.m_stringPool.reserve(outParsedMeta.m_stringPool.size() + len);
 				for(size_t j=0; j<len; ++j) outParsedMeta.m_stringPool.push_back(materialName[j]);
+
+				
+				std::vector<std::tuple<std::string, std::string, bool>>     bools;
+				std::vector<std::tuple<std::string, std::string, int>>      ints;
+				std::vector<std::tuple<std::string, std::string, float>>    floats;
+				std::vector<std::tuple<std::string, std::string, Vfloat4>>  vfloat4s;
+				
+				while(prop.IsValid())
+				{
+					std::string propName = prop.GetName().Buffer();
+					
+					std::string filePath;
+					fbxsdk::FbxObject* srcObj = prop.GetSrcObject();
+					if(srcObj)
+					{
+						if(fbxsdk::FbxFileTexture::ClassId == srcObj->GetClassId())
+						{
+							fbxsdk::FbxFileTexture* srcTexture = static_cast<fbxsdk::FbxFileTexture*>(srcObj);
+							filePath = srcTexture->GetFileName();
+						}
+					}
+
+					fbxsdk::FbxDataType dataType = prop.GetPropertyDataType();
+					fbxsdk::EFbxType type = dataType.GetType(); 
+					switch (type)
+					{
+					case fbxsdk::eFbxBool:
+						bools.push_back({propName, filePath, prop.Get<bool>()});
+						break;
+					case fbxsdk::eFbxUInt:
+						ints.push_back({propName, filePath, (int)prop.Get<uint32_t>()});
+						break;
+					case fbxsdk::eFbxInt:
+						ints.push_back({propName, filePath, prop.Get<int>()});
+						break;
+					case fbxsdk::eFbxLongLong:
+						ints.push_back({propName, filePath, (int)prop.Get<int64_t>()});
+						break;
+					case fbxsdk::eFbxULongLong:
+						ints.push_back({propName, filePath, (int)prop.Get<uint64_t>()});
+						break;
+					case fbxsdk::eFbxFloat:
+						floats.push_back({propName, filePath, prop.Get<float>()});
+						break;
+					case fbxsdk::eFbxDouble:
+						floats.push_back({propName, filePath, (float)prop.Get<double>()});
+						break;
+					case fbxsdk::eFbxDouble2:
+					{
+						fbxsdk::FbxDouble2 v = prop.Get<fbxsdk::FbxDouble2>();
+						vfloat4s.push_back({propName, filePath, Vfloat4((float)v[0], (float)v[1], 0.0f, 0.0f)});						
+						break;
+					}
+					case fbxsdk::eFbxDouble3:
+					{
+						fbxsdk::FbxDouble3 v = prop.Get<fbxsdk::FbxDouble3>();
+						vfloat4s.push_back({propName, filePath, Vfloat4((float)v[0], (float)v[1], (float)v[2], 0.0f)});						
+						break;
+					}
+					case fbxsdk::eFbxDouble4:
+					{
+						fbxsdk::FbxDouble4 v = prop.Get<fbxsdk::FbxDouble4>();
+						vfloat4s.push_back({propName, filePath, Vfloat4((float)v[0], (float)v[1], (float)v[2], (float)v[3])});						
+						break;
+					}
+					default:
+						break;
+					}
+
+					prop = fbxSurfaceMaterial->GetNextProperty(prop);
+				}
+
+				LinearAllocator& tempAllocator = outParsedMeta.m_tempAllocator;
+				if(!bools.empty())
+				{
+					material.m_bools.Setup(
+						tempAllocator.NewArray<BoolAttribute>(bools.size()),
+						(uint32_t)bools.size());
+					uint32_t boolCount = (uint32_t)bools.size();
+					for(uint32_t bi=0; bi<boolCount; ++bi)
+					{
+						const auto& b = bools[bi];
+						BoolAttribute& attr = material.m_bools.GetItem(bi);
+						SetString(attr.m_name, std::get<0>(b).c_str(), tempAllocator);
+						SetString(attr.m_filePath, std::get<1>(b).c_str(), tempAllocator);
+						attr.m_value = std::get<2>(b);
+					}
+				}
+
+				if(!ints.empty())
+				{
+					material.m_ints.Setup(						
+						tempAllocator.NewArray<IntAttribute>(ints.size()),
+						(uint32_t)ints.size());
+					uint32_t intCount = (uint32_t)ints.size();
+					for(uint32_t ii=0; ii<intCount; ++ii)
+					{
+						const auto& intValue = ints[ii];
+						IntAttribute& attr = material.m_ints.GetItem(ii);
+						SetString(attr.m_name, std::get<0>(intValue).c_str(), tempAllocator);
+						SetString(attr.m_filePath, std::get<1>(intValue).c_str(), tempAllocator);
+						attr.m_value = std::get<2>(intValue);
+					}
+				}
+
+				if(!floats.empty())
+				{
+					material.m_floats.Setup(
+						tempAllocator.NewArray<FloatAttribute>(floats.size()),
+						(uint32_t)floats.size());
+					uint32_t floatCount = (uint32_t)floats.size();
+					for(uint32_t fi=0; fi<floatCount; ++fi)
+					{
+						const auto& f = floats[fi];
+						FloatAttribute& attr = material.m_floats.GetItem(fi);
+						SetString(attr.m_name, std::get<0>(f).c_str(), tempAllocator);
+						SetString(attr.m_filePath, std::get<1>(f).c_str(), tempAllocator);
+						attr.m_value = std::get<2>(f);
+					}
+				}
+
+				if(!vfloat4s.empty())
+				{
+					material.m_vfloat4s.Setup(
+						tempAllocator.NewArray<Vfloat4Attribute>(vfloat4s.size()),
+						(uint32_t)vfloat4s.size());
+					uint32_t boolCount = (uint32_t)vfloat4s.size();
+					for(uint32_t vi=0; vi<boolCount; ++vi)
+					{
+						const auto& v = vfloat4s[vi];
+						Vfloat4Attribute& attr = material.m_vfloat4s.GetItem(vi);
+						SetString(attr.m_name, std::get<0>(v).c_str(), tempAllocator);
+						SetString(attr.m_filePath, std::get<1>(v).c_str(), tempAllocator);
+						attr.m_value = std::get<2>(v);
+					}
+				}
 
 				outParsedMeta.m_materials.push_back(material);
 			}

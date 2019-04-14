@@ -12,6 +12,8 @@ namespace SI
 	public:
 		Vfloat4x3();
 
+		Vfloat4x3(const Vfloat4x3& m);
+
 		Vfloat4x3(
 			Vfloat3_arg row0,
 			Vfloat3_arg row1,
@@ -53,6 +55,7 @@ namespace SI
 		Vfloat4x3 Multiply(Vfloat4x3_arg m) const;
 
 	public:
+		Vfloat4x3& operator=(const Vfloat4x3& m);
 		Vfloat3   operator[](size_t i) const; // [] operatorは代入を許可しないようにしておく.
 		Vfloat4x3 operator*(Vfloat4x3_arg m) const;
 

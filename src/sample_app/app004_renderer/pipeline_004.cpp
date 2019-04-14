@@ -413,19 +413,6 @@ namespace APP004
 		context.ClearRenderTarget(m_rt);
 		context.ClearDepthStencilTarget(m_depth);
 
-		m_renderer.SetViewMatrix(m_view);
-		m_renderer.SetProjectionMatrix(m_proj);
-
-		RendererGraphicsStateDesc renderDesc;
-		renderDesc.m_rtvFormats[0] = GfxFormat::R8G8B8A8_Unorm;
-		renderDesc.m_dsvFormat = GfxFormat::D32_Float;
-		renderDesc.m_depthEnable = true;
-		renderDesc.m_depthWriteMask = GfxDepthWriteMask::All;
-		m_renderer.Render(
-			context,
-			RendererDrawStageType::RendererDrawStageType_Opaque,
-			renderDesc);
-
 		// 箱をレンダーターゲットに対して描く
 		{
 			context.SetPipelineState(m_graphicsStates[0]);
@@ -441,6 +428,21 @@ namespace APP004
 			context.SetDynamicIB16(ArraySize(kBoxIndexData), kBoxIndexData);
 			
 			context.DrawIndexedInstanced((uint32_t)ArraySize(kBoxIndexData), 8);
+		}
+
+		{
+			m_renderer.SetViewMatrix(m_view);
+			m_renderer.SetProjectionMatrix(m_proj);
+
+			RendererGraphicsStateDesc renderDesc;
+			renderDesc.m_rtvFormats[0] = GfxFormat::R8G8B8A8_Unorm;
+			renderDesc.m_dsvFormat = GfxFormat::D32_Float;
+			renderDesc.m_depthEnable = true;
+			renderDesc.m_depthWriteMask = GfxDepthWriteMask::All;
+			m_renderer.Render(
+				context,
+				RendererDrawStageType::RendererDrawStageType_Opaque,
+				renderDesc);
 		}
 		
 		context.ResourceBarrier(m_rt, GfxResourceState::PixelShaderResource);		

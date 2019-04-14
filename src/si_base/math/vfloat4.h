@@ -10,7 +10,8 @@ namespace SI
 	class alignas(16) Vfloat4
 	{
 	public:
-		Vfloat4();		
+		Vfloat4();
+		Vfloat4(const Vfloat4& v);
 		Vfloat4(float x, float y, float z, float w);		
 		Vfloat4(Vfloat x, Vfloat y, Vfloat z, Vfloat w);
 		Vfloat4(Vfloat3 xyz, Vfloat w);
@@ -60,6 +61,7 @@ namespace SI
 		Vfloat4 NormalizeFast() const;
 
 	public:
+		Vfloat4& operator=(const Vfloat4& v);
 		Vfloat4 operator-() const;
 		const Vfloat operator[](size_t i) const; // [] operatorは代入を許可しないようにしておく.
 		Vfloat4 operator+(Vfloat4_arg v) const;

@@ -147,7 +147,7 @@ namespace SI
 			: m_items(nullptr)
 			, m_itemCount(0u)
 		{
-			if(a.IsValid())
+			if(a.IsValid() && a.GetItemCount()>0)
 			{
 				m_items = SI_NEW_ARRAY(T, a.GetItemCount());
 				m_itemCount = a.GetItemCount();
@@ -156,6 +156,14 @@ namespace SI
 					m_items[i] = a.GetItem(i);
 				}
 			}
+		}
+
+		SafeArray(SafeArray<T>&& a) noexcept
+			: m_items(a.m_items)
+			, m_itemCount(a.m_itemCount)
+		{
+			a.m_items = nullptr;
+			a.m_itemCount = 0;
 		}
 
 		~SafeArray()
@@ -239,22 +247,26 @@ namespace SI
 			return m_items[index];
 		}
 		
-		Array<T>& operator=(const Array<T>& a)
+		SafeArray<T>& operator=(const SafeArray<T>& a)
 		{
 			if(this == &a) return (*this);
 
-			m_items     = a.m_items;
-			m_itemCount = a.m_itemCount;
+			Reset();
+			if(a.IsValid() && a.GetItemCount()>0)
+			{
+				m_items = SI_NEW_ARRAY(T, a.GetItemCount());
+				m_itemCount = a.GetItemCount();
+				for(uint32_t i=0; i<m_itemCount; ++i)
+				{
+					m_items[i] = a.GetItem(i);
+				}
+			}
 			return (*this);
 		}
 
 	private:
 		T*        m_items;
 		uint32_t  m_itemCount;
-
-		SI_TEMPLATE1_REFLECTION(SI::Array, T,
-			SI_REFLECTION_MEMBER(m_items),
-			SI_REFLECTION_MEMBER(m_itemCount))
 	};
 
 	//////////////////////////////////////////////////////////////////////////
