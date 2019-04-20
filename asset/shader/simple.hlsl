@@ -56,8 +56,14 @@ PSInput VSMain(VSInput input,
 PsOutput PSMain(PSInput input)
 {
 	PsOutput output;
+
+	float3 lightDir = normalize(float3(0,-1,0));
 	
-	output.color = float4(input.normal, 1);//texture0.Sample(sampler0, input.uv);
+	float halfLambert = dot(-lightDir, normalize(input.normal.xyz)) * 0.5 + 0.5;
+
+	output.color = halfLambert * texture0.Sample(sampler0, input.uv);
+
+	//output.color = float4(input.normal.xyz,1);
 
 	return output;
 }

@@ -49,36 +49,61 @@ namespace SI
 
 		// TODO: ここでアトリビュート等を読み込む.
 		m_uvScale[0] = m_uvScale[1] = 1.0f;
-		
-		std::vector<uint8_t> texData;
-		GfxDdsMetaData texMetaData;
-		int ret = FileUtility::Load(texData, "asset\\texture\\test_texture.dds");
-		SI_ASSERT(ret==0);
 
-		m_texture.InitializeDDS("test_texture2", &texData[0], texData.size(), texMetaData);
+		uint32_t vecCount = serializeData.m_vfloat4s.GetItemCount();
+		for (uint32_t i = 0; i < vecCount; ++i)
+		{
+			const Vfloat4Attribute& attr = serializeData.m_vfloat4s.GetItem(i);
 
-		SI_DEVICE().UploadTextureLater(m_texture.Get(), texMetaData.m_image, texMetaData.m_imageSise);
+			if (strcmp(attr.m_name, "DiffuseColor") == 0)
+			{
+				m_diffuse = attr.m_value;
+
+				if (attr.m_filePath && attr.m_filePath[0])
+				{
+					std::vector<uint8_t> texData;
+					GfxDdsMetaData texMetaData;
+					int ret = FileUtility::Load(texData, attr.m_filePath);
+					SI_ASSERT(ret == 0);
+
+					m_diffuseTexture.InitializeDDS("test_texture2", &texData[0], texData.size(), texMetaData);
+
+					SI_DEVICE().UploadTextureLater(m_diffuseTexture.Get(), texMetaData.m_image, texMetaData.m_imageSise);
+				}
+			}
+		}
+
+		if(!m_diffuseTexture.IsValid())
+		{
+			m_diffuseTexture.InitializeAs2DStatic("diffuse", 1, 1, GfxFormat::R32G32B32A32_Float, 1);
+			SI_DEVICE().UploadTextureLater(m_diffuseTexture.Get(), &m_diffuse, sizeof(float)*4);
+		}
 		
 		// 各RenderMaterialをセットアップする
 		m_renderMaterials.Setup(1);
 		RenderMaterialSimple_Opaque* simple = SI_NEW(RenderMaterialSimple_Opaque);
 		simple->Initialize();
 		
-		for(uint32_t f=0; f<kFrameCount; ++f)
+		for (uint32_t f = 0; f < kFrameCount; ++f)
 		{
 			GfxShaderResourceViewDesc srvDesc;
-			srvDesc.m_format = m_texture.GetFormat();
-			srvDesc.m_arraySize = m_texture.GetArraySize();
-			srvDesc.m_miplevels = m_texture.GetMipLevels();
+			srvDesc.m_format = m_diffuseTexture.GetFormat();
+			srvDesc.m_arraySize = m_diffuseTexture.GetArraySize();
+			srvDesc.m_miplevels = m_diffuseTexture.GetMipLevels();
 
 			GfxDescriptorHeapEx& srvHeap = simple->GetSrvHeap(f);
-			srvHeap.SetShaderResourceView(0, m_texture.Get(), srvDesc);
-			
+			if (srvHeap.IsValid())
+			{
+				srvHeap.SetShaderResourceView(0, m_diffuseTexture.Get(), srvDesc);
+			}
+
 			GfxSamplerDesc samplerDesc;
 			GfxDescriptorHeapEx& samplerHeap = simple->GetSamplerHeap(f);
-			samplerHeap.SetSampler(0, samplerDesc);
+			if(samplerHeap.IsValid())
+			{
+				samplerHeap.SetSampler(0, samplerDesc);
+			}
 		}
-
 
 		m_renderMaterials.SetItem(0, simple);
 	}

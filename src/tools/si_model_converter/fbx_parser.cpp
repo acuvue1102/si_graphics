@@ -40,6 +40,12 @@ namespace
 	/// 1/255までの誤差を無視する.
 	static const double kRoundScale = 255.0;
 
+	//static const SI::Vfloat4x4 kToggleMatrix(
+	//	Vfloat4(1, 0, 0, 0),
+	//	Vfloat4(0, 0, 1, 0),
+	//	Vfloat4(0, 1, 0, 0),
+	//	Vfloat4(0, 0, 0, 1));
+
 	class HashKeyVertex
 	{
 	public:
@@ -50,12 +56,14 @@ namespace
 			
 		void SetPosition(double x, double y, double z)
 		{
-			m_position = {x, y, z};
+			m_position = { x, y, -z }; // 右手系から左手系へ
+			//m_position = {x, y, z};
 		}
 			
 		void SetNormal(double x, double y, double z)
 		{
-			m_normal = {x, y, z};
+			m_normal = { x, y, -z }; // 右手系から左手系へ
+			//m_normal = { x, y, z };
 			m_hasNormal = 1;
 		}
 			
@@ -68,7 +76,8 @@ namespace
 		void AppendTangent(double x, double y, double z, double flip)
 		{
 			SI_ASSERT(m_tangentCount<(uint32_t)SI::ArraySize(m_tangents));
-			m_tangents[m_tangentCount++] = {x, y, z, flip};
+			m_tangents[m_tangentCount++] = { x, y, -z, flip }; // 右手系から左手系へ
+			//m_tangents[m_tangentCount++] = { x, y, z, flip };
 		}
 
 		void AppendColor(double r, double g, double b, double a)
@@ -406,13 +415,14 @@ namespace SI
 		outNode.m_children.m_count = childCount;
 		outNode.m_children.m_first = firstIndex;
 		
-		outParsedData.m_nodes.resize(firstIndex + childCount);
-		outParsedData.m_nodeCores.resize(firstIndex + childCount);
+		outParsedData.m_nodes.resize((size_t)firstIndex + childCount);
+		outParsedData.m_nodeCores.resize((size_t)firstIndex + childCount);
 		for(int i=0; i<childCount; ++i)
 		{
-			NodeSerializeData& child = outParsedData.m_nodes[firstIndex + i];
-			NodeCoreSerializeData& childCore = outParsedData.m_nodeCores[firstIndex + i];
-			child.m_current = firstIndex + (SI::ObjectIndex)i;
+			ObjectIndex nodeIndex = firstIndex + (ObjectIndex)i;
+			NodeSerializeData& child = outParsedData.m_nodes[nodeIndex];
+			NodeCoreSerializeData& childCore = outParsedData.m_nodeCores[nodeIndex];
+			child.m_current = nodeIndex;
 			child.m_parent = outNode.m_current;
 
 			FbxNode* fbxChildNode = node.GetChild(i);
@@ -435,11 +445,18 @@ namespace SI
 			FbxMesh* mesh = fbxChildNode->GetMesh();
 			if(mesh)
 			{
-				ParseMesh(child, outParsedData, *mesh);
+				ParseMesh(child, outParsedData, *mesh, nodeIndex);
 			}
 
-			FbxAMatrix m = fbxChildNode->EvaluateLocalTransform();
-			childCore.m_localMatrix = FxbMatrixToVfloat4x4(m);
+			FbxDouble3 translation = fbxChildNode->LclTranslation.Get();
+			childCore.m_localMatrix = FxbMatrixToVfloat4x4(fbxChildNode->EvaluateLocalTransform());
+			childCore.m_worldMatrix = FxbMatrixToVfloat4x4(fbxChildNode->EvaluateGlobalTransform());
+
+			//childCore.m_localMatrix.SetRow(3, childCore.m_localMatrix.GetRow(3) * Vfloat4(1, 1, -1, 1));
+			//childCore.m_worldMatrix.SetRow(3, childCore.m_worldMatrix.GetRow(3) * Vfloat4(1, 1, -1, 1));
+
+			//childCore.m_localMatrix = childCore.m_localMatrix * kToggleMatrix;
+			//childCore.m_worldMatrix = childCore.m_worldMatrix * kToggleMatrix;
 
 			ParseNode(child, outParsedData, *fbxChildNode);
 		}
@@ -448,7 +465,8 @@ namespace SI
 	void FbxParser::ParseMesh(
 		NodeSerializeData& outNode,
 		ModelParsedData& outParsedData,
-		FbxMesh& fbxMesh)
+		FbxMesh& fbxMesh,
+		ObjectIndex nodeIndex)
 	{
 		std::string meshName = fbxMesh.GetName();
 		m_fbxGeometryConverter->SplitMeshPerMaterial(&fbxMesh, false);
@@ -474,6 +492,7 @@ namespace SI
 			bool ret = ParseSubMesh(subMesh, outParsedData, *fbxSubMesh);
 			if(!ret) continue;
 
+			subMesh.m_nodeIndex = nodeIndex;
 			outParsedData.m_subMeshes.push_back(subMesh);
 			
 			++subMeshCount;
@@ -622,7 +641,7 @@ namespace SI
 				if(hasNormal)
 				{
 					FbxVector4 normal = normals[i];
-					vertex.SetNormal(normal[0], normal[1], normal[2]);
+					vertex.SetNormal(normal[0], normal[1], normal[2]); // left hand
 				}
 
 				// uv
@@ -675,6 +694,12 @@ namespace SI
 			return false;
 		}
 
+		uint32_t lastIndexCount = std::max((uint32_t)newIndexArray.size(), 2u) - 2u;
+		// left_handにするため、indexの順番を反転. newIndex
+		for(uint32_t i=0; i<lastIndexCount; i+=3)
+		{
+			std::swap(newIndexArray[i], newIndexArray[i+2u]);
+		}
 
 		///////////////////////////////////////////////////////////
 		// vertexBufferを構築
@@ -777,6 +802,13 @@ namespace SI
 						{
 							fbxsdk::FbxFileTexture* srcTexture = static_cast<fbxsdk::FbxFileTexture*>(srcObj);
 							filePath = srcTexture->GetFileName();
+
+							// 適当. ドット以降を.ddsにするだけ.
+							size_t pos = filePath.find_last_of('.');
+							if (pos != std::string::npos)
+							{
+								filePath = filePath.substr(0, pos) + ".dds";
+							}
 						}
 					}
 

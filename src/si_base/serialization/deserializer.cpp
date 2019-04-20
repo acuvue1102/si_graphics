@@ -510,7 +510,7 @@ namespace SI
 							(float)picoArray[i*4 + 0].get<double>(),
 							(float)picoArray[i*4 + 1].get<double>(),
 							(float)picoArray[i*4 + 2].get<double>(),
-							(float)picoArray[i*4 + 2].get<double>());
+							(float)picoArray[i*4 + 3].get<double>());
 
 						m.SetRow(i, v);
 					}

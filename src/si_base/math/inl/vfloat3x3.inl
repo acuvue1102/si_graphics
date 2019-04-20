@@ -18,7 +18,6 @@ namespace SI
 		m_row[0] = kSiFloat128_1000;
 		m_row[1] = kSiFloat128_0100;
 		m_row[2] = kSiFloat128_0010;
-		m_row[3] = kSiFloat128_0001;
 	}
 	
 	inline Vfloat3x3::Vfloat3x3(const Vfloat3x3& m)

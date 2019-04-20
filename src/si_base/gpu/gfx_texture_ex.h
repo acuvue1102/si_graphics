@@ -64,6 +64,7 @@ namespace SI
 		uint32_t GetMipLevels() const;
 		
 		virtual void* GetNativeResource() override;
+		bool IsValid() const{ return Get().IsValid(); }
 		
 	public:
 		BaseTexture*  GetBaseTexture(){ return m_texture.GetBaseTexture(); }

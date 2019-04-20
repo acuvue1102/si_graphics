@@ -7,7 +7,7 @@ namespace SI
 {
 	TrackballCamera::TrackballCamera(int sortKey)
 		: AppModule(sortKey)
-		, m_focus(0.0, 0.0, 4.0f)
+		, m_focus(0.0, 0.0, 10.0f)
 	{
 	}
 	

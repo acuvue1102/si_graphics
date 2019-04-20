@@ -23,17 +23,21 @@ namespace SI
 			: m_material(nullptr)
 			, m_renderMaterial(nullptr)
 			, m_geometry(nullptr)
+			, m_nodeIndex(kInvalidObjectIndex)
 		{}
 		~RenderItem(){}
 
 		void Setup(
 			Material* material,
 			RenderMaterial* renderMaterial,
-			Geometry* geometry)
+			Geometry* geometry,
+			ObjectIndex nodeIndex)
 		{
 			m_material = material;
 			m_renderMaterial = renderMaterial;
 			m_geometry = geometry;
+			m_nodeIndex = nodeIndex;
+			SI_ASSERT(m_nodeIndex != kInvalidObjectIndex);
 		}
 
 		bool NeedToCreatePSO(const RendererGraphicsStateDesc& renderDesc) const;
@@ -52,11 +56,13 @@ namespace SI
 		RenderMaterial&            GetRenderMaterial(){ return *m_renderMaterial; }
 		Geometry&                  GetGeometry()      { return *m_geometry; }
 		GfxGraphicsStateEx&        GetGraphicsState() { return m_graphicsState; }
+		ObjectIndex                GetNodeIndex() const{ return m_nodeIndex; }
 
 	private:
 		Material*                  m_material;
 		RenderMaterial*            m_renderMaterial;
 		Geometry*                  m_geometry;
+		ObjectIndex                m_nodeIndex;
 		GfxGraphicsStateEx         m_graphicsState;
 		RendererGraphicsStateDesc  m_graphicsStateDesc;
 	};

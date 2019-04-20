@@ -22,6 +22,8 @@ namespace SI
 		      GfxDescriptorHeap& Get()      { return m_descriptorHeap; }
 		const GfxDescriptorHeap& Get() const{ return m_descriptorHeap; }
 
+		bool IsValid() const{ return Get().IsValid(); }
+
 	private:
 		GfxDescriptorHeap m_descriptorHeap;
 		ReferenceCounter  m_ref;

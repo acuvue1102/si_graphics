@@ -53,7 +53,7 @@ namespace SI
 		}
 
 	private:		
-		MutexLocker(){}
+		MutexLocker() = delete;
 
 		Mutex* m_mutex;
 	};

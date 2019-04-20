@@ -38,7 +38,8 @@ namespace SI
 
 	private:		
 		float               m_uvScale[2];
-		GfxTextureEx_Static m_texture;
+		Vfloat4             m_diffuse;
+		GfxTextureEx_Static m_diffuseTexture;
 	};
 
 } // namespace SI

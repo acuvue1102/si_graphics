@@ -27,21 +27,6 @@ namespace SI
 	
 	void Renderer::Initialize()
 	{
-		//// コンスタントバッファのセットアップ
-		//for(uint32_t i=0; i<kFrameCount; ++i)
-		//{
-		//	m_sceneCB[i].InitializeAsConstant("SceneCB", sizeof(SceneCB));
-		//	SceneCB* cb = static_cast<SceneCB*>(m_sceneCB[i].GetMapPtr());
-		//	memset(cb, 0, sizeof(SceneCB));
-
-		//	cb->m_view      = Vfloat4x4::Identity();
-		//	cb->m_proj      = Vfloat4x4::Identity();
-		//	cb->m_viewProj  = Vfloat4x4::Identity();
-		//}
-
-		//m_dummyCB.InitializeAsConstant("DummyCB", sizeof(float)*4);
-		//float* dummy = static_cast<float*>(m_dummyCB.GetMapPtr());
-		//dummy[0] = dummy[1] = dummy[2] = dummy[3] = 0.0f;
 		m_constantAllocator.Initialize(true);
 	}
 
@@ -77,6 +62,15 @@ namespace SI
 		RendererGraphicsStateDesc renderDescCopy = renderDesc;
 		renderDescCopy.GenerateHash();
 
+		uint32_t frameIndex = GetWriteFrameIndex();
+			
+		GfxLinearAllocatorMemory constant0 = m_constantAllocator.Allocate(sizeof(SceneCB), 256);
+		SceneCB* sceneCB = (SceneCB*)constant0.GetCpuAddr();
+		sceneCB->m_view     = m_viewMatrix;
+		sceneCB->m_proj     = m_projectionMatrix;
+		sceneCB->m_viewProj = m_viewMatrix * m_projectionMatrix;
+		size_t constant0GpuAddr = constant0.GetGpuAddr();
+
 		for(auto& pair : m_models)
 		{
 			ModelInstancePtr& modelIns = pair.second;
@@ -84,15 +78,6 @@ namespace SI
 			RendererDrawStageList& drawStageList = modelIns->GetDrawStageList();
 			RendererDrawStage* drawStage = drawStageList.GetDrawStage(stageType);
 			if(!drawStage) continue;
-
-			uint32_t frameIndex = GetWriteFrameIndex();
-			
-			GfxLinearAllocatorMemory constant0 = m_constantAllocator.Allocate(sizeof(SceneCB), 256);
-			SceneCB* sceneCB = (SceneCB*)constant0.GetCpuAddr();
-			sceneCB->m_view     = m_viewMatrix;
-			sceneCB->m_proj     = m_projectionMatrix;
-			sceneCB->m_viewProj = m_viewMatrix * m_projectionMatrix;
-			size_t constant0GpuAddr = constant0.GetGpuAddr();
 
 			uint32_t renderItemCount = drawStage->GetRenderItemCount();
 			for(uint32_t ri=0; ri<renderItemCount; ++ri)
@@ -106,6 +91,9 @@ namespace SI
 				Material& material = renderItem.GetMaterial();
 				RenderMaterial& renderMaterial = renderItem.GetRenderMaterial();
 				Geometry& geometry = renderItem.GetGeometry();
+				ObjectIndex nodeIndex = renderItem.GetNodeIndex();
+				SI_ASSERT(nodeIndex < modelIns->GetNodeCores().GetItemCount());
+				const NodeCore& nodeCore = modelIns->GetNodeCores()[nodeIndex];
 
 				material.UpdateRenderMaterial(renderMaterial, frameIndex);
 		
@@ -124,7 +112,7 @@ namespace SI
 				Vfloat4x4* worldMatrixArray = (Vfloat4x4*)constant1.GetCpuAddr();
 				for(uint32_t i=0; i<instanceCount; ++i)
 				{
-					worldMatrixArray[i] = Vfloat4x4::Identity();
+					worldMatrixArray[i] = nodeCore.GetLocalMatrix();//Vfloat4x4::Identity();
 				}
 				size_t constant1GpuAddr = constant1.GetGpuAddr();
 

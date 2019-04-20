@@ -31,3 +31,4 @@
 *.ilk
 Debug/
 Release/
+src/packages/

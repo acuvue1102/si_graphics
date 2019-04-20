@@ -70,7 +70,8 @@ namespace SI
 		void FbxParser::ParseMesh(
 			NodeSerializeData& outNode,
 			ModelParsedData& outparsedData,
-			fbxsdk::FbxMesh& mesh);
+			fbxsdk::FbxMesh& mesh,
+			ObjectIndex nodeIndex);
 		
 		bool FbxParser::ParseSubMesh(
 			SubMeshSerializeData& outSubMesh,

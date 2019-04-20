@@ -91,7 +91,7 @@ namespace SI
 				Geometry* geometry = geometries[geometryIndex];
 
 				RenderItem& renderItem = stage.GetRenderItem(ri++);
-				renderItem.Setup(material, renderMaterial, geometry);
+				renderItem.Setup(material, renderMaterial, geometry, subMesh.GetNodeIndex());
 			}
 			SI_ASSERT(renderItemCount==ri);
 		}

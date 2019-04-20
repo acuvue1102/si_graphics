@@ -8,7 +8,6 @@
 namespace SI
 {
 namespace APP004
-
 {
 	class Pipeline : public PipelineBase
 	{
@@ -33,19 +32,13 @@ namespace APP004
 	protected:
 		ModelInstancePtr         m_modelInstance;
 
-		GfxRootSignatureEx       m_rootSignatures[2];
-		GfxGraphicsState         m_graphicsStates[2];
-		GfxBufferEx_Constant     m_constantBuffers[2];
+		GfxRootSignatureEx       m_rootSignature;
+		GfxGraphicsState         m_graphicsState;
+		GfxBufferEx_Constant     m_constantBuffer;
 		TextureShaderConstant*   m_textureConstant;
-		LambertShaderConstant*   m_lambertConstant;
 
 		GfxVertexShader          m_textureVS;
 		GfxPixelShader           m_texturePS;
-		
-		GfxVertexShader          m_lambertVS;
-		GfxPixelShader           m_lambertPS;
-
-		GfxTextureEx_Static      m_texture;
 
 		GfxTestureEx_Rt          m_rt;
 		GfxTestureEx_DepthRt     m_depth;
