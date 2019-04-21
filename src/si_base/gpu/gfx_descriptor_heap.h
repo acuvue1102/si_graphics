@@ -108,7 +108,7 @@ namespace SI
 		GfxDescriptor& operator+=(size_t descriptorSizeOffset)
 		{
 			SI_ASSERT(m_cpu.m_ptr != 0);
-			SI_ASSERT(m_gpu.m_ptr != 0);
+			//SI_ASSERT(m_gpu.m_ptr != 0);
 			m_cpu.m_ptr += descriptorSizeOffset;
 			m_gpu.m_ptr += descriptorSizeOffset;
 			
