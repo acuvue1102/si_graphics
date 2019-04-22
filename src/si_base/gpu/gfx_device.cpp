@@ -386,12 +386,16 @@ namespace SI
 	int GfxDevice::UploadTextureLater(
 		GfxTexture&             targetTexture,
 		const void*             srcBuffer,
-		size_t                  srcBufferSize)
+		size_t                  srcBufferSize,
+		GfxResourceState        before,
+		GfxResourceState        after)
 	{
 		return m_base->UploadTextureLater(
 			*targetTexture.GetBaseTexture(),
 			srcBuffer,
-			srcBufferSize);
+			srcBufferSize,
+			before,
+			after);
 	}
 
 	// upload用のバッファを転送する.

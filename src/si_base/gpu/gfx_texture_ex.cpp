@@ -72,7 +72,13 @@ namespace SI
 	}
 	
 	void GfxTextureEx_Static::InitializeAs2DStatic(
-		const char* name, uint32_t width, uint32_t height, GfxFormat format, uint32_t mipLevel)
+		const char* name,
+		uint32_t width,
+		uint32_t height,
+		GfxFormat format,
+		const void* imageData,
+		size_t imageDataSize,
+		uint32_t mipLevel)
 	{
 		GfxDevice& device = *GfxDevice::GetInstance();
 
@@ -99,18 +105,28 @@ namespace SI
 		device.CreateShaderResourceView(m_srvDescriptor, m_texture, srvDesc);
 
 		m_ref.Create();
+		
+		device.UploadTextureLater(
+			m_texture,
+			imageData,
+			imageDataSize,
+			GfxResourceState::CopyDest,
+			GfxResourceState::PixelShaderResource);
 	}
 	
-	int GfxTextureEx_Static::InitializeDDS( const char* name, const void* ddsBuffer, size_t ddsBufferSize, GfxDdsMetaData& outDdsMetaData)
+	int GfxTextureEx_Static::InitializeDDS(
+		const char* name,
+		const void* ddsBuffer,
+		size_t ddsBufferSize,
+		GfxDdsMetaData* outDdsMetaData)
 	{
-		GfxDdsMetaData& ddsMetaData = outDdsMetaData;
+		GfxDdsMetaData ddsMetaData;
 
 		int ret =LoadDdsFromMemory(ddsMetaData, ddsBuffer, ddsBufferSize);
 		if(ret != 0)
 		{
 			return ret;
 		}
-
 
 		GfxDevice& device = *GfxDevice::GetInstance();
 
@@ -138,8 +154,19 @@ namespace SI
 		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Allocate(1);
 		device.CreateShaderResourceView(m_srvDescriptor, m_texture, srvDesc);
 
-
 		m_ref.Create();
+
+		device.UploadTextureLater(
+			m_texture,
+			ddsMetaData.m_image,
+			ddsMetaData.m_imageSise,
+			GfxResourceState::CopyDest,
+			GfxResourceState::PixelShaderResource);
+
+		if(outDdsMetaData)
+		{
+			*outDdsMetaData = ddsMetaData;
+		}
 
 		return 0;
 	}

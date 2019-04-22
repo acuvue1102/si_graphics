@@ -95,6 +95,8 @@ namespace SI
 		context.ResourceBarrier(
 			m_swapChain.GetTexture(),
 			GfxResourceState::RenderTarget);
+		
+		m_device.FlushUploadPool(*context.GetGraphicsCommandList());
 	}
 
 	void PipelineBase::EndRender()

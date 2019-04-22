@@ -517,12 +517,7 @@ namespace SI
 		size_t srcBufferSize,
 		GfxResourceStates after)
 	{
-		uint32_t resourceStateHandle = targetBuffer.GetResourceStateHandle();
-		GfxResourceStates before = GetCurrentResourceState(resourceStateHandle);
-
-		SI_ASSERT(before == GfxResourceState::Pendding || before == GfxResourceState::CopyDest); // beforeStateはCopyDestだろう.
-		
-		SetCurrentResourceState(resourceStateHandle, after);
+		ResourceBarrier(targetBuffer, GfxResourceState::CopyDest);
 
 		return UploadBuffer(
 			device,
@@ -537,26 +532,35 @@ namespace SI
 		GfxDevice& device,
 		GfxTexture& targetTexture,
 		const void* srcBuffer,
-		size_t srcBufferSize)
+		size_t srcBufferSize,
+		GfxResourceStates before,
+		GfxResourceStates after)
 	{
 		return m_base->UploadTexture(
 			*device.GetBaseDevice(),
 			*targetTexture.GetBaseTexture(),
 			srcBuffer,
-			srcBufferSize);
+			srcBufferSize,
+			before,
+			after);
 	}
 
 	int GfxGraphicsContext::UploadTexture(
 		GfxDevice& device,
 		GfxTextureEx& targetTexture,
 		const void* srcBuffer,
-		size_t srcBufferSize)
+		size_t srcBufferSize,
+		GfxResourceStates after)
 	{
+		ResourceBarrier(targetTexture, GfxResourceState::CopyDest);
+
 		return m_base->UploadTexture(
 			*device.GetBaseDevice(),
 			*targetTexture.GetBaseTexture(),
 			srcBuffer,
-			srcBufferSize);
+			srcBufferSize,
+			GfxResourceState::CopyDest,
+			after);
 	}
 
 	GfxResourceStates GfxGraphicsContext::GetPenddingResourceState(uint32_t resourceStateHandle) const

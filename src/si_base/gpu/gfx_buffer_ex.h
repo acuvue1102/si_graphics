@@ -116,7 +116,11 @@ namespace SI
 		GfxBufferEx_Index();
 		virtual ~GfxBufferEx_Index();
 		
-		void InitializeAsIndex( const char* name, size_t indexCount, bool is16bit);
+		void InitializeAsIndex(
+			const char* name,
+			const void* indexAddress,
+			size_t indexCount,
+			bool is16bit);
 		void TerminateAsIndex();
 		
 		virtual GfxBufferExType GetType() const override
@@ -141,7 +145,12 @@ namespace SI
 		GfxBufferEx_Vertex();
 		virtual ~GfxBufferEx_Vertex();
 		
-		void InitializeAsVertex( const char* name, size_t vertexCount, size_t stride, size_t offset);
+		void InitializeAsVertex(
+			const char* name,
+			const void* vertexAddress,
+			size_t vertexCount,
+			size_t stride,
+			size_t offset);
 		void TerminateAsVertex();
 		
 		virtual GfxBufferExType GetType() const override

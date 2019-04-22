@@ -176,12 +176,15 @@ namespace SI
 			GfxDevice& device,
 			GfxTexture& targetTexture,
 			const void* srcBuffer,
-			size_t srcBufferSize);
+			size_t srcBufferSize,
+			GfxResourceStates before,
+			GfxResourceStates after);
 		int UploadTexture(
 			GfxDevice& device,
 			GfxTextureEx& targetTexture,
 			const void* srcBuffer,
-			size_t srcBufferSize);
+			size_t srcBufferSize,
+			GfxResourceStates after);
 
 	public:
 		GfxGraphicsCommandList* GetGraphicsCommandList(){ return &m_commandList; }

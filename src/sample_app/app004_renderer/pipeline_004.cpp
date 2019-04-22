@@ -75,8 +75,6 @@ namespace APP004
 		
 		// textureシェーダのセットアップ.
 		{
-			std::string shaderPath = SI_PATH_STORAGE().GetExeDirPath();
-			shaderPath += "shaders\\texture.hlsl";
 			if(m_textureVS.LoadAndCompile("asset\\shader\\texture.hlsl") != 0) return -1;
 			if(m_texturePS.LoadAndCompile("asset\\shader\\texture.hlsl") != 0) return -1;
 		}
@@ -197,8 +195,6 @@ namespace APP004
 		BeginRender();
 		
 		GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
-		
-		m_device.FlushUploadPool(*context.GetGraphicsCommandList());
 
 		context.ResourceBarrier(
 			m_depth,

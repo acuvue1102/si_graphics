@@ -20,29 +20,16 @@ namespace SI
 
 		m_vertexBuffer.InitializeAsVertex(
 			"vertex",
+			s.m_rawVertexBuffer.GetItemsAddr(),
 			s.m_rawVertexBuffer.GetItemCount()/m_vertexLayout.m_stride,
 			m_vertexLayout.m_stride,
 			0);
-		
-		GfxBuffer vb = m_vertexBuffer.Get();
-		device.UploadBufferLater(
-			vb,
-			s.m_rawVertexBuffer.GetItemsAddr(),
-			vb.GetSize(),
-			GfxResourceState::CopyDest,
-			GfxResourceState::VertexAndConstantBuffer);
 
 		m_indexBuffer.InitializeAsIndex(
 			"index",
+			s.m_rawIndexBuffer.GetItemsAddr(),
 			s.m_rawIndexBuffer.GetItemCount() / (m_is16bitIndex!=0? 2 : 4),
 			m_is16bitIndex!=0);
-		GfxBuffer ib = m_indexBuffer.Get();
-		device.UploadBufferLater(
-			ib,
-			s.m_rawIndexBuffer.GetItemsAddr(),
-			ib.GetSize(),
-			GfxResourceState::CopyDest,
-			GfxResourceState::IndexBuffer);
 				
 		m_inputElements.Setup(m_vertexLayout.m_attributeCount);
 		uint32_t offset = 0;

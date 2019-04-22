@@ -178,18 +178,14 @@ namespace APP002
 	{
 		// textureシェーダのセットアップ.
 		{
-			std::string shaderPath = SI_PATH_STORAGE().GetExeDirPath();
-			shaderPath += "shaders\\texture.hlsl";
-			if(m_textureVS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
-			if(m_texturePS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
+			if(m_textureVS.LoadAndCompile("asset\\shader\\texture.hlsl") != 0) return -1;
+			if(m_texturePS.LoadAndCompile("asset\\shader\\texture.hlsl") != 0) return -1;
 		}
 
 		// lambertシェーダのセットアップ.
 		{
-			std::string shaderPath = SI_PATH_STORAGE().GetExeDirPath();
-			shaderPath += "shaders\\lambert.hlsl";
-			if(m_lambertVS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
-			if(m_lambertPS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
+			if(m_lambertVS.LoadAndCompile("asset\\shader\\lambert.hlsl") != 0) return -1;
+			if(m_lambertPS.LoadAndCompile("asset\\shader\\lambert.hlsl") != 0) return -1;
 		}
 
 		// コンスタントバッファのセットアップ
@@ -232,7 +228,7 @@ namespace APP002
 			int ret = FileUtility::Load(texData, ddsFilePath);
 			SI_ASSERT(ret==0);
 
-			m_texture.InitializeDDS("test_texture", &texData[0], texData.size(), texMetaData);
+			m_texture.InitializeDDS("test_texture", &texData[0], texData.size());
 		}
 		
 		// render targetのセットアップ.
@@ -312,21 +308,12 @@ namespace APP002
 			m_graphicsStates[1] = m_device.CreateGraphicsState(stateDesc);
 		}
 
-		// commandList経由でリソースのデータをアップロードする.
-		BeginRender();
-		{
-			GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
-			
-			context.UploadTexture(m_device, m_texture, texMetaData.m_image, texMetaData.m_imageSise);
-		}
-		EndRender();
-
 		return 0;
 	}
 	
 	void Pipeline::SetView(Vfloat4x4_arg view)
 	{
-		Vfloat4x4 projMatrix = Math::Perspective(1.6f, 0.9f, 0.5f, 10.0f);
+		Vfloat4x4 projMatrix = Math::Perspective(1.6f, 0.9f, 0.5f, 100.0f);
 
 		m_lambertConstant->m_view        = view;
 		m_lambertConstant->m_viewProj    = view * projMatrix;

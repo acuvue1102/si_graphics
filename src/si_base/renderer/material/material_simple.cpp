@@ -62,21 +62,26 @@ namespace SI
 				if (attr.m_filePath && attr.m_filePath[0])
 				{
 					std::vector<uint8_t> texData;
-					GfxDdsMetaData texMetaData;
 					int ret = FileUtility::Load(texData, attr.m_filePath);
 					SI_ASSERT(ret == 0);
 
-					m_diffuseTexture.InitializeDDS("test_texture2", &texData[0], texData.size(), texMetaData);
-
-					SI_DEVICE().UploadTextureLater(m_diffuseTexture.Get(), texMetaData.m_image, texMetaData.m_imageSise);
+					m_diffuseTexture.InitializeDDS(
+						"test_texture2",
+						&texData[0],
+						texData.size());
 				}
 			}
 		}
 
 		if(!m_diffuseTexture.IsValid())
 		{
-			m_diffuseTexture.InitializeAs2DStatic("diffuse", 1, 1, GfxFormat::R32G32B32A32_Float, 1);
-			SI_DEVICE().UploadTextureLater(m_diffuseTexture.Get(), &m_diffuse, sizeof(float)*4);
+			m_diffuseTexture.InitializeAs2DStatic(
+				"diffuse",
+				1,
+				1,
+				GfxFormat::R32G32B32A32_Float,
+				&m_diffuse,
+				sizeof(m_diffuse));
 		}
 		
 		// 各RenderMaterialをセットアップする

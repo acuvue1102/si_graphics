@@ -1,5 +1,5 @@
 ﻿
-#include "pipeline_005.h"
+#include "pipeline_006.h"
 
 #include <string>
 #include <vector>
@@ -7,22 +7,10 @@
 #include <si_app/file/path_storage.h>
 #include <si_base/math/math.h>
 #include <si_base/input/keyboard.h>
-#include "raytracing_in_one_weekend.h"
-#include "raytracing_the_next_week.h"
-
-#define HIGH_RESOLUTION 0
-#define MIDDLE_RESOLUTION 0
-#define CPU_RATTRACING 1
-
-#if CPU_RATTRACING
-#define THE_NEXT_WEEK 1
-#else
-#define THE_NEXT_WEEK 0
-#endif
 
 namespace SI
 {
-namespace APP005
+namespace APP006
 {
 	namespace
 	{
@@ -46,7 +34,7 @@ namespace APP005
 			{  1.0f,  1.0f, 0.5f ,  1.0f, 0.0f },
 			{  1.0f, -1.0f, 0.5f ,  1.0f, 1.0f },
 		};
-		
+
 		std::vector<float> GenerateTextureData(uint32_t width, uint32_t height)
 		{
 			const uint32_t pixelSize = 4;
@@ -60,12 +48,12 @@ namespace APP005
 			{
 				uint32_t x = n % rowPitch;
 				uint32_t y = n / rowPitch;
-				float u = ((float)x+0.5f)/(float)width;
-				float v = ((float)y+0.5f)/(float)height;
+				float u = ((float)x + 0.5f) / (float)width;
+				float v = ((float)y + 0.5f) / (float)height;
 
 				Vfloat3 color(u, v, 0);
-				
-				pData[n    ] = color.X();	// R
+
+				pData[n] = color.X();	// R
 				pData[n + 1] = color.Y();	// G
 				pData[n + 2] = color.Z();	// B
 				pData[n + 3] = 1.0f;	    // A
@@ -91,7 +79,6 @@ namespace APP005
 	
 	Pipeline::Pipeline(int observerSortKey)
 		: PipelineBase(observerSortKey)
-		, m_raytracingConstant(nullptr)
 		, m_textureConstant(nullptr)
 		, m_currentComputeId(0)
 	{
@@ -127,37 +114,12 @@ namespace APP005
 			if(m_texturePS.LoadAndCompile("asset\\shader\\texture.hlsl") != 0) return -1;
 		}
 		
-#if !CPU_RATTRACING
-		{			
-			for(int i=0; i<kMaxRaytracingCompute; ++i)
-			{
-				char modeStr[8] = {};
-				sprintf_s(modeStr, "%u", i);
-
-				GfxShaderCompileMacros<1> macros;
-				macros.Add("MODE", modeStr);
-
-				GfxShaderCompileDesc desc;
-				desc.m_macros = macros.m_macros;
-				if(m_raytracingCS[i].LoadAndCompile("asset\\shader\\raytracing_in_one_weekend.hlsl", "CSMain", desc) != 0) return -1;
-			}
-		}
-#endif
-
 		// result textureのセットアップ.
 		{
 			m_resultTexture.InitializeAs2DUav(
 				"copyedTexture",
-#if HIGH_RESOLUTION
 				1980,
 				1080,
-#elif MIDDLE_RESOLUTION
-				320*2,
-				180*2,
-#else
-				320,
-				180,
-#endif
 				GfxFormat::R32G32B32A32_Float);
 		}
 
@@ -169,14 +131,6 @@ namespace APP005
 			m_textureConstant->m_vertexScale[1] = 1;//0.8f;
 			m_textureConstant->m_uvScale[0]     = 1.0f;
 			m_textureConstant->m_uvScale[1]     = 1.0f;
-		}
-
-		// Raytracing コンスタントバッファのセットアップ
-		{			
-			m_raytracingConstantBuffers.InitializeAsConstant("raytracingConstant", sizeof(RaytracingShaderConstant));
-			m_raytracingConstant = static_cast<RaytracingShaderConstant*>(m_raytracingConstantBuffers.GetMapPtr());
-			m_raytracingConstant->m_width  = m_resultTexture.GetWidth();
-			m_raytracingConstant->m_height = m_resultTexture.GetHeight();
 		}
 		
 		// samplerのセットアップ
@@ -229,51 +183,20 @@ namespace APP005
 			m_graphicsStates = m_device.CreateGraphicsState(stateDesc);
 		}
 		
-#if CPU_RATTRACING
-
-#if THE_NEXT_WEEK
-		auto textureData = RayTracingTheNextWeek::GenerateRaytracingTextureData(m_resultTexture.GetWidth(), m_resultTexture.GetHeight());
-#else
-		auto textureData = RayTracingInOneWeekEnd::GenerateRaytracingTextureData(m_resultTexture.GetWidth(), m_resultTexture.GetHeight());
-#endif
-
-#else
-		// compute root signatureのセットアップ
-		{
-			GfxRootSignatureDescEx computeRootSignatureDesc;
-			computeRootSignatureDesc.ReserveTables(1);
-
-			GfxDescriptorHeapTableEx& table0 = computeRootSignatureDesc.GetTable(0);
-			table0.ReserveRanges(2);
-			table0.GetRange(0).Set(GfxDescriptorRangeType::Cbv, 1, 0, GfxDescriptorRangeFlag::Volatile);
-			table0.GetRange(1).Set(GfxDescriptorRangeType::Uav, 1, 0, GfxDescriptorRangeFlag::Volatile);
-
-			computeRootSignatureDesc.SetName("computeRootSig");
-			m_computeRootSignatures.Initialize(computeRootSignatureDesc);
-		}
-
-		// compute PSOのセットアップ.
-		for(int i=0; i<kMaxRaytracingCompute; ++i)
-		{
-			GfxComputeStateDesc computeStateDesc;
-			computeStateDesc.m_rootSignature = &m_computeRootSignatures.GetRootSignature();
-			computeStateDesc.m_computeShader = &m_raytracingCS[i];
-			m_computeStates[i] = m_device.CreateComputeState(computeStateDesc);
-		}
-#endif
+		auto textureData = GenerateTextureData(m_resultTexture.GetWidth(), m_resultTexture.GetHeight());
 
 		// commandList経由でリソースのデータをアップロードする.
 		BeginRender();
 		{
 			GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
-#if CPU_RATTRACING
+			//context.UploadBuffer(m_device, m_quadVertexBuffer, kVertexData, sizeof(kVertexData), GfxResourceState::VertexAndConstantBuffer);
+
 			context.UploadTexture(
 				m_device,
 				m_resultTexture,
 				&textureData[0],
 				sizeof(textureData[0]) * textureData.size(),
 				GfxResourceState::PixelShaderResource);
-#endif
 		}
 		EndRender();
 
@@ -294,9 +217,6 @@ namespace APP005
 		m_rootSignatures.Terminate();
 
 		m_sampler.Terminate();
-		
-		m_raytracingConstant = nullptr;
-		m_raytracingConstantBuffers.TerminateAsConstant();
 		
 		m_textureConstant = nullptr;
 		m_constantBuffers.TerminateAsConstant();
@@ -327,31 +247,6 @@ namespace APP005
 		BeginRender();
 		
 		GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
-
-#if !CPU_RATTRACING
-		static int s_lastComputeId = -1;
-		if(s_lastComputeId != m_currentComputeId)
-		{
-			context.ResourceBarrier(m_resultTexture, GfxResourceState::UnorderedAccess);
-
-			{
-				context.SetComputeRootSignature(m_computeRootSignatures);
-				context.SetPipelineState(m_computeStates[m_currentComputeId]);
-
-				context.SetDynamicViewDescriptor(0, 0, m_raytracingConstantBuffers);
-				context.SetDynamicViewDescriptor(0, 1, m_resultTexture);
-				
-				static const uint32_t kThreadX = 8;
-				static const uint32_t kThreadY = 8;
-				uint32_t threadGroupCountX = (m_resultTexture.GetWidth()  + kThreadX-1) / kThreadX;
-				uint32_t threadGroupCountY = (m_resultTexture.GetHeight() + kThreadY-1) / kThreadY;
-				context.Dispatch(threadGroupCountX, threadGroupCountY);
-			}
-
-			context.ResourceBarrier(m_resultTexture, GfxResourceState::PixelShaderResource);
-		}
-		s_lastComputeId = m_currentComputeId;
-#endif
 
 		{
 			GfxTestureEx_SwapChain& swapChainTexture = m_swapChain.GetTexture();
@@ -402,5 +297,5 @@ namespace APP005
 		}
 	}
 	
-} // namespace APP005
+} // namespace APP006
 } // namespace SI

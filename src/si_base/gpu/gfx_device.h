@@ -144,7 +144,9 @@ namespace SI
 		int UploadTextureLater(
 			GfxTexture&             targetTexture,
 			const void*             srcBuffer,
-			size_t                  srcBufferSize);
+			size_t                  srcBufferSize,
+			GfxResourceState        before,
+			GfxResourceState        after);
 
 		// upload用のバッファを転送する.
 		int FlushUploadPool(GfxGraphicsCommandList& commandList);

@@ -142,7 +142,11 @@ namespace SI
 		SI_ASSERT(m_format == GfxFormat::Max);
 	}
 		
-	void GfxBufferEx_Index::InitializeAsIndex( const char* name, size_t indexCount, bool is16bit)
+	void GfxBufferEx_Index::InitializeAsIndex(
+		const char* name,
+		const void* indexAddress,
+		size_t indexCount,
+		bool is16bit)
 	{
 		BaseDevice& device = SI_BASE_DEVICE();
 		
@@ -156,6 +160,13 @@ namespace SI
 		m_format = is16bit? GfxFormat::R16_Uint : GfxFormat::R32_Uint;
 
 		m_ref.Create();
+
+		device.UploadBufferLater(
+			*m_buffer.GetBaseBuffer(),
+			indexAddress,
+			desc.m_bufferSizeInByte,
+			GfxResourceState::CopyDest,
+			GfxResourceState::IndexBuffer);
 	}
 
 	void GfxBufferEx_Index::TerminateAsIndex()
@@ -189,7 +200,12 @@ namespace SI
 		SI_ASSERT(m_stride == 0);
 	}
 		
-	void GfxBufferEx_Vertex::InitializeAsVertex( const char* name, size_t vertexCount, size_t stride, size_t offset)
+	void GfxBufferEx_Vertex::InitializeAsVertex(
+		const char* name,
+		const void* vertexBuffer,
+		size_t vertexCount,
+		size_t stride,
+		size_t offset)
 	{
 		BaseDevice& device = SI_BASE_DEVICE();
 		
@@ -203,6 +219,13 @@ namespace SI
 		m_stride = stride;
 
 		m_ref.Create();
+
+		device.UploadBufferLater(
+			*m_buffer.GetBaseBuffer(),
+			vertexBuffer,
+			desc.m_bufferSizeInByte,
+			GfxResourceState::CopyDest,
+			GfxResourceState::VertexAndConstantBuffer);
 	}
 
 	void GfxBufferEx_Vertex::TerminateAsVertex()

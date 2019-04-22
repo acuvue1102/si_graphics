@@ -45,11 +45,8 @@ namespace APP001
 		GfxRootSignatureDesc rootSignatureDesc;
 		m_rootSignature.Initialize(rootSignatureDesc);
 
-		std::string shaderPath = SI_PATH_STORAGE().GetExeDirPath();
-		shaderPath += "shaders\\color.hlsl";
-
-		if(m_vertexShader.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
-		if(m_pixelShader. LoadAndCompile(shaderPath.c_str()) != 0) return -1;
+		if(m_vertexShader.LoadAndCompile("asset\\shader\\color.hlsl") != 0) return -1;
+		if(m_pixelShader. LoadAndCompile("asset\\shader\\color.hlsl") != 0) return -1;
 
 		static const GfxInputElement kElements[] =
 		{

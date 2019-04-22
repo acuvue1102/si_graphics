@@ -409,12 +409,16 @@ namespace SI
 			BaseDevice& device,
 			BaseTexture& targetTexture,
 			const void* srcBuffer,
-			size_t srcBufferSize);
+			size_t srcBufferSize,
+			GfxResourceStates before,
+			GfxResourceStates after);
 		
 		int UploadTexture(
 			BaseTexture& targetTexture,
 			ComPtr<ID3D12Resource>& textureUploadHeap,
-			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& layouts);
+			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& layouts,
+			GfxResourceStates before,
+			GfxResourceStates after);
 
 	public:
 		void OnExecute() override

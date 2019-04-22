@@ -73,21 +73,17 @@ namespace APP003
 		// 四角形の頂点バッファのセットアップ.
 		{
 			m_quadVertexBuffer.InitializeAsVertex(
-				"vertex", ArraySize(kVertexData), sizeof(kVertexData[0]), 0);
+				"vertex", kVertexData, ArraySize(kVertexData), sizeof(kVertexData[0]), 0);
 		}
 
 		// textureシェーダのセットアップ.
 		{
-			std::string shaderPath = SI_PATH_STORAGE().GetExeDirPath();
-			shaderPath += "shaders\\texture.hlsl";
-			if(m_textureVS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
-			if(m_texturePS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
+			if(m_textureVS.LoadAndCompile("asset\\shader\\texture.hlsl") != 0) return -1;
+			if(m_texturePS.LoadAndCompile("asset\\shader\\texture.hlsl") != 0) return -1;
 		}
 
 		{
-			std::string shaderPath = SI_PATH_STORAGE().GetExeDirPath();
-			shaderPath += "shaders\\ibl_lut_cs.hlsl";
-			if(m_iblLutCS.LoadAndCompile(shaderPath.c_str()) != 0) return -1;
+			if(m_iblLutCS.LoadAndCompile("asset\\shader\\ibl_lut_cs.hlsl") != 0) return -1;
 		}
 
 		// ibl lut textureのセットアップ.
@@ -188,14 +184,6 @@ namespace APP003
 			computeStateDesc.m_computeShader = &m_iblLutCS;
 			m_computeStates = m_device.CreateComputeState(computeStateDesc);
 		}
-
-		// commandList経由でリソースのデータをアップロードする.
-		BeginRender();
-		{
-			GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
-			context.UploadBuffer(m_device, m_quadVertexBuffer, kVertexData, sizeof(kVertexData), GfxResourceState::VertexAndConstantBuffer);
-		}
-		EndRender();
 
 		return 0;
 	}

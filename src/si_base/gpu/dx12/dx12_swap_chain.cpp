@@ -46,10 +46,12 @@ namespace SI
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		swapChainDesc.SampleDesc.Count = 1;
 
+		HWND hwnd = (HWND)config.m_hWnd;
+
 		ComPtr<IDXGISwapChain1> swapChain;
 		hr = dxgiFactory.CreateSwapChainForHwnd(
 			&commandQueue,
-			(HWND)config.m_hWnd,
+			hwnd,//(HWND)config.m_hWnd,
 			&swapChainDesc,
 			nullptr,
 			nullptr,

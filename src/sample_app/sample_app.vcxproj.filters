@@ -22,6 +22,9 @@
     <Filter Include="shader">
       <UniqueIdentifier>{c48b040d-7a6f-45c5-b33c-d153bcd38376}</UniqueIdentifier>
     </Filter>
+    <Filter Include="app006_raytracing">
+      <UniqueIdentifier>{6792f56b-793c-4d63-b5ef-7b5a16b3cc8f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -55,6 +58,9 @@
     <ClCompile Include="app005_raytracing_in_one_weekend\raytracing_the_next_week.cpp">
       <Filter>app005_raytracing_in_one_weekend</Filter>
     </ClCompile>
+    <ClCompile Include="app006_raytracing\pipeline_006.cpp">
+      <Filter>app006_raytracing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="app000_clear_color\pipeline_000.h">
@@ -86,6 +92,9 @@
     </ClInclude>
     <ClInclude Include="app005_raytracing_in_one_weekend\raytracing_the_next_week.h">
       <Filter>app005_raytracing_in_one_weekend</Filter>
+    </ClInclude>
+    <ClInclude Include="app006_raytracing\pipeline_006.h">
+      <Filter>app006_raytracing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

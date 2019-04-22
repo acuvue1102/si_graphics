@@ -82,8 +82,19 @@ namespace SI
 		GfxTextureEx_Static();
 		virtual ~GfxTextureEx_Static();
 
-		void InitializeAs2DStatic( const char* name, uint32_t width, uint32_t height, GfxFormat format, uint32_t mipLevel=1);
-		int  InitializeDDS( const char* name, const void* ddsBuffer, size_t ddsBufferSize, GfxDdsMetaData& outDdsMetaData);
+		void InitializeAs2DStatic(
+			const char* name,
+			uint32_t width,
+			uint32_t height,
+			GfxFormat format,
+			const void* imageData,
+			size_t imageDataSize,
+			uint32_t mipLevel=1);
+		int  InitializeDDS(
+			const char* name,
+			const void* ddsBuffer,
+			size_t ddsBufferSize,
+			GfxDdsMetaData* outDdsMetaData = nullptr);
 		void TerminateStatic();
 
 		virtual GfxTextureExType GetType() const override

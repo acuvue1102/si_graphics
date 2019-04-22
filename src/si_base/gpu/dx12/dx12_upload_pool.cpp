@@ -40,14 +40,20 @@ namespace SI
 		BaseTexture*                                      m_targetTexture;
 		ComPtr<ID3D12Resource>                            m_uploadbuffer;
 		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> m_layouts;
+		GfxResourceStates                                 m_before;
+		GfxResourceStates                                 m_after;
 
 		BaseUploadTexture(
 			BaseTexture*            targetTexture,
 			ComPtr<ID3D12Resource>  uploadbuffer,
-			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layout)
+			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layout,
+			GfxResourceStates before,
+			GfxResourceStates after)
 			: m_targetTexture(targetTexture)
 			, m_uploadbuffer(std::move(uploadbuffer))
 			, m_layouts(std::move(layout))
+			, m_before(before)
+			, m_after(after)
 		{
 		}
 	};
@@ -82,10 +88,17 @@ namespace SI
 		void AddTexture(
 			BaseTexture&                                       targetTexture,
 			ComPtr<ID3D12Resource>&                            uploadbuffer,
-			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& layouts)
+			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& layouts,
+			GfxResourceStates                                  before,
+			GfxResourceStates                                  after)
 		{
 			MutexLocker locker(m_mutex);
-			m_uploadTextures.emplace_back(&targetTexture, std::move(uploadbuffer), std::move(layouts));
+			m_uploadTextures.emplace_back(
+				&targetTexture,
+				std::move(uploadbuffer),
+				std::move(layouts),
+				before,
+				after);
 		}
 
 		void Flush(BaseGraphicsCommandList& graphicsCommandList)
@@ -108,7 +121,9 @@ namespace SI
 				graphicsCommandList.UploadTexture(
 					*t.m_targetTexture,
 					t.m_uploadbuffer,
-					t.m_layouts);
+					t.m_layouts,
+					t.m_before,
+					t.m_after);
 			}
 			m_uploadTextures.clear();
 		}
@@ -144,9 +159,11 @@ namespace SI
 	void BaseUploadPool::AddTexture(
 		BaseTexture& targetTexture,
 		ComPtr<ID3D12Resource> uploadbuffer,
-		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts)
+		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts,
+		GfxResourceState before,
+		GfxResourceState after)
 	{
-		m_impl->AddTexture(targetTexture, uploadbuffer, layouts);
+		m_impl->AddTexture(targetTexture, uploadbuffer, layouts, before, after);
 	}
 
 	void BaseUploadPool::Flush(BaseGraphicsCommandList& graphicsCommandList)

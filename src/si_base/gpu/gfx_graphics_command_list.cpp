@@ -188,13 +188,17 @@ namespace SI
 		GfxDevice& device,
 		GfxTexture& targetTexture,
 		const void* srcBuffer,
-		size_t srcBufferSize)
+		size_t srcBufferSize,
+		GfxResourceState before,
+		GfxResourceState after)
 	{
 		return m_base->UploadTexture(
 			*device.GetBaseDevice(),
 			*targetTexture.GetBaseTexture(),
 			srcBuffer,
-			srcBufferSize);
+			srcBufferSize,
+			before,
+			after);
 	}
 
 	BaseCommandList* GfxGraphicsCommandList::GetBaseCommandList()

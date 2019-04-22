@@ -42,7 +42,9 @@ namespace SI
 		void AddTexture(
 			BaseTexture& targetTexture,
 			ComPtr<ID3D12Resource> uploadbuffer,
-			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts);
+			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts,
+			GfxResourceState before,
+			GfxResourceState after);
 
 		void Flush(BaseGraphicsCommandList& graphicsCommandList);
 		

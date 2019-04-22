@@ -934,6 +934,8 @@ namespace SI
 		GfxResourceState before,
 		GfxResourceState after)
 	{
+		SI_ASSERT(srcBuffer);
+
 		ComPtr<ID3D12Resource> bufferUploadHeap;
 		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts;
 		if(CreateUploadBuffer(
@@ -960,8 +962,12 @@ namespace SI
 	int BaseDevice::UploadTextureLater(
 		BaseTexture& targetTexture,
 		const void*  srcBuffer,
-		size_t       srcBufferSize)
+		size_t       srcBufferSize,
+		GfxResourceState before,
+		GfxResourceState after)
 	{
+		SI_ASSERT(srcBuffer);
+
 		ComPtr<ID3D12Resource>                            textureUploadHeap;
 		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts;
 		if(CreateUploadTexture(
@@ -978,7 +984,9 @@ namespace SI
 		m_uploadPool.AddTexture(
 			targetTexture,
 			std::move(textureUploadHeap),
-			std::move(layouts));
+			std::move(layouts),
+			before,
+			after);
 
 		return 0;
 	}

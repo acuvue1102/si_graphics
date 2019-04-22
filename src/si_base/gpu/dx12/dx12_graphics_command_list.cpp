@@ -124,7 +124,9 @@ namespace SI
 		BaseDevice& device,
 		BaseTexture& targetTexture,
 		const void* srcBuffer,
-		size_t srcBufferSize)
+		size_t srcBufferSize,
+		GfxResourceStates before,
+		GfxResourceStates after)
 	{
 		ComPtr<ID3D12Resource>                            textureUploadHeap;
 		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts;
@@ -138,13 +140,15 @@ namespace SI
 			return -1;
 		}
 
-		return UploadTexture(targetTexture, textureUploadHeap, layouts);
+		return UploadTexture(targetTexture, textureUploadHeap, layouts, before, after);
 	}
 		
 	int BaseGraphicsCommandList::UploadTexture(
 		BaseTexture& targetTexture,
 		ComPtr<ID3D12Resource>& textureUploadHeap,
-		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& layouts)
+		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& layouts,
+		GfxResourceStates before,
+		GfxResourceStates after)
 	{
 		ID3D12Resource& d3dResource = *targetTexture.GetComPtrResource().Get();
 		UINT subresourceNum = (UINT)layouts.size();
@@ -167,8 +171,8 @@ namespace SI
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 		barrier.Transition.pResource = &d3dResource;
-		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
-		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+		barrier.Transition.StateBefore = GetDx12ResourceStates(before);
+		barrier.Transition.StateAfter  = GetDx12ResourceStates(after);
 		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 		m_graphicsCommandList->ResourceBarrier(1, &barrier);
 			
