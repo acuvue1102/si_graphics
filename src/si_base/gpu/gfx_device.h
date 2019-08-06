@@ -56,6 +56,18 @@ namespace SI
 		GfxDescriptorHeap CreateDescriptorHeap(const GfxDescriptorHeapDesc& desc);
 		void ReleaseDescriptorHeap(GfxDescriptorHeap& descriptorHeap);
 
+		GfxRaytracingStateDesc CreateRaytracingStateDesc();
+		void ReleaseRaytracingStateDesc(GfxRaytracingStateDesc& raytracingStateDesc);
+
+		GfxRaytracingState CreateRaytracingState(GfxRaytracingStateDesc& desc);
+		void ReleaseRaytracingState(GfxRaytracingState& raytracingState);
+		
+		GfxRaytracingScene CreateRaytracingScene();
+		void ReleaseRaytracingScene(GfxRaytracingScene& scene);
+
+		GfxRaytracingShaderTables CreateRaytracingShaderTables(GfxRaytracingShaderTablesDesc& desc);
+		void ReleaseRaytracingShaderTables(GfxRaytracingShaderTables& shaderTable);
+
 		void CreateRenderTargetView(
 			GfxDescriptorHeap& descriptorHeap,
 			uint32_t descriptorIndex,
@@ -87,6 +99,17 @@ namespace SI
 		void CreateShaderResourceView(
 			GfxDescriptor& descriptor,
 			GfxTexture& texture,
+			const GfxShaderResourceViewDesc& desc);
+
+		void CreateShaderResourceView(
+			GfxDescriptorHeap& descriptorHeap,
+			uint32_t descriptorIndex,
+			GfxBuffer& buffer,
+			const GfxShaderResourceViewDesc& desc);
+
+		void CreateShaderResourceView(
+			GfxDescriptor& descriptor,
+			GfxBuffer& buffer,
 			const GfxShaderResourceViewDesc& desc);
 		
 		void CreateUnorderedAccessView(
@@ -156,6 +179,8 @@ namespace SI
 		
 		PoolAllocatorEx* GetObjectAllocator();
 		PoolAllocatorEx* GetTempAllocator();
+
+		void* GetNative();
 
 	private:
 		BaseDevice* m_base;

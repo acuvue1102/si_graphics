@@ -30,6 +30,7 @@ namespace SI
 		void* Map  (uint32_t subResourceId = 0);
 		void  Unmap(uint32_t subResourceId = 0);
 		size_t GetSize() const;
+		GpuAddress GetGpuAddress() const;
 
 	public:
 		      BaseBuffer* GetBaseBuffer()      { return m_base; }

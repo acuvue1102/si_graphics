@@ -102,6 +102,26 @@ namespace SI
 	{
 		m_base->SetGraphicsDescriptorTable(tableIndex, descriptor);
 	}
+
+	void GfxGraphicsCommandList::SetGraphicsRootSRV(uint32_t rootIndex, GfxBuffer buffer)
+	{
+		m_base->SetGraphicsRootSRV(rootIndex, *buffer.GetBaseBuffer());
+	}
+
+	void GfxGraphicsCommandList::SetComputeRootSRV(uint32_t rootIndex, GfxBuffer buffer)
+	{
+		m_base->SetComputeRootSRV(rootIndex, *buffer.GetBaseBuffer());
+	}
+
+	void GfxGraphicsCommandList::SetGraphicsRootCBV(uint32_t rootIndex, GfxBuffer buffer)
+	{
+		m_base->SetGraphicsRootCBV(rootIndex, *buffer.GetBaseBuffer());
+	}
+
+	void GfxGraphicsCommandList::SetComputeRootCBV(uint32_t rootIndex, GfxBuffer buffer)
+	{
+		m_base->SetComputeRootCBV(rootIndex, *buffer.GetBaseBuffer());
+	}
 		
 	void GfxGraphicsCommandList::SetViewports(uint32_t count, const GfxViewport* viewPorts)
 	{

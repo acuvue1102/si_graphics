@@ -382,6 +382,24 @@
     <ClInclude Include="memory\linear_allocator.h">
       <Filter>memory</Filter>
     </ClInclude>
+    <ClInclude Include="gpu\gfx_raytracing_state.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_raytracing_state.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_raytracing_geometry.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_raytracing_geometry.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\gfx_raytracing_shader_table.h">
+      <Filter>gpu</Filter>
+    </ClInclude>
+    <ClInclude Include="gpu\dx12\dx12_raytracing_shader_table.h">
+      <Filter>gpu\dx12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -658,6 +676,24 @@
     </ClCompile>
     <ClCompile Include="memory\linear_allocator.cpp">
       <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_raytracing_state.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_raytracing_state.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_raytracing_geometry.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_raytracing_geometry.cpp">
+      <Filter>gpu\dx12</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\gfx_raytracing_shader_table.cpp">
+      <Filter>gpu</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu\dx12\dx12_raytracing_shader_table.cpp">
+      <Filter>gpu\dx12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

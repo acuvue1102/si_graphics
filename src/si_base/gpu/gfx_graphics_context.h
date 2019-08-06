@@ -27,6 +27,8 @@ namespace SI
 	class GfxDevice;
 	class GfxBufferEx_Index;
 	class GfxBufferEx_Vertex;
+	struct GfxRaytracingGeometryDesc;
+	struct GfxDispatchRaysDesc;
 
 	class GfxGraphicsContext : private NonCopyable
 	{
@@ -61,9 +63,13 @@ namespace SI
 		void SetSamplerDescriptorHeap(GfxDescriptorHeap* samplerDescriptorHeap);
 
 		void SetGraphicsDescriptorTable(uint32_t rootIndex, GfxGpuDescriptor descriptor);
-		
-		void SetGraphicsRootCBV(uint32_t rootIndex, GpuAddres gpuAddr);
+		void SetComputeDescriptorTable(uint32_t rootIndex, GfxGpuDescriptor descriptor);
+
+		void SetGraphicsRootCBV(uint32_t rootIndex, GpuAddress gpuAddr);
 		void SetGraphicsRootCBV(uint32_t rootIndex, const GfxBuffer& buffer);
+		void SetComputeRootCBV(uint32_t rootIndex, const GfxBuffer& buffer);
+		void SetGraphicsRootSRV(uint32_t rootIndex, const GfxBuffer& buffer);
+		void SetComputeRootSRV(uint32_t rootIndex, const GfxBuffer& buffer);
 		
 		void SetDynamicViewDescriptor( 
 			uint32_t rootIndex, uint32_t offset,
@@ -90,6 +96,7 @@ namespace SI
 		
 		void SetPipelineState(GfxGraphicsState& graphicsState);
 		void SetPipelineState(GfxComputeState& computeState);
+		void SetPipelineState(GfxRaytracingState& raytracingState);
 		
 		void SetViewports(uint32_t count, const GfxViewport* viewPorts);
 		void SetViewport(const GfxViewport& viewPort){ SetViewports(1, &viewPort); }
@@ -156,6 +163,7 @@ namespace SI
 			uint32_t startIndexLocation    = 0,
 			uint32_t baseVertexLocation    = 0,
 			uint32_t startInstanceLocation = 0);
+		void DispatchRays(const GfxDispatchRaysDesc& desc);
 	public:
 		int UploadBuffer(
 			GfxDevice& device,
@@ -185,6 +193,11 @@ namespace SI
 			const void* srcBuffer,
 			size_t srcBufferSize,
 			GfxResourceStates after);
+
+	public:
+		void BeginBuildAccelerationStructures(GfxRaytracingScene& scene);
+		void AddGeometry(const GfxRaytracingGeometryDesc& geometryDesc);
+		void EndBuildAccelerationStructures();
 
 	public:
 		GfxGraphicsCommandList* GetGraphicsCommandList(){ return &m_commandList; }

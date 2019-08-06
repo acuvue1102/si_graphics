@@ -29,6 +29,7 @@ namespace SI
 
 	PipelineBase::~PipelineBase()
 	{
+		m_device.Terminate();
 	}
 	
 	int PipelineBase::OnInitialize(const AppInitializeInfo& info)
@@ -71,7 +72,7 @@ namespace SI
 
 		m_core.Terminate();
 
-		m_device.Terminate();
+		//m_device.Terminate();
 
 		return 0;
 	}

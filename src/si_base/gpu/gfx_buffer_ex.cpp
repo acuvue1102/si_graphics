@@ -75,7 +75,9 @@ namespace SI
 	////////////////////////////////////////////////////////////////////
 
 	GfxBufferEx_Constant::GfxBufferEx_Constant()
-		: m_srvDescriptor()
+		: m_mapPtr(nullptr)
+		, m_size(0)
+		, m_srvDescriptor()
 	{
 	}
 
@@ -243,6 +245,54 @@ namespace SI
 		}
 
 		m_stride = 0;
+	}
+	
+	////////////////////////////////////////////////////////////////////
+
+	GfxBufferEx_Upload::GfxBufferEx_Upload()
+	{
+	}
+
+	GfxBufferEx_Upload::~GfxBufferEx_Upload()
+	{
+		TerminateAsUpload();
+	}
+
+	void GfxBufferEx_Upload::InitializeAsUpload(
+		const char* name,
+		const void* data,
+		size_t dataSize)
+	{
+		BaseDevice& device = SI_BASE_DEVICE();
+
+		GfxBufferDesc desc;
+		desc.m_name = name;
+		desc.m_heapType = GfxHeapType::Upload;
+		desc.m_bufferSizeInByte = dataSize;
+		desc.m_resourceStates   = GfxResourceState::GenericRead;
+		desc.m_resourceFlags    = GfxResourceFlag::None;
+		m_buffer = device.CreateBuffer(desc);
+
+		m_ref.Create();
+
+		void* mappedBuffer = m_buffer.Map();
+		memcpy(mappedBuffer, data, dataSize);
+		m_buffer.Unmap();
+	}
+
+	void GfxBufferEx_Upload::TerminateAsUpload()
+	{
+		if(GetType() != GfxBufferExType::Upload) return;
+
+		if(m_buffer.IsValid())
+		{
+			if(m_ref.ReleaseRef()==0)
+			{
+				GfxDevice::GetInstance()->ReleaseBuffer(m_buffer);
+			}
+
+			m_buffer = GfxBuffer();
+		}
 	}
 
 } // namespace SI

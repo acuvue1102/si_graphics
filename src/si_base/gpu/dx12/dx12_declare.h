@@ -14,6 +14,10 @@ namespace SI
 	class BaseTexture;
 	class BaseDescriptorHeap;
 	class GfxDescriptor;
+	class BaseRaytracingStateDesc;
+	class BaseRaytracingState;
+	class BaseRaytracingScene;
+	class BaseRaytracingShaderTables;
 
 	struct GfxDeviceConfig;
 	struct GfxGraphicsStateDesc;

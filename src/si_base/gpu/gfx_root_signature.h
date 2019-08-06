@@ -64,6 +64,19 @@ namespace SI
 		GfxRootDescriptorFlags  m_flags               = GfxRootDescriptorFlag::None;
 		GfxShaderVisibility     m_visibility          = GfxShaderVisibility::All;
 		GfxRootDescriptorType   m_type                = GfxRootDescriptorType::CBV;
+
+		void InitAsSRV(
+			uint32_t shaderRegisterIndex,
+			uint32_t registerSpace = 0,
+			GfxShaderVisibility visibility = GfxShaderVisibility::All,
+			GfxRootDescriptorFlags  flags = GfxRootDescriptorFlag::None)
+		{
+			m_shaderRegisterIndex = shaderRegisterIndex;
+			m_registerSpace       = registerSpace;
+			m_flags               = flags;
+			m_visibility          = visibility;
+			m_type                = GfxRootDescriptorType::SRV;
+		}
 	};
 
 	struct GfxRootSignatureDesc
@@ -73,6 +86,7 @@ namespace SI
 		uint32_t                m_tableCount;
 		GfxRootDescriptor*      m_rootDescriptors;
 		uint32_t                m_rootDescriptorCount; // rootに入れるdescriptor.
+		GfxRootSignatureFlags   m_flags;
 
 		GfxRootSignatureDesc()
 			: m_name(nullptr)
@@ -80,6 +94,7 @@ namespace SI
 			, m_tableCount(0)
 			, m_rootDescriptors(nullptr)
 			, m_rootDescriptorCount(0)
+			, m_flags(GfxRootSignatureFlag::AllowInputAssemblerInputLayout)
 		{
 		}
 
@@ -88,12 +103,14 @@ namespace SI
 			GfxDescriptorHeapTable* tables,
 			uint32_t                tableCount,
 			GfxRootDescriptor*      rootDescriptors,
-			uint32_t                rootDescriptorCount)
+			uint32_t                rootDescriptorCount,
+			GfxRootSignatureFlags   flags = GfxRootSignatureFlag::AllowInputAssemblerInputLayout)
 			: m_name(name)
 			, m_tables(tables)
 			, m_tableCount(tableCount)
 			, m_rootDescriptors(rootDescriptors)
 			, m_rootDescriptorCount(rootDescriptorCount)
+			, m_flags(flags)
 		{
 		}
 	};
@@ -111,6 +128,9 @@ namespace SI
 		}
 
 		bool IsValid() const{ return (m_base!=nullptr); }
+
+
+		void* GetNative();
 
 	public:
 		BaseRootSignature*       GetBaseRootSignature()      { return m_base; }

@@ -21,6 +21,8 @@ namespace SI
 		int Initialize(BaseDevice& device, const GfxRootSignatureDesc& desc);
 		int Terminate();
 
+		void* GetNative(){ return m_rootSignature.Get(); }
+
 	public:
 		ComPtr<ID3D12RootSignature>& GetComPtrRootSignature()
 		{

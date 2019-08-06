@@ -101,9 +101,6 @@
     <None Include="..\..\asset\shader\simple.hlsl">
       <Filter>shader</Filter>
     </None>
-    <None Include="..\..\asset\shader\texture.hlsl">
-      <Filter>shader</Filter>
-    </None>
     <None Include="..\..\asset\shader\ibl_lut_cs.hlsl">
       <Filter>shader</Filter>
     </None>
@@ -119,5 +116,13 @@
     <None Include="..\..\asset\shader\lambert.hlsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="..\..\asset\shader\texture.hlsl">
+      <Filter>shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\asset\shader\raytracing.hlsl">
+      <Filter>shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

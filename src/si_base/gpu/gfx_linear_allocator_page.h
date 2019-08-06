@@ -22,14 +22,14 @@ namespace SI
 
 		size_t      GetPageSize() const{ return m_pageSize; }
 		size_t      GetCpuAddr()  const{ return m_cpuAddr; }
-		GpuAddres   GetGpuAddr()  const{ return m_gpuAddr; }
+		GpuAddress   GetGpuAddr()  const{ return m_gpuAddr; }
 		BaseBuffer* GetBaseBuffer(){ return m_buffer; }
 
 	private:
 		size_t      m_pageSize;
 		BaseBuffer* m_buffer;
 		size_t      m_cpuAddr;
-		GpuAddres   m_gpuAddr;
+		GpuAddress   m_gpuAddr;
 	};
 	
 	class GfxLinearAllocatorPageManager

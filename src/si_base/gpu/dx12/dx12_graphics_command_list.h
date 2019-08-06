@@ -17,20 +17,26 @@
 #include "si_base/gpu/dx12/dx12_buffer.h"
 #include "si_base/gpu/dx12/dx12_graphics_state.h"
 #include "si_base/gpu/dx12/dx12_compute_state.h"
+#include "si_base/gpu/dx12/dx12_raytracing_shader_table.h"
+#include "si_base/gpu/dx12/dx12_raytracing_state.h"
 #include "si_base/gpu/dx12/dx12_device.h"
 #include "si_base/gpu/dx12/dx12_utility.h"
-#include "si_base/gpu/gfx_texture.h"
 #include "si_base/gpu/dx12/dx12_descriptor_heap.h"
+#include "si_base/gpu/gfx_texture.h"
 #include "si_base/gpu/gfx_buffer.h"
 #include "si_base/gpu/gfx_viewport.h"
 #include "si_base/gpu/gfx_gpu_resource.h"
 #include "si_base/gpu/gfx_device_std_allocator.h"
 #include "si_base/gpu/gfx_descriptor_heap.h"
+#include "si_base/gpu/gfx_raytracing_geometry.h"
+#include "si_base/gpu/gfx_raytracing_state.h"
+#include "si_base/gpu/gfx_raytracing_shader_table.h"
 
 namespace SI
 {
 	class BaseTexture;
 	class BaseGraphicsState;
+	class BaseDevice;
 
 	class BaseGraphicsCommandList : public BaseCommandList
 	{
@@ -42,7 +48,7 @@ namespace SI
 		BaseGraphicsCommandList();
 		virtual ~BaseGraphicsCommandList();
 
-		int Initialize(ID3D12Device& device);
+		int Initialize(BaseDevice& baseDevice);
 		int Terminate();
 		
 		inline int Reset(BaseGraphicsState* graphicsState)
@@ -84,10 +90,15 @@ namespace SI
 		{
 			m_graphicsCommandList->SetPipelineState(graphicsState.GetComPtrGraphicsState().Get());
 		}
-		
+
 		void SetPipelineState(BaseComputeState& computeState)
 		{
 			m_graphicsCommandList->SetPipelineState(computeState.GetComPtrComputeState().Get());
+		}
+
+		void SetPipelineState(BaseRaytracingState& raytracingState)
+		{
+			m_graphicsCommandList->SetPipelineState1(raytracingState.GetComPtrState().Get());
 		}
 
 		inline void ClearRenderTarget(const GfxCpuDescriptor& tex, const float* clearColor)
@@ -213,17 +224,33 @@ namespace SI
 
 		inline void SetGraphicsRootCBV(
 			uint32_t rootIndex,
-			GpuAddres gpuAddr)
+			GpuAddress gpuAddr)
 		{
 			m_graphicsCommandList->SetGraphicsRootConstantBufferView(rootIndex, (D3D12_GPU_VIRTUAL_ADDRESS)gpuAddr);
 		}
 
-		inline void SetGraphicsRootCBV(
-			uint32_t rootIndex,
-			const BaseBuffer& buffer)
+		inline void SetGraphicsRootSRV(uint32_t rootIndex, BaseBuffer buffer)
 		{
-			D3D12_GPU_VIRTUAL_ADDRESS gpuAddr = buffer.GetGpuAddr();
+			D3D12_GPU_VIRTUAL_ADDRESS gpuAddr = buffer.GetGpuAddress();
+			m_graphicsCommandList->SetGraphicsRootShaderResourceView(rootIndex, gpuAddr);
+		}
+
+		inline void SetComputeRootSRV(uint32_t rootIndex, BaseBuffer buffer)
+		{
+			D3D12_GPU_VIRTUAL_ADDRESS gpuAddr = buffer.GetGpuAddress();
+			m_graphicsCommandList->SetComputeRootShaderResourceView(rootIndex, gpuAddr);
+		}
+
+		inline void SetGraphicsRootCBV(uint32_t rootIndex, BaseBuffer buffer)
+		{
+			D3D12_GPU_VIRTUAL_ADDRESS gpuAddr = buffer.GetGpuAddress();
 			m_graphicsCommandList->SetGraphicsRootConstantBufferView(rootIndex, gpuAddr);
+		}
+
+		inline void SetComputeRootCBV(uint32_t rootIndex, BaseBuffer buffer)
+		{
+			D3D12_GPU_VIRTUAL_ADDRESS gpuAddr = buffer.GetGpuAddress();
+			m_graphicsCommandList->SetComputeRootConstantBufferView(rootIndex, gpuAddr);
 		}
 
 		inline void SetComputeDescriptorTable(
@@ -389,6 +416,34 @@ namespace SI
 				startVertexLocation,
 				startInstanceLocation);
 		}
+
+		inline void DispatchRays(const GfxDispatchRaysDesc& desc)
+		{
+			SI_ASSERT(desc.m_tables);
+
+			D3D12_DISPATCH_RAYS_DESC d3dDesc = {};
+			d3dDesc.Width  = desc.m_width;
+			d3dDesc.Height = desc.m_height;
+			d3dDesc.Depth  = desc.m_depth;
+
+			const BaseRaytracingShaderTables* baseTables = desc.m_tables->GetBase();
+			const BaseRaytracingShaderTable& rayGenTable   = baseTables->GetRayGenShaderTable();
+			const BaseRaytracingShaderTable& missTable     = baseTables->GetMissShaderTable();
+			const BaseRaytracingShaderTable& hitGroupTable = baseTables->GetHitGroupShaderTable();
+
+			d3dDesc.RayGenerationShaderRecord.StartAddress = rayGenTable.m_gpuAddress;
+			d3dDesc.RayGenerationShaderRecord.SizeInBytes  = rayGenTable.m_size;
+
+			d3dDesc.MissShaderTable.StartAddress  = missTable.m_gpuAddress;
+			d3dDesc.MissShaderTable.SizeInBytes   = missTable.m_size;
+			d3dDesc.MissShaderTable.StrideInBytes = missTable.m_stride;
+
+			d3dDesc.HitGroupTable.StartAddress  = hitGroupTable.m_gpuAddress;
+			d3dDesc.HitGroupTable.SizeInBytes   = hitGroupTable.m_size;
+			d3dDesc.HitGroupTable.StrideInBytes = hitGroupTable.m_stride;
+
+			m_graphicsCommandList->DispatchRays(&d3dDesc);
+		}
 		
 		int UploadBuffer(
 			BaseDevice& device,
@@ -421,6 +476,11 @@ namespace SI
 			GfxResourceStates after);
 
 	public:
+		void BeginBuildAccelerationStructures(BaseRaytracingScene& scene);
+		void AddGeometry(const GfxRaytracingGeometryDesc& geometryDesc);
+		void EndBuildAccelerationStructures();
+
+	public:
 		void OnExecute() override
 		{
 			m_uploadHeapArrayIndex = (++m_uploadHeapArrayIndex) % (ArraySize(m_uploadHeapArray));
@@ -440,12 +500,14 @@ namespace SI
 
 	private:
 		ComPtr<ID3D12CommandAllocator>    m_commandAllocator;
-		ComPtr<ID3D12GraphicsCommandList> m_graphicsCommandList;
+		ComPtr<ID3D12GraphicsCommandList4> m_graphicsCommandList;
 
 		// upload用のResourceの生存期間を管理.
 		std::vector<ComPtr<ID3D12Resource>> m_uploadHeapArray[3];
 		uint32_t                            m_uploadHeapArrayIndex;
 		BaseRootSignature*                  m_currentRootSignature;
+
+		BaseRaytracingScene*                m_buildingScene;
 	};
 } // namespace SI
 

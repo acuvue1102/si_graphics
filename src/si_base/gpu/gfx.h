@@ -23,3 +23,6 @@
 #include "si_base/gpu/gfx_sampler_ex.h"
 #include "si_base/gpu/gfx_context_manager.h"
 #include "si_base/gpu/gfx_dds.h"
+#include "si_base/gpu/gfx_raytracing_state.h"
+#include "si_base/gpu/gfx_raytracing_geometry.h"
+#include "si_base/gpu/gfx_raytracing_shader_table.h"

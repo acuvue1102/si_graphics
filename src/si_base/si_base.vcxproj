@@ -86,6 +86,9 @@
     <ClCompile Include="gpu\dx12\dx12_fence.cpp" />
     <ClCompile Include="gpu\dx12\dx12_graphics_command_list.cpp" />
     <ClCompile Include="gpu\dx12\dx12_graphics_state.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_raytracing_geometry.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_raytracing_shader_table.cpp" />
+    <ClCompile Include="gpu\dx12\dx12_raytracing_state.cpp" />
     <ClCompile Include="gpu\dx12\dx12_root_signature.cpp" />
     <ClCompile Include="gpu\dx12\dx12_sampler.cpp" />
     <ClCompile Include="gpu\dx12\dx12_shader.cpp" />
@@ -112,6 +115,9 @@
     <ClCompile Include="gpu\gfx_graphics_state_ex.cpp" />
     <ClCompile Include="gpu\gfx_linear_allocator.cpp" />
     <ClCompile Include="gpu\gfx_linear_allocator_page.cpp" />
+    <ClCompile Include="gpu\gfx_raytracing_geometry.cpp" />
+    <ClCompile Include="gpu\gfx_raytracing_shader_table.cpp" />
+    <ClCompile Include="gpu\gfx_raytracing_state.cpp" />
     <ClCompile Include="gpu\gfx_resource_states_pool.cpp" />
     <ClCompile Include="gpu\gfx_root_signature.cpp" />
     <ClCompile Include="gpu\gfx_root_signature_ex.cpp" />
@@ -177,6 +183,9 @@
     <ClInclude Include="gpu\dx12\dx12_fence.h" />
     <ClInclude Include="gpu\dx12\dx12_graphics_command_list.h" />
     <ClInclude Include="gpu\dx12\dx12_graphics_state.h" />
+    <ClInclude Include="gpu\dx12\dx12_raytracing_geometry.h" />
+    <ClInclude Include="gpu\dx12\dx12_raytracing_shader_table.h" />
+    <ClInclude Include="gpu\dx12\dx12_raytracing_state.h" />
     <ClInclude Include="gpu\dx12\dx12_root_signature.h" />
     <ClInclude Include="gpu\dx12\dx12_sampler.h" />
     <ClInclude Include="gpu\dx12\dx12_shader.h" />
@@ -213,6 +222,9 @@
     <ClInclude Include="gpu\gfx_input_layout.h" />
     <ClInclude Include="gpu\gfx_linear_allocator.h" />
     <ClInclude Include="gpu\gfx_linear_allocator_page.h" />
+    <ClInclude Include="gpu\gfx_raytracing_geometry.h" />
+    <ClInclude Include="gpu\gfx_raytracing_shader_table.h" />
+    <ClInclude Include="gpu\gfx_raytracing_state.h" />
     <ClInclude Include="gpu\gfx_resource_states_pool.h" />
     <ClInclude Include="gpu\gfx_root_signature.h" />
     <ClInclude Include="gpu\gfx_root_signature_ex.h" />

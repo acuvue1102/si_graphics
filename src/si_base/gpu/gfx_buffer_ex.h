@@ -19,7 +19,8 @@ namespace SI
 		Static = 0,
 		Constant,
 		Index,
-		Vertex
+		Vertex,
+		Upload
 	};
 	
 	class GfxBufferEx : public GfxGpuResource
@@ -42,6 +43,7 @@ namespace SI
 		
 		size_t GetSize() const;
 		virtual void* GetNativeResource() override;
+		SI::GpuAddress GetGpuAddress() const{ return m_buffer.GetGpuAddress(); }
 		
 	public:
 		BaseBuffer*  GetBaseBuffer(){ return m_buffer.GetBaseBuffer(); }
@@ -170,6 +172,30 @@ namespace SI
 	protected:
 		size_t m_stride;
 		size_t m_offset;
+	};
+	
+	// Upload Buffer. 遅い.
+	class GfxBufferEx_Upload : public GfxBufferEx
+	{
+	public:
+		GfxBufferEx_Upload();
+		virtual ~GfxBufferEx_Upload();
+
+		void InitializeAsUpload(
+			const char* name,
+			const void* data,
+			size_t dataSize);
+		void TerminateAsUpload();
+
+		virtual GfxBufferExType GetType() const override
+		{
+			return GfxBufferExType::Upload;
+		}
+
+		virtual void Terminate() override
+		{
+			TerminateAsUpload();
+		}
 	};
 
 } // namespace SI

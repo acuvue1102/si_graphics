@@ -18,5 +18,10 @@ namespace SI
 	{
 		return m_base->GetSize();
 	}
+
+	GpuAddress GfxBuffer::GetGpuAddress() const
+	{
+		return m_base->GetGpuAddress();
+	}
 	
 } // namespace SI

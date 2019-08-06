@@ -4,23 +4,128 @@
 
 namespace SI
 {
-	enum class GfxRootDescriptorType
-    {
-        CBV = 0,
-        SRV,
-        UAV,
+	enum class GfxElementsLayout
+	{
+		Array,
+		PointerArray,
 
-        Max,
+		Max         // invalid
+	};
+
+	enum class GfxRaytracingASType
+	{
+		TopLevel,
+		BottomLevel,
+
+		Max         // invalid
+	};
+
+	enum class GfxRaytracingASBuildFlag
+	{
+		None            = 0,
+		AllowUpdate     = 1<<0,
+		AllowCompaction = 1<<1,
+		PreferFastTrace = 1<<2,
+		PreferFastBuild = 1<<3,
+		MinimizeMemory  = 1<<4,
+		PerformUpdate   = 1<<5,
+
+		Max             = 1<<6, // invalid
+	};
+	SI_DECLARE_ENUM_FLAGS(GfxRaytracingASBuildFlags, GfxRaytracingASBuildFlag);
+
+	enum class GfxRaytracingGeometryFlag
+	{
+		None                        = 0,
+		Opaque                      = 1<<0,
+		NoDuplicateAnyHitInvocation = 1<<1,
+
+		Max                         = 1<<2, // invalid
+	};
+	SI_DECLARE_ENUM_FLAGS(GfxRaytracingGeometryFlags, GfxRaytracingGeometryFlag);
+
+	enum class GfxRaytracingGeometryType
+	{
+		Triangles,
+		ProceduralPrimitiveAabbs,
+
+		Max  // invalid
+	};
+
+	enum class GfxHitGroupType
+	{
+		Triangle,
+		ProcedualPrimitive,
+
+		Max
+	};
+
+	enum class GfxExportFlags
+	{
+		None = 0,
+
+		Max
+	};
+
+	enum class GfxStateSubObjectType
+	{
+		StateObjectConfig,
+		GlobalRootSignature,
+		LocalRootSignature,
+		NodeMask,
+		DxilLibrary,
+		ExistingCollection,
+		SubObjectToExportsAssociation,
+		DxilSubObjectToExportsAssociation,
+		RaytracingShaderConfig,
+		RaytracingPipelineConfig,
+		HitGroup,
+
+		Max // invalid
+	};
+
+	enum class GfxStateObjectType
+	{
+		Collection,
+		RaytracingPipeline,
+
+		Max
+	};
+
+	enum class GfxRootSignatureFlag
+	{
+		None = 0,
+		AllowInputAssemblerInputLayout = 1<<0,
+		DenyVertexShaderRootAccess     = 1<<1,
+		DenyHullShaderRootAccess       = 1<<2,
+		DenyDomainShaderRootAccess     = 1<<3,
+		DenyGeometryShaderRootAccess   = 1<<4,
+		DenyPixelShaderRootAccess      = 1<<5,
+		AllowStreamOutput              = 1<<6,
+		LocalRootSignature             = 1<<7,
+
+		Max                            = 1<<8
+	};
+	SI_DECLARE_ENUM_FLAGS(GfxRootSignatureFlags, GfxRootSignatureFlag);
+
+
+	enum class GfxRootDescriptorType
+	{
+		CBV = 0,
+		SRV,
+		UAV,
+
+		Max,
 	};
 
 	enum class GfxRootDescriptorFlag
-    {
-        None                        = 0,
-        DataVolatile                = 1<<0,
-        DataStaticWhileSetAtExecute = 1<<1,
-        DataStatic                  = 1<<2,
+	{
+		None                        = 0,
+		DataVolatile                = 1<<0,
+		DataStaticWhileSetAtExecute = 1<<1,
+		DataStatic                  = 1<<2,
 		
-        Max                         = 1<<3,
+		Max                         = 1<<3,
 	};
 	SI_DECLARE_ENUM_FLAGS(GfxRootDescriptorFlags, GfxRootDescriptorFlag);
 
@@ -195,30 +300,31 @@ namespace SI
 
 	enum class GfxResourceState
 	{
-		Common                  = 1 << 0,
-		VertexAndConstantBuffer = 1 << 1,
-		IndexBuffer             = 1 << 2,
-		RenderTarget            = 1 << 3,
-		UnorderedAccess         = 1 << 4,
-		DepthWrite              = 1 << 5,
-		DepthRead               = 1 << 6,
-		NonPixelShaderResource  = 1 << 7,
-		PixelShaderResource     = 1 << 8,
-		StreamOut               = 1 << 9,
-		IndirectArgument        = 1 << 10,
-		CopyDest                = 1 << 11,
-		CopySource              = 1 << 12,
-		ResolveDest             = 1 << 13,
-		ResolveSource           = 1 << 14,		
-		GenericRead             = 1 << 15,
-		Predication             = 1 << 16,
-		VideoDecodeRead         = 1 << 17,
-		VideoDecodeWrite        = 1 << 18,
-		VideoProcessRead        = 1 << 19,
-		VideoProcessWrite       = 1 << 20,
+		Common                          = 1 << 0,
+		VertexAndConstantBuffer         = 1 << 1,
+		IndexBuffer                     = 1 << 2,
+		RenderTarget                    = 1 << 3,
+		UnorderedAccess                 = 1 << 4,
+		DepthWrite                      = 1 << 5,
+		DepthRead                       = 1 << 6,
+		NonPixelShaderResource          = 1 << 7,
+		PixelShaderResource             = 1 << 8,
+		StreamOut                       = 1 << 9,
+		IndirectArgument                = 1 << 10,
+		CopyDest                        = 1 << 11,
+		CopySource                      = 1 << 12,
+		ResolveDest                     = 1 << 13,
+		ResolveSource                   = 1 << 14,		
+		GenericRead                     = 1 << 15,
+		Predication                     = 1 << 16,
+		VideoDecodeRead                 = 1 << 17,
+		VideoDecodeWrite                = 1 << 18,
+		VideoProcessRead                = 1 << 19,
+		VideoProcessWrite               = 1 << 20,
+		RaytracingAccelerationStructure = 1 << 21,
 
-		Max                     = 1 << 21,
-		Pendding                = 1 << 31 // For system. contextが違う時にpenddingするための特別なstate
+		Max                             = 1 << 22,
+		Pendding                        = 1 << 31 // For system. contextが違う時にpenddingするための特別なstate
 	};
 	SI_DECLARE_ENUM_FLAGS(GfxResourceStates, GfxResourceState);
 

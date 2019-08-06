@@ -62,6 +62,7 @@ namespace SI
 			, m_tableCount(0)
 			, m_rootDescriptors(0)
 			, m_rootDescriptorCount(0)
+			, m_flags(GfxRootSignatureFlag::AllowInputAssemblerInputLayout)
 		{
 		}
 
@@ -102,6 +103,16 @@ namespace SI
 			return m_rootDescriptors[rootDescriptorIndex];
 		}
 
+		void SetFlags(GfxRootSignatureFlags flags)
+		{
+			m_flags = flags;
+		}
+
+		GfxRootSignatureFlags GetFlags() const
+		{
+			return m_flags;
+		}
+
 		GfxRootSignatureDesc GetDesc() const
 		{
 			return GfxRootSignatureDesc(
@@ -109,7 +120,8 @@ namespace SI
 				reinterpret_cast<GfxDescriptorHeapTable*>(m_tables),
 				m_tableCount,
 				m_rootDescriptors,
-				m_rootDescriptorCount);
+				m_rootDescriptorCount,
+				m_flags);
 		}
 
 		operator GfxRootSignatureDesc() const
@@ -123,6 +135,7 @@ namespace SI
 		uint32_t                  m_tableCount;
 		GfxRootDescriptor*        m_rootDescriptors;
 		uint32_t                  m_rootDescriptorCount; // rootに入れるdescriptor.
+		GfxRootSignatureFlags     m_flags;
 	};
 
 	class GfxRootSignatureEx

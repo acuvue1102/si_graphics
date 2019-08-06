@@ -15,7 +15,7 @@ namespace SI
 			size_t     offset,
 			size_t     size,
 			void*      cpuAddr,
-			GpuAddres  gpuAddr		
+			GpuAddress  gpuAddr		
 		)
 			: m_buffer(buffer)
 			, m_offset(offset)
@@ -29,14 +29,14 @@ namespace SI
 		size_t     GetOffset()  const{ return m_offset; }
 		size_t     GetSize()    const{ return m_size; }
 		void*      GetCpuAddr() const{ return m_cpuAddr; }
-		GpuAddres  GetGpuAddr() const{ return m_gpuAddr; }
+		GpuAddress  GetGpuAddr() const{ return m_gpuAddr; }
 
 	private:
 		GfxBuffer  m_buffer;
 		size_t     m_offset;
 		size_t     m_size;
 		void*      m_cpuAddr;
-		GpuAddres  m_gpuAddr;
+		GpuAddress  m_gpuAddr;
 	};
 
 	class GfxLinearAllocator

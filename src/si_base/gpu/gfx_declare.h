@@ -13,6 +13,10 @@ namespace SI
 	class GfxBuffer;
 	class GfxTexture;
 	class GfxDescriptorHeap;
+	class GfxRaytracingStateDesc;
+	class GfxRaytracingState;
+	class GfxRaytracingScene;
+	class GfxRaytracingShaderTables;
 
 	struct GfxDeviceConfig;
 	struct GfxGraphicsStateDesc;
@@ -26,4 +30,5 @@ namespace SI
 	struct GfxRootSignatureDesc;
 	struct GfxSamplerDesc;
 	struct GfxConstantBufferViewDesc;
+	struct GfxRaytracingShaderTablesDesc;
 } // namespace SI

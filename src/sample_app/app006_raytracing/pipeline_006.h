@@ -35,6 +35,17 @@ namespace APP006
 		GfxGraphicsState         m_graphicsStates;
 		GfxBufferEx_Constant     m_constantBuffers;
 		TextureShaderConstant*   m_textureConstant;
+
+		GfxRootSignatureEx       m_dxrGlobalRootSignatures;
+		GfxRootSignatureEx       m_dxrLocalRootSignatures;
+		GfxBufferEx_Constant     m_dxrConstantBuffers;
+		RaytracingShaderConstant*   m_dxrConstant;
+		GfxRaytracingState       m_dxrState;
+		GfxDescriptorHeapEx      m_dxrDescriptorHeap;
+		GfxBufferEx_Upload       m_dxrVertex;
+		GfxBufferEx_Upload       m_dxrIndex;
+		GfxRaytracingScene       m_dxrScene;
+		GfxRaytracingShaderTables m_dxrShaderTables;
 		
 		GfxComputeShader         m_raytracingCS[kMaxRaytracingCompute];
 

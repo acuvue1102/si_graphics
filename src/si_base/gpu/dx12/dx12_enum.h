@@ -12,6 +12,107 @@
 
 namespace SI
 {
+	inline D3D12_RAYTRACING_GEOMETRY_FLAGS GetDx12RaytracingGeometryFlags(GfxRaytracingGeometryFlags flags)
+	{
+		static const D3D12_RAYTRACING_GEOMETRY_FLAGS kTable[] = 
+		{
+			D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE,
+			D3D12_RAYTRACING_GEOMETRY_FLAG_NO_DUPLICATE_ANYHIT_INVOCATION
+		};
+		static_assert(((size_t)1<<(ArraySize(kTable))) == ((size_t)GfxRaytracingGeometryFlag::Max), "tableError");
+
+		D3D12_RAYTRACING_GEOMETRY_FLAGS dx12Flags = (D3D12_RAYTRACING_GEOMETRY_FLAGS)0;
+		uint32_t mask = flags.GetMask();
+		while(mask != 0)
+		{
+			int msb = Bitwise::MSB32(mask);
+			if(msb<0) break;
+			if((int)ArraySize(kTable) <= msb) continue;
+
+			dx12Flags |= kTable[msb];
+			mask &= ~((uint32_t)1<<(uint32_t)msb);
+		}
+
+		return dx12Flags;
+	}	
+
+	inline D3D12_RAYTRACING_GEOMETRY_TYPE GetDx12RaytracingGeometryType(GfxRaytracingGeometryType type)
+	{
+		static const D3D12_RAYTRACING_GEOMETRY_TYPE kTable[] = 
+		{
+			D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES,
+			D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS
+		};
+		static_assert(ArraySize(kTable) == (size_t)GfxRaytracingGeometryType::Max, "tableError");
+
+		return kTable[(int)type];
+	}
+
+	inline D3D12_EXPORT_FLAGS GetDx12ExportFlags(GfxExportFlags flags)
+	{
+		static const D3D12_EXPORT_FLAGS kTable[] = 
+		{
+			D3D12_EXPORT_FLAG_NONE
+		};
+		static_assert(ArraySize(kTable) == (size_t)GfxExportFlags::Max, "tableError");
+
+		return kTable[(int)flags];
+	}
+
+	inline D3D12_HIT_GROUP_TYPE GetDx12HitGroupType(GfxHitGroupType type)
+	{
+		static const D3D12_HIT_GROUP_TYPE kTable[] = 
+		{
+			D3D12_HIT_GROUP_TYPE_TRIANGLES,
+			D3D12_HIT_GROUP_TYPE_PROCEDURAL_PRIMITIVE
+		};
+		static_assert(ArraySize(kTable) == (size_t)GfxHitGroupType::Max, "tableError");
+
+		return kTable[(int)type];
+	}
+
+	inline D3D12_STATE_OBJECT_TYPE GetDx12StateObjectType(GfxStateObjectType type)
+	{
+		static const D3D12_STATE_OBJECT_TYPE kTable[] = 
+		{
+			D3D12_STATE_OBJECT_TYPE_COLLECTION,
+			D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE
+		};
+		static_assert(ArraySize(kTable) == (size_t)GfxStateObjectType::Max, "tableError");
+
+		return kTable[(int)type];
+	}
+
+	inline D3D12_ROOT_SIGNATURE_FLAGS GetDx12RootSignatureFlags(GfxRootSignatureFlags flags)
+	{
+		static const D3D12_ROOT_SIGNATURE_FLAGS kTable[] = 
+		{
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT,
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_VERTEX_SHADER_ROOT_ACCESS,
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS,
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS,
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS,
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS,
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_STREAM_OUTPUT,
+			D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE
+		};
+		static_assert(((size_t)1<<(ArraySize(kTable))) == ((size_t)GfxRootSignatureFlag::Max), "tableError");
+
+		D3D12_ROOT_SIGNATURE_FLAGS dx12Flags = (D3D12_ROOT_SIGNATURE_FLAGS)0;
+		uint32_t mask = flags.GetMask();
+		while(mask != 0)
+		{
+			int msb = Bitwise::MSB32(mask);
+			if(msb<0) break;
+			if((int)ArraySize(kTable) <= msb) continue;
+
+			dx12Flags |= kTable[msb];
+			mask &= ~((uint32_t)1<<(uint32_t)msb);
+		}
+
+		return dx12Flags;
+	}
+
 	inline D3D12_ROOT_PARAMETER_TYPE GetDx12RootParameterType(GfxRootDescriptorType type)
 	{
 		static const D3D12_ROOT_PARAMETER_TYPE kTable[] = 
@@ -252,6 +353,7 @@ namespace SI
 			D3D12_RESOURCE_STATE_VIDEO_DECODE_WRITE,
 			D3D12_RESOURCE_STATE_VIDEO_PROCESS_READ,
 			D3D12_RESOURCE_STATE_VIDEO_PROCESS_WRITE,
+			D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
 		};
 		static_assert(((size_t)1<<(ArraySize(kTable))) == ((size_t)GfxResourceState::Max), "tableError");
 

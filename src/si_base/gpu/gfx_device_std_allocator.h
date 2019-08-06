@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include "si_base/gpu/gfx_device.h"
 #include "si_base/memory/pool_allocator.h"
@@ -129,5 +130,11 @@ namespace SI
 	
 	template <typename T> using GfxTempVector = std::vector<T, SI::GfxStdDeviceTempAllocator<T>>;
 	template <typename T> using GfxObjVector = std::vector<T, SI::GfxStdDeviceObjAllocator<T>>;
+
+	using GfxTempString = std::basic_string<char, std::char_traits<char>, SI::GfxStdDeviceTempAllocator<char>>;
+	using GfxObjString = std::basic_string<char, std::char_traits<char>, SI::GfxStdDeviceObjAllocator<char>>;
+
+	using GfxTempWString = std::basic_string<wchar_t, std::char_traits<wchar_t>, SI::GfxStdDeviceTempAllocator<wchar_t>>;
+	using GfxObjWString = std::basic_string<wchar_t, std::char_traits<wchar_t>, SI::GfxStdDeviceObjAllocator<wchar_t>>;
 
 } // namespace SI

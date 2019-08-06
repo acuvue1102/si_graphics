@@ -58,7 +58,12 @@ namespace SI
 		void SetDescriptorHeaps(uint32_t descriptorHeapCount, GfxDescriptorHeap* const* descriptorHeaps);
 
 		void SetGraphicsDescriptorTable(uint32_t tableIndex, GfxGpuDescriptor descriptor);
-		
+
+		void SetGraphicsRootSRV(uint32_t rootIndex, GfxBuffer buffer);
+		void SetComputeRootSRV(uint32_t rootIndex, GfxBuffer buffer);
+		void SetGraphicsRootCBV(uint32_t rootIndex, GfxBuffer buffer);
+		void SetComputeRootCBV(uint32_t rootIndex, GfxBuffer buffer);
+
 		void SetViewports(uint32_t count, const GfxViewport* viewPorts);
 		void SetScissors(uint32_t count, const GfxScissor* scissors);
 

@@ -10,6 +10,7 @@
 #include "si_base/gpu/gfx_device.h"
 #include "si_base/gpu/gfx_root_signature_ex.h"
 #include "si_base/gpu/gfx_core.h"
+#include "si_base/gpu/gfx_raytracing_geometry.h"
 
 namespace SI
 {
@@ -171,6 +172,11 @@ namespace SI
 		m_base->SetPipelineState(*computeState.GetBaseComputeState());
 	}
 
+	void GfxGraphicsContext::SetPipelineState(GfxRaytracingState& raytracingState)
+	{
+		m_base->SetPipelineState(raytracingState.GetBase());
+	}
+
 	void GfxGraphicsContext::SetGraphicsRootSignature(GfxRootSignatureEx& rootSignature)
 	{
 		if(!m_base->SetGraphicsRootSignature(*rootSignature.Get().GetBaseRootSignature()))
@@ -231,9 +237,16 @@ namespace SI
 		m_base->SetGraphicsDescriptorTable(rootIndex, descriptor);
 	}
 
+	void GfxGraphicsContext::SetComputeDescriptorTable(
+		uint32_t rootIndex,
+		GfxGpuDescriptor descriptor)
+	{
+		m_base->SetComputeDescriptorTable(rootIndex, descriptor);
+	}
+
 	void GfxGraphicsContext::SetGraphicsRootCBV(
 		uint32_t rootIndex,
-		GpuAddres gpuAddr)
+		GpuAddress gpuAddr)
 	{
 		m_base->SetGraphicsRootCBV(rootIndex, gpuAddr);
 	}
@@ -243,6 +256,27 @@ namespace SI
 		const GfxBuffer& buffer)
 	{
 		m_base->SetGraphicsRootCBV(rootIndex, *buffer.GetBaseBuffer());
+	}
+
+	void GfxGraphicsContext::SetComputeRootCBV(
+		uint32_t rootIndex,
+		const GfxBuffer& buffer)
+	{
+		m_base->SetComputeRootCBV(rootIndex, *buffer.GetBaseBuffer());
+	}
+
+	void GfxGraphicsContext::SetGraphicsRootSRV(
+		uint32_t rootIndex,
+		const GfxBuffer& buffer)
+	{
+		m_base->SetGraphicsRootSRV(rootIndex, *buffer.GetBaseBuffer());
+	}
+
+	void GfxGraphicsContext::SetComputeRootSRV(
+		uint32_t rootIndex,
+		const GfxBuffer& buffer)
+	{
+		m_base->SetComputeRootSRV(rootIndex, *buffer.GetBaseBuffer());
 	}
 	
 	void GfxGraphicsContext::SetDynamicViewDescriptor( 
@@ -493,6 +527,11 @@ namespace SI
 			startInstanceLocation);
 	}
 
+	void GfxGraphicsContext::DispatchRays(const GfxDispatchRaysDesc& desc)
+	{
+		m_base->DispatchRays(desc);
+	}
+
 	int GfxGraphicsContext::UploadBuffer(
 		GfxDevice& device,
 		GfxBuffer& targetBuffer,
@@ -561,6 +600,21 @@ namespace SI
 			srcBufferSize,
 			GfxResourceState::CopyDest,
 			after);
+	}
+
+	void GfxGraphicsContext::BeginBuildAccelerationStructures(GfxRaytracingScene& scene)
+	{
+		m_base->BeginBuildAccelerationStructures(*scene.GetBase());
+	}
+
+	void GfxGraphicsContext::AddGeometry(const GfxRaytracingGeometryDesc& geometryDesc)
+	{
+		m_base->AddGeometry(geometryDesc);
+	}
+
+	void GfxGraphicsContext::EndBuildAccelerationStructures()
+	{
+		m_base->EndBuildAccelerationStructures();
 	}
 
 	GfxResourceStates GfxGraphicsContext::GetPenddingResourceState(uint32_t resourceStateHandle) const

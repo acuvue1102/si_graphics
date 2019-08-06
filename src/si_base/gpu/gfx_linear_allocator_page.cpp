@@ -51,7 +51,7 @@ namespace SI
 		}
 		m_buffer = device.CreateBuffer(desc);
 				
-		m_gpuAddr = m_buffer->GetGpuAddr();
+		m_gpuAddr = m_buffer->GetGpuAddress();
 		m_cpuAddr = (size_t)m_buffer->Map(0);
 	}
 

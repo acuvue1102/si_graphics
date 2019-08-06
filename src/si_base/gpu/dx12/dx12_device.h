@@ -20,6 +20,7 @@ namespace SI
 {
 	class PoolAllocatorEx;
 	struct GfxCpuDescriptor;
+	struct GfxRaytracingShaderTablesDesc;
 
 	template<typename T> class GfxStdDeviceTempAllocator;
 	template<typename T> using GfxTempVector = std::vector<T, GfxStdDeviceTempAllocator<T>>;
@@ -70,6 +71,18 @@ namespace SI
 
 		BaseDescriptorHeap* CreateDescriptorHeap(const GfxDescriptorHeapDesc& desc);
 		void ReleaseDescriptorHeap(BaseDescriptorHeap* d);
+
+		BaseRaytracingStateDesc* CreateRaytracingStateDesc();
+		void ReleaseRaytracingStateDesc(BaseRaytracingStateDesc& raytracingStateDesc);
+
+		BaseRaytracingState* CreateRaytracingState(BaseRaytracingStateDesc& desc);
+		void ReleaseRaytracingState(BaseRaytracingState* raytracingState);
+
+		BaseRaytracingScene* CreateRaytracingScene();
+		void ReleaseRaytracingScene(BaseRaytracingScene* raytracingScene);
+
+		BaseRaytracingShaderTables* CreateRaytracingShaderTables(GfxRaytracingShaderTablesDesc& desc);
+		void ReleaseRaytracingShaderTables(BaseRaytracingShaderTables* shaderTable);
 		
 		void CreateRenderTargetView(
 			BaseDescriptorHeap& descriptorHeap,
@@ -102,6 +115,17 @@ namespace SI
 		void CreateShaderResourceView(
 			GfxDescriptor& descriptor,
 			BaseTexture& texture,
+			const GfxShaderResourceViewDesc& desc);
+
+		void CreateShaderResourceView(
+			BaseDescriptorHeap& descriptorHeap,
+			uint32_t descriptorIndex,
+			BaseBuffer& buffer,
+			const GfxShaderResourceViewDesc& desc);
+
+		void CreateShaderResourceView(
+			GfxDescriptor& descriptor,
+			BaseBuffer& buffer,
 			const GfxShaderResourceViewDesc& desc);
 		
 		void CreateUnorderedAccessView(
@@ -181,14 +205,21 @@ namespace SI
 		// upload用のバッファを転送する.
 		int FlushUploadPool(BaseGraphicsCommandList& commandList);
 
+		bool IsDxrAvairable() const{ return m_isDxrAvairable; }
+
 	public:
 		PoolAllocatorEx* GetObjectAllocator(){ return m_objectAllocator; }
 		PoolAllocatorEx* GetTempAllocator()  { return m_tempAllocator; }
 
 	public:
-		ComPtr<ID3D12Device>& GetComPtrDevice()
+		ComPtr<ID3D12Device5>& GetComPtrDevice()
 		{
 			return m_device;
+		}
+
+		void* GetNative()
+		{
+			return m_device.Get();
 		}
 		
 	public:
@@ -199,16 +230,21 @@ namespace SI
 
 		int InitializeDevice(
 			ComPtr<IDXGIFactory4>& dxgiFactory,
-			ComPtr<ID3D12Device>& outDevice) const;
+			ComPtr<ID3D12Device5>& outDevice,
+			bool enableDxr) const;
 
 	private:
 		GfxDeviceConfig                   m_config;
 		ComPtr<IDXGIFactory4>             m_dxgiFactory; // 持ちたくないが、DX12ではdeviceから参照出来ないので持つ.
-		ComPtr<ID3D12Device>              m_device;
+		ComPtr<ID3D12Device5>             m_device;
 		ComPtr<ID3D12PipelineState>       m_pipelineState;
 		PoolAllocatorEx*                  m_objectAllocator;
 		PoolAllocatorEx*                  m_tempAllocator;
 		bool                              m_initialized;
+
+		//ComPtr<ID3D12Device5>              m_dxrDevice;
+		//ComPtr<ID3D12StateObjectPrototype> m_dxrStateObject;
+		bool                              m_isDxrAvairable;
 
 		size_t                            m_descriptorSize[(int)GfxDescriptorHeapType::Max];
 		BaseUploadPool                    m_uploadPool;

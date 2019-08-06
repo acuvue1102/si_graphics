@@ -28,11 +28,11 @@ namespace SI
 	}
 
 	void GfxDescriptorHeapEx::InitializeAsCbvSrvUav(
-		uint32_t srvCount,
+		uint32_t descriptorCount,
 		GfxDescriptorHeapFlag flag)
 	{
 		GfxDescriptorHeapDesc desc;
-		desc.m_descriptorCount = srvCount;
+		desc.m_descriptorCount = descriptorCount;
 		desc.m_type = GfxDescriptorHeapType::CbvSrvUav;
 		desc.m_flag = flag;
 		Initialize(desc);
@@ -61,7 +61,7 @@ namespace SI
 
 		m_descriptorHeap = GfxDescriptorHeap();
 	}
-	
+
 	void GfxDescriptorHeapEx::SetShaderResourceView(
 		uint32_t index,
 		GfxTexture& texture,
@@ -69,6 +69,24 @@ namespace SI
 	{
 		GfxDevice& device = *GfxDevice::GetInstance();
 		device.CreateShaderResourceView(m_descriptorHeap, index, texture, srvDesc);
+	}
+
+	void GfxDescriptorHeapEx::SetShaderResourceView(
+		uint32_t index,
+		GfxBuffer& buffer,
+		const GfxShaderResourceViewDesc& srvDesc)
+	{
+		GfxDevice& device = *GfxDevice::GetInstance();
+		device.CreateShaderResourceView(m_descriptorHeap, index, buffer, srvDesc);
+	}
+
+	void GfxDescriptorHeapEx::SetUnorderedAccessView(
+		uint32_t index,
+		GfxTexture& texture,
+		const GfxUnorderedAccessViewDesc& uavDesc)
+	{
+		GfxDevice& device = *GfxDevice::GetInstance();
+		device.CreateUnorderedAccessView(m_descriptorHeap, index, texture, uavDesc);
 	}
 	
 	void GfxDescriptorHeapEx::SetSampler(uint32_t index, const GfxSamplerDesc& samplerDesc)

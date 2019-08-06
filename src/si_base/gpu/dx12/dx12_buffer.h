@@ -23,9 +23,9 @@ namespace SI
 		void* Map  (uint32_t subResourceId);
 		void  Unmap(uint32_t subResourceId);
 				
-		size_t                    GetSize()     const{ return m_bufferSizeInByte; }
-		D3D12_GPU_VIRTUAL_ADDRESS GetLocation() const{ return m_location; };
-		GpuAddres                    GetGpuAddr()  const{ return (GpuAddres)m_location; }
+		size_t                    GetSize()        const{ return m_bufferSizeInByte; }
+		D3D12_GPU_VIRTUAL_ADDRESS GetLocation()    const{ return m_location; };
+		GpuAddress                GetGpuAddress()  const{ return (GpuAddress)m_location; }
 		static_assert(sizeof(D3D12_GPU_VIRTUAL_ADDRESS) == sizeof(size_t), "size error");
 
 	public:

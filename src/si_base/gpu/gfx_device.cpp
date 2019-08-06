@@ -13,6 +13,9 @@
 #include "si_base/gpu/gfx_root_signature.h"
 #include "si_base/gpu/gfx_buffer.h"
 #include "si_base/gpu/gfx_descriptor_heap.h"
+#include "si_base/gpu/gfx_raytracing_state.h"
+#include "si_base/gpu/gfx_raytracing_geometry.h"
+#include "si_base/gpu/gfx_raytracing_shader_table.h"
 
 namespace SI
 {
@@ -180,6 +183,50 @@ namespace SI
 		m_base->ReleaseDescriptorHeap(descriptorHeap.GetBaseDescriptorHeap());
 		descriptorHeap = GfxDescriptorHeap();
 	}
+
+	GfxRaytracingStateDesc GfxDevice::CreateRaytracingStateDesc()
+	{
+		return GfxRaytracingStateDesc(m_base->CreateRaytracingStateDesc());
+	}
+
+	void GfxDevice::ReleaseRaytracingStateDesc(GfxRaytracingStateDesc& raytracingStateDesc)
+	{
+		m_base->ReleaseRaytracingStateDesc(raytracingStateDesc.GetBase());
+		raytracingStateDesc = GfxRaytracingStateDesc();
+	}
+
+	GfxRaytracingState GfxDevice::CreateRaytracingState(GfxRaytracingStateDesc& desc)
+	{
+		return GfxRaytracingState(m_base->CreateRaytracingState(desc.GetBase()));
+	}
+
+	void GfxDevice::ReleaseRaytracingState(GfxRaytracingState& raytracingState)
+	{
+		m_base->ReleaseRaytracingState(&raytracingState.GetBase());
+		raytracingState = GfxRaytracingState();
+	}
+
+	GfxRaytracingScene GfxDevice::CreateRaytracingScene()
+	{
+		return GfxRaytracingScene(m_base->CreateRaytracingScene());
+	}
+
+	void GfxDevice::ReleaseRaytracingScene(GfxRaytracingScene& scene)
+	{
+		m_base->ReleaseRaytracingScene(scene.GetBase());
+		scene = GfxRaytracingScene();
+	}
+
+	GfxRaytracingShaderTables GfxDevice::CreateRaytracingShaderTables(GfxRaytracingShaderTablesDesc& desc)
+	{
+		return GfxRaytracingShaderTables(m_base->CreateRaytracingShaderTables(desc));
+	}
+
+	void GfxDevice::ReleaseRaytracingShaderTables(GfxRaytracingShaderTables& shaderTable)
+	{
+		m_base->ReleaseRaytracingShaderTables(shaderTable.GetBase());
+		shaderTable = GfxRaytracingShaderTables();
+	}
 	
 	void GfxDevice::CreateRenderTargetView(
 		GfxDescriptorHeap& descriptorHeap,
@@ -256,6 +303,36 @@ namespace SI
 		m_base->CreateShaderResourceView(
 			descriptor,
 			*texture.GetBaseTexture(),
+			desc);
+	}
+
+	void GfxDevice::CreateShaderResourceView(
+		GfxDescriptorHeap& descriptorHeap,
+		uint32_t descriptorIndex,
+		GfxBuffer& buffer,
+		const GfxShaderResourceViewDesc& desc)
+	{
+		if(!descriptorHeap.IsValid())
+		{
+			SI_WARNING(0, "descriptor heap is invalid.\n");
+			return;
+		}
+
+		m_base->CreateShaderResourceView(
+			*descriptorHeap.GetBaseDescriptorHeap(),
+			descriptorIndex,
+			*buffer.GetBaseBuffer(),
+			desc);
+	}
+
+	void GfxDevice::CreateShaderResourceView(
+		GfxDescriptor& descriptor,
+		GfxBuffer& buffer,
+		const GfxShaderResourceViewDesc& desc)
+	{
+		m_base->CreateShaderResourceView(
+			descriptor,
+			*buffer.GetBaseBuffer(),
 			desc);
 	}
 
@@ -412,5 +489,11 @@ namespace SI
 	PoolAllocatorEx* GfxDevice::GetTempAllocator()
 	{
 		return m_base->GetTempAllocator();
+	}
+
+
+	void* GfxDevice::GetNative()
+	{
+		return m_base->GetNative();
 	}
 }

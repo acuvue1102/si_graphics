@@ -93,7 +93,7 @@ namespace SI
 		rootSignatureDesc1.pParameters       = parameters;
 		rootSignatureDesc1.NumStaticSamplers = 0;
 		rootSignatureDesc1.pStaticSamplers   = nullptr;
-		rootSignatureDesc1.Flags             = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+		rootSignatureDesc1.Flags             = GetDx12RootSignatureFlags(desc.m_flags);
 
 		ComPtr<ID3DBlob> signature;
 		ComPtr<ID3DBlob> errCode;

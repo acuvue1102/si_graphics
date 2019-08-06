@@ -22,6 +22,9 @@
 #include "si_base/gpu/dx12/dx12_compute_state.h"
 #include "si_base/gpu/dx12/dx12_buffer.h"
 #include "si_base/gpu/dx12/dx12_descriptor_heap.h"
+#include "si_base/gpu/dx12/dx12_raytracing_state.h"
+#include "si_base/gpu/dx12/dx12_raytracing_geometry.h"
+#include "si_base/gpu/dx12/dx12_raytracing_shader_table.h"
 
 #include "si_base/gpu/dx12/dx12_device.h"
 
@@ -36,6 +39,7 @@ namespace SI
 		: Singleton(this)
 		, m_initialized(false)
 		, m_descriptorSize{}
+		, m_isDxrAvairable(false)
 	{
 	}
 
@@ -68,12 +72,14 @@ namespace SI
 		}
 
 		// create device.
-		ret = InitializeDevice(m_dxgiFactory, m_device);
+		ret = InitializeDevice(m_dxgiFactory, m_device, config.enableDxr);
 		if(ret != 0 || m_device == nullptr)
 		{
 			SI_ASSERT(0, "error InitializeDevice");
 			return -1;
 		}
+		
+		m_isDxrAvairable = config.enableDxr;
 
 		// descriptor heap sizeをあらかじめ保持しておく.
 		for(int i=0; i<(int)GfxDescriptorHeapType::Max; ++i)
@@ -156,7 +162,8 @@ namespace SI
 	
 	int BaseDevice::InitializeDevice(
 		ComPtr<IDXGIFactory4>& dxgiFactory,
-		ComPtr<ID3D12Device>& outDevice) const
+		ComPtr<ID3D12Device5>& outDevice,
+		bool enableDxr) const
 	{
 		HRESULT hr = 0;
 
@@ -193,12 +200,48 @@ namespace SI
 				D3D_FEATURE_LEVEL_12_0,
 				IID_PPV_ARGS(&outDevice));
 
-			if(SUCCEEDED(hr))
+			if(FAILED(hr))
 			{
-				return 0;
+				SI_ASSERT(0, "error D3D12CreateDevice", _com_error(hr).ErrorMessage());
+				return -1;
 			}
 
-			SI_ASSERT(0, "error D3D12CreateDevice", _com_error(hr).ErrorMessage());
+			if(enableDxr)
+			{
+				D3D12_FEATURE_DATA_D3D12_OPTIONS5 featureSupportData = {};
+				hr = outDevice->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &featureSupportData, sizeof(featureSupportData));
+				if (FAILED(hr))
+				{
+					SI_ASSERT("DXR is not Supported");
+					continue;
+				}
+
+				if (featureSupportData.RaytracingTier == D3D12_RAYTRACING_TIER_NOT_SUPPORTED)
+				{
+					SI_ASSERT("DXR is not Supported");
+					continue;
+				}
+			}
+
+			// VALIDATIONの抑制.
+			{
+				ComPtr<ID3D12InfoQueue> infoQueue;
+				if (SUCCEEDED(outDevice->QueryInterface(IID_PPV_ARGS(&infoQueue))))
+				{
+					infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+					infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+					infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+
+					D3D12_MESSAGE_ID blockedIds[] = { D3D12_MESSAGE_ID_COPY_DESCRIPTORS_INVALID_RANGES };
+					D3D12_INFO_QUEUE_FILTER filter = {};
+					filter.DenyList.pIDList = blockedIds;
+					filter.DenyList.NumIDs = (UINT)ArraySize(blockedIds);
+					infoQueue->AddRetrievalFilterEntries(&filter);
+					infoQueue->AddStorageFilterEntries(&filter);
+				}
+			}
+
+			return 0;
 		}
 		
 		return -1;
@@ -244,7 +287,7 @@ namespace SI
 	BaseGraphicsCommandList* BaseDevice::CreateGraphicsCommandList()
 	{
 		BaseGraphicsCommandList* gcl = SI_NEW(BaseGraphicsCommandList);
-		int ret = gcl->Initialize(*m_device.Get());
+		int ret = gcl->Initialize(*this);
 		if(ret != 0)
 		{
 			SI_ASSERT(0, "error InitializeCommandList");
@@ -413,6 +456,67 @@ namespace SI
 		SI_DELETE(d);
 	}
 
+	BaseRaytracingStateDesc* BaseDevice::CreateRaytracingStateDesc()
+	{
+		return m_tempAllocator->New<BaseRaytracingStateDesc>();
+	}
+
+	void BaseDevice::ReleaseRaytracingStateDesc(BaseRaytracingStateDesc& raytracingStateDesc)
+	{
+		BaseRaytracingStateDesc* desc = &raytracingStateDesc;
+		return m_tempAllocator->Delete(desc);
+	}
+
+	BaseRaytracingState* BaseDevice::CreateRaytracingState(BaseRaytracingStateDesc& desc)
+	{
+		BaseRaytracingState* state = SI_NEW(BaseRaytracingState);
+		int ret = state->Initialize(*m_device.Get(), desc);
+		if(ret != 0)
+		{
+			SI_ASSERT(0, "error CreateRaytracingState");
+			SI_DELETE(state);
+			return nullptr;
+		}
+
+		return state;
+	}
+
+	void BaseDevice::ReleaseRaytracingState(BaseRaytracingState* raytracingState)
+	{
+		SI_DELETE(raytracingState);
+	}
+
+
+	BaseRaytracingScene* BaseDevice::CreateRaytracingScene()
+	{
+		BaseRaytracingScene* scene = SI_NEW(BaseRaytracingScene);
+		return scene;
+	}
+
+	void BaseDevice::ReleaseRaytracingScene(BaseRaytracingScene* raytracingScene)
+	{
+		raytracingScene->Release(this);
+		SI_DELETE(raytracingScene);
+	}
+
+	BaseRaytracingShaderTables* BaseDevice::CreateRaytracingShaderTables(GfxRaytracingShaderTablesDesc& desc)
+	{
+		BaseRaytracingShaderTables* shaderTable = SI_NEW(BaseRaytracingShaderTables);
+		int ret = shaderTable->Initialize(*m_device.Get(), desc);
+		if(ret != 0)
+		{
+			SI_ASSERT(0, "error CreateRaytracingShaderTable");
+			SI_DELETE(shaderTable);
+			return nullptr;
+		}
+		return shaderTable;
+	}
+
+	void BaseDevice::ReleaseRaytracingShaderTables(BaseRaytracingShaderTables* shaderTable)
+	{
+		SI_DELETE(shaderTable);
+	}
+
 	void BaseDevice::CreateRenderTargetView(
 		BaseDescriptorHeap& descriptorHeap,
 		uint32_t descriptorIndex,
@@ -571,6 +675,33 @@ namespace SI
 
 		D3D12_CPU_DESCRIPTOR_HANDLE dxDescriptor = {descriptor.GetCpuDescriptor().m_ptr};
 		m_device->CreateShaderResourceView(texture.GetComPtrResource().Get(), &srvDesc, dxDescriptor);
+	}
+
+	void BaseDevice::CreateShaderResourceView(
+		BaseDescriptorHeap& descriptorHeap,
+		uint32_t descriptorIndex,
+		BaseBuffer& buffer,
+		const GfxShaderResourceViewDesc& desc)
+	{
+		GfxDescriptor descriptor = descriptorHeap.GetDescriptor(descriptorIndex);
+		CreateShaderResourceView(descriptor, buffer, desc);
+	}
+
+	void BaseDevice::CreateShaderResourceView(
+		GfxDescriptor& descriptor,
+		BaseBuffer& buffer,
+		const GfxShaderResourceViewDesc& desc)
+	{
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Format                  = GetDx12Format(desc.m_format);
+		srvDesc.ViewDimension           = GetDx12SrvDimension(desc.m_srvDimension);
+
+		SI_ASSERT(desc.m_srvDimension == GfxDimension::Buffer);
+		srvDesc.Texture1D.MipLevels = desc.m_miplevels;
+
+		D3D12_CPU_DESCRIPTOR_HANDLE dxDescriptor = {descriptor.GetCpuDescriptor().m_ptr};
+		m_device->CreateShaderResourceView(buffer.GetComPtrResource().Get(), &srvDesc, dxDescriptor);
 	}
 	
 	void BaseDevice::CreateUnorderedAccessView(
