@@ -123,6 +123,7 @@ namespace APP004
 			rootDescriptor0.m_flags = GfxRootDescriptorFlag::DataVolatile;
 
 			rootSignatureDesc.SetName("rootSig");
+			rootSignatureDesc.SetFlags(GfxRootSignatureFlag::AllowInputAssemblerInputLayout);
 			m_rootSignature.Initialize(rootSignatureDesc);
 		}
 

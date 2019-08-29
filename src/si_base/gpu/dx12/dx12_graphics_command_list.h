@@ -7,7 +7,6 @@
 #include <wrl/client.h>
 #include <comdef.h>
 #include <vector>
-#include <d3dx12.h>
 #include "si_base/gpu/dx12/dx12_utility.h"
 #include "si_base/core/core.h"
 #include "si_base/gpu/dx12/dx12_enum.h"

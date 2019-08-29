@@ -339,7 +339,6 @@ namespace SI
 		
 		SI_ASSERT(0 < bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes);
 
-		//ComPtr<ID3D12Resource> scratchResource;
 		AllocateUAVBuffer(
 			&device,
 			max(topLevelPrebuildInfo.ScratchDataSizeInBytes, bottomLevelPrebuildInfo.ScratchDataSizeInBytes),
@@ -352,7 +351,6 @@ namespace SI
 			bottomLevelPrebuildInfo.ResultDataMaxSizeInBytes,
 			topLevelPrebuildInfo.ResultDataMaxSizeInBytes);
 
-		//ComPtr<ID3D12Resource> instanceDescs;
 		{
 			D3D12_RAYTRACING_INSTANCE_DESC instanceDesc = {};
 			instanceDesc.Transform[0][0] = instanceDesc.Transform[1][1] = instanceDesc.Transform[2][2] = 1;

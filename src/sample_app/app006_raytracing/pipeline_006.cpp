@@ -95,6 +95,7 @@ namespace APP006
 	Pipeline::Pipeline(int observerSortKey)
 		: PipelineBase(observerSortKey)
 		, m_textureConstant(nullptr)
+		, m_dxrConstant(nullptr)
 		, m_currentComputeId(0)
 	{
 	}

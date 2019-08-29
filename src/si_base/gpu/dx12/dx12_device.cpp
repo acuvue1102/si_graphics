@@ -35,6 +35,29 @@
 
 namespace SI
 {
+	namespace
+	{
+		inline void MemcpySubResource(
+			const D3D12_MEMCPY_DEST& dest,
+			const D3D12_SUBRESOURCE_DATA& src,
+			size_t rowSizeInBytes,
+			uint32_t numRows,
+			uint32_t numSlices)
+		{
+			for (uint32_t slice = 0; slice < numSlices; ++slice)
+			{
+				uint8_t* destSlice = (uint8_t*)(dest.pData) + dest.SlicePitch * slice;
+				const uint8_t* srcSlice = (const uint8_t*)(src.pData) + src.SlicePitch * slice;
+				for (uint32_t row = 0; row < numRows; ++row)
+				{
+					memcpy(destSlice + dest.RowPitch * row,
+						srcSlice + src.RowPitch * row,
+						rowSizeInBytes);
+				}
+			}
+		}
+	}
+
 	BaseDevice::BaseDevice()
 		: Singleton(this)
 		, m_initialized(false)
@@ -1046,9 +1069,9 @@ namespace SI
 				layouts[i].Footprint.RowPitch * numRows[i]
 			};
 
-			MemcpySubresource(
-				&destData,
-				&sourcesData[i],
+			MemcpySubResource(
+				destData,
+				sourcesData[i],
 				(SIZE_T)rowSizeInBytes[i],
 				numRows[i],
 				layouts[i].Footprint.Depth);
