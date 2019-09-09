@@ -21,6 +21,7 @@
 #include "si_base/gpu/gfx_texture_ex.h"
 #include "si_base/gpu/gfx_buffer_ex.h"
 #include "si_base/gpu/gfx_sampler_ex.h"
+#include "si_base/gpu/gfx_descriptor_heap_ex.h"
 #include "si_base/gpu/gfx_context_manager.h"
 #include "si_base/gpu/gfx_dds.h"
 #include "si_base/gpu/gfx_raytracing_state.h"

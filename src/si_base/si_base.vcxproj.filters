@@ -277,35 +277,8 @@
     <ClInclude Include="container\array.h">
       <Filter>container</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\model.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\material.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\mesh.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\node.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
     <ClInclude Include="memory\allocator_base.h">
       <Filter>memory</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\renderer_common.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\sub_mesh.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\geometry.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\node_iterator.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\model_instance.h">
-      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="math\aabb.h">
       <Filter>math</Filter>
@@ -316,17 +289,11 @@
     <ClInclude Include="misc\string_util.h">
       <Filter>misc</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\renderer_enum.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
     <ClInclude Include="misc\hash.h">
       <Filter>misc</Filter>
     </ClInclude>
     <ClInclude Include="misc\hash_internal.h">
       <Filter>misc</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\model_writer.h">
-      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="serialization\serializer.h">
       <Filter>serialization</Filter>
@@ -337,44 +304,17 @@
     <ClInclude Include="serialization\deserializer.h">
       <Filter>serialization</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\model_reader.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\renderer.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
     <ClInclude Include="gpu\dx12\dx12_upload_pool.h">
       <Filter>gpu\dx12</Filter>
     </ClInclude>
     <ClInclude Include="misc\hash_declare.h">
       <Filter>misc</Filter>
     </ClInclude>
-    <ClInclude Include="renderer\renderer_graphics_state.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\renderer_draw_stage.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\render_item.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\renderer_draw_stage_type.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
     <ClInclude Include="file\file_utility.h">
       <Filter>file</Filter>
     </ClInclude>
     <ClInclude Include="gpu\gfx_descriptor_heap_ex.h">
       <Filter>gpu</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\material\material_simple.h">
-      <Filter>renderer\material</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\material_type.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer\material_factory.h">
-      <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="gpu\gfx_graphics_state_ex.h">
       <Filter>gpu</Filter>
@@ -399,6 +339,15 @@
     </ClInclude>
     <ClInclude Include="gpu\dx12\dx12_raytracing_shader_table.h">
       <Filter>gpu\dx12</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\gltf_loader.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="file\path.h">
+      <Filter>file</Filter>
+    </ClInclude>
+    <ClInclude Include="misc\string.h">
+      <Filter>misc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -443,9 +392,6 @@
     </Filter>
     <Filter Include="serialization">
       <UniqueIdentifier>{4ea472a5-cca8-4a91-b2b4-7628e982f2a6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="renderer\material">
-      <UniqueIdentifier>{45c70802-9f56-484f-832d-c25abe06dcf8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -608,32 +554,8 @@
     <ClCompile Include="file\file.cpp">
       <Filter>file</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\model.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\material.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\mesh.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\node.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\sub_mesh.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\model_instance.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
     <ClCompile Include="misc\argument_parser.cpp">
       <Filter>misc</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\geometry.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\model_writer.cpp">
-      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="serialization\serializer.cpp">
       <Filter>serialization</Filter>
@@ -644,32 +566,11 @@
     <ClCompile Include="serialization\deserializer.cpp">
       <Filter>serialization</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\model_reader.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\renderer.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
     <ClCompile Include="gpu\dx12\dx12_upload_pool.cpp">
       <Filter>gpu\dx12</Filter>
     </ClCompile>
-    <ClCompile Include="renderer\renderer_graphics_state.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\renderer_draw_stage.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\render_item.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
     <ClCompile Include="gpu\gfx_descriptor_heap_ex.cpp">
       <Filter>gpu</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\material\material_simple.cpp">
-      <Filter>renderer\material</Filter>
-    </ClCompile>
-    <ClCompile Include="renderer\material_factory.cpp">
-      <Filter>renderer</Filter>
     </ClCompile>
     <ClCompile Include="gpu\gfx_graphics_state_ex.cpp">
       <Filter>gpu</Filter>
@@ -695,6 +596,12 @@
     <ClCompile Include="gpu\dx12\dx12_raytracing_shader_table.cpp">
       <Filter>gpu\dx12</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\gltf_loader.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="file\path.cpp">
+      <Filter>file</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="math\inl\vfloat.inl">
@@ -717,9 +624,6 @@
     </None>
     <None Include="math\inl\vquat.inl">
       <Filter>math\inl</Filter>
-    </None>
-    <None Include="renderer\node_iterator.inl">
-      <Filter>renderer</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

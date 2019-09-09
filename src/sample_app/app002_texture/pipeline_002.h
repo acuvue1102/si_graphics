@@ -47,6 +47,7 @@ namespace APP002
 		GfxTestureEx_DepthRt     m_depth;
 
 		GfxDynamicSampler        m_sampler;
+		GfxBuffer m_buffer;
 	};
 	
 } // namespace APP002

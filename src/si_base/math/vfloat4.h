@@ -17,7 +17,7 @@ namespace SI
 		Vfloat4(Vfloat3 xyz, Vfloat w);
 		Vfloat4(Vfloat3 xyz, float w);
 		explicit Vfloat4(float value);		
-		explicit Vfloat4(Vfloat_arg value);		
+		explicit Vfloat4(Vfloat_arg value);
 		explicit Vfloat4(const float* v);
 		explicit Vfloat4(__m128 v);
 		

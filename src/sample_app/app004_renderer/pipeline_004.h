@@ -3,7 +3,8 @@
 #include <cstdint>
 #include <si_app/pipeline/pipeline_base.h>
 #include <si_base/math/math_declare.h>
-#include <si_base/renderer/model_instance.h>
+#include <si_base/math/math.h>
+//#include <si_base/renderer/model_instance.h>
 
 namespace SI
 {
@@ -30,7 +31,7 @@ namespace APP004
 		struct LambertShaderConstant;
 
 	protected:
-		ModelInstancePtr         m_modelInstance;
+		//ModelInstancePtr         m_modelInstance;
 
 		GfxRootSignatureEx       m_rootSignature;
 		GfxGraphicsState         m_graphicsState;

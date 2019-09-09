@@ -225,7 +225,35 @@ namespace SI
 	{
 		return Math::Multiply(v, m);
 	}
-	
+
+	inline Vfloat3x3 Vfloat3x3::Scale(Vfloat3_arg s)
+	{
+		return Math::Scale3x3(s);
+	}
+
+	inline Vfloat3x3 Vfloat3x3::RotateX(float radian)
+	{
+		return Math::RotateX3x3(radian);
+	}
+
+	inline Vfloat3x3 Vfloat3x3::RotateY(float radian)
+	{
+		return Math::RotateY3x3(radian);
+	}
+
+	inline Vfloat3x3 Vfloat3x3::RotateZ(float radian)
+	{
+		return Math::RotateZ3x3(radian);
+	}
+
+	inline Vfloat3x3 Vfloat3x3::Identity()
+	{
+		return Vfloat3x3(
+			kSiFloat128_1000,
+			kSiFloat128_0100,
+			kSiFloat128_0010);
+	}
+
 	inline __m128 Vfloat3x3::GetRow128(uint32_t rowIndex) const
 	{
 		SI_ASSERT(rowIndex<3);

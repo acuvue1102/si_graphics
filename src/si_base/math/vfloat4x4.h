@@ -32,6 +32,8 @@ namespace SI
 			__m128 row2,
 			__m128 row3);
 
+		explicit Vfloat4x4(const float* m);
+
 	public:
 		void SetRow   (uint32_t rowIndex,    Vfloat4_arg row);
 		void SetColumn(uint32_t columnIndex, Vfloat4_arg column);

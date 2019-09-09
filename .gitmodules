@@ -7,3 +7,6 @@
 [submodule "src/external/picojson"]
 	path = src/external/picojson
 	url = https://github.com/kazuho/picojson.git
+[submodule "src/external/gltfsdk_original"]
+	path = src/external/gltfsdk_original
+	url = https://github.com/microsoft/glTF-SDK.git

@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <si_app/pipeline/pipeline_base.h>
 #include <si_base/math/math_declare.h>
+#include <si_base/gpu/gfx.h>
 
 namespace SI
 {

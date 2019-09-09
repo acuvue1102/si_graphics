@@ -54,6 +54,13 @@ namespace SI
 		Vfloat3x3 operator*(Vfloat3x3_arg m) const;
 				
 	public:
+		static Vfloat3x3 Scale(Vfloat3_arg);
+		static Vfloat3x3 RotateX(float radian);
+		static Vfloat3x3 RotateY(float radian);
+		static Vfloat3x3 RotateZ(float radian);
+		static Vfloat3x3 Identity();
+
+	public:
 		__m128 GetRow128(uint32_t rowIndex) const;
 
 	private:

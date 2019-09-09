@@ -73,8 +73,8 @@ namespace SI
 			BaseBuffer&                                        targetBuffer,
 			ComPtr<ID3D12Resource>&                            uploadbuffer,
 			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT>& layouts,
-			GfxResourceState                                   before,
-			GfxResourceState                                   after)
+			GfxResourceStates                                  before,
+			GfxResourceStates                                  after)
 		{
 			MutexLocker locker(m_mutex);
 			m_uploadBuffers.emplace_back(
@@ -150,8 +150,8 @@ namespace SI
 		BaseBuffer& targetBuffer,
 		ComPtr<ID3D12Resource> uploadbuffer,
 		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts,
-		GfxResourceState before,
-		GfxResourceState after)
+		GfxResourceStates before,
+		GfxResourceStates after)
 	{
 		m_impl->AddBuffer(targetBuffer, uploadbuffer, layouts, before, after);
 	}
@@ -160,8 +160,8 @@ namespace SI
 		BaseTexture& targetTexture,
 		ComPtr<ID3D12Resource> uploadbuffer,
 		GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts,
-		GfxResourceState before,
-		GfxResourceState after)
+		GfxResourceStates before,
+		GfxResourceStates after)
 	{
 		m_impl->AddTexture(targetTexture, uploadbuffer, layouts, before, after);
 	}

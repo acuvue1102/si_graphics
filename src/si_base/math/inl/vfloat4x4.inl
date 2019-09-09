@@ -74,6 +74,14 @@ namespace SI
 		m_row[3] = row3;
 	}
 
+	inline Vfloat4x4::Vfloat4x4(const float* m)
+	{
+		m_row[0] = _mm_load_ps(m);
+		m_row[1] = _mm_load_ps(&m[4]);
+		m_row[2] = _mm_load_ps(&m[8]);
+		m_row[3] = _mm_load_ps(&m[12]);
+	}
+
 	inline void Vfloat4x4::SetRow(uint32_t rowIndex, Vfloat4_arg row)
 	{
 		SI_ASSERT(rowIndex<4);

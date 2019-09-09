@@ -32,3 +32,9 @@
 Debug/
 Release/
 src/packages/
+
+# external
+!src/external/gltfsdk_compiled/**/*.lib
+!src/external/gltfsdk_compiled/lib/x64/Debug/
+!src/external/gltfsdk_compiled/lib/x64/Release/
+

@@ -1085,8 +1085,8 @@ namespace SI
 		BaseBuffer& targetBuffer,
 		const void* srcBuffer,
 		size_t      srcBufferSize,
-		GfxResourceState before,
-		GfxResourceState after)
+		GfxResourceStates before,
+		GfxResourceStates after)
 	{
 		SI_ASSERT(srcBuffer);
 
@@ -1117,8 +1117,8 @@ namespace SI
 		BaseTexture& targetTexture,
 		const void*  srcBuffer,
 		size_t       srcBufferSize,
-		GfxResourceState before,
-		GfxResourceState after)
+		GfxResourceStates before,
+		GfxResourceStates after)
 	{
 		SI_ASSERT(srcBuffer);
 

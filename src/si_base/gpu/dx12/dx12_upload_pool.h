@@ -36,15 +36,15 @@ namespace SI
 			BaseBuffer& targetBuffer,
 			ComPtr<ID3D12Resource> uploadbuffer,
 			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts,
-			GfxResourceState before,
-			GfxResourceState after);
+			GfxResourceStates before,
+			GfxResourceStates after);
 
 		void AddTexture(
 			BaseTexture& targetTexture,
 			ComPtr<ID3D12Resource> uploadbuffer,
 			GfxTempVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> layouts,
-			GfxResourceState before,
-			GfxResourceState after);
+			GfxResourceStates before,
+			GfxResourceStates after);
 
 		void Flush(BaseGraphicsCommandList& graphicsCommandList);
 		

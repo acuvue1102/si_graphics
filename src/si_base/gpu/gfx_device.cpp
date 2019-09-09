@@ -449,8 +449,8 @@ namespace SI
 		GfxBuffer&              targetBuffer,
 		const void*             srcBuffer,
 		size_t                  srcBufferSize,
-		GfxResourceState        before,
-		GfxResourceState        after)
+		GfxResourceStates       before,
+		GfxResourceStates       after)
 	{
 		return m_base->UploadBufferLater(
 			*targetBuffer.GetBaseBuffer(),
@@ -464,8 +464,8 @@ namespace SI
 		GfxTexture&             targetTexture,
 		const void*             srcBuffer,
 		size_t                  srcBufferSize,
-		GfxResourceState        before,
-		GfxResourceState        after)
+		GfxResourceStates       before,
+		GfxResourceStates       after)
 	{
 		return m_base->UploadTextureLater(
 			*targetTexture.GetBaseTexture(),

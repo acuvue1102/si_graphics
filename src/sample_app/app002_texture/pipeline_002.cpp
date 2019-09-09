@@ -268,6 +268,14 @@ namespace APP002
 			m_rootSignatures[1].Initialize(rootSignatureDesc);
 		}
 
+		GfxBufferDesc bufferDesc;
+		bufferDesc.m_name = "test";
+		bufferDesc.m_bufferSizeInByte = sizeof(kBoxIndexData) + sizeof(kBoxVertexData);
+		bufferDesc.m_heapType       = GfxHeapType::Default;
+		bufferDesc.m_resourceStates = GfxResourceState::CopyDest;
+		bufferDesc.m_resourceFlags  = GfxResourceFlag::None;
+		m_buffer = m_device.CreateBuffer(bufferDesc);
+
 		// PSOのセットアップ.
 		{
 			static const GfxInputElement kPosNormalUvVertexElements[] =
@@ -307,6 +315,23 @@ namespace APP002
 			stateDesc.m_depthEnable        = false;
 			m_graphicsStates[1] = m_device.CreateGraphicsState(stateDesc);
 		}
+
+
+		BeginRender();
+		std::vector<uint8_t> tmp;
+		tmp.resize(sizeof(kBoxIndexData) + sizeof(kBoxVertexData));
+		memcpy(&tmp[0], kBoxIndexData, sizeof(kBoxIndexData));
+		memcpy(&tmp[sizeof(kBoxIndexData)], kBoxVertexData, sizeof(kBoxVertexData));
+		GfxGraphicsContext& context = m_contextManager.GetGraphicsContext(0);
+		context.UploadBuffer(
+			m_device,
+			m_buffer,
+			tmp.data(),
+			tmp.size(),
+			GfxResourceState::CopyDest,
+			GfxResourceState::IndexBuffer | GfxResourceState::VertexAndConstantBuffer
+			);
+		EndRender();
 
 		return 0;
 	}
@@ -394,9 +419,23 @@ namespace APP002
 
 			context.SetPrimitiveTopology(GfxPrimitiveTopology::TriangleList);
 			
-			context.SetDynamicVB(0, ArraySize(kBoxVertexData), sizeof(kBoxVertexData[0]), kBoxVertexData);
-			context.SetDynamicIB16(ArraySize(kBoxIndexData), kBoxIndexData);
-			
+			//context.SetDynamicVB(0, ArraySize(kBoxVertexData), sizeof(kBoxVertexData[0]), kBoxVertexData);
+			//context.SetDynamicIB16(ArraySize(kBoxIndexData), kBoxIndexData);
+
+			GfxVertexBufferView vertexView;
+			vertexView.SetBuffer(m_buffer);
+			vertexView.SetOffset(sizeof(kBoxIndexData));
+			vertexView.SetSize(sizeof(kBoxVertexData));
+			vertexView.SetStride(sizeof(kBoxVertexData[0]));
+			context.SetVertexBuffer(0, vertexView);
+
+			GfxIndexBufferView indexView;
+			indexView.SetBuffer(m_buffer);
+			indexView.SetOffset(0);
+			indexView.SetSize(sizeof(kBoxIndexData));
+			indexView.SetFormat(GfxFormat::R16_Uint);
+			context.SetIndexBuffer(&indexView);
+
 			context.DrawIndexedInstanced((uint32_t)ArraySize(kBoxIndexData), 8);
 		}
 		

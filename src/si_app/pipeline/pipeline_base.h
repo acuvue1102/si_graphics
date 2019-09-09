@@ -3,7 +3,7 @@
 #include <cstdint>
 #include "si_app/app/app_module.h"
 #include "si_base/gpu/gfx.h"
-#include "si_base/renderer/renderer.h"
+//#include "si_base/renderer/renderer.h"
 
 namespace SI
 {
@@ -36,7 +36,7 @@ namespace SI
 		GfxCommandQueue          m_commandQueue;
 		GfxSwapChain             m_swapChain;
 		GfxContextManager        m_contextManager;
-		Renderer                 m_renderer;
+		//Renderer                 m_renderer;
 		
 	};
 
