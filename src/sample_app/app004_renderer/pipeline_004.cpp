@@ -8,8 +8,6 @@
 #include <si_base/math/math.h>
 #include <si_base/file/file_utility.h>
 #include <si_base/container/array.h>
-//#include <si_base/renderer/model_reader.h>
-//#include <si_base/renderer/renderer.h>
 #include <si_base/renderer/gltf_loader.h>
 
 namespace SI
@@ -70,10 +68,6 @@ namespace APP004
 	{
 		GltfLoader loader;
 		m_scenesInstance = ScenesInstance::Create(loader.Load("C:\\Users\\keiji\\Documents\\si_graphics\\asset\\model\\cornel_box.gltf"));
-		//s = loader.Load("C:\\Users\\keiji\\Documents\\si_graphics\\src\\external\\gltfsdk_original\\GLTFSDK.Test\\Resources\\gltf\\Cube.gltf");
-
-		//ModelReader modelReader;
-		//modelReader.Read(m_modelInstance, "asset\\model\\cornel_box.json");
 
 		m_renderer.Add(m_scenesInstance);
 		
@@ -168,6 +162,9 @@ namespace APP004
 	int Pipeline::OnTerminate()
 	{
 		m_swapChain.Wait();
+
+		m_renderer.Remove(m_scenesInstance);
+		m_scenesInstance.reset();
 		
 		m_device.ReleaseGraphicsState(m_graphicsState);
 		
@@ -182,8 +179,6 @@ namespace APP004
 		m_constantBuffer.TerminateAsConstant();
 		m_texturePS.Release();
 		m_textureVS.Release();
-		
-		//m_modelInstance.reset();
 
 		PipelineBase::OnTerminate();
 

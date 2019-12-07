@@ -35,6 +35,8 @@ namespace SI
 
 	void Renderer::Terminate()
 	{
+		SI_ASSERT(m_models.empty());
+
 		m_whiteTex.TerminateStatic();
 		m_models.clear();
 		m_constantAllocator.Terminate();
@@ -75,7 +77,6 @@ namespace SI
 		sceneCB->m_viewProj = m_viewMatrix * m_projectionMatrix;
 		size_t constant0GpuAddr = constant0.GetGpuAddr();
 
-#if 1
 		for(auto& pair : m_models)
 		{
 			ScenesInstancePtr& modelIns = pair.second;
@@ -138,7 +139,7 @@ namespace SI
 					context.SetGraphicsRootCBV(cbvRootIndexOffset+2, constant2);
 				}
 
-				context.SetPrimitiveTopology(GfxPrimitiveTopology::TriangleList);
+				context.SetPrimitiveTopology(renderItem.m_subMesh->GetTopology());
 				
 				uint32_t vertexAttributeCount = (uint32_t)renderItem.m_vertexAttributes->size();
 				for(uint32_t v=0; v<vertexAttributeCount; ++v)
@@ -164,7 +165,6 @@ namespace SI
 				context.DrawIndexedInstanced(renderItem.m_indexAccessor->GetCount(), instanceCount);
 			}
 		}
-#endif
 	}
 	
 } // namespace SI

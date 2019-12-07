@@ -591,7 +591,6 @@ namespace SI
 
 			ScenesPtr rootScene = Scenes::Create();
 
-			//OpenDefaultConsole();
 			size_t sceneCount       = document.scenes.Size();
 			size_t nodeCount        = document.nodes.Size();
 			size_t meshCount        = document.meshes.Size();
@@ -611,13 +610,6 @@ namespace SI
 				std::vector<uint8_t>& bufferData = bufferDataArray[b];
 				LoadBuffer(bufferData, document, b);
 			}
-
-			//rootScene->AllocateBufferViews(bufferViewCount);
-			//for(size_t b=0; b<bufferViewCount; ++b)
-			//{
-			//	const glTF::BufferView& gltfBufferView = document.bufferViews[b];
-			//	LoadBufferView(rootScene->GetBufferView(b), *rootScene, document, gltfBufferView, bufferDataArray);
-			//}
 
 			rootScene->AllocateImages(imageCount);
 			for(size_t i=0; i<imageCount; ++i)
@@ -664,57 +656,6 @@ namespace SI
 			{
 				const glTF::Scene& gltfScene = document.scenes[s];
 				LoadScene(rootScene->GetScene((uint32_t)s), *rootScene, document, gltfScene);
-			}
-
-			if (document.scenes.Size() > 0U)
-			{
-				std::cout << "Default Scene Index: " << document.GetDefaultScene().id << "\n\n";
-			}
-			else
-			{
-				std::cout << "\n";
-			}
-
-			// Entity Info
-			std::cout << "Node Count:     " << document.nodes.Size() << "\n";
-			std::cout << "Camera Count:   " << document.cameras.Size() << "\n";
-			std::cout << "Material Count: " << document.materials.Size() << "\n\n";
-
-			// Mesh Info
-			std::cout << "Mesh Count: " << document.meshes.Size() << "\n";
-			std::cout << "Skin Count: " << document.skins.Size() << "\n\n";
-
-			// Texture Info
-			std::cout << "Image Count:   " << document.images.Size() << "\n";
-			std::cout << "Texture Count: " << document.textures.Size() << "\n";
-			std::cout << "Sampler Count: " << document.samplers.Size() << "\n\n";
-
-			// Buffer Info
-			std::cout << "Buffer Count:     " << document.buffers.Size() << "\n";
-			std::cout << "BufferView Count: " << document.bufferViews.Size() << "\n";
-			std::cout << "Accessor Count:   " << document.accessors.Size() << "\n\n";
-
-			// Animation Info
-			std::cout << "Animation Count: " << document.animations.Size() << "\n\n";
-
-			for (const auto& extension : document.extensionsUsed)
-			{
-				std::cout << "Extension Used: " << extension << "\n";
-			}
-
-			if (!document.extensionsUsed.empty())
-			{
-				std::cout << "\n";
-			}
-
-			for (const auto& extension : document.extensionsRequired)
-			{
-				std::cout << "Extension Required: " << extension << "\n";
-			}
-
-			if (!document.extensionsRequired.empty())
-			{
-				std::cout << "\n";
 			}
 
 			return rootScene;
