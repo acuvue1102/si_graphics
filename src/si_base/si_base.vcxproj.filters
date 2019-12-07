@@ -349,6 +349,54 @@
     <ClInclude Include="misc\string.h">
       <Filter>misc</Filter>
     </ClInclude>
+    <ClInclude Include="renderer\mesh.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\node.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\submesh.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\accessor.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\material.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer_graphics_state.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer_draw_stage_type.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer_draw_stage.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\render_item.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer_common.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\scenes_instance.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\scene.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\scenes.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\buffer_view.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\material\material_simple.h">
+      <Filter>renderer\material</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -392,6 +440,9 @@
     </Filter>
     <Filter Include="serialization">
       <UniqueIdentifier>{4ea472a5-cca8-4a91-b2b4-7628e982f2a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\material">
+      <UniqueIdentifier>{be52122d-9d3e-4db0-b4c5-0baeb1a3ecbf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -602,6 +653,27 @@
     <ClCompile Include="file\path.cpp">
       <Filter>file</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\renderer_graphics_state.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\render_item.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\renderer.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\renderer_draw_stage.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\scenes_instance.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\material.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\material\material_simple.cpp">
+      <Filter>renderer\material</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="math\inl\vfloat.inl">
@@ -625,6 +697,7 @@
     <None Include="math\inl\vquat.inl">
       <Filter>math\inl</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="container\container.natvis">

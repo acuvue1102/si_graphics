@@ -14,6 +14,7 @@
 namespace SI
 {
 	BaseCommandQueue::BaseCommandQueue()
+		: Singleton<BaseCommandQueue>(this)
 	{
 	}
 

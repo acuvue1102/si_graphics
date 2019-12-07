@@ -11,6 +11,7 @@ namespace SI
 	{
 		m_exePath[0] = 0;
 		m_exeDirPath[0] = 0;
+		m_assetDirPath[0] = 0;
 	}
 	
 	PathStorage::~PathStorage()

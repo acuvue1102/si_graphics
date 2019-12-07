@@ -109,14 +109,8 @@ namespace SI
 		// 1つしか状態を保存してので、
 		// 1フレーム中に押して離したりするとまずそうだが
 		// 今は気にしない.
-		bool             m_key[(uint32_t)Key::Max];
-		ModifierKey      m_modifier;
-
-		KeyboardInfo()
-			: m_modifier(ModifierKey::None)
-		{
-			for(bool& key : m_key){ key = false; }
-		}
+		bool             m_key[(uint32_t)Key::Max] = {};
+		ModifierKey      m_modifier = ModifierKey::None;
 	};
 
 	class Keyboard

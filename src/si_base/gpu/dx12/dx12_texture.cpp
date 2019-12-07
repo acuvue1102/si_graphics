@@ -5,6 +5,8 @@
 
 #include <dxgi1_4.h>
 #include <comdef.h>
+#include <WICTextureLoader.h>
+#include <ResourceUploadBatch.h>
 #include "si_base/core/core.h"
 #include "si_base/gpu/dx12/dx12_enum.h"
 #include "si_base/gpu/gfx_texture.h"
@@ -95,6 +97,58 @@ namespace SI
 			wName[0] = 0;
 			size_t num = 0;
 			errno_t ret = mbstowcs_s(&num, wName, desc.m_name, ArraySize(wName));
+			if(ret == 0)
+			{
+				m_resource->SetName(wName);
+			}
+		}
+
+		return 0;
+	}
+
+	int BaseTexture::InitializeWICAndUpload(
+		ID3D12Device& device,
+		ID3D12CommandQueue& queue,
+		const char* name,
+		const void* buffer,
+		size_t bufferSize)
+	{
+		// あまり良くないかもしれないけど、サブリソースをアップロードする処理を書くの面倒なので手抜き.
+		{
+			DirectX::ResourceUploadBatch upload(&device);
+			upload.Begin();
+			
+			HRESULT hr = DirectX::CreateWICTextureFromMemory(
+				&device,
+				upload,
+				(const uint8_t*)buffer,
+				bufferSize,
+				&m_resource);
+
+			if(FAILED(hr))
+			{
+				SI_ASSERT(0, "error LoadWICTextureFromMemory", _com_error(hr).ErrorMessage());
+				return -1;
+			}
+
+			auto f = upload.End(&queue);
+		}
+
+		D3D12_RESOURCE_DESC desc = m_resource->GetDesc();
+
+		SetWidth((uint32_t)desc.Width);
+		SetHeight((uint32_t)desc.Height);
+		SetDepth(1);
+		SetFormat(GetGfxFormat(desc.Format));
+		SetArraySize(1);
+		SetMipLevels(1);
+
+		if(name)
+		{
+			wchar_t wName[64];
+			wName[0] = 0;
+			size_t num = 0;
+			errno_t ret = mbstowcs_s(&num, wName, name, ArraySize(wName));
 			if(ret == 0)
 			{
 				m_resource->SetName(wName);

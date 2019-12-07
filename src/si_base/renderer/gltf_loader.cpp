@@ -61,6 +61,16 @@ namespace SI
 			return Vfloat3(v.x, v.y, v.z);
 		}
 
+		Vfloat3 MathCast(const glTF::Color3& v)
+		{
+			return Vfloat3(v.r, v.g, v.b);
+		}
+
+		Vfloat4 MathCast(const glTF::Color4& v)
+		{
+			return Vfloat4(v.r, v.g, v.b, v.a);
+		}
+
 		GfxFormat GetFormat(glTF::ComponentType component, glTF::AccessorType accessorType)
 		{
 #define FMT_KEY(c, a) ((uint64_t)c<<32 | (uint64_t)a)
@@ -171,76 +181,240 @@ namespace SI
 		{
 		}
 
-		void LoadBuffer(GfxBuffer& outBuffer, RootScene& rootScene, const glTF::Document& document, const glTF::Buffer& gltfBuffer)
+		bool LoadBuffer(
+			std::vector<uint8_t>& outBuffer,
+			const glTF::Document& document,
+			int bufferId)
 		{
-			SI_ASSERT(!outBuffer.IsValid());
-			GfxDevice& device = *GfxDevice::GetInstance();
+			if(bufferId<0 || document.buffers.Size()<=bufferId)
+			{
+				SI_ASSERT(false, "Failed to load buffer. BufferId(%d) is invalid", bufferId);
+				return false;
+			}
 
-			std::vector<uint8_t> bufferData;
+			const glTF::Buffer& gltfBuffer = document.buffers[bufferId];
 
 			std::string::const_iterator itBegin = gltfBuffer.uri.end();
 			std::string::const_iterator itEnd   = gltfBuffer.uri.end();
 			if(glTF::IsUriBase64(gltfBuffer.uri, itBegin, itEnd))
 			{
 				// embeded
-				bufferData = std::move(glTF::Base64Decode(glTF::Base64StringView(itBegin, itEnd)));
+				outBuffer = std::move(glTF::Base64Decode(glTF::Base64StringView(itBegin, itEnd)));
 			}
-			else if(FileUtility::Load(bufferData, gltfBuffer.uri.c_str()) != 0)
+			else if(FileUtility::Load(outBuffer, gltfBuffer.uri.c_str()) != 0)
 			{
-				SI_ASSERT("Failed to load buffer. %s is invalid URI", gltfBuffer.uri.c_str());
-				return;
+				SI_ASSERT(false, "Failed to load buffer. %s is invalid URI", gltfBuffer.uri.c_str());
+				return false;
 			}
 
-			SI_ASSERT(bufferData.size() == gltfBuffer.byteLength);
+			return !outBuffer.empty();
+		}
+
+		bool LoadBufferView(
+			BufferView& outBufferView,
+			const glTF::Document& document,
+			int bufferViewId)
+		{
+			if(bufferViewId<0 || document.bufferViews.Size()<=bufferViewId)
+			{
+				SI_ASSERT(false, "Failed to load BufferView. BufferViewId(%d) is invalid", bufferViewId);
+				return false;
+			}
+
+			const glTF::BufferView& gltfBufferView = document.bufferViews[bufferViewId];
+
+			int bufferId = GetId(gltfBufferView.bufferId);
+
+			if(bufferId<0 || document.buffers.Size()<=bufferId)
+			{
+				SI_ASSERT(false, "Failed to load BufferView. BufferId(%d) is invalid", bufferId);
+				return false;
+			}
+
+			if( (gltfBufferView.byteLength<=0) || 
+				(document.buffers[bufferId].byteLength < (gltfBufferView.byteOffset+gltfBufferView.byteLength)))
+			{
+				SI_ASSERT(false, "Failed to load BufferView. Buffer size(%u) or offset(%u) is invalid",
+					(uint32_t)gltfBufferView.byteLength, (uint32_t)gltfBufferView.byteOffset);
+				return false;
+			}
+
+			outBufferView.SetBufferId(bufferId);
+			outBufferView.SetSize(gltfBufferView.byteLength);
+			outBufferView.SetOffset(gltfBufferView.byteOffset);
+			outBufferView.SetStride(gltfBufferView.byteStride);
+
+			return true;
+		}
+
+		bool LoadBufferFromBufferView(
+			std::vector<uint8_t>& outBuffer,
+			const glTF::Document& document,
+			int bufferViewId,
+			const std::vector<std::vector<uint8_t>>& bufferDataArray)
+		{
+			BufferView bufferView;
+			if(!LoadBufferView(bufferView, document, bufferViewId))
+			{
+				return false;
+			}
+
+			const std::vector<uint8_t>& buffer = bufferDataArray[bufferView.GetBufferId()];
+			outBuffer.resize(bufferView.GetSize());
+			memcpy_s(outBuffer.data(), outBuffer.size(), &buffer[bufferView.GetOffset()], bufferView.GetSize());
+
+			return true;
+		}
+
+		bool LoadGfxImage(
+			GfxTexture& outTexture,
+			const glTF::Document& document,
+			const std::vector<std::vector<uint8_t>>& bufferDataArray,
+			int imageId)
+		{
+			if(imageId<0 || document.images.Size()<=imageId)
+			{
+				SI_ASSERT(false, "Failed to load image. ImageId(%d) is invalid", imageId);
+				return false;
+			}
+
+			const glTF::Image& gltfImage = document.images[imageId];
+
+			SI_ASSERT(!outTexture.IsValid());
+			GfxDevice& device = *GfxDevice::GetInstance();
+
+			std::vector<uint8_t> bufferData;
+			int bufferViewId = GetId(gltfImage.bufferViewId);
+
+			std::string::const_iterator itBegin = gltfImage.uri.end();
+			std::string::const_iterator itEnd   = gltfImage.uri.end();
+			if(glTF::IsUriBase64(gltfImage.uri, itBegin, itEnd))
+			{
+				// embeded
+				bufferData = std::move(glTF::Base64Decode(glTF::Base64StringView(itBegin, itEnd)));
+			}
+			else if(0<=bufferViewId && bufferViewId<document.bufferViews.Size() )
+			{
+				if(!LoadBufferFromBufferView(bufferData,document, bufferViewId, bufferDataArray))
+				{
+					return false;
+				}
+			}
+			else if(!gltfImage.uri.empty())
+			{
+				if(FileUtility::Load(bufferData, gltfImage.uri.c_str()) != 0)
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+
+			SI_ASSERT(!bufferData.empty());
+
+			outTexture = device.CreateTextureWICAndUpload(gltfImage.name.c_str(), bufferData.data(), bufferData.size());
+
+			return true;
+		}
+
+		void LoadTexture(
+			TextureInfo& outTextureInfo,
+			Scenes& rootScene,
+			const glTF::Document& document,
+			const glTF::Texture& gltfTexture)
+		{
+			outTextureInfo.SetImageId( GetId(gltfTexture.imageId) );
+		}
+
+		bool LoadGfxBufferFromBufferView(
+			GfxBuffer& outBuffer,
+			int bufferViewId,
+			const glTF::Document& document,
+			const std::vector<std::vector<uint8_t>>& bufferDataArray)
+		{
+			BufferView bufferView;
+			if(!LoadBufferView(bufferView, document, bufferViewId))
+			{
+				return false;
+			}
+
+			int bufferId = bufferView.GetBufferId();
+			if(bufferId<0 || document.buffers.Size()<=bufferId)
+			{
+				SI_ASSERT(false, "Failed to load buffer view. BufferId(%d) is invalid", bufferId);
+				return false;
+			}
+
+			const std::vector<uint8_t>& bufferData = bufferDataArray[bufferId];
+
+			SI_ASSERT( (bufferView.GetOffset() + bufferView.GetSize()) <= bufferData.size() );
+
+			const glTF::Buffer& gltfBuffer = document.buffers[bufferId];
 
 			GfxBufferDesc desc;
 			desc.m_name = gltfBuffer.name.c_str();
-			desc.m_bufferSizeInByte = gltfBuffer.byteLength;
+			desc.m_bufferSizeInByte = bufferView.GetSize();
 			desc.m_resourceStates = GfxResourceState::CopyDest;
 			desc.m_resourceFlags = GfxResourceFlag::None;
+
+			GfxDevice& device = *GfxDevice::GetInstance();
 			outBuffer = device.CreateBuffer(desc);
-			device.UploadBufferLater(
+			int ret = device.UploadBufferLater(
 				outBuffer,
-				bufferData.data(),
-				bufferData.size(),
+				&bufferData[bufferView.GetOffset()],
+				bufferView.GetSize(),
 				GfxResourceState::CopyDest,
 				GfxResourceState::IndexBuffer | GfxResourceState::VertexAndConstantBuffer);
+
+			return (ret == 0);
 		}
 
-		void LoadBufferView(GfxVertexBufferView& outBufferView, RootScene& rootScene, const glTF::Document& document, const glTF::BufferView& gltfBufferView)
-		{
-			int bufferId = GetId(gltfBufferView.bufferId);
-
-			if(0<=bufferId && bufferId<document.buffers.Size())
-			{
-				outBufferView.SetBuffer(rootScene.GetBuffer(bufferId));
-			}
-			outBufferView.SetSize(gltfBufferView.byteLength);
-			outBufferView.SetOffset(gltfBufferView.byteOffset);
-			outBufferView.SetStride(gltfBufferView.byteStride.HasValue()? gltfBufferView.byteStride.Get() : 0);
-		}
-
-		void LoadAccessor(Accessor& outAccessor, RootScene& rootScene, const glTF::Document& document, const glTF::Accessor& gltfAccessor)
+		bool LoadAccessor(
+			Accessor& outAccessor,
+			Scenes& rootScene,
+			const glTF::Document& document,
+			const glTF::Accessor& gltfAccessor,
+			const std::vector<std::vector<uint8_t>>& bufferDataArray)
 		{
 			int bufferViewId = GetId(gltfAccessor.bufferViewId);
 
-			if(0<=bufferViewId && bufferViewId<document.bufferViews.Size())
+			if(!LoadGfxBufferFromBufferView(
+				outAccessor.GetBuffer(),
+				bufferViewId,
+				document,
+				bufferDataArray))
 			{
-				outAccessor.SetBufferViewId(bufferViewId);
+				return false;
 			}
 
-			outAccessor.SetCount(gltfAccessor.count);
+			outAccessor.SetCount((uint32_t)gltfAccessor.count);
 
 			GfxFormat format = GetFormat(gltfAccessor.componentType, gltfAccessor.type);
 			outAccessor.SetFormat(format);
+			return true;
 		}
 
-		void LoadMaterial(Material& outMatrial, RootScene& rootScene, const glTF::Document& document, const glTF::Material& gltfMaterial)
+		void LoadMaterial(Material& outMaterial, Scenes& rootScene, const glTF::Document& document, const glTF::Material& gltfMaterial)
 		{
-			outMatrial.SetName( gltfMaterial.name.c_str() );
+			outMaterial.SetName( gltfMaterial.name.c_str() );
+
+			outMaterial.SetBaseColorTextureId( GetId(gltfMaterial.metallicRoughness.baseColorTexture.textureId) );
+			outMaterial.SetNormalTextureId( GetId(gltfMaterial.normalTexture.textureId));
+			outMaterial.SetMetallicRoughnessTextureId( GetId(gltfMaterial.metallicRoughness.metallicRoughnessTexture.textureId) );
+			outMaterial.SetEmissiveTextureId( GetId(gltfMaterial.emissiveTexture.textureId) );
+
+			outMaterial.SetBaseColorFactor( MathCast(gltfMaterial.metallicRoughness.baseColorFactor) );
+			outMaterial.SetNormalFactor( gltfMaterial.normalTexture.scale );
+			outMaterial.SetMetallicFactor( gltfMaterial.metallicRoughness.metallicFactor );
+			outMaterial.SetRoughnessFactor( gltfMaterial.metallicRoughness.roughnessFactor );
+			outMaterial.SetEmissiveFactor( MathCast(gltfMaterial.emissiveFactor));
+
+			outMaterial.Setup();
 		}
 
-		void LoadMesh(Mesh& outMesh, RootScene& rootScene, const glTF::Document& document, const glTF::Mesh& gltfMesh)
+		void LoadMesh(Mesh& outMesh, Scenes& rootScene, const glTF::Document& document, const glTF::Mesh& gltfMesh)
 		{
 			outMesh.SetName( gltfMesh.name.c_str() );
 			
@@ -298,7 +472,7 @@ namespace SI
 					subMesh->SetIndicesAccessorId(indicesAccessorId);
 				}
 
-				size_t vertexAttributeCount = gltfSubMesh.attributes.size();
+				uint32_t vertexAttributeCount = (uint32_t)gltfSubMesh.attributes.size();
 				subMesh->ReserveVertexAttribute(vertexAttributeCount);
 				for(auto itr=gltfSubMesh.attributes.begin(); itr!=gltfSubMesh.attributes.end(); ++itr)
 				{
@@ -317,8 +491,12 @@ namespace SI
 			}
 		}
 
-		void LoadNode(Node& outNode, RootScene& rootScene, const glTF::Document& document, const glTF::Node& gltfNode)
+		void LoadNode( int nodeId, Scenes& rootScene, const glTF::Document& document )
 		{
+			const glTF::Node& gltfNode = document.nodes[nodeId];
+			Node& outNode = rootScene.GetNode(nodeId);
+
+			outNode.SetId(nodeId);
 			outNode.SetName(gltfNode.name.c_str());
 
 			if(gltfNode.GetTransformationType() == glTF::TRANSFORMATION_MATRIX)
@@ -338,7 +516,7 @@ namespace SI
 			int meshId = GetId(gltfNode.meshId);
 			if(0 <= meshId && meshId < document.meshes.Size())
 			{
-				outNode.SetMesh(&rootScene.GetMesh(meshId));
+				outNode.SetMeshId(meshId);
 			}
 
 			size_t nodeCount = gltfNode.children.size();
@@ -353,10 +531,11 @@ namespace SI
 				}
 
 				outNode.AddNodeId(childNodeId);
+				rootScene.GetNode(nodeId).SetParentId(nodeId);
 			}
 		}
 
-		void LoadScene(Scene& outScene, RootScene& rootScene, const glTF::Document& document, const glTF::Scene& gltfScene)
+		void LoadScene(Scene& outScene, Scenes& rootScene, const glTF::Document& document, const glTF::Scene& gltfScene)
 		{
 			outScene.SetName( gltfScene.name.c_str() );
 
@@ -371,7 +550,7 @@ namespace SI
 			}
 		}
 
-		RootScenePtr Load(const char* filePath)
+		ScenesPtr Load(const char* filePath)
 		{
 			String ext = PathUtility::GetExt(filePath).ToLower();
 
@@ -404,79 +583,87 @@ namespace SI
 
 			if(!resourceReader)
 			{
-				return RootScenePtr();
+				return ScenesPtr();
 			}
 
 			glTF::Document document;
 			document = glTF::Deserialize(manifest, glTF::DeserializeFlags::IgnoreByteOrderMark);
 
-			RootScenePtr rootScene = std::make_shared<RootScene>();
+			ScenesPtr rootScene = Scenes::Create();
 
 			//OpenDefaultConsole();
-			size_t sceneCount      = document.scenes.Size();
-			size_t nodeCount       = document.nodes.Size();
-			size_t meshCount       = document.meshes.Size();
-			size_t materialCount   = document.materials.Size();
-			size_t bufferCount     = document.buffers.Size();
-			size_t accessorCount   = document.accessors.Size();
-			size_t bufferViewCount = document.bufferViews.Size();
+			size_t sceneCount       = document.scenes.Size();
+			size_t nodeCount        = document.nodes.Size();
+			size_t meshCount        = document.meshes.Size();
+			size_t materialCount    = document.materials.Size();
+			size_t bufferCount      = document.buffers.Size();
+			size_t accessorCount    = document.accessors.Size();
+			size_t bufferViewCount  = document.bufferViews.Size();
+			size_t textureInfoCount = document.textures.Size();
+			size_t imageCount       = document.images.Size();
 
-			GfxBufferDesc desc;
-			desc.m_name              = nullptr;
-			desc.m_bufferSizeInByte  = 256;
-			desc.m_heapType          = GfxHeapType::Default;
-			desc.m_resourceStates    = GfxResourceState::IndexBuffer | GfxResourceState::VertexAndConstantBuffer;
-			desc.m_resourceFlags     = GfxResourceFlag::None;
-			GfxBuffer buf = GfxDevice::GetInstance()->CreateBuffer(desc);
 
 			// 下の階層の要素からセットアップしていく.
-			rootScene->AllocateBuffers(bufferCount);
-			for(size_t b=0; b<bufferCount; ++b)
+			std::vector<std::vector<uint8_t>> bufferDataArray;
+			bufferDataArray.resize(bufferCount);
+			for(int b=0; b<(int)bufferCount; ++b)
 			{
-				const glTF::Buffer& gltfBuffer = document.buffers[b];
-				LoadBuffer(rootScene->GetBuffer(b), *rootScene, document, gltfBuffer);
+				std::vector<uint8_t>& bufferData = bufferDataArray[b];
+				LoadBuffer(bufferData, document, b);
 			}
 
-			rootScene->AllocateBufferViews(bufferViewCount);
-			for(size_t b=0; b<bufferViewCount; ++b)
+			//rootScene->AllocateBufferViews(bufferViewCount);
+			//for(size_t b=0; b<bufferViewCount; ++b)
+			//{
+			//	const glTF::BufferView& gltfBufferView = document.bufferViews[b];
+			//	LoadBufferView(rootScene->GetBufferView(b), *rootScene, document, gltfBufferView, bufferDataArray);
+			//}
+
+			rootScene->AllocateImages(imageCount);
+			for(size_t i=0; i<imageCount; ++i)
 			{
-				const glTF::BufferView& gltfBufferView = document.bufferViews[b];
-				LoadBufferView(rootScene->GetBufferView(b), *rootScene, document, gltfBufferView);
+				LoadGfxImage(rootScene->GetImage((uint32_t)i), document, bufferDataArray, (int)i);
+			}
+
+			rootScene->AllocateTextureInfos(textureInfoCount);
+			for(size_t t=0; t<textureInfoCount; ++t)
+			{
+				const glTF::Texture& gltfTexture = document.textures[t];
+				LoadTexture(rootScene->GetTextureInfo((uint32_t)t), *rootScene, document, gltfTexture);
 			}
 
 			rootScene->AllocateAccessors(accessorCount);
 			for(size_t a=0; a<accessorCount; ++a)
 			{
 				const glTF::Accessor& gltfAccessor = document.accessors[a];
-				LoadAccessor(rootScene->GetAccessor(a), *rootScene, document, gltfAccessor);
+				LoadAccessor(rootScene->GetAccessor((uint32_t)a), *rootScene, document, gltfAccessor, bufferDataArray);
 			}
 
 			rootScene->AllocateMaterials(materialCount);
 			for(size_t m=0; m<materialCount; ++m)
 			{
 				const glTF::Material& gltfMaterial = document.materials[m];
-				LoadMaterial(rootScene->GetMaterial(m), *rootScene, document, gltfMaterial);
+				LoadMaterial(rootScene->GetMaterial((uint32_t)m), *rootScene, document, gltfMaterial);
 			}
 
 			rootScene->AllocateMeshes(meshCount);
 			for(size_t m=0; m<meshCount; ++m)
 			{
 				const glTF::Mesh& gltfMesh = document.meshes[m];
-				LoadMesh(rootScene->GetMesh(m), *rootScene, document, gltfMesh);
+				LoadMesh(rootScene->GetMesh((uint32_t)m), *rootScene, document, gltfMesh);
 			}
 
 			rootScene->AllocateNodes (nodeCount);
 			for(size_t n=0; n<nodeCount; ++n)
 			{
-				const glTF::Node& gltfNode = document.nodes[n];
-				LoadNode(rootScene->GetNode(n), *rootScene, document, gltfNode);
+				LoadNode((int)n, *rootScene, document);
 			}
 
 			rootScene->AllocateScenes(sceneCount);
 			for(size_t s=0; s<sceneCount; ++s)
 			{
 				const glTF::Scene& gltfScene = document.scenes[s];
-				LoadScene(rootScene->GetScene(s), *rootScene, document, gltfScene);
+				LoadScene(rootScene->GetScene((uint32_t)s), *rootScene, document, gltfScene);
 			}
 
 			if (document.scenes.Size() > 0U)
@@ -544,7 +731,7 @@ namespace SI
 		delete m_impl;
 	}
 
-	RootScenePtr GltfLoader::Load(const char* filePath)
+	ScenesPtr GltfLoader::Load(const char* filePath)
 	{
 		return std::move(m_impl->Load(filePath));
 	}

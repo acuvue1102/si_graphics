@@ -3,16 +3,17 @@
 #include <cstdint>
 #include <string.h>
 #include "si_base/gpu/gfx_enum.h"
+#include "si_base/gpu/gfx_utility.h"
 
 namespace SI
 {
 	struct GfxInputElement
 	{
-		const char* m_semanticsName     = nullptr;
-		uint32_t    m_semanticsId       = 0;
-		GfxFormat   m_format            = GfxFormat::Unknown;
-		uint32_t    m_inputSlot         = 0;
-		uint32_t    m_alignedByteOffset = 0; // offsetのバイト数.
+		const char* m_semanticsName;
+		uint32_t    m_semanticsId;
+		GfxFormat   m_format;
+		uint32_t    m_inputSlot;
+		uint32_t    m_alignedByteOffset; // offsetのバイト数.
 
 		GfxInputElement()
 			: m_semanticsName(nullptr)
@@ -31,6 +32,19 @@ namespace SI
 			uint32_t    alignedByteOffset)
 			: m_semanticsName(semanticsName)
 			, m_semanticsId(semanticsId)
+			, m_format(format)
+			, m_inputSlot(inputSlot)
+			, m_alignedByteOffset(alignedByteOffset)
+		{
+		}
+
+		GfxInputElement(
+			GfxSemantics semantics,
+			GfxFormat   format,
+			uint32_t    inputSlot,
+			uint32_t    alignedByteOffset)
+			: m_semanticsName(GetSemanticsName(semantics.m_semanticsType))
+			, m_semanticsId(semantics.m_semanticsIndex)
 			, m_format(format)
 			, m_inputSlot(inputSlot)
 			, m_alignedByteOffset(alignedByteOffset)

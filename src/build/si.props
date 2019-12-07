@@ -5,12 +5,9 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\;$(MSBuildThisFileDirectory)..\external\d3dx12\;$(MSBuildThisFileDirectory)..\external\;$(MSBuildThisFileDirectory)..\external\gltfsdk_compiled\Inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\;$(MSBuildThisFileDirectory)..\external\d3dx12\;$(MSBuildThisFileDirectory)..\external\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
-    <Link>
-      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\external\gltfsdk_compiled\lib\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GLTFSDK.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
+    <Link />
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

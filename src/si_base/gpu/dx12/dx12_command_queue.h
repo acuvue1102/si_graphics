@@ -5,6 +5,7 @@
 #if SI_USE_DX12
 #include <d3d12.h>
 #include <wrl/client.h>
+#include "si_base/core/singleton.h"
 
 namespace SI
 {
@@ -12,7 +13,7 @@ namespace SI
 	class BaseFence;
 	class GfxCommandList;
 
-	class BaseCommandQueue
+	class BaseCommandQueue : public Singleton<BaseCommandQueue>
 	{
 		template<typename T> using ComPtr = Microsoft::WRL::ComPtr<T>;
 

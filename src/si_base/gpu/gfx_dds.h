@@ -8,7 +8,7 @@ namespace SI
 	struct GfxDdsMetaData
 	{
 		const void*  m_image      = nullptr; // headerを取り除いたimage.
-		size_t       m_imageSise  = 0;
+		size_t       m_imageSize  = 0;
 		uint32_t     m_width      = 1;
 		uint32_t     m_height     = 1;
 		uint32_t     m_depth      = 1;

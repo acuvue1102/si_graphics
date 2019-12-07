@@ -69,6 +69,11 @@ namespace SI
 		BaseTexture* CreateTexture(const GfxTextureDesc& desc);
 		void ReleaseTexture(BaseTexture* t);
 
+		BaseTexture* CreateTextureWICAndUpload(
+			const char* name,
+			const void* buffer,
+			size_t bufferSize);
+
 		BaseDescriptorHeap* CreateDescriptorHeap(const GfxDescriptorHeapDesc& desc);
 		void ReleaseDescriptorHeap(BaseDescriptorHeap* d);
 

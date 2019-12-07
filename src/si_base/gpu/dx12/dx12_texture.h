@@ -5,6 +5,7 @@
 #if SI_USE_DX12
 #include <d3d12.h>
 #include <wrl/client.h>
+#include <memory>
 #include "si_base/gpu/gfx_enum.h"
 
 struct IDXGISwapChain3;
@@ -22,6 +23,13 @@ namespace SI
 		~BaseTexture();
 
 		int Initialize(ID3D12Device& device, const GfxTextureDesc& desc);
+
+		int InitializeWICAndUpload(
+			ID3D12Device& device,
+			ID3D12CommandQueue& queue,
+			const char* name,
+			const void* buffer,
+			size_t bufferSize);
 
 		int InitializeAsSwapChainTexture(
 			uint32_t width,

@@ -95,6 +95,10 @@ namespace SI
 			const void* ddsBuffer,
 			size_t ddsBufferSize,
 			GfxDdsMetaData* outDdsMetaData = nullptr);
+		int  InitializeWIC(
+			const char* name,
+			const void* wicBuffer,
+			size_t wicBufferSize);
 		void TerminateStatic();
 
 		virtual GfxTextureExType GetType() const override

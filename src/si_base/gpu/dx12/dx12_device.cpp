@@ -64,11 +64,13 @@ namespace SI
 		, m_descriptorSize{}
 		, m_isDxrAvairable(false)
 	{
+		HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
 	}
 
 	BaseDevice::~BaseDevice()
 	{
 		Terminate();
+		CoUninitialize();
 	}
 
 	int BaseDevice::Initialize(const GfxDeviceConfig& config)
@@ -458,6 +460,25 @@ namespace SI
 	void BaseDevice::ReleaseTexture(BaseTexture* t)
 	{
 		SI_DELETE(t);
+	}
+
+	BaseTexture* BaseDevice::CreateTextureWICAndUpload(
+		const char* name,
+		const void* buffer,
+		size_t bufferSize)
+	{
+		BaseCommandQueue* queue = BaseCommandQueue::GetInstance();
+
+		BaseTexture* t = SI_NEW(BaseTexture);
+		int ret = t->InitializeWICAndUpload(*m_device.Get(), *queue->GetComPtrCommandQueue().Get(), name, buffer, bufferSize);
+		if(ret != 0)
+		{
+			SI_ASSERT(0, "error CreateTexture");
+			SI_DELETE(t);
+			return nullptr;
+		}
+
+		return t;
 	}
 	
 	BaseDescriptorHeap* BaseDevice::CreateDescriptorHeap(const GfxDescriptorHeapDesc& desc)

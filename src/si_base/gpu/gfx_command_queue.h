@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "si_base/core/singleton.h"
+
 namespace SI
 {
 	class BaseCommandQueue;

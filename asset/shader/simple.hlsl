@@ -13,7 +13,8 @@ cbuffer InstanceCB : register(b1)
 
 cbuffer MaterialCB : register(b2)
 {
-	float2 cbUvScale     : packoffset(c0.x);
+	float4 cbBaseColor   : packoffset(c0.x);
+	float2 cbUvScale     : packoffset(c1.x);
 };
 
 Texture2D<float4> texture0 : register(t0);
@@ -61,7 +62,8 @@ PsOutput PSMain(PSInput input)
 	
 	float halfLambert = dot(-lightDir, normalize(input.normal.xyz)) * 0.5 + 0.5;
 
-	output.color = halfLambert * texture0.Sample(sampler0, input.uv);
+	output.color.xyz = halfLambert * cbBaseColor.xyz * texture0.Sample(sampler0, input.uv).xyz;
+	output.color.w = 1;
 
 	//output.color = float4(input.normal.xyz,1);
 

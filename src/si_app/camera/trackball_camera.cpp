@@ -32,8 +32,8 @@ namespace SI
 
 	void TrackballCamera::OnMouseMove(const App& app, int x, int y)
 	{
-		bool isAlt = app.GetKeyboard().GetKeyState(Key::Alt, SI::ModifierKey::Uncontrol);
-		if(!isAlt) return;
+		//bool isAlt = app.GetKeyboard().GetKeyState(Key::Alt, SI::ModifierKey::Uncontrol);
+		//if(!isAlt) return;
 
 		const Mouse& mouse = app.GetMouse();
 

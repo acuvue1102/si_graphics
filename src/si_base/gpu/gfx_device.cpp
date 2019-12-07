@@ -171,6 +171,13 @@ namespace SI
 		m_base->ReleaseTexture(texture.GetBaseTexture());
 		texture = GfxTexture();
 	}
+
+	GfxTexture GfxDevice::CreateTextureWICAndUpload(
+		const char* name, const void* buffer, size_t bufferSize)
+	{
+		GfxTexture t(m_base->CreateTextureWICAndUpload(name, buffer, bufferSize));
+		return t;
+	}
 		
 	GfxDescriptorHeap GfxDevice::CreateDescriptorHeap(const GfxDescriptorHeapDesc& desc)
 	{

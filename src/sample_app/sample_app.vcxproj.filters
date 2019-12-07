@@ -119,6 +119,7 @@
     <None Include="..\..\asset\shader\texture.hlsl">
       <Filter>shader</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\..\asset\shader\raytracing.hlsl">

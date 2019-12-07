@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -138,6 +138,13 @@
     <ClCompile Include="misc\bitwise.cpp" />
     <ClCompile Include="platform\window_app.cpp" />
     <ClCompile Include="renderer\gltf_loader.cpp" />
+    <ClCompile Include="renderer\material.cpp" />
+    <ClCompile Include="renderer\material\material_simple.cpp" />
+    <ClCompile Include="renderer\renderer.cpp" />
+    <ClCompile Include="renderer\renderer_draw_stage.cpp" />
+    <ClCompile Include="renderer\renderer_graphics_state.cpp" />
+    <ClCompile Include="renderer\render_item.cpp" />
+    <ClCompile Include="renderer\scenes_instance.cpp" />
     <ClCompile Include="serialization\deserializer.cpp" />
     <ClCompile Include="serialization\reflection.cpp" />
     <ClCompile Include="serialization\serializer.cpp" />
@@ -255,7 +262,23 @@
     <ClInclude Include="misc\string_util.h" />
     <ClInclude Include="platform\windows_proxy.h" />
     <ClInclude Include="platform\window_app.h" />
+    <ClInclude Include="renderer\accessor.h" />
+    <ClInclude Include="renderer\buffer_view.h" />
     <ClInclude Include="renderer\gltf_loader.h" />
+    <ClInclude Include="renderer\material.h" />
+    <ClInclude Include="renderer\material\material_simple.h" />
+    <ClInclude Include="renderer\mesh.h" />
+    <ClInclude Include="renderer\node.h" />
+    <ClInclude Include="renderer\renderer.h" />
+    <ClInclude Include="renderer\renderer_common.h" />
+    <ClInclude Include="renderer\renderer_draw_stage.h" />
+    <ClInclude Include="renderer\renderer_draw_stage_type.h" />
+    <ClInclude Include="renderer\renderer_graphics_state.h" />
+    <ClInclude Include="renderer\render_item.h" />
+    <ClInclude Include="renderer\scenes.h" />
+    <ClInclude Include="renderer\scene.h" />
+    <ClInclude Include="renderer\scenes_instance.h" />
+    <ClInclude Include="renderer\submesh.h" />
     <ClInclude Include="serialization\deserializer.h" />
     <ClInclude Include="serialization\reflection.h" />
     <ClInclude Include="serialization\serializer.h" />
@@ -268,11 +291,23 @@
     <None Include="math\inl\vfloat4x3.inl" />
     <None Include="math\inl\vfloat4x4.inl" />
     <None Include="math\inl\vquat.inl" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="container\container.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\rapidjson.temprelease.0.0.2.20\build\native\rapidjson.temprelease.targets" Condition="Exists('..\packages\rapidjson.temprelease.0.0.2.20\build\native\rapidjson.temprelease.targets')" />
+    <Import Project="..\packages\Microsoft.glTF.CPP.1.6.3.1\build\native\Microsoft.glTF.CPP.targets" Condition="Exists('..\packages\Microsoft.glTF.CPP.1.6.3.1\build\native\Microsoft.glTF.CPP.targets')" />
+    <Import Project="..\packages\directxtk12_desktop_2015.2019.10.17.1\build\native\directxtk12_desktop_2015.targets" Condition="Exists('..\packages\directxtk12_desktop_2015.2019.10.17.1\build\native\directxtk12_desktop_2015.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>このプロジェクトは、このコンピューター上にない NuGet パッケージを参照しています。それらのパッケージをダウンロードするには、[NuGet パッケージの復元] を使用します。詳細については、http://go.microsoft.com/fwlink/?LinkID=322105 を参照してください。見つからないファイルは {0} です。</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\rapidjson.temprelease.0.0.2.20\build\native\rapidjson.temprelease.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\rapidjson.temprelease.0.0.2.20\build\native\rapidjson.temprelease.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.glTF.CPP.1.6.3.1\build\native\Microsoft.glTF.CPP.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.glTF.CPP.1.6.3.1\build\native\Microsoft.glTF.CPP.targets'))" />
+    <Error Condition="!Exists('..\packages\directxtk12_desktop_2015.2019.10.17.1\build\native\directxtk12_desktop_2015.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxtk12_desktop_2015.2019.10.17.1\build\native\directxtk12_desktop_2015.targets'))" />
+  </Target>
 </Project>

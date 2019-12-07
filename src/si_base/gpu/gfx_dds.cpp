@@ -587,7 +587,7 @@ namespace SI
 
 
 		outDdsMeta.m_image      = (const void*)((uintptr_t)ddsBuffer + offset);
-		outDdsMeta.m_imageSise  = ddsBufferSize - offset;
+		outDdsMeta.m_imageSize  = ddsBufferSize - offset;
 		outDdsMeta.m_width      = width;
 		outDdsMeta.m_height     = height;
 		outDdsMeta.m_depth      = depth;

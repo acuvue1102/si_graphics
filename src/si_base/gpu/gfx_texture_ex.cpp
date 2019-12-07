@@ -159,7 +159,7 @@ namespace SI
 		device.UploadTextureLater(
 			m_texture,
 			ddsMetaData.m_image,
-			ddsMetaData.m_imageSise,
+			ddsMetaData.m_imageSize,
 			GfxResourceState::CopyDest,
 			GfxResourceState::PixelShaderResource);
 
@@ -167,6 +167,31 @@ namespace SI
 		{
 			*outDdsMetaData = ddsMetaData;
 		}
+
+		return 0;
+	}
+
+	int  GfxTextureEx_Static::InitializeWIC(
+		const char* name,
+		const void* wicBuffer,
+		size_t wicBufferSize)
+	{
+		GfxDevice& device = *GfxDevice::GetInstance();
+		
+		GfxTexture tex = device.CreateTextureWICAndUpload(name, wicBuffer, wicBufferSize);
+		SI_ASSERT(tex.IsValid());
+
+		m_dimension = GfxDimension::Texture2D;
+
+		GfxShaderResourceViewDesc srvDesc;
+		srvDesc.m_srvDimension = GfxDimension::Texture2D;
+		srvDesc.m_format = tex.GetFormat();
+		srvDesc.m_miplevels = tex.GetMipLevels();
+		srvDesc.m_arraySize = 1;
+		m_srvDescriptor = SI_DESCRIPTOR_ALLOCATOR(GfxDescriptorHeapType::CbvSrvUav).Allocate(1);
+		device.CreateShaderResourceView(m_srvDescriptor, m_texture, srvDesc);
+
+		m_ref.Create();
 
 		return 0;
 	}

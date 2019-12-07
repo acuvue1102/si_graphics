@@ -344,7 +344,7 @@ public:
 		uint32_t bytePitch = m_texMetaData.m_pitchOrLinearSize;
 		
 		uint32_t index = m_pixelByteSize * x + y * bytePitch;
-		SI_ASSERT(index+m_pixelByteSize <= m_texMetaData.m_imageSise);
+		SI_ASSERT(index+m_pixelByteSize <= m_texMetaData.m_imageSize);
 		const void* pixelPtr = &((const uint8_t*)m_texMetaData.m_image)[index];
 
 		Vfloat3 color(0.0f);

@@ -68,15 +68,14 @@ namespace APP004
 
 	int Pipeline::LoadAsset(const AppInitializeInfo& info)
 	{
-		RootScenePtr s;
 		GltfLoader loader;
-		s = loader.Load("C:\\Users\\keiji\\Documents\\si_graphics\\asset\\model\\cornel_box.gltf");
+		m_scenesInstance = ScenesInstance::Create(loader.Load("C:\\Users\\keiji\\Documents\\si_graphics\\asset\\model\\cornel_box.gltf"));
 		//s = loader.Load("C:\\Users\\keiji\\Documents\\si_graphics\\src\\external\\gltfsdk_original\\GLTFSDK.Test\\Resources\\gltf\\Cube.gltf");
 
 		//ModelReader modelReader;
 		//modelReader.Read(m_modelInstance, "asset\\model\\cornel_box.json");
 
-		//m_renderer.Add(m_modelInstance);
+		m_renderer.Add(m_scenesInstance);
 		
 		// textureシェーダのセットアップ.
 		{
@@ -193,7 +192,7 @@ namespace APP004
 	
 	void Pipeline::OnUpdate(const App& app, const AppUpdateInfo&)
 	{
-		//m_renderer.Update();
+		m_renderer.Update();
 	}
 	
 	void Pipeline::OnRender(const App& app, const AppUpdateInfo&)
@@ -221,18 +220,18 @@ namespace APP004
 		context.ClearDepthStencilTarget(m_depth);
 
 		{
-			//m_renderer.SetViewMatrix(m_view);
-			//m_renderer.SetProjectionMatrix(m_proj);
+			m_renderer.SetViewMatrix(m_view);
+			m_renderer.SetProjectionMatrix(m_proj);
 
-			//RendererGraphicsStateDesc renderDesc;
-			//renderDesc.m_rtvFormats[0] = GfxFormat::R8G8B8A8_Unorm;
-			//renderDesc.m_dsvFormat = GfxFormat::D32_Float;
-			//renderDesc.m_depthEnable = true;
-			//renderDesc.m_depthWriteMask = GfxDepthWriteMask::All;
-			//m_renderer.Render(
-			//	context,
-			//	RendererDrawStageType::RendererDrawStageType_Opaque,
-			//	renderDesc);
+			RendererGraphicsStateDesc renderDesc;
+			renderDesc.m_rtvFormats[0] = GfxFormat::R8G8B8A8_Unorm;
+			renderDesc.m_dsvFormat = GfxFormat::D32_Float;
+			renderDesc.m_depthEnable = true;
+			renderDesc.m_depthWriteMask = GfxDepthWriteMask::All;
+			m_renderer.Render(
+				context,
+				RendererDrawStageType::Opaque,
+				renderDesc);
 		}
 		
 		context.ResourceBarrier(m_rt, GfxResourceState::PixelShaderResource);		
