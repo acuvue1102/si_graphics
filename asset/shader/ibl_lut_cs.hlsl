@@ -25,7 +25,7 @@ float G_Smith(float roughness, float NdotV, float NdotL)
 
 float3 TangentToWorld(float3 V, float3 N)
 {
-	float tmp = (abs(N.y) < 0.999)? float3(0,1,0) : float3(1,0,0);
+	float3 tmp = (abs(N.y) < 0.999)? float3(0,1,0) : float3(1,0,0);
 	float3 tangentZ = normalize( cross( tmp, N ) );
 	float3 tangentX = cross( N, tangentZ );
 	return tangentX * V.x + N * V.y + tangentZ * V.z;
@@ -99,6 +99,8 @@ float2 IntegrateBRDF(float roughness, float NdotV)
 	return lut;
 }
 
+#if 1
+
 [numthreads(THREAD_X, THREAD_Y, 1)]
 void CSMain(
 	uint3 groupId          : SV_GroupID,
@@ -122,3 +124,85 @@ void CSMain(
 
 	outputTexture[index] = float4(lut,0,1);
 }
+
+#else
+
+// a = roughness
+float E(float NdotV, float roughness)
+{
+	float3 V = float3( sqrt( 1.0f - NdotV * NdotV ), NdotV, 0);
+
+	float lut = 0.0;
+	const int sampleCount = 1024;
+	for(int i=0; i<sampleCount; ++i)
+	{
+		float2 random2 = Hammersley2d( i, sampleCount );
+		float3 N = float3(0,1,0);
+		float3 H  = ImportanceSampleGGX(random2, roughness, N);
+
+		float3 L = reflect(-V, H);
+		float NdotL = max(0, L.y);
+		float NdotH = max(0, H.y);
+		float VdotH = max(0, dot(V,H));
+
+		if(0.0 < NdotL)
+		{
+			float G = G_Smith(roughness, NdotV, NdotL);
+			float GVis = G * VdotH / (NdotH * NdotV);
+
+			lut += GVis;
+		}
+	}
+
+	lut /= (float)sampleCount;
+
+	return lut;
+}
+
+[numthreads(THREAD_X, THREAD_Y, 1)]
+void CSMain(
+	uint3 groupId          : SV_GroupID,
+	uint3 groupThreadId    : SV_GroupThreadID,
+	uint3 dispatchThreadID : SV_DispatchThreadID,
+	uint  groupIndex       : SV_GroupIndex)
+{
+	uint2 index = dispatchThreadID.xy;
+
+	if(any(uint2(width, height) <= index))
+	{
+		// out of pixels.
+		return;
+	}
+
+	float2 uv = ((float2)index.xy + 0.5.xx) / float2(width, height);
+	float u = uv.x;
+	float a = uv.y;
+
+#if 1
+	float lut = 1 - E(u, a);
+#else
+	uint sampleNum = 64;
+	float lut = 0;
+	for(uint uu=0; uu<sampleNum; ++uu)
+	{
+		float tmpU = (((float)uu+0.5) / (float)sampleNum);
+
+		lut += E(tmpU, a);
+	}
+	lut /= (float)sampleNum;
+	lut *= 3.141592;
+//	lut *= 2 * 3.141592;
+	//lut *= 2;
+
+	//float lut2 = 3.141592 - 0.446898 * a - 5.72019 * a * a + 6.61848 * a * a * a - 2.41727 * a * a * a * a;
+//	lut2 /= 3.141592;
+	
+//	lut = lut2;
+	//lut = abs(lut - lut2);
+	//lut = lut2 - lut;
+#endif
+
+	outputTexture[index] = float4(lut, 0, 0,1);
+}
+
+#endif
