@@ -356,7 +356,7 @@ namespace SI
 			GfxBufferDesc desc;
 			desc.m_name = gltfBuffer.name.c_str();
 			desc.m_bufferSizeInByte = bufferView.GetSize();
-			desc.m_resourceStates = GfxResourceState::CopyDest;
+			desc.m_resourceStates = GfxResourceState::Common;
 			desc.m_resourceFlags = GfxResourceFlag::None;
 
 			GfxDevice& device = *GfxDevice::GetInstance();

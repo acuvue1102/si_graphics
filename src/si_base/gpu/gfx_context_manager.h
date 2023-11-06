@@ -13,7 +13,7 @@ namespace SI
 
 	struct GfxContextManagerDesc
 	{
-		uint32_t m_contextCount = 2;
+		uint32_t m_contextCount = 3;
 	};
 
 	class GfxContextManager

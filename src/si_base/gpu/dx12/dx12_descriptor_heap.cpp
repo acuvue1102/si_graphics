@@ -29,7 +29,7 @@ namespace SI
 		ID3D12Device& device,
 		const GfxDescriptorHeapDesc& desc)
 	{
-		D3D12_DESCRIPTOR_HEAP_DESC kDesc =
+		D3D12_DESCRIPTOR_HEAP_DESC heapDesc =
 		{
 			GetDx12DescriptorHeapType(desc.m_type),
 			desc.m_descriptorCount,
@@ -37,7 +37,7 @@ namespace SI
 			0,                                        //UINT NodeMask;
 		};
 
-		HRESULT hr = device.CreateDescriptorHeap(&kDesc, IID_PPV_ARGS(&m_descriptorHeap));
+		HRESULT hr = device.CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_descriptorHeap));
 		if(FAILED(hr))
 		{
 			SI_ASSERT(0, "error CreateDescriptorHeap", _com_error(hr).ErrorMessage());
@@ -45,7 +45,14 @@ namespace SI
 		}
 			
 		m_cpuDescriptor = m_descriptorHeap->GetCPUDescriptorHandleForHeapStart();
-		m_gpuDescriptor = m_descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+		if (heapDesc.Flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE)
+		{
+			m_gpuDescriptor = m_descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+		}
+		else
+		{
+			m_gpuDescriptor.ptr = 0;
+		}
 		m_type          = desc.m_type;
 
 		return 0;

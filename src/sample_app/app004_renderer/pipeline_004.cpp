@@ -67,7 +67,7 @@ namespace APP004
 	int Pipeline::LoadAsset(const AppInitializeInfo& info)
 	{
 		GltfLoader loader;
-		m_scenesInstance = ScenesInstance::Create(loader.Load("C:\\Users\\keiji\\Documents\\si_graphics\\asset\\model\\cornel_box.gltf"));
+		m_scenesInstance = ScenesInstance::Create(loader.Load("asset\\model\\cornel_box.gltf"));
 
 		m_renderer.Add(m_scenesInstance);
 		

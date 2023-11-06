@@ -1,6 +1,7 @@
 ﻿
 #include "si_base/gpu/gfx_linear_allocator_page.h"
 
+#include <iterator>
 #include "si_base/core/new_delete.h"
 #include "si_base/memory/pool_allocator.h"
 #include "si_base/gpu/dx12/dx12_device.h"
