@@ -215,7 +215,7 @@ namespace SI
 		desc.m_name = name;
 		desc.m_heapType = GfxHeapType::Default;
 		desc.m_bufferSizeInByte = vertexCount * stride;
-		desc.m_resourceStates   = GfxResourceState::CopyDest;
+		desc.m_resourceStates   = GfxResourceState::Common; //CopyDest
 		desc.m_resourceFlags    = GfxResourceFlag::None;
 		m_buffer = device.CreateBuffer(desc);
 		m_stride = stride;

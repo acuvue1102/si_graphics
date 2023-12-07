@@ -272,7 +272,7 @@ namespace APP002
 		bufferDesc.m_name = "test";
 		bufferDesc.m_bufferSizeInByte = sizeof(kBoxIndexData) + sizeof(kBoxVertexData);
 		bufferDesc.m_heapType       = GfxHeapType::Default;
-		bufferDesc.m_resourceStates = GfxResourceState::CopyDest;
+		bufferDesc.m_resourceStates = GfxResourceState::Common; // CopyDest
 		bufferDesc.m_resourceFlags  = GfxResourceFlag::None;
 		m_buffer = m_device.CreateBuffer(bufferDesc);
 

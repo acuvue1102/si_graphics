@@ -44,6 +44,7 @@ namespace SI
 			bufferDesc.SampleDesc.Quality = 0;
 			bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 			bufferDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+			
 
 			HRESULT hr = pDevice->CreateCommittedResource(
 				&uploadHeapProperties,
@@ -343,7 +344,7 @@ namespace SI
 			&device,
 			max(topLevelPrebuildInfo.ScratchDataSizeInBytes, bottomLevelPrebuildInfo.ScratchDataSizeInBytes),
 			&m_buildingScene->m_scratchResource,
-			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+			D3D12_RESOURCE_STATE_COMMON,//D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
 			L"ScratchResource");
 
 		m_buildingScene->Initialize(
